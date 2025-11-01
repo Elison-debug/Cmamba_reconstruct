@@ -30,3 +30,4 @@ struct ModelIR {
 
 bool LoadExport(const std::string& json_path, ModelIR& ir);
 void Forward(const ModelIR& ir, const float* x_ck, float* y_out);
+bool GetLayer(const ModelIR& ir, const std::string& name, LayerDesc& out);

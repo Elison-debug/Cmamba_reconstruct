@@ -41,8 +41,7 @@ def set_seed(seed: int) -> None:
 
 
 def build_datasets(cfg: TrainConfig):
-    # Reuse old dataset to minimize risk
-    from old.datasets.frames_lazy import FramesLazyDataset
+    from refactor.datasets.frames_lazy import FramesLazyDataset
 
     assert cfg.train_root is not None, "cfg.train_root must be provided"
     train_ds = FramesLazyDataset(root=cfg.train_root, seq_len=cfg.K, predict="current")

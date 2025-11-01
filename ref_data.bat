@@ -14,7 +14,7 @@ echo Unknown target: %target%
 goto :eof
 
 :run_grid
-python -m old.datasets.preprocess_luvira_lazy ^
+python -m refactor.datasets.preprocess_luvira_lazy ^
   --radio_dir=./data/radio/grid ^
   --gt_dir=./data/truth/grid ^
   --out_dir=./data/features/grid   ^
@@ -24,7 +24,7 @@ python -m old.datasets.preprocess_luvira_lazy ^
 goto :eof
 
 :run_random
-python -m old.datasets.preprocess_luvira_lazy ^
+python -m refactor.datasets.preprocess_luvira_lazy ^
   --radio_dir=./data/radio/random ^
   --gt_dir=./data/truth/random ^
   --out_dir=./data/features/random   ^
@@ -34,7 +34,7 @@ python -m old.datasets.preprocess_luvira_lazy ^
 goto :eof
 
 :run_parity
-python -m old.datasets.preprocess_parity_split ^
+python -m refactor.datasets.preprocess_parity_split ^
   --radio_dir=./data/radio/grid ^
   --gt_dir=./data/truth/grid ^
   --out_dir=./data/features/parity   ^
@@ -44,7 +44,7 @@ python -m old.datasets.preprocess_parity_split ^
 goto :eof
 
 :run_less
-python -m old.datasets.preprocess_parity_lessDataset ^
+python -m refactor.datasets.preprocess_parity_lessDataset ^
   --radio_dir=./data/radio/grid ^
   --gt_dir=./data/truth/grid ^
   --out_dir=./data/features/lessData ^
@@ -54,4 +54,3 @@ python -m old.datasets.preprocess_parity_lessDataset ^
   --m_per_block=1 ^
   --odd_even=odd
 goto :eof
-

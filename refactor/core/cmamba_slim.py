@@ -131,7 +131,7 @@ class SlimMambaBlock(nn.Module):
             self.dw_conv = None
         self.act = nn.SiLU()
         # dt_proj inside SSM is also quantizable
-        self.ssm = SelectiveScanIC(inner, LinearImpl=LinearImpl)
+        self.ssm = SelectiveScanIC(inner, LinearImpl=LinearImpl)  # type: ignore
         self.out_proj = LinearImpl(inner, D, bias=args.bias)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

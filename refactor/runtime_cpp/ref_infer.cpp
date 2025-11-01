@@ -37,13 +37,28 @@ bool LoadExport(const std::string& json_path, ModelIR& ir) {
     if (json_find_layer_entry(text, "proj", W, B, as, az, WS)) {
         proj.type = "linear"; proj.W_path = join_path(ir.base_dir, W); proj.B_path = B.empty()?std::string(""):join_path(ir.base_dir, B); proj.act_scale = as; proj.act_zp = az; proj.w_scale_path = WS.empty()?std::string(""):join_path(ir.base_dir, WS);
     }
-    // read in/out dims if present (optional)
-    // For simplicity, skip robust parse; dims not strictly needed for head-only path
+    // in/out dims (best-effort)
+    auto grab_dim = [&](const std::string& lname, const char* key, int& out){
+        auto pos = text.find("\"name\"\s*:\s*\"" + lname + "\""); if (pos==std::string::npos) return;
+        auto sect_end = text.find("}\n", pos); if (sect_end==std::string::npos) sect_end = text.size();
+        auto sect = text.substr(pos, sect_end-pos);
+        auto kpos = sect.find(std::string("\"") + key + "\""); if (kpos==std::string::npos) return;
+        auto vpos = sect.find(":", kpos); auto e = sect.find_first_of(",}\n", vpos+1);
+        out = std::stoi(sect.substr(vpos+1, e-(vpos+1))); };
+    grab_dim("head", "in", head.in_dim); grab_dim("head", "out", head.out_dim);
+    grab_dim("proj", "in", proj.in_dim); grab_dim("proj", "out", proj.out_dim);
 
     ir.layers.clear();
     if (!proj.W_path.empty()) ir.layers.push_back(proj);
     if (!head.W_path.empty()) ir.layers.push_back(head);
     return !ir.layers.empty();
+}
+
+bool GetLayer(const ModelIR& ir, const std::string& name, LayerDesc& out) {
+    for (const auto& L : ir.layers) {
+        if (L.name == name) { out = L; return true; }
+    }
+    return false;
 }
 
 // Minimal head-only forward: input x_ck is (C,K) float, average over K -> (C), INT8 linear(head) -> (2) float

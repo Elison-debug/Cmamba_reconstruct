@@ -18,27 +18,61 @@ def main():
     p.add_argument("--stride", type=int, default=4)
     p.add_argument("--batch_size", type=int, default=64)
     p.add_argument("--ckpt", type=str, default="refactor_last.pt")
-    p.add_argument("--quant_backend", type=str, choices=["cpp", "python"], default=os.environ.get("QUANT_BACKEND", "cpp"))
+    p.add_argument("--quant_backend", type=str, choices=["cpp", "python"], default=os.environ.get("QUANT_BACKEND", "python"))
     p.add_argument("--quantize_all", action="store_true")
     p.add_argument("--use_dwconv", action="store_true")
+    p.add_argument("--progress", action="store_true")
+    p.add_argument("--no_progress", action="store_true")
     args = p.parse_args()
 
     set_seed(42)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    # Prefer checkpoint dims to avoid size mismatch
+    dims = {
+        "Din": args.Din,
+        "K": args.K,
+        "proj_dim": args.proj_dim,
+        "d_model": args.d_model,
+        "n_layer": args.n_layer,
+        "patch_len": args.patch_len,
+        "stride": args.stride,
+    }
+    ckpt_obj = None
+    if os.path.exists(args.ckpt):
+        try:
+            ckpt_obj = torch.load(args.ckpt, map_location="cpu")
+            ck_cfg = ckpt_obj.get("cfg", None)
+            if isinstance(ck_cfg, dict):
+                for k in list(dims.keys()):
+                    if k in ck_cfg:
+                        dims[k] = int(ck_cfg[k]) if isinstance(ck_cfg[k], (int,)) else ck_cfg[k]
+                print({"eval_dims_from_ckpt": True, **dims})
+            else:
+                print({"eval_dims_from_ckpt": False})
+        except Exception as e:
+            print({"ckpt_load": f"warn: {e}"})
+
     cfg = TrainConfig(
-        Din=args.Din,
-        K=args.K,
-        proj_dim=args.proj_dim,
-        d_model=args.d_model,
-        n_layer=args.n_layer,
-        patch_len=args.patch_len,
-        stride=args.stride,
+        Din=int(dims["Din"]),
+        K=int(dims["K"]),
+        proj_dim=int(dims["proj_dim"]),
+        d_model=int(dims["d_model"]),
+        n_layer=int(dims["n_layer"]),
+        patch_len=int(dims["patch_len"]),
+        stride=int(dims["stride"]),
         batch_size=args.batch_size,
         train_root=args.eval_root,
         eval_root=None,
     )
     ds, _ = build_datasets(cfg)
     dl = DataLoader(ds, batch_size=cfg.batch_size, shuffle=False, num_workers=4)
+    print({
+        "eval_samples": len(ds),
+        "K": cfg.K,
+        "Din": cfg.Din,
+        "device": str(device),
+    })
 
     # Set backend before import
     os.environ["QUANT_BACKEND"] = args.quant_backend
@@ -58,13 +92,13 @@ def main():
         stride=cfg.stride,
     ).to(device)
 
-    if os.path.exists(args.ckpt):
-        ckpt = torch.load(args.ckpt, map_location="cpu")
-        sd = ckpt.get("state_dict", ckpt)
+    if ckpt_obj is not None:
+        sd = ckpt_obj.get("state_dict", ckpt_obj)
         model.load_state_dict(sd, strict=False)
 
     loss_fn = torch.nn.SmoothL1Loss()
-    ev_loss, stats = evaluate(model, dl, device, loss_fn) #type: ignore
+    show = (args.progress or (not args.no_progress))
+    ev_loss, stats = evaluate(model, dl, device, loss_fn, show_progress=show) #type: ignore
     print({"eval_loss": ev_loss, **stats})
 
 

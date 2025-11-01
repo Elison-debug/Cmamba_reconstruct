@@ -7,19 +7,12 @@ from torch.utils.cpp_extension import load
 
 
 def _resolve_quant_src() -> Path:
-    # Prefer old implementation if present
+    # Prefer colocated csrc (refactor-owned)
     here = Path(__file__).resolve().parent
-    old_src = (here.parent.parent / "old" / "models" / "Quantization" / "quant_cpu.cpp").resolve()
-    if old_src.exists():
-        return old_src
-    alt_old = Path("old/models/Quantization/quant_cpu.cpp").resolve()
-    if alt_old.exists():
-        return alt_old
-    # As fallback, allow colocated csrc
     local = (here / "csrc" / "quant_cpu.cpp").resolve()
     if local.exists():
         return local
-    raise FileNotFoundError("quant_cpu.cpp not found in expected locations")
+    raise FileNotFoundError("quant_cpu.cpp not found under refactor/quant/csrc")
 
 
 _CACHED = None
@@ -87,4 +80,3 @@ class QLinearINT8(torch.nn.Module):
         w = self.lin.weight
         w_hat = QuantPerChannelSymSTE.apply(w, self.w_scale.abs() + 1e-8, self.ch_axis, qmin_w, qmax_w)
         return torch.nn.functional.linear(x_hat, w_hat, self.lin.bias)# type: ignore
-

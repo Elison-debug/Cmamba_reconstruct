@@ -6,15 +6,9 @@ from .spec import CH_AXIS
 
 
 def _load_cpp_backend():
-    # Prefer our robust loader; fallback to old build_and_use
     try:
         from .cpp_backend import get_cpp_quant, QLinearINT8 as QCpp
         return get_cpp_quant(), QCpp
-    except Exception:
-        pass
-    try:
-        from old.models.Quantization.build_and_use import QLinearINT8 as QCpp
-        return None, QCpp
     except Exception:
         return None, None
 
