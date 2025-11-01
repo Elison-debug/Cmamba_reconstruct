@@ -25,13 +25,13 @@ def _extract_qparams_from_module(mod: torch.nn.Module):
             if isinstance(val, torch.nn.Parameter) or torch.is_tensor(val):
                 q[name] = val.detach().cpu().numpy()
     # lsq fallback
-    if hasattr(mod, "qa") and hasattr(mod.qa, "scale") and mod.qa.scale is not None:
-        q["a_scale"] = mod.qa.scale.detach().cpu().numpy() 
+    if hasattr(mod, "qa") and hasattr(mod.qa, "scale") and mod.qa.scale is not None:  # type: ignore
+        q["a_scale"] = mod.qa.scale.detach().cpu().numpy()  # type: ignore
         # no zp in symmetric LSQ fallback
         q["a_zp"] = np.array([0.0], dtype=np.float32)
-    if hasattr(mod, "qw") and hasattr(mod.qw, "scale") and mod.qw.scale is not None:
+    if hasattr(mod, "qw") and hasattr(mod.qw, "scale") and mod.qw.scale is not None:# type: ignore
         # per-channel
-        q["w_scale"] = mod.qw.scale.detach().cpu().view(-1).cpu().numpy()
+        q["w_scale"] = mod.qw.scale.detach().cpu().view(-1).cpu().numpy()# type: ignore
     return q
 
 
@@ -123,6 +123,19 @@ def _save_backbone_params(model: torch.nn.Module, out_dir: Path) -> str:
     _save_npy(out_dir, "patch_embed_W", pe_W)
     if pe_B is not None:
         _save_npy(out_dir, "patch_embed_B", pe_B)
+    # quant params for patch embedding if present
+    try:
+        from .pack import _extract_qparams_from_module as _eq  # type: ignore
+    except Exception:
+        _eq = _extract_qparams_from_module  # fallback to local
+    q_pe = _extract_qparams_from_module(pe)
+    pe_extra = {}
+    if "w_scale" in q_pe:
+        pe_extra["WS"] = _save_npy(out_dir, "patch_embed_WS", q_pe["w_scale"])  # per-out scale
+    if "a_scale" in q_pe:
+        pe_extra["act_scale"] = float(np.asarray(q_pe["a_scale"]).reshape(-1)[0])
+    if "a_zp" in q_pe:
+        pe_extra["act_zp"] = int(np.rint(float(np.asarray(q_pe["a_zp"]).reshape(-1)[0])))
 
     for i, blk in enumerate(bb.blocks):
         entry = {}
@@ -181,6 +194,10 @@ def _save_backbone_params(model: torch.nn.Module, out_dir: Path) -> str:
                     entry["dt_proj_act_scale"] = float(np.asarray(q["a_scale"]).reshape(-1)[0])
                 if "a_zp" in q:
                     entry["dt_proj_act_zp"] = int(np.rint(float(np.asarray(q["a_zp"]).reshape(-1)[0])))
+        # block RMSNorm weight if exists
+        if hasattr(blk, "norm") and hasattr(blk.norm, "weight"):
+            w = blk.norm.weight.detach().cpu().numpy()
+            entry["norm_weight"] = _save_npy(out_dir, f"block{i}_norm_weight", w)
         blocks.append(entry)
 
     meta = {
@@ -191,8 +208,74 @@ def _save_backbone_params(model: torch.nn.Module, out_dir: Path) -> str:
         "num_patches": int(args.num_patches),
         "patch_len": int(args.patch_len),
         "stride": int(args.stride),
+        # extra runtime knobs for FPGA
+        "pe_on": bool(getattr(args, "pe_on", True)),
+        "pe_scale": float(getattr(args, "pe_scale", 1.0)),
+        "gate_off": bool(getattr(args, "gate_off", False)),
+        "agg_pool": str(getattr(args, "agg_pool", "")),
     }
-    j = {"meta": meta, "patch_embedding": {"W": "patch_embed_W.npy", "B": "patch_embed_B.npy"}, "blocks": blocks}
+    # save positional encoding if enabled
+    pe_name = None
+    try:
+        if meta["pe_on"]:
+            # prefer cached pe buffer if exists
+            if hasattr(bb, "pe_buf") and bb.pe_buf is not None:
+                pe_arr = bb.pe_buf.detach().cpu().numpy()
+            else:
+                pe_arr = bb._build_sincos(args.num_patches, args.d_model).detach().cpu().numpy()  # type: ignore
+            pe_name = _save_npy(out_dir, "pe", pe_arr)
+    except Exception:
+        pe_name = None
+
+    # final norm weight
+    final_norm = None
+    if hasattr(bb, "norm_f") and hasattr(bb.norm_f, "weight"):
+        w = bb.norm_f.weight.detach().cpu().numpy()
+        final_norm = _save_npy(out_dir, "final_norm_weight", w)
+
+    # output layers (flat/pool)
+    out_layers = {}
+    if hasattr(bb, "output_layer_flat") and hasattr(bb.output_layer_flat, "weight"):
+        W = bb.output_layer_flat.weight.detach().cpu().numpy()
+        B = bb.output_layer_flat.bias.detach().cpu().numpy() if bb.output_layer_flat.bias is not None else None
+        _save_npy(out_dir, "out_flat_W", W)
+        if B is not None: _save_npy(out_dir, "out_flat_B", B)
+        q = _extract_qparams_from_module(bb.output_layer_flat)
+        if "w_scale" in q: _save_npy(out_dir, "out_flat_WS", q["w_scale"])
+        out_layers["flat"] = True
+    if hasattr(bb, "output_layer_pool") and hasattr(bb.output_layer_pool, "weight"):
+        W = bb.output_layer_pool.weight.detach().cpu().numpy()
+        B = bb.output_layer_pool.bias.detach().cpu().numpy() if bb.output_layer_pool.bias is not None else None
+        _save_npy(out_dir, "out_pool_W", W)
+        if B is not None: _save_npy(out_dir, "out_pool_B", B)
+        q = _extract_qparams_from_module(bb.output_layer_pool)
+        if "w_scale" in q: _save_npy(out_dir, "out_pool_WS", q["w_scale"])
+        out_layers["pool"] = True
+
+    j = {
+        "meta": meta,
+        "patch_embedding": {"W": "patch_embed_W.npy", "B": "patch_embed_B.npy"},
+        "blocks": blocks,
+    }
+    # attach patch embedding quant params if present
+    if pe_extra:
+        j["patch_embedding"].update({
+            k.upper() if k=="WS" else k: ("patch_embed_WS.npy" if k=="WS" else pe_extra[k]) for k in pe_extra
+        })
+        # also place duplicated top-level keys for simpler C++ parser
+        if "WS" in pe_extra: j["patch_embed_WS"] = "patch_embed_WS.npy"
+        if "act_scale" in pe_extra: j["patch_embed_act_scale"] = pe_extra["act_scale"]
+        if "act_zp" in pe_extra: j["patch_embed_act_zp"] = pe_extra["act_zp"]
+    # final norm
+    if final_norm is not None:
+        j["final_norm_weight"] = "final_norm_weight.npy"
+    # output layers
+    if "flat" in out_layers:
+        j["output_flat"] = {"W": "out_flat_W.npy", "B": "out_flat_B.npy", "WS": "out_flat_WS.npy"}
+    if "pool" in out_layers:
+        j["output_pool"] = {"W": "out_pool_W.npy", "B": "out_pool_B.npy", "WS": "out_pool_WS.npy"}
+    if pe_name is not None:
+        j["pe"] = "pe.npy"
     with open(out_dir / "backbone.json", "w", encoding="utf-8") as f:
         json.dump(j, f, indent=2)
     return str(out_dir / "backbone.json")

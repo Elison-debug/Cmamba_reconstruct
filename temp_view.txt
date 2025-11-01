@@ -1,7 +1,8 @@
-import math
+﻿import math
 import os
 import torch
 import torch.nn as nn
+import os
 
 class ModelArgs:
     def __init__(
@@ -27,10 +28,6 @@ class ModelArgs:
         pe_scale: float = 1.0,
         gate_off: bool = False,
         agg_pool: str = "",
-        # hw/quant toggles (explicit)
-        use_dwconv: bool = False,
-        q_block_linear: bool = False,
-        q_backbone_linear: bool = False,
     ) -> None:
         self.d_model = d_model
         self.n_layer = n_layer
@@ -63,10 +60,6 @@ class ModelArgs:
         self.pe_scale = float(pe_scale)
         self.gate_off = bool(gate_off)
         self.agg_pool = str(agg_pool).lower()
-        # explicit toggles
-        self.use_dwconv = bool(use_dwconv)
-        self.q_block_linear = bool(q_block_linear)
-        self.q_backbone_linear = bool(q_backbone_linear)
 
 
 class RMSNorm(nn.Module):
@@ -98,16 +91,13 @@ class SelectiveScanIC(nn.Module):
         # x: [B,K,D]
         B, K, D = x.shape
         s = torch.zeros(B, D, device=x.device, dtype=x.dtype)
-        # compute dt_proj for all time steps at once to reduce per-step kernel launches
-        x_flat = x.reshape(B * K, D)
-        lam_all = torch.sigmoid(self.dt_proj(x_flat)).reshape(B, K, D)
-        ys = torch.empty(B, K, D, device=x.device, dtype=x.dtype)
+        ys = []
         for t in range(K):
             u = x[:, t, :]
-            lam = lam_all[:, t, :]
+            lam = torch.sigmoid(self.dt_proj(u))  # (B,D)
             s = lam * s + (1.0 - lam) * u
-            ys[:, t, :] = s
-        return ys
+            ys.append(s)
+        return torch.stack(ys, dim=1)
 
 
 class SlimMambaBlock(nn.Module):
@@ -126,9 +116,10 @@ class SlimMambaBlock(nn.Module):
         D = args.d_model
         inner = args.d_inner
 
-        # explicit toggles from args
-        use_q_block = bool(self.args.q_block_linear)
-        use_dw = bool(self.args.use_dwconv)
+        # env toggles for quant; gate via args
+        quant_all = bool(int(os.environ.get("QUANTIZE_ALL", "0")))
+        use_q_block = bool(int(os.environ.get("Q_BLOCK_LINEAR", "0"))) or quant_all
+        use_dw = bool(int(os.environ.get("USE_DWCONV", "0")))
         self.use_gate = not bool(self.args.gate_off)
 
         # ensure odd kernel if used
@@ -177,12 +168,16 @@ class CMambaSlim(nn.Module):
     def __init__(self, args: ModelArgs):
         super().__init__()
         self.args = args
-        # Optional quantized linears for backbone via args
-        use_q = bool(self.args.q_backbone_linear)
-        # Aggregation and PE toggles (args-based)
-        self.agg_pool = self.args.agg_pool  # "avg" | "max" | ""
-        self.pe_on = bool(self.args.pe_on)
-        self.pe_scale = float(self.args.pe_scale)
+        # Optional quantized linears for backbone via env Q_BACKBONE_LINEAR
+        quant_all = bool(int(os.environ.get("QUANTIZE_ALL", "0")))
+        use_q = bool(int(os.environ.get("Q_BACKBONE_LINEAR", "0"))) or quant_all
+        # Aggregation and PE toggles
+        self.agg_pool = os.environ.get("AGG_POOL", "").lower()  # "avg" | "max" | ""
+        self.pe_on = not bool(int(os.environ.get("PE_OFF", "0")))
+        try:
+            self.pe_scale = float(os.environ.get("PE_SCALE", "1.0"))
+        except Exception:
+            self.pe_scale = 1.0
         try:
             from ..quant.qat_layers import QLinearINT8 as _QLinear
         except Exception:
@@ -195,10 +190,6 @@ class CMambaSlim(nn.Module):
         )
         self.blocks = nn.ModuleList([SlimMambaBlock(args) for _ in range(args.n_layer)])
         self.norm_f = RMSNorm(args.d_model)
-        # cache positional encoding to avoid recomputation on every forward
-        if self.pe_on:
-            pe = self._build_sincos(args.num_patches, args.d_model)
-            self.register_buffer("pe_buf", pe, persistent=False)
         # Two heads: flatten head and pooled head (select at forward by env)
         self.output_layer_flat = LinearImpl(
             args.d_model * args.num_patches, args.num_channels * args.forecast_len
@@ -241,12 +232,12 @@ class CMambaSlim(nn.Module):
         )
         x = self.patch_embedding(x)
         if self.pe_on:
-            # use cached pe, cast to runtime device/dtype
-            pe = self.pe_buf.to(device=x.device, dtype=x.dtype)
-            x = x + self.pe_scale * pe.unsqueeze(0) # type: ignore
+            pe = self._build_sincos(
+                n=x.size(1), d=self.args.d_model, device=x.device, dtype=x.dtype
+            )
+            x = x + self.pe_scale * pe.unsqueeze(0)
         for blk in self.blocks:
-            x = blk(x)
-            #x = x + blk(x)
+            x = x + blk(x)
         x = self.norm_f(x)
         if self.agg_pool == "avg":
             x_agg = x.mean(dim=1)

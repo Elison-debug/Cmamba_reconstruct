@@ -4,6 +4,7 @@ import torch
 from torch.utils.data import DataLoader
 
 from .train import evaluate, TrainConfig, build_datasets, set_seed
+from .losses import HuberEPE
 
 
 def main():
@@ -21,8 +22,20 @@ def main():
     p.add_argument("--quant_backend", type=str, choices=["cpp", "python"], default=os.environ.get("QUANT_BACKEND", "python"))
     p.add_argument("--quantize_all", action="store_true")
     p.add_argument("--use_dwconv", action="store_true")
+    p.add_argument("--workers", type=int, default=4)
+    p.add_argument("--prefetch", type=int, default=4)
+    p.add_argument("--mmap_off", action="store_true")
+    # fine-grained quant toggles (env-based)
+    p.add_argument("--q_proj_head", action="store_true")
+    p.add_argument("--q_block_linear", action="store_true")
+    p.add_argument("--q_backbone_linear", action="store_true")
     p.add_argument("--progress", action="store_true")
     p.add_argument("--no_progress", action="store_true")
+    # SSM/PE/AGG knobs
+    p.add_argument("--pe_off", action="store_true")
+    p.add_argument("--pe_scale", type=float, default=1.0)
+    p.add_argument("--gate_off", action="store_true")
+    p.add_argument("--agg_pool", type=str, default="", choices=["", "avg", "max"])
     args = p.parse_args()
 
     set_seed(42)
@@ -64,9 +77,18 @@ def main():
         batch_size=args.batch_size,
         train_root=args.eval_root,
         eval_root=None,
+        mmap=not bool(args.mmap_off),
     )
     ds, _ = build_datasets(cfg)
-    dl = DataLoader(ds, batch_size=cfg.batch_size, shuffle=False, num_workers=4)
+    dl = DataLoader(
+        ds,
+        batch_size=cfg.batch_size,
+        shuffle=False,
+        num_workers=int(args.workers),
+        pin_memory=True,
+        persistent_workers=(int(args.workers) > 0),
+        prefetch_factor=(args.prefetch if int(args.workers) > 0 else None),
+    )
     print({
         "eval_samples": len(ds),
         "K": cfg.K,
@@ -76,10 +98,7 @@ def main():
 
     # Set backend before import
     os.environ["QUANT_BACKEND"] = args.quant_backend
-    if args.quantize_all:
-        os.environ["QUANTIZE_ALL"] = "1"
-    if args.use_dwconv:
-        os.environ["USE_DWCONV"] = "1"
+    # no env toggles for model config; pass explicitly to constructor
     from .mamba_regressor import MambaRegressor  # delayed import
 
     model = MambaRegressor(
@@ -90,13 +109,23 @@ def main():
         n_layer=cfg.n_layer,
         patch_len=cfg.patch_len,
         stride=cfg.stride,
+        pe_off=args.pe_off,
+        pe_scale=args.pe_scale,
+        gate_off=args.gate_off,
+        agg_pool=args.agg_pool,
+        quantize_all=args.quantize_all,
+        q_proj_head=args.q_proj_head,
+        q_block_linear=args.q_block_linear,
+        q_backbone_linear=args.q_backbone_linear,
+        use_dwconv=args.use_dwconv,
+        quant_backend=args.quant_backend,
     ).to(device)
 
     if ckpt_obj is not None:
         sd = ckpt_obj.get("state_dict", ckpt_obj)
         model.load_state_dict(sd, strict=False)
 
-    loss_fn = torch.nn.SmoothL1Loss()
+    loss_fn = HuberEPE(delta=1.0)
     show = (args.progress or (not args.no_progress))
     ev_loss, stats = evaluate(model, dl, device, loss_fn, show_progress=show) #type: ignore
     print({"eval_loss": ev_loss, **stats})

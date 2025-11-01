@@ -1,56 +1,11 @@
 @echo off
-set target=%1
-set ckpt=%2
-set backend=%3
-set opt4=%4
-set opt5=%5
-if "%target%"=="" (
-  echo Usage: ref_eval.bat grid ^| random ^| parity ^| less [ckpt_path] [backend=python^|cpp]
+setlocal
+if "%~1"=="" (
+  echo Usage: ref_eval.bat [python-args...]
+  echo   For example:
+  echo     ref_eval.bat --eval_root=.^\data^\features^\lessData^\test --Din=2100 --K=12 --ckpt=best_epe_mean.pt --quant_backend=python --pe_scale=1.0
   goto :eof
 )
 
-if "%ckpt%"=="" (set ckpt=refactor_last.pt)
-if "%backend%"=="" (set backend=python)
-
-set qa=
-set dw=
-if "%opt4%"=="quantize_all" (set qa=--quantize_all)
-if "%opt4%"=="use_dwconv" (set dw=--use_dwconv)
-if "%opt5%"=="quantize_all" (set qa=--quantize_all)
-if "%opt5%"=="use_dwconv" (set dw=--use_dwconv)
-
-if "%target%"=="grid" goto run_grid
-if "%target%"=="random" goto run_random
-if "%target%"=="parity" goto run_parity
-if "%target%"=="less" goto run_less
-
-echo Unknown target: %target%
-goto :eof
-
-:run_grid
-python -m refactor.core.eval ^
-  --eval_root=./data/features/grid/test  ^
-  --Din=2100 --K=12 --ckpt=%ckpt% ^
-  --quant_backend=%backend% %qa% %dw%
-goto :eof
-
-:run_random
-python -m refactor.core.eval ^
-  --eval_root=./data/features/random/test  ^
-  --Din=2100 --K=12 --ckpt=%ckpt% ^
-  --quant_backend=%backend% %qa% %dw%
-goto :eof
-
-:run_parity
-python -m refactor.core.eval ^
-  --eval_root=./data/features/parity/test  ^
-  --Din=2100 --K=12 --ckpt=%ckpt% ^
-  --quant_backend=%backend% %qa% %dw%
-goto :eof
-
-:run_less
-python -m refactor.core.eval ^
-  --eval_root=./data/features/lessData/test ^
-  --Din=2100 --K=12 --ckpt=%ckpt% ^
-  --quant_backend=%backend% %qa% %dw%
+python -m refactor.core.eval %*
 goto :eof

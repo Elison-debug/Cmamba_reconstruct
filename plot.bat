@@ -9,12 +9,12 @@ goto :run2
 
 :run1
 echo Running plotting Gt and predict locations...
-python -m models.eval.plot 
+python -m refactor.core.test.plot 
 goto :eof
 
 :run2
 echo Running plotting Gt and predict locations in %arg%...
-python -m models.eval.plot ^
-  --root_dir=%arg% ^
+python -m refactor.core.test.plot ^
+  --root_dir=%arg%
 goto :eof
 

@@ -74,8 +74,28 @@ Use args grid/random to process grid*/random*.mat files with different strategy
 
 ```bash
 source ./train.bat 
-
 ```
+
+## test quantization using cpp
+
+```bash
+python -m refactor.quant.build_and_use --prebuild
+python -m refactor.quant.build_and_use --backend=cpp --test_linear
+python -m refactor.quant.build_and_use --backend=cpp --test_linear
+```
+
+Usage Examples:
+Precompile C++ extensions only
+
+- python -m refactor.quant.build_and_use --prebuild
+
+Test Python pseudo-quantification
+
+- python -m refactor.quant.build_and_use --backend=python --test_linear
+
+Test C++ quantification (compilation triggered on first run)
+
+- python -m refactor.quant.build_and_use --backend=cpp --test_linear
 
 ## 📈 Validation
 

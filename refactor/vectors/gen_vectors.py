@@ -12,7 +12,7 @@ def save_npy(path: Path, arr: np.ndarray):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--layer", type=str, choices=["proj", "head"], required=True)
+    p.add_argument("--layer", type=str, choices=["proj", "head", "patch_embed"], required=True)
     p.add_argument("--export_dir", type=str, required=True, help="Directory containing export.json")
     p.add_argument("--ckpt", type=str, default="refactor_last.pt")
     p.add_argument("--eval_root", type=str, required=True)
@@ -26,6 +26,7 @@ def main():
     p.add_argument("--quant_backend", type=str, choices=["cpp", "python"], default=os.environ.get("QUANT_BACKEND", "cpp"))
     p.add_argument("--sample", type=int, default=0)
     p.add_argument("--t_index", type=int, default=0, help="Which time index for proj input (0..K-1)")
+    p.add_argument("--patch_index", type=int, default=0, help="Which patch index for patch_embed input (0..num_patches-1)")
     p.add_argument("--out_dir", type=str, default=None)
     args = p.parse_args()
 
@@ -83,22 +84,38 @@ def main():
         with torch.no_grad():
             _ = model(xb)
         h1.remove(); h2.remove()
-        xin = capture["_in_full"][0]  # (K,Din)
+        xin = capture["_in_full"][0]  # type: ignore # (K,Din)
         t = int(max(0, min(args.t_index, xin.size(0)-1)))
         x_vec = xin[t]  # (Din)
         # reference output via the module
         with torch.no_grad():
             y_vec = model.proj(x_vec.unsqueeze(0)).squeeze(0).cpu()
-    else:  # head
+    elif args.layer == "head":  # head
         h1 = model.head.register_forward_pre_hook(hook_in)
         h2 = model.head.register_forward_hook(hook_out)
         with torch.no_grad():
             _ = model(xb)
         h1.remove(); h2.remove()
-        xh = capture["_in_full"][0]  # (C)
+        xh = capture["_in_full"][0]  # type: ignore  # (C)
         x_vec = xh
         with torch.no_grad():
             y_vec = model.head(x_vec.unsqueeze(0)).squeeze(0).cpu()
+    else:  # patch_embed
+        # Build one patch input vector (C*P) identical to backbone unfold
+        with torch.no_grad():
+            x_proj = model.proj(xb).detach()  # (1,K,C)
+            x_ck = x_proj.permute(0, 2, 1)    # (1,C,K)
+            P, S = cfg.patch_len, cfg.stride
+            patches = (
+                x_ck.unfold(2, P, S)
+                .contiguous()
+                .permute(0, 2, 1, 3)
+                .reshape(1, -1, cfg.proj_dim * P)
+            )  # (1, num_patches, C*P)
+            npatches = patches.size(1)
+            pi = int(max(0, min(args.patch_index, npatches - 1)))
+            x_vec = patches[0, pi, :].cpu()
+            y_vec = model.backbone.patch_embedding(x_vec.unsqueeze(0)).squeeze(0).cpu()
 
     export_dir = Path(args.export_dir)
     out_dir = Path(args.out_dir) if args.out_dir is not None else (export_dir / "vectors")

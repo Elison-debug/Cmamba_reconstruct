@@ -1,16 +1,25 @@
-import os
 import torch
 import torch.nn as nn
 
 from .spec import CH_AXIS
 
+# module-level default backend, override via set_default_backend()
+_DEFAULT_BACKEND = "python"
 
-def _load_cpp_backend():
+def set_default_backend(backend: str):
+    global _DEFAULT_BACKEND
+    be = str(backend).lower().strip()
+    if be not in ("python", "cpp"):
+        raise ValueError("backend must be 'python' or 'cpp'")
+    _DEFAULT_BACKEND = be
+
+
+def _get_cpp_qlinear():
     try:
-        from .cpp_backend import get_cpp_quant, QLinearINT8 as QCpp
-        return get_cpp_quant(), QCpp
+        from .cpp_backend import QLinearINT8 as QCpp
+        return QCpp
     except Exception:
-        return None, None
+        return None
 
 
 class LSQQuantizer(nn.Module):
@@ -78,21 +87,24 @@ class LSQQuantizer(nn.Module):
 
 class QLinearINT8(nn.Module):
     """
-    Prefer native C++ STE impl from old/ if available; otherwise, fall back to LSQ-based fake-quant.
+    统一入口：根据 backend 参数选择 C++ 量化实现或 Python LSQ 伪量化。
+    backend: 'cpp' | 'python'（默认 python）。
     """
 
-    def __init__(self, in_f, out_f, bias=True, a_bits=8, w_bits=8):
+    def __init__(self, in_f, out_f, bias=True, a_bits=8, w_bits=8, *, backend: str | None = None):
         super().__init__()
-        backend = os.environ.get("QUANT_BACKEND", "cpp").lower()
-        quant_mod, cpp_q = _load_cpp_backend()
-        if backend == "cpp" and cpp_q is not None:
-            self.impl = cpp_q(in_f, out_f, bias=bias, a_bits=a_bits, w_bits=w_bits, ch_axis=CH_AXIS)
-            self._use_cpp = True
-        else:
-            self.lin = nn.Linear(in_f, out_f, bias=bias)
-            self.qa = LSQQuantizer(bits=a_bits, per_channel=False, symmetric=False, learn_scale=True)
-            self.qw = LSQQuantizer(bits=w_bits, per_channel=True, ch_axis=CH_AXIS, symmetric=True, learn_scale=True)
-            self._use_cpp = False
+        be = _DEFAULT_BACKEND if backend is None else str(backend).lower()
+        if be == "cpp":
+            QCpp = _get_cpp_qlinear()
+            if QCpp is not None:
+                self.impl = QCpp(in_f, out_f, bias=bias, a_bits=a_bits, w_bits=w_bits, ch_axis=CH_AXIS)
+                self._use_cpp = True
+                return
+        # Fallback to Python LSQ fake-quant
+        self.lin = nn.Linear(in_f, out_f, bias=bias)
+        self.qa = LSQQuantizer(bits=a_bits, per_channel=False, symmetric=False, learn_scale=True)
+        self.qw = LSQQuantizer(bits=w_bits, per_channel=True, ch_axis=CH_AXIS, symmetric=True, learn_scale=True)
+        self._use_cpp = False
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         if getattr(self, "_use_cpp", False):

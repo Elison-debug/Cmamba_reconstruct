@@ -27,6 +27,7 @@ class TrainConfig:
     epochs: int = 5
     seed: int = 42
     num_workers: int = 2
+    mmap: bool = True
     train_root: Optional[str] = None
     eval_root: Optional[str] = None
 
@@ -44,10 +45,10 @@ def build_datasets(cfg: TrainConfig):
     from refactor.datasets.frames_lazy import FramesLazyDataset
 
     assert cfg.train_root is not None, "cfg.train_root must be provided"
-    train_ds = FramesLazyDataset(root=cfg.train_root, seq_len=cfg.K, predict="current")
+    train_ds = FramesLazyDataset(root=cfg.train_root, seq_len=cfg.K, predict="current", mmap=cfg.mmap)
     eval_ds = None
     if cfg.eval_root:
-        eval_ds = FramesLazyDataset(root=cfg.eval_root, seq_len=cfg.K, predict="current")
+        eval_ds = FramesLazyDataset(root=cfg.eval_root, seq_len=cfg.K, predict="current", mmap=cfg.mmap)
     return train_ds, eval_ds
 
 
@@ -59,6 +60,15 @@ def _maybe_tqdm(it, total=None, desc=None, enabled=True):
         return tqdm(it, total=total, desc=desc, ncols=100)
     except Exception:
         return it
+
+
+def seed_worker(worker_id: int):
+    """Top-level worker init for Windows spawn mode (picklable).
+    Uses torch.initial_seed to derive per-worker seed deterministically.
+    """
+    worker_seed = torch.initial_seed() % (2**32)
+    np.random.seed(worker_seed)
+    random.seed(worker_seed)
 
 
 def train_one_epoch(model, loader, optim, device, criterion, show_progress: bool = True):
@@ -158,6 +168,8 @@ def main():
     p.add_argument("--lr_schedule", type=str, choices=["cosine", "constant"], default="cosine")
     p.add_argument("--progress", action="store_true")
     p.add_argument("--no_progress", action="store_true")
+    p.add_argument("--prefetch", type=int, default=4)
+    p.add_argument("--mmap_off", action="store_true")
     p.add_argument("--quant_backend", type=str, choices=["cpp", "python"], default=os.environ.get("QUANT_BACKEND", "python"))
     p.add_argument("--out_dir", type=str, default=os.environ.get("OUT_DIR", "./ckpt_refactor"))
     p.add_argument("--resume", type=str, default="")
@@ -166,6 +178,15 @@ def main():
     p.add_argument("--amp", action="store_true")
     p.add_argument("--quantize_all", action="store_true")
     p.add_argument("--use_dwconv", action="store_true")
+    # fine-grained quant toggles (env-based)
+    p.add_argument("--q_proj_head", action="store_true")
+    p.add_argument("--q_block_linear", action="store_true")
+    p.add_argument("--q_backbone_linear", action="store_true")
+    # SSM/PE/AGG knobs
+    p.add_argument("--pe_off", action="store_true")
+    p.add_argument("--pe_scale", type=float, default=1.0)
+    p.add_argument("--gate_off", action="store_true")
+    p.add_argument("--agg_pool", type=str, default="", choices=["", "avg", "max"])
     args = p.parse_args()
 
     # parse CLI first to set env for quant backend
@@ -182,17 +203,14 @@ def main():
         lr=args.lr,
         train_root=args.train_root,
         eval_root=args.eval_root,
+        mmap=not bool(args.mmap_off),
     )
 
     set_seed(cfg.seed)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # Delay import so QUANT_BACKEND env can take effect
-    os.environ["QUANT_BACKEND"] = args.quant_backend
-    if args.quantize_all:
-        os.environ["QUANTIZE_ALL"] = "1"
-    if args.use_dwconv:
-        os.environ["USE_DWCONV"] = "1"
+    os.environ["QUANT_BACKEND"] = args.quant_backend  # backend selection for QLinearINT8
     from .mamba_regressor import MambaRegressor  # type: ignore
 
     train_ds, eval_ds = build_datasets(cfg)
@@ -211,7 +229,9 @@ def main():
         num_workers=nw,
         pin_memory=pin,
         persistent_workers=(nw > 0),
-        prefetch_factor=(2 if nw > 0 else None),
+        prefetch_factor=(args.prefetch if nw > 0 else None),
+        worker_init_fn=seed_worker if nw > 0 else None,
+        generator=(torch.Generator().manual_seed(cfg.seed)),
     )
     eval_loader = (
         DataLoader(
@@ -221,7 +241,9 @@ def main():
             num_workers=nw,
             pin_memory=pin,
             persistent_workers=(nw > 0),
-            prefetch_factor=(2 if nw > 0 else None),
+            prefetch_factor=(args.prefetch if nw > 0 else None),
+            worker_init_fn=seed_worker if nw > 0 else None,
+            generator=(torch.Generator().manual_seed(cfg.seed)),
         )
         if eval_ds is not None
         else None
@@ -235,6 +257,16 @@ def main():
         n_layer=cfg.n_layer,
         patch_len=cfg.patch_len,
         stride=cfg.stride,
+        pe_off=args.pe_off,
+        pe_scale=args.pe_scale,
+        gate_off=args.gate_off,
+        agg_pool=args.agg_pool,
+        quantize_all=args.quantize_all,
+        q_proj_head=args.q_proj_head,
+        q_block_linear=args.q_block_linear,
+        q_backbone_linear=args.q_backbone_linear,
+        use_dwconv=args.use_dwconv,
+        quant_backend=args.quant_backend,
     ).to(device)
     n_params = sum(p.numel() for p in model.parameters())
     print({"model_params": int(n_params), "device": str(device)})
@@ -311,7 +343,7 @@ def main():
                     run_epe = (run_epe * (seen - xb.size(0)) + epe_batch * xb.size(0)) / max(1, seen)
                     if show and hasattr(it, "set_postfix"):
                         cur_lr = optim.param_groups[0]["lr"]
-                        it.set_postfix({"loss": f"{(total/max(1,n)):.4f}", "epe": f"{run_epe:.4f}", "lr": f"{cur_lr:.2e}"})
+                        it.set_postfix({"loss": f"{(total/max(1,n)):.4f}", "epe": f"{run_epe:.4f}", "lr": f"{cur_lr:.2e}"})# type: ignore
                 tr_loss = total / max(1, n)
             else:
                 # non-AMP path with optional scheduler per batch
@@ -339,9 +371,12 @@ def main():
                     run_epe = (run_epe * (seen - xb.size(0)) + epe_batch * xb.size(0)) / max(1, seen)
                     if show and hasattr(it, "set_postfix"):
                         cur_lr = optim.param_groups[0]["lr"]
-                        it.set_postfix({"loss": f"{(total/max(1,n)):.4f}", "epe": f"{run_epe:.4f}", "lr": f"{cur_lr:.2e}"})
+                        it.set_postfix({"loss": f"{(total/max(1,n)):.4f}", "epe": f"{run_epe:.4f}", "lr": f"{cur_lr:.2e}"})# type: ignore
                 tr_loss = total / max(1, n)
-            ev_loss, stats = evaluate(model, eval_loader, device, criterion, show_progress=True)  # type: ignore
+            if eval_loader is not None:
+                ev_loss, stats = evaluate(model, eval_loader, device, criterion, show_progress=True)  # type: ignore
+            else:
+                ev_loss, stats = float("nan"), {"epe_mean": float("nan"), "epe_median": float("nan"), "epe_p80": float("nan"), "epe_p90": float("nan"), "mae_x": float("nan"), "mae_y": float("nan")}
             row = {"epoch": epoch + 1, "train_loss": tr_loss, "eval_loss": ev_loss}
             row.update(stats)
             print({"epoch": row["epoch"], "train_loss": f"{row['train_loss']:.6f}", "eval_loss": f"{row['eval_loss']:.6f}"})
@@ -353,7 +388,7 @@ def main():
             last_path = os.path.join(args.out_dir, "last.pt")
             torch.save({"state_dict": model.state_dict(), "cfg": vars(cfg), "epoch": epoch + 1}, last_path)
             metric_val = row.get(args.best_metric, None)
-            if metric_val is not None and metric_val < best_val:
+            if metric_val is not None and isinstance(metric_val, (int, float)) and not (metric_val != metric_val) and metric_val < best_val:
                 best_val = metric_val
                 torch.save({
                     "state_dict": model.state_dict(),

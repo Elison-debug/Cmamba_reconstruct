@@ -48,6 +48,11 @@ def main():
     p.add_argument("--live_bins", type=int, default=100)
     p.add_argument("--live_max_err", type=float, default=1.0)
     p.add_argument("--live_every", type=int, default=1)
+    # SSM/PE/AGG knobs
+    p.add_argument("--pe_off", action="store_true")
+    p.add_argument("--pe_scale", type=float, default=1.0)
+    p.add_argument("--gate_off", action="store_true")
+    p.add_argument("--agg_pool", type=str, default="", choices=["", "avg", "max"])
     args = p.parse_args()
 
     set_seed(42)
@@ -93,7 +98,8 @@ def main():
         print({"eval_samples": len(ds), "root": dir_path, "out": out_dir, "device": str(device)})
 
         model = MambaRegressor(Din=cfg.Din, K=cfg.K, proj_dim=cfg.proj_dim, d_model=cfg.d_model,
-                               n_layer=cfg.n_layer, patch_len=cfg.patch_len, stride=cfg.stride).to(device)
+                               n_layer=cfg.n_layer, patch_len=cfg.patch_len, stride=cfg.stride,
+                               pe_off=args.pe_off, pe_scale=args.pe_scale, gate_off=args.gate_off, agg_pool=args.agg_pool).to(device)
         if ckpt_obj is not None:
             sd = ckpt_obj.get("state_dict", ckpt_obj)
             model.load_state_dict(sd, strict=False)
@@ -197,14 +203,39 @@ def main():
               f"| Max    | {err.max():.4f} |"]
         print("\n[SUMMARY]" , os.path.basename(dir_path), "\n" + "\n".join(md) + "\n")
         print(f"[OK] saved plots & stats under {out_dir}")
+        return {
+            "name": os.path.basename(dir_path),
+            "count": int(len(err)),
+            "mean": float(mean),
+            "median": float(median),
+            "p80": float(p80),
+            "p90": float(p90),
+            "out_dir": out_dir,
+        }
 
     # mode A: per-subdir (if subdirs with npz exist)
     subdirs = [d.path for d in os.scandir(args.eval_root) if d.is_dir() and any(fn.lower().endswith('.npz') for fn in os.listdir(d.path))]
+    summary: list[dict] = []
     if subdirs:
         print({"grids": len(subdirs), "mode": "per-subdir"})
         for sd in sorted(subdirs):
             out_sub = os.path.join(args.out_dir, os.path.basename(sd))
-            eval_dir(sd, out_sub)
+            rec = eval_dir(sd, out_sub)
+            summary.append(rec)
+        # after all, write ranking
+        summary.sort(key=lambda r: r["mean"])  # ascending mean error
+        txt = os.path.join(args.out_dir, "eval_out.txt")
+        csv_path = os.path.join(args.out_dir, "eval_summary.csv")
+        with open(txt, "w", encoding="utf-8") as f:
+            f.write("# Mean error ranking (per grid)\n")
+            f.write("rank,name,count,mean,median,p80,p90,out_dir\n")
+            for i, r in enumerate(summary, 1):
+                f.write(f"{i},{r['name']},{r['count']},{r['mean']:.6f},{r['median']:.6f},{r['p80']:.6f},{r['p90']:.6f},{r['out_dir']}\n")
+        with open(csv_path, "w", encoding="utf-8") as f:
+            f.write("rank,name,count,mean,median,p80,p90,out_dir\n")
+            for i, r in enumerate(summary, 1):
+                f.write(f"{i},{r['name']},{r['count']},{r['mean']:.6f},{r['median']:.6f},{r['p80']:.6f},{r['p90']:.6f},{r['out_dir']}\n")
+        print({"summary": txt, "csv": csv_path})
         return
 
     # mode B: per-file (all .npz under one folder) — create one output folder per file stem
@@ -223,7 +254,8 @@ def main():
             print({"eval_samples": len(ds), "file": os.path.basename(f), "out": out_sub, "device": str(device)})
 
             model = MambaRegressor(Din=cfg.Din, K=cfg.K, proj_dim=cfg.proj_dim, d_model=cfg.d_model,
-                                   n_layer=cfg.n_layer, patch_len=cfg.patch_len, stride=cfg.stride).to(device)
+                                   n_layer=cfg.n_layer, patch_len=cfg.patch_len, stride=cfg.stride,
+                                   pe_off=args.pe_off, pe_scale=args.pe_scale, gate_off=args.gate_off, agg_pool=args.agg_pool).to(device)
             if ckpt_obj is not None:
                 sd = ckpt_obj.get("state_dict", ckpt_obj)
                 model.load_state_dict(sd, strict=False)
@@ -314,6 +346,29 @@ def main():
                     w = csv.writer(f); w.writerow(['y_true_x','y_true_y','y_pred_x','y_pred_y','err_m'])
                     for (yt, yp, e_) in zip(y_true_a, y_pred_a, err):
                         w.writerow([yt[0], yt[1], yp[0], yp[1], e_])
+            summary.append({
+                "name": stem,
+                "count": int(len(err)),
+                "mean": float(mean),
+                "median": float(median),
+                "p80": float(p80),
+                "p90": float(p90),
+                "out_dir": out_sub,
+            })
+        # write ranking summary
+        summary.sort(key=lambda r: r["mean"])  # ascending
+        txt = os.path.join(args.out_dir, "eval_out.txt")
+        csv_path = os.path.join(args.out_dir, "eval_summary.csv")
+        with open(txt, "w", encoding="utf-8") as f:
+            f.write("# Mean error ranking (per file)\n")
+            f.write("rank,name,count,mean,median,p80,p90,out_dir\n")
+            for i, r in enumerate(summary, 1):
+                f.write(f"{i},{r['name']},{r['count']},{r['mean']:.6f},{r['median']:.6f},{r['p80']:.6f},{r['p90']:.6f},{r['out_dir']}\n")
+        with open(csv_path, "w", encoding="utf-8") as f:
+            f.write("rank,name,count,mean,median,p80,p90,out_dir\n")
+            for i, r in enumerate(summary, 1):
+                f.write(f"{i},{r['name']},{r['count']},{r['mean']:.6f},{r['median']:.6f},{r['p80']:.6f},{r['p90']:.6f},{r['out_dir']}\n")
+        print({"summary": txt, "csv": csv_path})
         return
 
     # fallback: no subdirs and no files matched, evaluate root (should not happen)

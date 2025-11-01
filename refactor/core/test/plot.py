@@ -5,9 +5,8 @@ import argparse
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--root_dir", type=str, default="./eval_out_log5")
+    ap.add_argument("--root_dir", type=str, default="./test_out_test_python1")
     args = ap.parse_args()
-    target_folders = ["Grid174", "Grid182", "Grid201"]
     root_dir = args.root_dir
     ext = ".csv" 
 
@@ -40,7 +39,7 @@ def main():
                     # sc = plt.scatter(df['y_pred_x'], df['y_pred_y'], c=df['err_m'],
                     #                 cmap='plasma', s=2, alpha=0.8, label='Predicted Points')
                     sc = plt.scatter(df['y_pred_x'], df['y_pred_y'], c=range(len(df)),
-                                    cmap='plasma', s=2, alpha=0.8, label='Predicted Points')
+                                    cmap='plasma', s=0.1, alpha=0.8, label='Predicted Points')
 
                     # Colorbar for error
                     cbar = plt.colorbar(sc)
