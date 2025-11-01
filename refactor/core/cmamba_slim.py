@@ -1,4 +1,5 @@
 import math
+import os
 import torch
 import torch.nn as nn
 import os
@@ -63,38 +64,40 @@ class RMSNorm(nn.Module):
         return x * self.weight
 
 
-class SelectiveScan(nn.Module):
-    def __init__(self, dim: int):
+class SelectiveScanIC(nn.Module):
+    """
+    Input-conditioned SSM (Mamba-style approximation):
+    lam_t = sigmoid(dt_proj(u_t)) in (0,1)
+    s_t = lam_t ⊙ s_{t-1} + (1 - lam_t) ⊙ u_t
+    y_t = s_t
+    dt_proj is quantizable Linear.
+    """
+
+    def __init__(self, dim: int, LinearImpl=nn.Linear):
         super().__init__()
-        self.alpha = nn.Parameter(torch.zeros(dim))
-        self.beta = nn.Parameter(torch.ones(dim))
-        self.gamma = nn.Parameter(torch.ones(dim))
-        self.delta = nn.Parameter(torch.zeros(dim))
+        self.dt_proj = LinearImpl(dim, dim, bias=True)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # x: [B,K,D]
         B, K, D = x.shape
-        a = torch.sigmoid(self.alpha).view(1, 1, D)
-        b = self.beta.view(1, 1, D)
-        g = self.gamma.view(1, 1, D)
-        d = self.delta.view(1, 1, D)
         s = torch.zeros(B, D, device=x.device, dtype=x.dtype)
         ys = []
         for t in range(K):
             u = x[:, t, :]
-            s = a.squeeze(1) * s + b.squeeze(1) * u
-            y = g.squeeze(1) * s + d.squeeze(1) * u
-            ys.append(y)
-        y_seq = torch.stack(ys, dim=1)
-        return y_seq
+            lam = torch.sigmoid(self.dt_proj(u))  # (B,D)
+            s = lam * s + (1.0 - lam) * u
+            ys.append(s)
+        return torch.stack(ys, dim=1)
 
 
 class SlimMambaBlock(nn.Module):
     """
-    Hardware-friendly block (simplified):
-    RMSNorm -> [in_proj_a, in_proj_b] -> DepthwiseConv1d(inner) -> SiLU -> gate(*b) -> out_proj -> +res
-    selective_scan is left as identity placeholder for now.
-    Shapes use [B,K,D] inside block.
+    Minimal SSM-only block (hardware-friendly, Mamba-like):
+    RMSNorm -> in_proj(D->2*inner) -> split(u,z)
+           -> [optional DWConv1d on u] -> SiLU(u) -> SelectiveScanIC(u)
+           -> gate g = SiLU(z)
+           -> y = out_proj( ssm(u) ⊙ g ) -> +res
+    No channel fusion/gating path, per your request.
     """
 
     def __init__(self, args: ModelArgs) -> None:
@@ -102,36 +105,49 @@ class SlimMambaBlock(nn.Module):
         self.args = args
         D = args.d_model
         inner = args.d_inner
+
+        # env toggles
+        quant_all = bool(int(os.environ.get("QUANTIZE_ALL", "0")))
+        use_q_block = bool(int(os.environ.get("Q_BLOCK_LINEAR", "0"))) or quant_all
+        use_dw = bool(int(os.environ.get("USE_DWCONV", "0")))
+
+        # ensure odd kernel if used
         k = max(1, int(args.d_conv))
-        # ensure odd kernel for same-length output with symmetric padding
         if k % 2 == 0:
             k += 1
 
         self.norm = RMSNorm(D)
-        # Two parallel projections for gating
-        self.in_proj_a = nn.Linear(D, inner, bias=args.bias)
-        self.in_proj_b = nn.Linear(D, inner, bias=args.bias)
-        # Depthwise conv over sequence (K dimension)
-        # Input to conv: (B, C=inner, L=K)
-        pad = k // 2
-        self.dw_conv = nn.Conv1d(inner, inner, kernel_size=k, padding=pad, groups=inner, bias=args.conv_bias)
+        try:
+            from ..quant.qat_layers import QLinearINT8 as _QLinear
+        except Exception:
+            _QLinear = None
+        LinearImpl = (_QLinear if (use_q_block and _QLinear is not None) else nn.Linear)
+
+        self.in_proj = LinearImpl(D, 2 * inner, bias=args.bias)
+        if use_dw:
+            pad = k // 2
+            self.dw_conv = nn.Conv1d(inner, inner, kernel_size=k, padding=pad, groups=inner, bias=args.conv_bias)
+        else:
+            self.dw_conv = None
         self.act = nn.SiLU()
-        self.ssm = SelectiveScan(inner)
-        self.out_proj = nn.Linear(inner, D, bias=args.bias)
+        # dt_proj inside SSM is also quantizable
+        self.ssm = SelectiveScanIC(inner, LinearImpl=LinearImpl)
+        self.out_proj = LinearImpl(inner, D, bias=args.bias)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # x: [B,K,D]
         h = self.norm(x)
-        a = self.in_proj_a(h)  # [B,K,inner]
-        b = self.in_proj_b(h)  # [B,K,inner]
-        # depthwise conv along K
-        a = a.permute(0, 2, 1)  # [B,inner,K]
-        a = self.dw_conv(a)
-        a = a.permute(0, 2, 1)  # [B,K,inner]
-        a = self.act(a)
-        s = self.ssm(a)
-        g = s * b  # gated
-        y = self.out_proj(g)
+        uv = self.in_proj(h)  # [B,K,2*inner]
+        inner = self.args.d_inner
+        u, z = uv[..., :inner], uv[..., inner:]
+        if self.dw_conv is not None:
+            u = u.permute(0, 2, 1)
+            u = self.dw_conv(u)
+            u = u.permute(0, 2, 1)
+        u = self.act(u)
+        s = self.ssm(u)
+        g = self.act(z)
+        y = self.out_proj(s * g)
         return x + y
 
 
@@ -140,9 +156,8 @@ class CMambaSlim(nn.Module):
         super().__init__()
         self.args = args
         # Optional quantized linears for backbone via env Q_BACKBONE_LINEAR
-        use_q = bool(int(os.environ.get("Q_BACKBONE_LINEAR", "0"))) if 'os' in globals() else False
-        import os as _os
-        use_q = bool(int(_os.environ.get("Q_BACKBONE_LINEAR", "0")))
+        quant_all = bool(int(os.environ.get("QUANTIZE_ALL", "0")))
+        use_q = bool(int(os.environ.get("Q_BACKBONE_LINEAR", "0"))) or quant_all
         try:
             from ..quant.qat_layers import QLinearINT8 as _QLinear
         except Exception:

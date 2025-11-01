@@ -4,6 +4,8 @@ set backend=%2
 set outdir=%3
 set resume=%4
 set best=%5
+set opt6=%6
+set opt7=%7
 
 if "%target%"=="" (
   echo Usage: ref_train.bat grid ^| random ^| parity ^| less [backend=python^|cpp] [out_dir] [resume_ckpt] [best_metric=epe_mean^|eval_loss]
@@ -13,6 +15,13 @@ if "%target%"=="" (
 if "%backend%"=="" (set backend=python)
 if "%best%"=="" (set best=epe_mean)
 if "%outdir%"=="" (set outdir=ckpt_refactor\%target%_%backend%)
+
+set qa=
+set dw=
+if "%opt6%"=="quantize_all" (set qa=--quantize_all)
+if "%opt6%"=="use_dwconv" (set dw=--use_dwconv)
+if "%opt7%"=="quantize_all" (set qa=--quantize_all)
+if "%opt7%"=="use_dwconv" (set dw=--use_dwconv)
 
 set extra=
 if not "%resume%"=="" (set extra=%extra% --resume=%resume%)
@@ -33,8 +42,8 @@ python -m refactor.core.train ^
   --Din=2100 --K=12 ^
   --proj_dim=64 --d_model=128 --n_layer=4 ^
   --patch_len=8 --stride=4 ^
-  --batch_size=32 --epochs=20 --lr=3e-4 ^
-  --quant_backend=%backend% --out_dir=%outdir% %extra%
+  --batch_size=32 --epochs=20 --lr=3e-4 --lr_schedule=cosine ^
+  --quant_backend=%backend% --out_dir=%outdir% %qa% %dw% %extra%
 goto :eof
 
 :run_random
@@ -44,8 +53,8 @@ python -m refactor.core.train ^
   --Din=2100 --K=12 ^
   --proj_dim=64 --d_model=128 --n_layer=4 ^
   --patch_len=8 --stride=4 ^
-  --batch_size=32 --epochs=20 --lr=3e-4 ^
-  --quant_backend=%backend% --out_dir=%outdir% %extra%
+  --batch_size=32 --epochs=20 --lr=3e-4 --lr_schedule=cosine ^
+  --quant_backend=%backend% --out_dir=%outdir% %qa% %dw% %extra%
 goto :eof
 
 :run_parity
@@ -56,8 +65,8 @@ python -m refactor.core.train ^
   --Din=2100 --K=12 ^
   --proj_dim=64 --d_model=128 --n_layer=4 ^
   --patch_len=8 --stride=4 ^
-  --batch_size=32 --epochs=20 --lr=3e-4 ^
-  --quant_backend=%backend% --out_dir=%outdir% %extra%
+  --batch_size=32 --epochs=20 --lr=3e-4 --lr_schedule=cosine ^
+  --quant_backend=%backend% --out_dir=%outdir% %qa% %dw% %extra%
 goto :eof
 
 :run_less
@@ -68,6 +77,6 @@ python -m refactor.core.train ^
   --Din=2100 --K=12 ^
   --proj_dim=64 --d_model=128 --n_layer=4 ^
   --patch_len=8 --stride=4 ^
-  --batch_size=32 --epochs=20 --lr=3e-4 ^
-  --quant_backend=%backend% --out_dir=%outdir% %extra%
+  --batch_size=32 --epochs=20 --lr=3e-4 --lr_schedule=cosine ^
+  --quant_backend=%backend% --out_dir=%outdir% %qa% %dw% %extra%
 goto :eof

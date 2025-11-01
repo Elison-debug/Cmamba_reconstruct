@@ -126,22 +126,61 @@ def _save_backbone_params(model: torch.nn.Module, out_dir: Path) -> str:
 
     for i, blk in enumerate(bb.blocks):
         entry = {}
-        for name in ["in_proj_a", "in_proj_b", "out_proj"]:
+        # support old naming (in_proj_a/b) and new (in_proj)
+        linear_names = []
+        if hasattr(blk, "in_proj"):
+            linear_names += ["in_proj"]
+        else:
+            if hasattr(blk, "in_proj_a"): linear_names += ["in_proj_a"]
+            if hasattr(blk, "in_proj_b"): linear_names += ["in_proj_b"]
+        if hasattr(blk, "out_proj"):
+            linear_names += ["out_proj"]
+        for name in linear_names:
             lin = getattr(blk, name)
+            if not hasattr(lin, "weight"):
+                continue
             W = lin.weight.detach().cpu().numpy()
-            B = lin.bias.detach().cpu().numpy() if lin.bias is not None else None
+            B = lin.bias.detach().cpu().numpy() if getattr(lin, "bias", None) is not None else None
             wname = _save_npy(out_dir, f"block{i}_{name}_W", W)
             entry[f"{name}_W"] = wname
             if B is not None:
                 bname = _save_npy(out_dir, f"block{i}_{name}_B", B)
                 entry[f"{name}_B"] = bname
-        # depthwise conv
-        dw = blk.dw_conv
-        W = dw.weight.detach().cpu().numpy()
-        B = dw.bias.detach().cpu().numpy() if dw.bias is not None else None
-        entry["dw_weight"] = _save_npy(out_dir, f"block{i}_dw_W", W)
-        if B is not None:
-            entry["dw_bias"] = _save_npy(out_dir, f"block{i}_dw_B", B)
+            # quant params if present
+            q = _extract_qparams_from_module(lin)
+            if "w_scale" in q:
+                ws_name = _save_npy(out_dir, f"block{i}_{name}_WS", q["w_scale"])
+                entry[f"{name}_WS"] = ws_name
+            if "a_scale" in q:
+                entry[f"{name}_act_scale"] = float(np.asarray(q["a_scale"]).reshape(-1)[0])
+            if "a_zp" in q:
+                entry[f"{name}_act_zp"] = int(np.rint(float(np.asarray(q["a_zp"]).reshape(-1)[0])))
+        # depthwise conv if present
+        if hasattr(blk, "dw_conv") and getattr(blk, "dw_conv") is not None:
+            dw = blk.dw_conv
+            W = dw.weight.detach().cpu().numpy()
+            B = dw.bias.detach().cpu().numpy() if dw.bias is not None else None
+            entry["dw_weight"] = _save_npy(out_dir, f"block{i}_dw_W", W)
+            if B is not None:
+                entry["dw_bias"] = _save_npy(out_dir, f"block{i}_dw_B", B)
+        # SSM params
+        if hasattr(blk, "ssm"):
+            ssm = blk.ssm
+            # dt_proj weights/bias (quantizable)
+            if hasattr(ssm, "dt_proj") and hasattr(ssm.dt_proj, "weight"):
+                W = ssm.dt_proj.weight.detach().cpu().numpy()
+                entry["dt_proj_W"] = _save_npy(out_dir, f"block{i}_dt_proj_W", W)
+                if getattr(ssm.dt_proj, "bias", None) is not None:
+                    B = ssm.dt_proj.bias.detach().cpu().numpy()
+                    entry["dt_proj_B"] = _save_npy(out_dir, f"block{i}_dt_proj_B", B)
+                q = _extract_qparams_from_module(ssm.dt_proj)
+                if "w_scale" in q:
+                    ws_name = _save_npy(out_dir, f"block{i}_dt_proj_WS", q["w_scale"])
+                    entry["dt_proj_WS"] = ws_name
+                if "a_scale" in q:
+                    entry["dt_proj_act_scale"] = float(np.asarray(q["a_scale"]).reshape(-1)[0])
+                if "a_zp" in q:
+                    entry["dt_proj_act_zp"] = int(np.rint(float(np.asarray(q["a_zp"]).reshape(-1)[0])))
         blocks.append(entry)
 
     meta = {

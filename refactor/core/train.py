@@ -155,12 +155,18 @@ def main():
     p.add_argument("--batch_size", type=int, default=64)
     p.add_argument("--epochs", type=int, default=5)
     p.add_argument("--lr", type=float, default=1e-3)
+    p.add_argument("--min_lr", type=float, default=1e-6)
+    p.add_argument("--lr_schedule", type=str, choices=["cosine", "constant"], default="cosine")
     p.add_argument("--progress", action="store_true")
     p.add_argument("--no_progress", action="store_true")
     p.add_argument("--quant_backend", type=str, choices=["cpp", "python"], default=os.environ.get("QUANT_BACKEND", "python"))
     p.add_argument("--out_dir", type=str, default=os.environ.get("OUT_DIR", "./ckpt_refactor"))
     p.add_argument("--resume", type=str, default="")
     p.add_argument("--best_metric", type=str, choices=["eval_loss", "epe_mean"], default="epe_mean")
+    p.add_argument("--workers", type=int, default=4)
+    p.add_argument("--amp", action="store_true")
+    p.add_argument("--quantize_all", action="store_true")
+    p.add_argument("--use_dwconv", action="store_true")
     args = p.parse_args()
 
     # parse CLI first to set env for quant backend
@@ -184,6 +190,10 @@ def main():
 
     # Delay import so QUANT_BACKEND env can take effect
     os.environ["QUANT_BACKEND"] = args.quant_backend
+    if args.quantize_all:
+        os.environ["QUANTIZE_ALL"] = "1"
+    if args.use_dwconv:
+        os.environ["USE_DWCONV"] = "1"
     from .mamba_regressor import MambaRegressor  # type: ignore
 
     train_ds, eval_ds = build_datasets(cfg)
@@ -193,11 +203,27 @@ def main():
         "K": cfg.K,
         "Din": cfg.Din,
     })
+    nw = int(args.workers)
+    pin = True
     train_loader = DataLoader(
-        train_ds, batch_size=cfg.batch_size, shuffle=True, num_workers=cfg.num_workers
+        train_ds,
+        batch_size=cfg.batch_size,
+        shuffle=True,
+        num_workers=nw,
+        pin_memory=pin,
+        persistent_workers=(nw > 0),
+        prefetch_factor=(2 if nw > 0 else None),
     )
     eval_loader = (
-        DataLoader(eval_ds, batch_size=cfg.batch_size, shuffle=False, num_workers=cfg.num_workers)
+        DataLoader(
+            eval_ds,
+            batch_size=cfg.batch_size,
+            shuffle=False,
+            num_workers=nw,
+            pin_memory=pin,
+            persistent_workers=(nw > 0),
+            prefetch_factor=(2 if nw > 0 else None),
+        )
         if eval_ds is not None
         else None
     )
@@ -214,7 +240,7 @@ def main():
     n_params = sum(p.numel() for p in model.parameters())
     print({"model_params": int(n_params), "device": str(device)})
 
-    optim = torch.optim.AdamW(model.parameters(), lr=cfg.lr)
+    optim = torch.optim.AdamW(model.parameters(), lr=cfg.lr, weight_decay=float(os.environ.get("WEIGHT_DECAY", "0.0")))
     criterion = HuberEPE(delta=1.0)
 
     # optional resume (model-only)
@@ -250,9 +276,72 @@ def main():
         )
         w.writeheader()
         show = (args.progress or (not args.no_progress))
+        # prepare scheduler after knowing loader length
+        total_steps = cfg.epochs * max(1, len(train_loader))
+        if args.lr_schedule == "cosine":
+            scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, T_max=total_steps, eta_min=args.min_lr)
+        else:
+            scheduler = None
         for epoch in range(cfg.epochs):
             print(f"==== Epoch {epoch+1}/{cfg.epochs} ====")
-            tr_loss = train_one_epoch(model, train_loader, optim, device, criterion, show_progress=show)
+            if args.amp and torch.cuda.is_available():
+                scaler = torch.cuda.amp.GradScaler()
+                model.train()
+                total = 0.0
+                n = 0
+                it = _maybe_tqdm(train_loader, total=len(train_loader), desc="train", enabled=show)
+                seen = 0
+                run_epe = 0.0
+                for step, (xb, yb) in enumerate(it, 1):
+                    xb = xb.to(device, non_blocking=True).float()
+                    yb = yb.squeeze(1).to(device, non_blocking=True).float()
+                    optim.zero_grad(set_to_none=True)
+                    with torch.cuda.amp.autocast():
+                        pred = model(xb)
+                        loss = criterion(pred, yb)
+                    scaler.scale(loss).backward()
+                    scaler.step(optim)
+                    scaler.update()
+                    if scheduler is not None:
+                        scheduler.step()
+                    total += loss.item() * xb.size(0)
+                    n += xb.size(0)
+                    with torch.no_grad():
+                        epe_batch = torch.linalg.norm((pred - yb), dim=1).mean().item()
+                    seen += xb.size(0)
+                    run_epe = (run_epe * (seen - xb.size(0)) + epe_batch * xb.size(0)) / max(1, seen)
+                    if show and hasattr(it, "set_postfix"):
+                        cur_lr = optim.param_groups[0]["lr"]
+                        it.set_postfix({"loss": f"{(total/max(1,n)):.4f}", "epe": f"{run_epe:.4f}", "lr": f"{cur_lr:.2e}"})
+                tr_loss = total / max(1, n)
+            else:
+                # non-AMP path with optional scheduler per batch
+                model.train()
+                total = 0.0
+                n = 0
+                it = _maybe_tqdm(train_loader, total=len(train_loader), desc="train", enabled=show)
+                seen = 0
+                run_epe = 0.0
+                for step, (xb, yb) in enumerate(it, 1):
+                    xb = xb.to(device, non_blocking=True).float()
+                    yb = yb.squeeze(1).to(device, non_blocking=True).float()
+                    optim.zero_grad(set_to_none=True)
+                    pred = model(xb)
+                    loss = criterion(pred, yb)
+                    loss.backward()
+                    optim.step()
+                    if scheduler is not None:
+                        scheduler.step()
+                    total += loss.item() * xb.size(0)
+                    n += xb.size(0)
+                    with torch.no_grad():
+                        epe_batch = torch.linalg.norm((pred - yb), dim=1).mean().item()
+                    seen += xb.size(0)
+                    run_epe = (run_epe * (seen - xb.size(0)) + epe_batch * xb.size(0)) / max(1, seen)
+                    if show and hasattr(it, "set_postfix"):
+                        cur_lr = optim.param_groups[0]["lr"]
+                        it.set_postfix({"loss": f"{(total/max(1,n)):.4f}", "epe": f"{run_epe:.4f}", "lr": f"{cur_lr:.2e}"})
+                tr_loss = total / max(1, n)
             ev_loss, stats = evaluate(model, eval_loader, device, criterion, show_progress=True)  # type: ignore
             row = {"epoch": epoch + 1, "train_loss": tr_loss, "eval_loss": ev_loss}
             row.update(stats)

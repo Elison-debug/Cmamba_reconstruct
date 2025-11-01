@@ -19,6 +19,8 @@ def main():
     p.add_argument("--batch_size", type=int, default=64)
     p.add_argument("--ckpt", type=str, default="refactor_last.pt")
     p.add_argument("--quant_backend", type=str, choices=["cpp", "python"], default=os.environ.get("QUANT_BACKEND", "cpp"))
+    p.add_argument("--quantize_all", action="store_true")
+    p.add_argument("--use_dwconv", action="store_true")
     args = p.parse_args()
 
     set_seed(42)
@@ -40,6 +42,10 @@ def main():
 
     # Set backend before import
     os.environ["QUANT_BACKEND"] = args.quant_backend
+    if args.quantize_all:
+        os.environ["QUANTIZE_ALL"] = "1"
+    if args.use_dwconv:
+        os.environ["USE_DWCONV"] = "1"
     from .mamba_regressor import MambaRegressor  # delayed import
 
     model = MambaRegressor(

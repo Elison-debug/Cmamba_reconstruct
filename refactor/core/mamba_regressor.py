@@ -19,7 +19,8 @@ class MambaRegressor(nn.Module):
         super().__init__()
         self.Din = Din
         self.K = K
-        use_q = bool(int(os.environ.get("Q_PROJ_HEAD", "0")))
+        quant_all = bool(int(os.environ.get("QUANTIZE_ALL", "0")))
+        use_q = bool(int(os.environ.get("Q_PROJ_HEAD", "0"))) or quant_all
         self.proj = QLinearINT8(Din, proj_dim) if use_q else nn.Linear(Din, proj_dim)
 
         args = ModelArgs(
