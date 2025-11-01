@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CMambaSlimExport",
+  "type": "object",
+  "properties": {
+    "version": {"type": "integer"},
+    "model": {
+      "type": "object",
+      "properties": {
+        "seq_len": {"type": "integer"},
+        "proj_dim": {"type": "integer"},
+        "d_model": {"type": "integer"},
+        "n_layer": {"type": "integer"},
+        "patch_len": {"type": "integer"},
+        "stride": {"type": "integer"},
+        "forecast_len": {"type": "integer"}
+      },
+      "required": ["seq_len", "proj_dim", "d_model", "n_layer", "patch_len", "stride", "forecast_len"]
+    },
+    "quant": {
+      "type": "object",
+      "properties": {
+        "rounding": {"type": "string"},
+        "saturate": {"type": "boolean"},
+        "act": {"type": "object"},
+        "weight": {"type": "object"}
+      },
+      "required": ["rounding", "saturate", "act", "weight"]
+    },
+    "layers": {"type": "array"}
+  },
+  "required": ["version", "model", "quant", "layers"]
+}
+

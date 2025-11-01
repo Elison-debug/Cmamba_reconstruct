@@ -1,27 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Preprocess LuViRA radio -> NPZ features (lazy frames)  [INDEX-FAST + train/eval split]
-
-需求 / Changes:
-- 单数grid作为train ，双数grid作为eval
-- 单数 grid(.mat/.csv) 对齐后，将前 80% 帧保存到 out_dir/train/<base>.npz；
-  将后 20% 帧保存到 out_dir/eval/<base>.npz。
-- 双数 grid(.mat/.csv) 对齐后保存到 out_dir/test/<base>.npz；
-- 仅用 **train** 部分统计全局 mean/std(避免信息泄漏)，保存为 out_dir/stats_train.npz。
-
-output：
-- out_dir/train/<base>.npz
-- out_dir/eval/<base>.npz
-- out_dir/test/<base>.npz
-- out_dir/stats_train.npz
-
-NPZ ：
-- feats: (T', Din) float16/32(按 --dtype)
-- xy:    (T', 2) float32(米)
-- ts:    (T',)   float64(秒)
-- meta:  json 字符串，含 taps/input_dim/scale/align/kept_ratio/shape_TFA/split(索引范围等)
-"""
 
 import argparse, os, glob, re, json, csv
 from typing import Tuple, Dict, Any, Optional, List, cast
@@ -278,11 +256,11 @@ def main():
     ap.add_argument("--std_floor", type=float, default=1e-3)
     ap.add_argument("--odd_even", choices=["odd", "even"], required=True,
                     help="Choose which grid number parity is used for TRAIN; the other parity is used for EVAL")
-    ap.add_argument("--per_block", type=int, default=5,
+    ap.add_argument("--per_block", type=int, default=10,
                     help="Number of frames per temporal block (default: 5). "
                          "Each block is split into n_per_block for train and m_per_block for eval.")
 
-    ap.add_argument("--n_per_block", type=int, default=4,
+    ap.add_argument("--n_per_block", type=int, default=3,
                         help="Number of frames per block used for training (default: 3). "
                             "Must satisfy n_per_block + m_per_block <= per_block.")
 

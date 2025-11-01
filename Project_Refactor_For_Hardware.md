@@ -23,7 +23,7 @@ refactor/
     mamba_regressor.py     # 回归头，输入投影 + 主干 + 输出头
     losses.py              # EPE/Huber 等
     train.py               # 极简训练脚本（无 W&B/复杂日志）
-    eval.py                # 极简评估（无绘图，纯数值）
+    test.py                # 极简验证（无绘图，纯数值）
   quant/
     qat_layers.py          # QLinearINT8/QConv1dINT8（激活 per‑tensor, 权重 per‑channel）
     calibrate.py           # PTQ 标定（统计 scale/zp）
@@ -91,7 +91,7 @@ class MambaRegressor(nn.Module):
 ## 5) 训练/评估最小管线
 
 - 训练（refactor/core/train.py）
-  - 数据：复用现有 `datasets/frames_lazy.py` 或简化后的只读 loader；
+  - 数据：复用现有 `datasets/frames_lazy.py` 
   - 优化：AdamW + Cosine/ConstThenCosine；
   - Loss：EPE 的 Huber（SmoothL1），支持 tail 加权；
   - 开关：默认关闭 AMP/TF32；
