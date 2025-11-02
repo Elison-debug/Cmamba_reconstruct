@@ -5,7 +5,6 @@ from typing import Optional
 
 import numpy as np
 import torch
-import torch.nn as nn
 from torch.utils.data import DataLoader
 import csv
 
@@ -25,11 +24,11 @@ class TrainConfig:
     batch_size: int = 64
     lr: float = 1e-3
     epochs: int = 5
-    seed: int = 42
     num_workers: int = 2
     mmap: bool = True
     train_root: Optional[str] = None
     eval_root: Optional[str] = None
+    seed: int = 42
 
 
 def set_seed(seed: int) -> None:
@@ -178,6 +177,7 @@ def main():
     p.add_argument("--amp", action="store_true")
     p.add_argument("--quantize_all", action="store_true")
     p.add_argument("--use_dwconv", action="store_true")
+    p.add_argument("--seed", type=int, default=42)
     # fine-grained quant toggles (env-based)
     p.add_argument("--q_proj_head", action="store_true")
     p.add_argument("--q_block_linear", action="store_true")
@@ -204,6 +204,7 @@ def main():
         train_root=args.train_root,
         eval_root=args.eval_root,
         mmap=not bool(args.mmap_off),
+        seed=args.seed,
     )
 
     set_seed(cfg.seed)
@@ -231,7 +232,6 @@ def main():
         persistent_workers=(nw > 0),
         prefetch_factor=(args.prefetch if nw > 0 else None),
         worker_init_fn=seed_worker if nw > 0 else None,
-        generator=(torch.Generator().manual_seed(cfg.seed)),
     )
     eval_loader = (
         DataLoader(
@@ -243,7 +243,6 @@ def main():
             persistent_workers=(nw > 0),
             prefetch_factor=(args.prefetch if nw > 0 else None),
             worker_init_fn=seed_worker if nw > 0 else None,
-            generator=(torch.Generator().manual_seed(cfg.seed)),
         )
         if eval_ds is not None
         else None
@@ -262,6 +261,11 @@ def main():
         gate_off=args.gate_off,
         agg_pool=args.agg_pool,
         use_dwconv=args.use_dwconv,
+        quantize_all=args.quantize_all,
+        q_proj_head=args.q_proj_head,
+        q_block_linear=args.q_block_linear,
+        q_backbone_linear=args.q_backbone_linear,
+        quant_backend=args.quant_backend,
     ).to(device)
     n_params = sum(p.numel() for p in model.parameters())
     print({"model_params": int(n_params), "device": str(device)})
@@ -308,72 +312,58 @@ def main():
             scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optim, T_max=total_steps, eta_min=args.min_lr)
         else:
             scheduler = None
+        use_amp = bool(args.amp and torch.cuda.is_available())
+        scaler = None
+        autocast_cm = None
+        if use_amp:
+            try:
+                scaler = torch.amp.GradScaler("cuda")  # type: ignore[attr-defined]
+
+                def autocast_cm():
+                    return torch.amp.autocast("cuda")  # type: ignore[attr-defined]
+
+            except Exception:
+                scaler = torch.cuda.amp.GradScaler()
+
+                def autocast_cm():
+                    return torch.cuda.amp.autocast()
+
         for epoch in range(cfg.epochs):
             print(f"==== Epoch {epoch+1}/{cfg.epochs} ====")
-            if args.amp and torch.cuda.is_available():
-                # Use new torch.amp API with fallback for older PyTorch
-                try:
-                    scaler = torch.amp.GradScaler('cuda')  # type: ignore[arg-type]
-                    autocast_cm = torch.amp.autocast('cuda')  # type: ignore[arg-type]
-                except Exception:
-                    scaler = torch.cuda.amp.GradScaler()
-                    autocast_cm = torch.cuda.amp.autocast()
-                model.train()
-                total = 0.0
-                n = 0
-                it = _maybe_tqdm(train_loader, total=len(train_loader), desc="train", enabled=show)
-                seen = 0
-                run_epe = 0.0
-                for step, (xb, yb) in enumerate(it, 1):
-                    xb = xb.to(device, non_blocking=True).float()
-                    yb = yb.squeeze(1).to(device, non_blocking=True).float()
-                    optim.zero_grad(set_to_none=True)
-                    with autocast_cm:
+            model.train()
+            total = 0.0
+            n = 0
+            it = _maybe_tqdm(train_loader, total=len(train_loader), desc="train", enabled=show)
+            seen = 0
+            run_epe = 0.0
+            for step, (xb, yb) in enumerate(it, 1):
+                xb = xb.to(device, non_blocking=True).float()
+                yb = yb.squeeze(1).to(device, non_blocking=True).float()
+                optim.zero_grad(set_to_none=True)
+                if use_amp and scaler is not None and autocast_cm is not None:
+                    with autocast_cm():
                         pred = model(xb)
                         loss = criterion(pred, yb)
                     scaler.scale(loss).backward()
                     scaler.step(optim)
                     scaler.update()
-                    if scheduler is not None:
-                        scheduler.step()
-                    total += loss.item() * xb.size(0)
-                    n += xb.size(0)
-                    with torch.no_grad():
-                        epe_batch = torch.linalg.norm((pred - yb), dim=1).mean().item()
-                    seen += xb.size(0)
-                    run_epe = (run_epe * (seen - xb.size(0)) + epe_batch * xb.size(0)) / max(1, seen)
-                    if show and hasattr(it, "set_postfix"):
-                        cur_lr = optim.param_groups[0]["lr"]
-                        it.set_postfix({"loss": f"{(total/max(1,n)):.4f}", "epe": f"{run_epe:.4f}", "lr": f"{cur_lr:.2e}"})# type: ignore
-                tr_loss = total / max(1, n)
-            else:
-                # non-AMP path with optional scheduler per batch
-                model.train()
-                total = 0.0
-                n = 0
-                it = _maybe_tqdm(train_loader, total=len(train_loader), desc="train", enabled=show)
-                seen = 0
-                run_epe = 0.0
-                for step, (xb, yb) in enumerate(it, 1):
-                    xb = xb.to(device, non_blocking=True).float()
-                    yb = yb.squeeze(1).to(device, non_blocking=True).float()
-                    optim.zero_grad(set_to_none=True)
+                else:
                     pred = model(xb)
                     loss = criterion(pred, yb)
                     loss.backward()
                     optim.step()
-                    if scheduler is not None:
-                        scheduler.step()
-                    total += loss.item() * xb.size(0)
-                    n += xb.size(0)
-                    with torch.no_grad():
-                        epe_batch = torch.linalg.norm((pred - yb), dim=1).mean().item()
-                    seen += xb.size(0)
-                    run_epe = (run_epe * (seen - xb.size(0)) + epe_batch * xb.size(0)) / max(1, seen)
-                    if show and hasattr(it, "set_postfix"):
-                        cur_lr = optim.param_groups[0]["lr"]
-                        it.set_postfix({"loss": f"{(total/max(1,n)):.4f}", "epe": f"{run_epe:.4f}", "lr": f"{cur_lr:.2e}"})# type: ignore
-                tr_loss = total / max(1, n)
+                if scheduler is not None:
+                    scheduler.step()
+                total += loss.item() * xb.size(0)
+                n += xb.size(0)
+                with torch.no_grad():
+                    epe_batch = torch.linalg.norm((pred - yb), dim=1).mean().item()
+                seen += xb.size(0)
+                run_epe = (run_epe * (seen - xb.size(0)) + epe_batch * xb.size(0)) / max(1, seen)
+                if show and hasattr(it, "set_postfix"):
+                    cur_lr = optim.param_groups[0]["lr"]
+                    it.set_postfix({"loss": f"{(total/max(1,n)):.4f}", "epe": f"{run_epe:.4f}", "lr": f"{cur_lr:.2e}"})# type: ignore
+            tr_loss = total / max(1, n)
             if eval_loader is not None:
                 ev_loss, stats = evaluate(model, eval_loader, device, criterion, show_progress=True)  # type: ignore
             else:

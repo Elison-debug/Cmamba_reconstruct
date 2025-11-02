@@ -1,7 +1,36 @@
 import math
-import os
+from typing import Optional
+
 import torch
 import torch.nn as nn
+
+try:
+    from ..quant.qat_layers import QLinearINT8, set_default_backend  # type: ignore
+except Exception:  # pragma: no cover - optional dependency
+    QLinearINT8 = None
+    set_default_backend = None
+
+
+class _Pointwise1x1(nn.Module):
+    """Shared helper for 1x1 projections with optional QLinear backend."""
+
+    def __init__(self, in_ch: int, out_ch: int, *, bias: bool = True, use_q: bool = False, backend: Optional[str] = None):
+        super().__init__()
+        self._use_q = bool(use_q and QLinearINT8 is not None)
+        if self._use_q:
+            if backend and set_default_backend is not None:
+                set_default_backend(backend)
+            self.lin = QLinearINT8(in_ch, out_ch, bias=bias, backend=backend)  # type: ignore[call-arg]
+        else:
+            self.conv = nn.Conv1d(in_ch, out_ch, kernel_size=1, bias=bias)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        if self._use_q:
+            B, C, K = x.shape
+            flat = x.permute(0, 2, 1).reshape(-1, C)
+            y = self.lin(flat)
+            return y.view(B, K, -1).permute(0, 2, 1).contiguous()
+        return self.conv(x)
 
 class ModelArgs:
     def __init__(
@@ -31,6 +60,8 @@ class ModelArgs:
         use_dwconv: bool = False,
         q_block_linear: bool = False,
         q_backbone_linear: bool = False,
+        quantize_all: bool = False,
+        quant_backend: Optional[str] = None,
     ) -> None:
         self.d_model = d_model
         self.n_layer = n_layer
@@ -67,6 +98,8 @@ class ModelArgs:
         self.use_dwconv = bool(use_dwconv)
         self.q_block_linear = bool(q_block_linear)
         self.q_backbone_linear = bool(q_backbone_linear)
+        self.quantize_all = bool(quantize_all)
+        self.quant_backend = quant_backend
 
 
 class RMSNorm(nn.Module):
@@ -128,7 +161,7 @@ class SlimMambaBlock(nn.Module):
         inner = args.d_inner
 
         # explicit toggles from args
-        use_q_block = bool(self.args.q_block_linear)
+        use_q_block = bool(self.args.q_block_linear or self.args.quantize_all)
         use_dw = bool(self.args.use_dwconv)
         self.use_gate = not bool(self.args.gate_off)
 
@@ -139,7 +172,13 @@ class SlimMambaBlock(nn.Module):
 
         self.norm = RMSNorm(D)
         # pointwise conv1d instead of linear
-        self.in_proj = nn.Conv1d(D, 2 * inner, kernel_size=1, bias=args.bias)
+        self.in_proj = _Pointwise1x1(
+            D,
+            2 * inner,
+            bias=args.bias,
+            use_q=use_q_block,
+            backend=args.quant_backend,
+        )
         if use_dw:
             pad = k // 2
             self.dw_conv = nn.Conv1d(inner, inner, kernel_size=k, padding=pad, groups=inner, bias=args.conv_bias)
@@ -148,7 +187,13 @@ class SlimMambaBlock(nn.Module):
         self.act = nn.SiLU()
         # dt_proj inside SSM as conv1d
         self.ssm = SelectiveScanIC(inner, LinearImpl=nn.Linear)  # type: ignore
-        self.out_proj = nn.Conv1d(inner, D, kernel_size=1, bias=args.bias)
+        self.out_proj = _Pointwise1x1(
+            inner,
+            D,
+            bias=args.bias,
+            use_q=use_q_block,
+            backend=args.quant_backend,
+        )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # x: [B,K,D]
@@ -202,11 +247,12 @@ class CMambaSlim(nn.Module):
             kernel_size=args.num_patches,
             bias=True,
         )
-        self.output_layer_pool = nn.Conv1d(
-            in_channels=args.d_model,
-            out_channels=args.num_channels * args.forecast_len,
-            kernel_size=1,
+        self.output_layer_pool = _Pointwise1x1(
+            args.d_model,
+            args.num_channels * args.forecast_len,
             bias=True,
+            use_q=bool(args.q_backbone_linear or args.quantize_all),
+            backend=args.quant_backend,
         )
 
     @staticmethod

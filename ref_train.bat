@@ -77,7 +77,7 @@ python -m refactor.core.train ^
   --Din=2100 --K=16 ^
   --proj_dim=64 --d_model=128 --n_layer=4 ^
   --patch_len=8 --stride=4 ^
-  --batch_size=64 --epochs=20 --lr=1.5e-4 --lr_schedule=cosine ^
-  --workers=8 --prefetch=8 --mmap_off --amp ^
+  --batch_size=64 --epochs=2 --lr=1.5e-4 --lr_schedule=cosine ^
+  --workers=8 --prefetch=4 --amp ^
   --out_dir=%outdir% %qa% %dw% %extra%
 goto :eof

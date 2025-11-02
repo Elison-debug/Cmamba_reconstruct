@@ -1,14 +1,28 @@
-# Copied and adopted from old/datasets/frames_lazy.py to remove old/ dependency
 from __future__ import annotations
-import os, glob
+import os
+import json
 from pathlib import Path
-from typing import Iterable, List, Optional, Tuple
+from typing import Dict, Iterable, List, Optional, Tuple
+
 import numpy as np
 import torch
 from torch.utils.data import Dataset
 
 
 class FramesLazyDataset(Dataset):
+    """
+    Dataset reader for the refactored training pipeline.
+
+    Expected layout per sequence (all files share the same basename):
+        base.feats.npy  # (T, Din) float16/float32
+        base.xy.npy     # (T, 2)   float32
+        base.ts.npy     # optional (T,) float64 timestamps
+        base.json       # optional metadata (length, etc.)
+
+    This loader only supports the new .npy-based format. Legacy .npz files are intentionally
+    unsupported to keep the IO path simple and FPGA-friendly.
+    """
+
     def __init__(
         self,
         root: Optional[str | os.PathLike] = None,
@@ -21,32 +35,64 @@ class FramesLazyDataset(Dataset):
     ) -> None:
         super().__init__()
         assert (root is not None) ^ (files is not None), "root 与 files 必须二选一"
-        if files is None:
-            root_str = str(root)
-            file_list: List[str] = sorted(glob.glob(os.path.join(root_str, "*.npz")))
-        else:
-            file_list = [str(p) for p in files]
-        if not file_list:
-            raise FileNotFoundError("No .npz files found for FramesLazyDataset")
 
-        self.files: List[str] = file_list
+        if files is None:
+            root_path = Path(root)
+            feats_list = sorted(str(p) for p in root_path.glob("*.feats.npy"))
+        else:
+            feats_list = sorted(str(Path(p)) for p in files)
+
+        if not feats_list:
+            raise FileNotFoundError("No .feats.npy files found for FramesLazyDataset")
+
         self.seq_len: int = int(seq_len)
         if predict not in ("current", "next"):
             raise ValueError("predict must be 'current' or 'next'")
         self.predict: str = predict
         self._mmap: bool = bool(mmap)
 
-        self.index: List[Tuple[int, int, int]] = []
-        self._cache: dict = {"fi": -1, "data": None}
+        entries: List[Dict[str, object]] = []
+        for feats_path in feats_list:
+            feats_path = str(feats_path)
+            if not feats_path.endswith(".feats.npy"):
+                raise ValueError(f"Unsupported file type: {feats_path}. Expected *.feats.npy")
+            base = Path(feats_path).name[:-len(".feats.npy")]
+            dir_path = Path(feats_path).parent
+            xy_path = dir_path / f"{base}.xy.npy"
+            if not xy_path.exists():
+                raise FileNotFoundError(f"Missing XY file for {feats_path}")
+            ts_path = dir_path / f"{base}.ts.npy"
+            meta_path = dir_path / f"{base}.json"
 
-        missing_keys = 0
+            meta: Dict[str, object] = {}
+            if meta_path.exists():
+                with open(meta_path, "r", encoding="utf-8") as mf:
+                    meta = json.load(mf)
+
+            length = int(meta.get("length", 0) or 0)
+            if length <= 0:
+                arr = np.load(feats_path, mmap_mode="r")
+                length = int(arr.shape[0])
+                del arr
+
+            entries.append(
+                {
+                    "base": base,
+                    "feats": feats_path,
+                    "xy": str(xy_path),
+                    "ts": str(ts_path) if ts_path.exists() else None,
+                    "length": length,
+                }
+            )
+
+        self.entries: List[Dict[str, object]] = entries
+        self._cache: Dict[int, Dict[str, np.ndarray]] = {}
+
+        # build global index
+        self.index: List[Tuple[int, int, int]] = []
         total_frames = 0
-        for fi, path in enumerate(self.files):
-            d = np.load(path, allow_pickle=True, mmap_mode="r" if self._mmap else None)
-            if "feats" not in d or "xy" not in d:
-                missing_keys += 1
-                continue
-            T = int(d["feats"].shape[0])
+        for fi, entry in enumerate(self.entries):
+            T = int(entry["length"])
             total_frames += T
             if self.predict == "current":
                 for t in range(self.seq_len, T):
@@ -57,19 +103,19 @@ class FramesLazyDataset(Dataset):
 
         if not self.index:
             raise RuntimeError(
-                f"No samples built: files={len(self.files)}, missing_keys={missing_keys}, "
-                f"total_frames={total_frames}, seq_len={self.seq_len}, predict={self.predict}"
+                f"No samples built: files={len(self.entries)}, total_frames={total_frames}, "
+                f"seq_len={self.seq_len}, predict={self.predict}"
             )
 
-        # load train stats
+        # load stats for normalization
         self.stats = None
-        s_candidates: List[Path] = []
+        stats_roots: List[Path] = []
         if stats_root is not None:
-            s_candidates.append(Path(stats_root) / "stats_train.npz")
-        if len(self.files) > 0:
-            p0 = Path(self.files[0]).parent
-            s_candidates += [p0/"stats_train.npz", p0.parent/"stats_train.npz", p0/"stats.npz", p0.parent/"stats.npz"]
-        for sp in s_candidates:
+            stats_roots.append(Path(stats_root))
+        default_root = Path(self.entries[0]["feats"]).parent
+        stats_roots += [default_root, default_root.parent]
+        for sr in stats_roots:
+            sp = sr / "stats_train.npz"
             if sp.exists():
                 try:
                     s = np.load(sp)
@@ -86,17 +132,33 @@ class FramesLazyDataset(Dataset):
     def __len__(self) -> int:
         return len(self.index)
 
-    def _load_file(self, fi: int):
-        if self._cache["fi"] != fi:
-            d = np.load(self.files[fi], allow_pickle=True, mmap_mode="r" if self._mmap else None)
-            self._cache = {"fi": fi, "data": d}
-        return self._cache["data"]
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        state["_cache"] = {}
+        return state
+
+    def _get_arrays(self, fi: int) -> Dict[str, np.ndarray]:
+        cached = self._cache.get(fi)
+        if cached is not None:
+            return cached
+        entry = self.entries[fi]
+        feats = np.load(entry["feats"], mmap_mode="r" if self._mmap else None)
+        xy = np.load(entry["xy"], mmap_mode="r" if self._mmap else None)
+        ts = None
+        ts_path = entry["ts"]
+        if ts_path:
+            ts = np.load(ts_path, mmap_mode="r" if self._mmap else None)
+        cached = {"feats": feats, "xy": xy, "ts": ts}
+        self._cache[fi] = cached
+        return cached
 
     def __getitem__(self, idx: int):
         fi, s, t = self.index[idx]
-        d = self._load_file(fi)
-        x = d["feats"][s:t].astype(np.float32)
-        y = d["xy"][t].astype(np.float32)
+        data = self._get_arrays(fi)
+        feats = data["feats"]
+        xy = data["xy"]
+        x = np.asarray(feats[s:t], dtype=np.float32)
+        y = np.asarray(xy[t], dtype=np.float32)
         if self.stats is not None:
             m, sd = self.stats
             x = (x - m) / sd
@@ -115,4 +177,3 @@ class FramesLazyDataset(Dataset):
         stats_root: Optional[str | os.PathLike] = None,
     ) -> "FramesLazyDataset":
         return cls(files=[str(p) for p in files], seq_len=seq_len, predict=predict, mmap=mmap, stats_root=stats_root)
-
