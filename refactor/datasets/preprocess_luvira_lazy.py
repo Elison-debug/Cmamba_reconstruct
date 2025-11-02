@@ -80,7 +80,7 @@ def load_gt_csv(path_csv: str, pos_units: str = "mm") -> Tuple[np.ndarray, np.nd
         ts = raw[:, 0].astype(np.float64)
         xy = raw[:, 1:3].astype(np.float64)
     else:
-        names = [n.lower() for n in (data.dtype.names or [])]
+        names = [n.lower() for n in (data.dtype.names or [])] # type: ignore[attr-defined]
         def _find(keys):
             for k in keys:
                 if k in names:

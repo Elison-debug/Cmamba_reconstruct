@@ -5,7 +5,7 @@ import argparse
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--root_dir", type=str, default="./test_out_test_python1")
+    ap.add_argument("--root_dir", type=str, default="./test_out")
     args = ap.parse_args()
     root_dir = args.root_dir
     ext = ".csv" 

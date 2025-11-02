@@ -50,7 +50,7 @@ python -m refactor.datasets.preprocess_parity_lessDataset ^
   --out_dir=./data/features/lessData ^
   --taps=10 --fps=100 ^
   --pos_units=mm --dtype=float16 ^
-  --per_block=5 --n_per_block=4 ^
-  --m_per_block=1 ^
+  --per_block=5  ^
+  --m_per_block=4 --n_per_block=1 ^
   --odd_even=odd
 goto :eof

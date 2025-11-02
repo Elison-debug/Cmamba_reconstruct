@@ -1,16 +1,155 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import argparse, os, glob, re, json
-from typing import Optional, List
+"""
+Preprocess LuViRA radio -> NPZ features (lazy frames)  [INDEX-FAST + train/eval test split]
+
+Outputs:
+- out_dir/train/<base>.npz
+- out_dir/test/<base>.npz
+- out_dir/stats_train.npz
+
+NPZ contents:
+- feats: (T', Din) float16/32
+- xy:    (T', 2) float32 (meters)
+- ts:    (T',)  float64 (seconds)
+- meta:  json string with minimal fields
+"""
+import argparse, os, glob, re, json, csv
+from typing import Optional, List , Tuple, Dict, cast, Any
 import numpy as np
 from scipy.io import loadmat
-from .preprocess_luvira_lazy import _infer_seconds, load_gt_csv, select_radio_tensor, cir_features_batch
-
+from numpy.fft import ifft
 
 def _extract_num_id(name: str) -> Optional[int]:
     import re as _re
     m = _re.findall(r'\d+', name)
     return None if not m else int(m[-1])
+
+def _infer_seconds(ts: np.ndarray) -> np.ndarray:
+    ts = np.asarray(ts).astype(np.float64).reshape(-1)
+    if ts.size < 2:
+        return ts
+    dif = np.diff(ts)
+    dif = dif[np.isfinite(dif) & (dif > 0)]
+    if dif.size == 0:
+        return ts
+    md = float(np.median(dif))
+    if md > 1e-2:
+        scale = 1.0
+    elif md > 1e-4:
+        scale = 1e-3
+    else:
+        scale = 1e-6
+    return ts * scale
+
+def _sniff_delimiter(path: str, encodings: tuple[str, ...] = ("utf-8", "utf-8-sig", "gbk", "latin1")) -> Tuple[str, str]:
+    candidates = [",", ";", "\t", " "]
+    candidate_str = ",;\t "
+    for enc in encodings:
+        try:
+            with open(path, "r", encoding=enc, newline="") as f:
+                sample = f.read(65536)
+            if not sample:
+                continue
+            try:
+                dialect = csv.Sniffer().sniff(sample, delimiters=candidate_str)
+                delim = dialect.delimiter
+            except Exception:
+                counts = {d: sample.count(d) for d in candidates}
+                delim = "," if sum(counts.values()) == 0 else max(counts.items(), key=lambda kv: kv[1])[0]
+            return enc, delim
+        except Exception:
+            continue
+    return "utf-8", ","
+
+def load_gt_csv(path_csv: str, pos_units: str = "mm") -> Tuple[np.ndarray, np.ndarray]:
+    enc, delim = _sniff_delimiter(path_csv)
+    try:
+        data = np.genfromtxt(path_csv, delimiter=delim, names=True, dtype=None, encoding=enc)
+    except Exception:
+        data = None
+    have_header = (isinstance(data, np.ndarray) and getattr(data, "size", 0) > 0 and getattr(data.dtype, "names", None) is not None)
+    if not have_header:
+        try:
+            raw = np.genfromtxt(path_csv, delimiter=delim, dtype=float, encoding=enc)
+        except Exception:
+            raw = np.genfromtxt(path_csv, delimiter=delim, dtype=float)
+        if raw.ndim == 1:
+            raw = raw.reshape(1, -1)
+        raw = raw[np.isfinite(raw).all(axis=1)]
+        if raw.shape[1] < 3 or raw.shape[0] < 2:
+            raise ValueError(f"CSV {path_csv}: not enough numeric rows/cols")
+        ts = raw[:, 0].astype(np.float64)
+        xy = raw[:, 1:3].astype(np.float64)
+    else:
+        names = [n.lower() for n in (data.dtype.names or [])] # type: ignore[attr-defined]
+        def _find(keys):
+            for k in keys:
+                if k in names:
+                    return k
+            return None
+        tk = _find(["time", "timestamp", "ts", "t"]) or names[0]
+        xk = _find(["x", "pos_x", "px"]) or names[1]
+        yk = _find(["y", "pos_y", "py"]) or names[2]
+        rec = cast(np.ndarray, data)
+        ts = np.asarray(rec[tk], dtype=np.float64).reshape(-1)
+        x  = np.asarray(rec[xk], dtype=np.float64).reshape(-1)
+        y  = np.asarray(rec[yk], dtype=np.float64).reshape(-1)
+        m = np.isfinite(ts) & np.isfinite(x) & np.isfinite(y)
+        ts = ts[m]; x = x[m]; y = y[m]
+        xy = np.stack([x, y], axis=1)
+    ts = _infer_seconds(ts)
+    if pos_units == "mm":
+        xy = xy / 1000.0
+    elif pos_units != "m":
+        raise ValueError("pos_units must be 'mm' or 'm'")
+    order = np.argsort(ts)
+    return ts[order], xy[order].astype(np.float32)
+
+PREF_KEYS = ["H_ueprocess", "H", "Yc", "CSI", "CIR"]
+
+def select_radio_tensor(md: Dict[str, Any]) -> np.ndarray:
+    key: Optional[str] = None
+    for k in PREF_KEYS:
+        if k in md and isinstance(md[k], np.ndarray):
+            key = k; break
+    if key is None:
+        cands = [(k, v) for k, v in md.items() if isinstance(v, np.ndarray) and v.ndim == 3]
+        if not cands:
+            raise ValueError("No 3D ndarray in .mat")
+        key, _ = max(cands, key=lambda kv: kv[1].size)
+    A = np.asarray(md[key])
+    if not np.iscomplexobj(A):
+        re_key, im_key = key + "_real", key + "_imag"
+        if re_key in md and im_key in md:
+            A = np.asarray(md[re_key]) + 1j * np.asarray(md[im_key])
+        else:
+            raise ValueError(f"{key} is not complex and no ({re_key},{im_key}) provided")
+    if A.ndim != 3:
+        raise ValueError(f"{key} must be 3D, got {A.ndim}D")
+    # ensure (T,F,A)
+    dims = list(A.shape)
+    t_ax = int(np.argmax(dims))
+    if t_ax == 0:
+        Yt = A
+    elif t_ax == 1:
+        Yt = np.transpose(A, (1, 0, 2))
+    else:
+        Yt = np.transpose(A, (2, 0, 1))
+    T, a, b = Yt.shape
+    Y = Yt if a >= b else np.transpose(Yt, (0, 2, 1))
+    return Y
+
+def cir_features_batch(Y: np.ndarray, L: int) -> np.ndarray:
+    D = ifft(Y, axis=1)[:, :L, :]  # (T, L, A)
+    p = np.sqrt(np.mean(np.abs(D)**2, axis=(0, 1), keepdims=True)) + 1e-8  # (1,1,A)
+    Dn = D / p
+    T, _, A = Dn.shape
+    feat_cir = np.stack([Dn.real, Dn.imag], axis=2)      # (T, L, 2, A)
+    feat_cir = feat_cir.transpose(0, 1, 3, 2).reshape(T, L * A * 2)
+    power = np.log1p(np.mean(np.abs(D)**2, axis=1))      # (T, A)
+    feats = np.concatenate([feat_cir.astype(np.float32), power.astype(np.float32)], axis=1)
+    return feats
 
 
 def main():
@@ -24,16 +163,14 @@ def main():
     ap.add_argument("--dtype", choices=["float16", "float32"], default="float16")
     ap.add_argument("--std_floor", type=float, default=1e-3)
     ap.add_argument("--per_block", type=int, default=5)
-    ap.add_argument("--n_per_block", type=int, default=4)
-    ap.add_argument("--m_per_block", type=int, default=1)
+    ap.add_argument("--n_per_block", type=int, default=1)
+    ap.add_argument("--m_per_block", type=int, default=4)
     ap.add_argument("--odd_even", choices=["odd","even"], default="odd")
     args = ap.parse_args()
 
     train_dir = os.path.join(args.out_dir, "train")
-    eval_dir  = os.path.join(args.out_dir, "eval")
     test_dir  = os.path.join(args.out_dir, "test")
     os.makedirs(train_dir, exist_ok=True)
-    os.makedirs(eval_dir,  exist_ok=True)
     os.makedirs(test_dir,  exist_ok=True)
 
     mat_paths = sorted(glob.glob(os.path.join(args.radio_dir, "*.mat")))
@@ -108,6 +245,7 @@ def main():
             raise ValueError(f"Invalid block split: m_per_block={m_blk} + n_per_block={n_blk} exceeds per_block={per_block}")
 
         if is_train_source:
+            # Build target indices for train/eval within each temporal block
             train_idxs: List[int] = []
             eval_idxs: List[int] = []
             for start in range(0, L, per_block):
@@ -125,39 +263,34 @@ def main():
                 candidates = sorted(set(range(L)) - set(train_idxs))
                 eval_idxs = candidates[:n_blk]
 
-            def _write_subset(out_dir: str, role: str, idxs: List[int]):
-                if not idxs:
-                    return
-                base_prefix = os.path.join(out_dir, base)
-                feats_sel = feats_full[idxs]
-                feats_sel = np.nan_to_num(feats_sel, nan=0.0, posinf=1e6, neginf=-1e6)
-                xy_sel = np.nan_to_num(xy_gt[idxs], nan=0.0, posinf=1e6, neginf=-1e6)
-                ts_sel = ts_gt[idxs]
-                np.save(f"{base_prefix}.feats.npy", feats_sel.astype(args.dtype))
-                np.save(f"{base_prefix}.xy.npy", xy_sel.astype(np.float32))
-                np.save(f"{base_prefix}.ts.npy", ts_sel.astype(np.float64))
-                meta = {
-                    "taps": args.taps,
-                    "input_dim": int(Din),
-                    "role": role,
-                    "length": int(len(idxs)),
-                    "total_frames": int(L),
-                    "indices": idxs,
-                    "per_block": per_block,
-                    "m_per_block": m_blk,
-                    "n_per_block": n_blk,
-                    "dtype": str(args.dtype),
-                }
-                with open(f"{base_prefix}.json", "w", encoding="utf-8") as mf:
-                    json.dump(meta, mf, ensure_ascii=False, indent=2)
-                print(f"[OK][{role:5s}] {base_prefix}.feats.npy feats={feats_sel.shape}")
-                return feats_sel
+            # Write single copy under train/, with both indices sets in JSON
+            base_prefix = os.path.join(train_dir, base)
+            feats_all = np.nan_to_num(feats_full[:L], nan=0.0, posinf=1e6, neginf=-1e6)
+            xy_all = np.nan_to_num(xy_gt[:L], nan=0.0, posinf=1e6, neginf=-1e6)
+            ts_all = ts_gt[:L]
+            np.save(f"{base_prefix}.feats.npy", feats_all.astype(args.dtype))
+            np.save(f"{base_prefix}.xy.npy", xy_all.astype(np.float32))
+            np.save(f"{base_prefix}.ts.npy", ts_all.astype(np.float64))
+            meta = {
+                "taps": args.taps,
+                "input_dim": int(Din),
+                "role": "train",
+                "length": int(L),
+                "total_frames": int(L),
+                "indices_train": [int(i) for i in train_idxs],
+                "indices_eval": [int(i) for i in eval_idxs],
+                "per_block": per_block,
+                "m_per_block": m_blk,
+                "n_per_block": n_blk,
+                "dtype": str(args.dtype),
+            }
+            with open(f"{base_prefix}.json", "w", encoding="utf-8") as mf:
+                json.dump(meta, mf, ensure_ascii=False, indent=2)
+            print(f"[OK][train] {base_prefix}.feats.npy feats={feats_all.shape} idx_train={len(train_idxs)} idx_eval={len(eval_idxs)}")
 
-            feats_train = _write_subset(train_dir, "train", train_idxs)
-            _write_subset(eval_dir, "eval", eval_idxs)
-
-            if feats_train is not None and feats_train.shape[0] > 0:
-                f64 = feats_train.astype(np.float64, copy=False)
+            # Accumulate stats using TRAIN targets only
+            if len(train_idxs) > 0:
+                f64 = feats_all[np.asarray(train_idxs, dtype=np.int64)].astype(np.float64, copy=False)
                 if sum_vec is None:
                     sum_vec = f64.sum(axis=0)
                     sumsq_vec = (f64 ** 2).sum(axis=0)
@@ -166,27 +299,24 @@ def main():
                     sumsq_vec += (f64 ** 2).sum(axis=0)
                 count_total += f64.shape[0]
         else:
-            idxs = list(range(L))
-            feats_sel = feats_full[idxs]
-            feats_sel = np.nan_to_num(feats_sel, nan=0.0, posinf=1e6, neginf=-1e6)
-            xy_sel = np.nan_to_num(xy_gt[idxs], nan=0.0, posinf=1e6, neginf=-1e6)
-            ts_sel = ts_gt[idxs]
             base_prefix = os.path.join(test_dir, base)
-            np.save(f"{base_prefix}.feats.npy", feats_sel.astype(args.dtype))
-            np.save(f"{base_prefix}.xy.npy", xy_sel.astype(np.float32))
-            np.save(f"{base_prefix}.ts.npy", ts_sel.astype(np.float64))
+            feats_all = np.nan_to_num(feats_full[:L], nan=0.0, posinf=1e6, neginf=-1e6)
+            xy_all = np.nan_to_num(xy_gt[:L], nan=0.0, posinf=1e6, neginf=-1e6)
+            ts_all = ts_gt[:L]
+            np.save(f"{base_prefix}.feats.npy", feats_all.astype(args.dtype))
+            np.save(f"{base_prefix}.xy.npy", xy_all.astype(np.float32))
+            np.save(f"{base_prefix}.ts.npy", ts_all.astype(np.float64))
             meta = {
                 "taps": args.taps,
                 "input_dim": int(Din),
                 "role": "test",
-                "length": int(len(idxs)),
+                "length": int(L),
                 "total_frames": int(L),
-                "indices": idxs,
                 "dtype": str(args.dtype),
             }
             with open(f"{base_prefix}.json", "w", encoding="utf-8") as mf:
                 json.dump(meta, mf, ensure_ascii=False, indent=2)
-            print(f"[OK][test ] {base_prefix}.feats.npy feats={feats_sel.shape}")
+            print(f"[OK][test ] {base_prefix}.feats.npy feats={feats_all.shape}")
 
     if count_total == 0 or sum_vec is None or sumsq_vec is None:
         raise RuntimeError("No TRAIN frames to compute stats.")

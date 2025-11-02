@@ -73,11 +73,11 @@ goto :eof
 echo Running parity with lessData...
 python -m refactor.core.train ^
   --train_root=./data/features/lessData/train ^
-  --eval_root=./data/features/lessData/eval ^
+  --eval_root=./data/features/lessData/train ^
   --Din=2100 --K=16 ^
-  --proj_dim=64 --d_model=128 --n_layer=4 ^
+  --proj_dim=32 --d_model=64 --n_layer=3 ^
   --patch_len=8 --stride=4 ^
-  --batch_size=64 --epochs=2 --lr=1.5e-4 --lr_schedule=cosine ^
+  --batch_size=32 --epochs=20 --lr=1e-4 --lr_schedule=cosine ^
   --workers=8 --prefetch=4 --amp ^
   --out_dir=%outdir% %qa% %dw% %extra%
 goto :eof

@@ -1,4 +1,4 @@
-import os
+﻿import os
 import argparse
 import time
 from pathlib import Path
@@ -37,7 +37,8 @@ def main():
     p.add_argument("--batch_size", type=int, default=64)
     p.add_argument("--workers", type=int, default=4)
     p.add_argument("--amp", action="store_true")
-    p.add_argument("--save_csv", action="store_true")
+    p.add_argument("--dont_save_csv", action="store_true")
+    p.add_argument("--target", type=str, default="auto", choices=["auto","train","eval"], help="which indices to use if present in JSON")
 
     # quantization toggles
     p.add_argument("--quant_backend", type=str, choices=["cpp", "python"], default=os.environ.get("QUANT_BACKEND", "python"))
@@ -91,7 +92,8 @@ def main():
         ds_cfg = TrainConfig(Din=cfg.Din, K=cfg.K, proj_dim=cfg.proj_dim, d_model=cfg.d_model,
                              n_layer=cfg.n_layer, patch_len=cfg.patch_len, stride=cfg.stride,
                              batch_size=args.batch_size, train_root=dir_path, eval_root=None)
-        ds, _ = build_datasets(ds_cfg)
+        # Build dataset directly to honor --target selection
+        ds = FramesLazyDataset(root=dir_path, seq_len=cfg.K, predict="current", mmap=True, target=args.target)
         dl = DataLoader(ds, batch_size=args.batch_size, shuffle=False, num_workers=args.workers, pin_memory=True,
                         persistent_workers=(args.workers>0), prefetch_factor=(2 if args.workers>0 else None))
         Path(out_dir).mkdir(parents=True, exist_ok=True)
@@ -190,7 +192,7 @@ def main():
 
         np.savez(os.path.join(out_dir, 'val_preds.npz'), y_true=y_true_a, y_pred=y_pred_a, err=err,
                  mean=np.float32(mean), median=np.float32(median), p80=np.float32(p80), p90=np.float32(p90))
-        if args.save_csv:
+        if not args.dont_save_csv:
             import csv
             with open(os.path.join(out_dir, 'pred_vs_true.csv'), 'w', newline='') as f:
                 w = csv.writer(f); w.writerow(['y_true_x','y_true_y','y_pred_x','y_pred_y','err_m'])
@@ -213,8 +215,8 @@ def main():
             "out_dir": out_dir,
         }
 
-    # mode A: per-subdir (if subdirs with npz exist)
-    subdirs = [d.path for d in os.scandir(args.eval_root) if d.is_dir() and any(fn.lower().endswith('.npz') for fn in os.listdir(d.path))]
+    # mode A: per-subdir (if subdirs with .feats.npy exist)
+    subdirs = [d.path for d in os.scandir(args.eval_root) if d.is_dir() and any(fn.lower().endswith('.feats.npy') for fn in os.listdir(d.path))]
     summary: list[dict] = []
     if subdirs:
         print({"grids": len(subdirs), "mode": "per-subdir"})
@@ -238,8 +240,8 @@ def main():
         print({"summary": txt, "csv": csv_path})
         return
 
-    # mode B: per-file (all .npz under one folder) — create one output folder per file stem
-    npz_files = sorted([p for p in glob.glob(os.path.join(args.eval_root, '*.npz'))])
+    # mode B: per-file (all .feats.npy under one folder) — create one output folder per file stem
+    npz_files = sorted([p for p in glob.glob(os.path.join(args.eval_root, '*.feats.npy'))])
     if npz_files:
         print({"files": len(npz_files), "mode": "per-file"})
         # build a common model once to reduce overhead? Keep per-file new model to mirror old exact behavior
@@ -247,7 +249,7 @@ def main():
             stem = os.path.splitext(os.path.basename(f))[0]
             out_sub = os.path.join(args.out_dir, stem)
             # dataset for single file with correct stats root (parent of eval_root)
-            ds = FramesLazyDataset.from_filelist([f], seq_len=cfg.K, predict="current", mmap=True, stats_root=Path(args.eval_root).parent)
+            ds = FramesLazyDataset.from_filelist([f], seq_len=cfg.K, predict="current", mmap=True, stats_root=Path(args.eval_root).parent, target=args.target)
             dl = DataLoader(ds, batch_size=args.batch_size, shuffle=False, num_workers=args.workers, pin_memory=True,
                             persistent_workers=(args.workers>0), prefetch_factor=(2 if args.workers>0 else None))
             Path(out_sub).mkdir(parents=True, exist_ok=True)
@@ -338,9 +340,9 @@ def main():
             plt.xlabel('Position error (m)'); plt.ylabel('Count'); plt.title('Error histogram')
             plt.tight_layout(); plt.savefig(os.path.join(out_sub, 'err_hist.png')); plt.close()
 
-            np.savez(os.path.join(out_sub, 'val_preds.npz'), y_true=y_true_a, y_pred=y_pred_a, err=err,
+            np.savez(os.path.join(out_sub, 'val_preds.feats.npy'), y_true=y_true_a, y_pred=y_pred_a, err=err,
                      mean=np.float32(mean), median=np.float32(median), p80=np.float32(p80), p90=np.float32(p90))
-            if args.save_csv:
+            if not args.dont_save_csv:
                 import csv
                 with open(os.path.join(out_sub, 'pred_vs_true.csv'), 'w', newline='') as f:
                     w = csv.writer(f); w.writerow(['y_true_x','y_true_y','y_pred_x','y_pred_y','err_m'])

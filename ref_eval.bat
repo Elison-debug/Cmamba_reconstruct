@@ -7,5 +7,6 @@ if "%~1"=="" (
   goto :eof
 )
 
-python -m refactor.core.eval %*
+python -m refactor.core.eval --eval_root=./data/features/lessData/test --target=auto --ckpt ckpt_refactor\less_python\best_epe_mean.pt
+ %*
 goto :eof

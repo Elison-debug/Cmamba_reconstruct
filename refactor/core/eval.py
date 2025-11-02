@@ -25,6 +25,7 @@ def main():
     p.add_argument("--workers", type=int, default=4)
     p.add_argument("--prefetch", type=int, default=4)
     p.add_argument("--mmap_off", action="store_true")
+    p.add_argument("--target", type=str, default="auto", choices=["auto","train","eval"], help="which indices to use if present in JSON")
     # fine-grained quant toggles (env-based)
     p.add_argument("--q_proj_head", action="store_true")
     p.add_argument("--q_block_linear", action="store_true")
@@ -79,7 +80,9 @@ def main():
         eval_root=None,
         mmap=not bool(args.mmap_off),
     )
-    ds, _ = build_datasets(cfg)
+    # Build dataset for eval_root only; respect target selection
+    from refactor.datasets.frames_lazy import FramesLazyDataset
+    ds = FramesLazyDataset(root=args.eval_root, seq_len=cfg.K, predict="current", mmap=cfg.mmap, target=args.target)
     dl = DataLoader(
         ds,
         batch_size=cfg.batch_size,

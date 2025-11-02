@@ -32,13 +32,15 @@ class FramesLazyDataset(Dataset):
         predict: str = "current",
         mmap: bool = True,
         stats_root: Optional[str | os.PathLike] = None,
+        target: str = "auto",  # "train" | "eval" | "auto"
     ) -> None:
         super().__init__()
         assert (root is not None) ^ (files is not None), "root 与 files 必须二选一"
 
         if files is None:
-            root_path = Path(root)
-            feats_list = sorted(str(p) for p in root_path.glob("*.feats.npy"))
+            root_path = Path(root) # type: ignore[arg-type]
+            # recursively include all .feats.npy under root
+            feats_list = sorted(str(p) for p in root_path.rglob("*.feats.npy"))
         else:
             feats_list = sorted(str(Path(p)) for p in files)
 
@@ -69,11 +71,24 @@ class FramesLazyDataset(Dataset):
                 with open(meta_path, "r", encoding="utf-8") as mf:
                     meta = json.load(mf)
 
-            length = int(meta.get("length", 0) or 0)
-            if length <= 0:
-                arr = np.load(feats_path, mmap_mode="r")
-                length = int(arr.shape[0])
-                del arr
+            # Determine full sequence length from feats file and optional target indices
+            arr = np.load(feats_path, mmap_mode="r")
+            length = int(arr.shape[0])
+            del arr
+            # pick target indices per requested split
+            targets = None
+            if target == "train":
+                indices = meta.get("indices_train")
+                if isinstance(indices, list) and len(indices) > 0:
+                    targets = [int(i) for i in indices]
+            elif target == "eval":
+                indices = meta.get("indices_eval")
+                if isinstance(indices, list) and len(indices) > 0:
+                    targets = [int(i) for i in indices]
+            else:
+                indices = meta.get("indices")
+                if isinstance(indices, list) and len(indices) > 0:
+                    targets = [int(i) for i in indices]
 
             entries.append(
                 {
@@ -82,6 +97,7 @@ class FramesLazyDataset(Dataset):
                     "xy": str(xy_path),
                     "ts": str(ts_path) if ts_path.exists() else None,
                     "length": length,
+                    "targets": targets,
                 }
             )
 
@@ -92,14 +108,27 @@ class FramesLazyDataset(Dataset):
         self.index: List[Tuple[int, int, int]] = []
         total_frames = 0
         for fi, entry in enumerate(self.entries):
-            T = int(entry["length"])
+            T = int(entry["length"]) # type: ignore[assignment]
             total_frames += T
-            if self.predict == "current":
-                for t in range(self.seq_len, T):
-                    self.index.append((fi, t - self.seq_len, t))
+            t_list = entry.get("targets")
+            if isinstance(t_list, list) and len(t_list) > 0:
+                if self.predict == "current":
+                    for t in t_list:
+                        ti = int(t)
+                        if ti >= self.seq_len and ti < T:
+                            self.index.append((fi, ti - self.seq_len, ti))
+                else:
+                    for t in t_list:
+                        ti = int(t)
+                        if ti >= self.seq_len and (ti + 1) < T:
+                            self.index.append((fi, ti - self.seq_len, ti + 1))
             else:
-                for t in range(self.seq_len, T - 1):
-                    self.index.append((fi, t - self.seq_len, t + 1))
+                if self.predict == "current":
+                    for t in range(self.seq_len, T):
+                        self.index.append((fi, t - self.seq_len, t))
+                else:
+                    for t in range(self.seq_len, T - 1):
+                        self.index.append((fi, t - self.seq_len, t + 1))
 
         if not self.index:
             raise RuntimeError(
@@ -112,7 +141,7 @@ class FramesLazyDataset(Dataset):
         stats_roots: List[Path] = []
         if stats_root is not None:
             stats_roots.append(Path(stats_root))
-        default_root = Path(self.entries[0]["feats"]).parent
+        default_root = Path(self.entries[0]["feats"]).parent # type: ignore[assignment]
         stats_roots += [default_root, default_root.parent]
         for sr in stats_roots:
             sp = sr / "stats_train.npz"
@@ -142,12 +171,12 @@ class FramesLazyDataset(Dataset):
         if cached is not None:
             return cached
         entry = self.entries[fi]
-        feats = np.load(entry["feats"], mmap_mode="r" if self._mmap else None)
-        xy = np.load(entry["xy"], mmap_mode="r" if self._mmap else None)
+        feats = np.load(entry["feats"], mmap_mode="r" if self._mmap else None) # type: ignore[assignment]
+        xy = np.load(entry["xy"], mmap_mode="r" if self._mmap else None) # type: ignore[assignment]
         ts = None
         ts_path = entry["ts"]
         if ts_path:
-            ts = np.load(ts_path, mmap_mode="r" if self._mmap else None)
+            ts = np.load(ts_path, mmap_mode="r" if self._mmap else None) # type: ignore[assignment]
         cached = {"feats": feats, "xy": xy, "ts": ts}
         self._cache[fi] = cached
         return cached
@@ -175,5 +204,6 @@ class FramesLazyDataset(Dataset):
         predict: str = "current",
         mmap: bool = True,
         stats_root: Optional[str | os.PathLike] = None,
+        target: str = "auto",
     ) -> "FramesLazyDataset":
-        return cls(files=[str(p) for p in files], seq_len=seq_len, predict=predict, mmap=mmap, stats_root=stats_root)
+        return cls(files=[str(p) for p in files], seq_len=seq_len, predict=predict, mmap=mmap, stats_root=stats_root, target=target)

@@ -44,10 +44,13 @@ def build_datasets(cfg: TrainConfig):
     from refactor.datasets.frames_lazy import FramesLazyDataset
 
     assert cfg.train_root is not None, "cfg.train_root must be provided"
-    train_ds = FramesLazyDataset(root=cfg.train_root, seq_len=cfg.K, predict="current", mmap=cfg.mmap)
+    # Training targets come from indices_train when available
+    train_ds = FramesLazyDataset(root=cfg.train_root, seq_len=cfg.K, predict="current", mmap=cfg.mmap, target="train")
     eval_ds = None
     if cfg.eval_root:
-        eval_ds = FramesLazyDataset(root=cfg.eval_root, seq_len=cfg.K, predict="current", mmap=cfg.mmap)
+        # If eval_root equals train_root or eval files contain indices_eval, dataset will use eval targets
+        target_kind = "eval" if (cfg.eval_root == cfg.train_root) else "auto"
+        eval_ds = FramesLazyDataset(root=cfg.eval_root, seq_len=cfg.K, predict="current", mmap=cfg.mmap, target=target_kind)
     return train_ds, eval_ds
 
 
@@ -314,12 +317,12 @@ def main():
             scheduler = None
         use_amp = bool(args.amp and torch.cuda.is_available())
         scaler = None
-        autocast_cm = None
+        autocast_cm = None # type: ignore
         if use_amp:
             try:
                 scaler = torch.amp.GradScaler("cuda")  # type: ignore[attr-defined]
 
-                def autocast_cm():
+                def autocast_cm(): # type: ignore
                     return torch.amp.autocast("cuda")  # type: ignore[attr-defined]
 
             except Exception:
