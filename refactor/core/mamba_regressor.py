@@ -2,7 +2,6 @@ import os
 import torch
 import torch.nn as nn
 from .cmamba_slim import CMambaSlim, ModelArgs
-from ..quant.qat_layers import QLinearINT8, set_default_backend
 
 
 class MambaRegressor(nn.Module):
@@ -20,25 +19,13 @@ class MambaRegressor(nn.Module):
         pe_scale: float = 1.0,
         gate_off: bool = False,
         agg_pool: str = "",
-        # quant/config toggles (explicit, avoid env):
-        quantize_all: bool = False,
-        q_proj_head: bool = False,
-        q_block_linear: bool = False,
-        q_backbone_linear: bool = False,
         use_dwconv: bool = False,
-        quant_backend: str = "python",
     ) -> None:
         super().__init__()
         self.Din = Din
         self.K = K
-        quant_all = bool(quantize_all)
-        use_q = bool(q_proj_head) or quant_all
-        # set default backend for all QLinear in backbone
-        try:
-            set_default_backend(str(quant_backend))
-        except Exception:
-            pass
-        self.proj = QLinearINT8(Din, proj_dim, backend=quant_backend) if use_q else nn.Linear(Din, proj_dim)
+        # Conv1d projection across channels per time-step
+        self.proj = nn.Conv1d(Din, proj_dim, kernel_size=1, bias=True)
 
         args = ModelArgs(
             d_model=d_model,
@@ -54,16 +41,14 @@ class MambaRegressor(nn.Module):
             gate_off=gate_off,
             agg_pool=agg_pool,
             use_dwconv=use_dwconv,
-            q_block_linear=(bool(q_block_linear) or quant_all),
-            q_backbone_linear=(bool(q_backbone_linear) or quant_all),
         )
         self.backbone = CMambaSlim(args)
-        self.head = QLinearINT8(proj_dim, 2, backend=quant_backend) if use_q else nn.Linear(proj_dim, 2)
+        self.head = nn.Conv1d(proj_dim, 2, kernel_size=1, bias=True)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # x: (B, K, Din)
-        x = self.proj(x)  # (B,K,C)
-        y = self.backbone(x.permute(0, 2, 1))  # (B,C,1)
-        if y.dim() == 3:
-            y = y.squeeze(-1)
-        return self.head(y)  # (B,2)
+        x = x.permute(0, 2, 1)            # (B, Din, K)
+        x = self.proj(x)                  # (B, C, K)
+        y = self.backbone(x)              # (B, C, 1)
+        out = self.head(y).squeeze(-1)    # (B, 2)
+        return out

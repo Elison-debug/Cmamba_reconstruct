@@ -92,15 +92,16 @@ class SelectiveScanIC(nn.Module):
 
     def __init__(self, dim: int, LinearImpl=nn.Linear):
         super().__init__()
-        self.dt_proj = LinearImpl(dim, dim, bias=True)
+        # replace linear with pointwise conv1d
+        self.dt_proj = nn.Conv1d(dim, dim, kernel_size=1, bias=True)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # x: [B,K,D]
         B, K, D = x.shape
         s = torch.zeros(B, D, device=x.device, dtype=x.dtype)
-        # compute dt_proj for all time steps at once to reduce per-step kernel launches
-        x_flat = x.reshape(B * K, D)
-        lam_all = torch.sigmoid(self.dt_proj(x_flat)).reshape(B, K, D)
+        # compute dt_proj via 1x1 conv over channels for all steps
+        xp = x.permute(0, 2, 1)                  # (B, D, K)
+        lam_all = torch.sigmoid(self.dt_proj(xp)).permute(0, 2, 1)  # (B, K, D)
         ys = torch.empty(B, K, D, device=x.device, dtype=x.dtype)
         for t in range(K):
             u = x[:, t, :]
@@ -137,39 +138,38 @@ class SlimMambaBlock(nn.Module):
             k += 1
 
         self.norm = RMSNorm(D)
-        try:
-            from ..quant.qat_layers import QLinearINT8 as _QLinear
-        except Exception:
-            _QLinear = None
-        LinearImpl = (_QLinear if (use_q_block and _QLinear is not None) else nn.Linear)
-
-        self.in_proj = LinearImpl(D, 2 * inner, bias=args.bias)
+        # pointwise conv1d instead of linear
+        self.in_proj = nn.Conv1d(D, 2 * inner, kernel_size=1, bias=args.bias)
         if use_dw:
             pad = k // 2
             self.dw_conv = nn.Conv1d(inner, inner, kernel_size=k, padding=pad, groups=inner, bias=args.conv_bias)
         else:
             self.dw_conv = None
         self.act = nn.SiLU()
-        # dt_proj inside SSM is also quantizable
-        self.ssm = SelectiveScanIC(inner, LinearImpl=LinearImpl)  # type: ignore
-        self.out_proj = LinearImpl(inner, D, bias=args.bias)
+        # dt_proj inside SSM as conv1d
+        self.ssm = SelectiveScanIC(inner, LinearImpl=nn.Linear)  # type: ignore
+        self.out_proj = nn.Conv1d(inner, D, kernel_size=1, bias=args.bias)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # x: [B,K,D]
         h = self.norm(x)
-        uv = self.in_proj(h)  # [B,K,2*inner]
+        hp = h.permute(0, 2, 1)            # (B, D, K)
+        uvp = self.in_proj(hp)             # (B, 2*inner, K)
+        uv = uvp.permute(0, 2, 1)          # (B, K, 2*inner)
         inner = self.args.d_inner
         u, z = uv[..., :inner], uv[..., inner:]
         if self.dw_conv is not None:
-            u = u.permute(0, 2, 1)
-            u = self.dw_conv(u)
-            u = u.permute(0, 2, 1)
+            up = u.permute(0, 2, 1)
+            up = self.dw_conv(up)
+            u = up.permute(0, 2, 1)
         u = self.act(u)
         s = self.ssm(u)
         if self.use_gate:
             g = self.act(z)
             s = s * g
-        y = self.out_proj(s)
+        sp = s.permute(0, 2, 1)
+        yp = self.out_proj(sp)             # (B, D, K)
+        y = yp.permute(0, 2, 1)
         return x + y
 
 
@@ -177,21 +177,17 @@ class CMambaSlim(nn.Module):
     def __init__(self, args: ModelArgs):
         super().__init__()
         self.args = args
-        # Optional quantized linears for backbone via args
-        use_q = bool(self.args.q_backbone_linear)
+        # Using Conv1d projections; no linear in backbone
         # Aggregation and PE toggles (args-based)
         self.agg_pool = self.args.agg_pool  # "avg" | "max" | ""
         self.pe_on = bool(self.args.pe_on)
         self.pe_scale = float(self.args.pe_scale)
-        try:
-            from ..quant.qat_layers import QLinearINT8 as _QLinear
-        except Exception:
-            _QLinear = None
-
-        LinearImpl = (_QLinear if (use_q and _QLinear is not None) else nn.Linear)
-
-        self.patch_embedding = LinearImpl(
-            args.patch_len * args.num_channels, args.d_model
+        self.patch_embedding = nn.Conv1d(
+            in_channels=args.num_channels,
+            out_channels=args.d_model,
+            kernel_size=args.patch_len,
+            stride=args.stride,
+            bias=True,
         )
         self.blocks = nn.ModuleList([SlimMambaBlock(args) for _ in range(args.n_layer)])
         self.norm_f = RMSNorm(args.d_model)
@@ -199,12 +195,18 @@ class CMambaSlim(nn.Module):
         if self.pe_on:
             pe = self._build_sincos(args.num_patches, args.d_model)
             self.register_buffer("pe_buf", pe, persistent=False)
-        # Two heads: flatten head and pooled head (select at forward by env)
-        self.output_layer_flat = LinearImpl(
-            args.d_model * args.num_patches, args.num_channels * args.forecast_len
+        # Heads as Conv1d
+        self.output_layer_flat = nn.Conv1d(
+            in_channels=args.d_model,
+            out_channels=args.num_channels * args.forecast_len,
+            kernel_size=args.num_patches,
+            bias=True,
         )
-        self.output_layer_pool = LinearImpl(
-            args.d_model, args.num_channels * args.forecast_len
+        self.output_layer_pool = nn.Conv1d(
+            in_channels=args.d_model,
+            out_channels=args.num_channels * args.forecast_len,
+            kernel_size=1,
+            bias=True,
         )
 
     @staticmethod
@@ -232,30 +234,24 @@ class CMambaSlim(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # x: [B, C, K]
         B, C, L = x.shape
-        P, S = self.args.patch_len, self.args.stride
-        x = (
-            x.unfold(2, P, S)
-            .contiguous()
-            .permute(0, 2, 1, 3)
-            .reshape(B, -1, C * P)
-        )
-        x = self.patch_embedding(x)
+        # conv patch embedding
+        x = self.patch_embedding(x)          # (B, d_model, num_patches)
+        x = x.permute(0, 2, 1)               # (B, num_patches, d_model)
         if self.pe_on:
             # use cached pe, cast to runtime device/dtype
             pe = self.pe_buf.to(device=x.device, dtype=x.dtype)
             x = x + self.pe_scale * pe.unsqueeze(0) # type: ignore
         for blk in self.blocks:
             x = blk(x)
-            #x = x + blk(x)
         x = self.norm_f(x)
         if self.agg_pool == "avg":
-            x_agg = x.mean(dim=1)
-            y = self.output_layer_pool(x_agg)
+            x_agg = x.mean(dim=1)            # (B, d_model)
+            y = self.output_layer_pool(x_agg.unsqueeze(-1))  # (B, C*F, 1)
         elif self.agg_pool == "max":
             x_agg, _ = x.max(dim=1)
-            y = self.output_layer_pool(x_agg)
+            y = self.output_layer_pool(x_agg.unsqueeze(-1))
         else:
-            x_flat = x.reshape(B, -1)
-            y = self.output_layer_flat(x_flat)
+            xp = x.permute(0, 2, 1)          # (B, d_model, num_patches)
+            y = self.output_layer_flat(xp)   # (B, C*F, 1)
         y = y.reshape(B, self.args.num_channels, self.args.forecast_len)
         return y

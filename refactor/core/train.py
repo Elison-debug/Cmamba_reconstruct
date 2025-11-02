@@ -261,12 +261,7 @@ def main():
         pe_scale=args.pe_scale,
         gate_off=args.gate_off,
         agg_pool=args.agg_pool,
-        quantize_all=args.quantize_all,
-        q_proj_head=args.q_proj_head,
-        q_block_linear=args.q_block_linear,
-        q_backbone_linear=args.q_backbone_linear,
         use_dwconv=args.use_dwconv,
-        quant_backend=args.quant_backend,
     ).to(device)
     n_params = sum(p.numel() for p in model.parameters())
     print({"model_params": int(n_params), "device": str(device)})
@@ -316,7 +311,13 @@ def main():
         for epoch in range(cfg.epochs):
             print(f"==== Epoch {epoch+1}/{cfg.epochs} ====")
             if args.amp and torch.cuda.is_available():
-                scaler = torch.cuda.amp.GradScaler()
+                # Use new torch.amp API with fallback for older PyTorch
+                try:
+                    scaler = torch.amp.GradScaler('cuda')  # type: ignore[arg-type]
+                    autocast_cm = torch.amp.autocast('cuda')  # type: ignore[arg-type]
+                except Exception:
+                    scaler = torch.cuda.amp.GradScaler()
+                    autocast_cm = torch.cuda.amp.autocast()
                 model.train()
                 total = 0.0
                 n = 0
@@ -327,7 +328,7 @@ def main():
                     xb = xb.to(device, non_blocking=True).float()
                     yb = yb.squeeze(1).to(device, non_blocking=True).float()
                     optim.zero_grad(set_to_none=True)
-                    with torch.cuda.amp.autocast():
+                    with autocast_cm:
                         pred = model(xb)
                         loss = criterion(pred, yb)
                     scaler.scale(loss).backward()

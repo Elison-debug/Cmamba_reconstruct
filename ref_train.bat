@@ -79,5 +79,5 @@ python -m refactor.core.train ^
   --patch_len=8 --stride=4 ^
   --batch_size=64 --epochs=20 --lr=1.5e-4 --lr_schedule=cosine ^
   --workers=8 --prefetch=8 --mmap_off --amp ^
-  --quant_backend=%backend% --out_dir=%outdir% %qa% %dw% %extra%
+  --out_dir=%outdir% %qa% %dw% %extra%
 goto :eof
