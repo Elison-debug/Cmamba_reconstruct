@@ -1,12 +1,59 @@
 @echo off
-setlocal
-if "%~1"=="" (
-  echo Usage: ref_test.bat [python-args...]
-  echo   For example:
-  echo     ref_test.bat --eval_root=.^\data^\features^\lessData^\test --ckpt=best_epe_mean.pt --out_dir=test_out_less_python --quant_backend=python --target=auto --save_csv
+set target=%1
+
+if "%target%"=="" (
+  echo Usage: ref_data.bat train ^| eval ^| test
   goto :eof
 )
 
-python -m refactor.core.test.test %*
+if "%target%"=="train" goto run_train
+if "%target%"=="eval" goto run_eval
+if "%target%"=="test" goto run_test
 
+echo Unknown target: %target%
+goto :eof
+
+:run_train
+python -m refactor.core.eval ^
+  --eval_root=./data/features/lessData/train ^
+  --ckpt ckpt_refactor\less_python\best_epe_mean.pt ^
+  --target=train
+
+python -m refactor.core.test.test ^
+  --eval_root=./data/features/lessData/train ^
+  --ckpt ckpt_refactor\less_python\best_epe_mean.pt ^
+  --traget=train --out_dir=test_out/train
+
+python -m refactor.core.test.plot ^
+  --root_dir=test_out/train
+goto :eof
+
+:run_test
+python -m refactor.core.eval ^
+  --eval_root=./data/features/lessData/test ^
+  --ckpt ckpt_refactor\less_python\best_epe_mean.pt
+
+python -m refactor.core.test.test ^
+  --eval_root=./data/features/lessData/test ^
+  --ckpt ckpt_refactor\less_python\best_epe_mean.pt ^
+  --out_dir=eval_out_testing --out_dir=test_out/testing
+
+python -m refactor.core.test.plot ^
+  --root_dir=test_out/testing
+
+goto :eof
+
+:run_eval
+python -m refactor.core.eval ^
+  --eval_root=./data/features/lessData/eval ^
+  --ckpt ckpt_refactor\less_python\best_epe_mean.pt ^
+  --target=eval
+
+python -m refactor.core.test.test ^
+  --eval_root=./data/features/lessData/eval ^
+  --ckpt ckpt_refactor\less_python\best_epe_mean.pt ^
+  --traget=eval --out_dir=test_out/eval
+
+python -m refactor.core.test.plot ^
+  --root_dir=test_out/eval
 goto :eof
