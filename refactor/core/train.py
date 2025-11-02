@@ -49,7 +49,8 @@ def build_datasets(cfg: TrainConfig):
     eval_ds = None
     if cfg.eval_root:
         # If eval_root equals train_root or eval files contain indices_eval, dataset will use eval targets
-        target_kind = "eval" if (cfg.eval_root == cfg.train_root) else "auto"
+        # target_kind = "eval" if (cfg.eval_root == cfg.train_root) else "auto"
+        target_kind = "eval"
         eval_ds = FramesLazyDataset(root=cfg.eval_root, seq_len=cfg.K, predict="current", mmap=cfg.mmap, target=target_kind)
     return train_ds, eval_ds
 

@@ -17,29 +17,25 @@ goto :eof
 python -m refactor.core.eval ^
   --eval_root=./data/features/lessData/train ^
   --ckpt ckpt_refactor\less_python\best_epe_mean.pt ^
-  --target=train
+  --target=train --out_dir ./test_out/train
 
 python -m refactor.core.test.test ^
   --eval_root=./data/features/lessData/train ^
   --ckpt ckpt_refactor\less_python\best_epe_mean.pt ^
-  --traget=train --out_dir=test_out/train
+  --target=train --out_dir=test_out/train
 
-python -m refactor.core.test.plot ^
-  --root_dir=test_out/train
 goto :eof
 
 :run_test
 python -m refactor.core.eval ^
   --eval_root=./data/features/lessData/test ^
-  --ckpt ckpt_refactor\less_python\best_epe_mean.pt
+  --ckpt ckpt_refactor\less_python\best_epe_mean.pt ^
+  --out_dir=test_out/testing
 
 python -m refactor.core.test.test ^
   --eval_root=./data/features/lessData/test ^
   --ckpt ckpt_refactor\less_python\best_epe_mean.pt ^
   --out_dir=eval_out_testing --out_dir=test_out/testing
-
-python -m refactor.core.test.plot ^
-  --root_dir=test_out/testing
 
 goto :eof
 
@@ -47,13 +43,10 @@ goto :eof
 python -m refactor.core.eval ^
   --eval_root=./data/features/lessData/eval ^
   --ckpt ckpt_refactor\less_python\best_epe_mean.pt ^
-  --target=eval
+  --target=eval --out_dir ./test_out/eval
 
 python -m refactor.core.test.test ^
   --eval_root=./data/features/lessData/eval ^
   --ckpt ckpt_refactor\less_python\best_epe_mean.pt ^
-  --traget=eval --out_dir=test_out/eval
-
-python -m refactor.core.test.plot ^
-  --root_dir=test_out/eval
+  --target=eval --out_dir=test_out/eval
 goto :eof

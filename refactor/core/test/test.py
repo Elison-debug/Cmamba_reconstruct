@@ -10,7 +10,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
-from ..train import TrainConfig, build_datasets, set_seed
+from ..train import TrainConfig, set_seed
 from ...datasets.frames_lazy import FramesLazyDataset
 import glob
 
@@ -189,6 +189,15 @@ def main():
         plt.hist(err, bins=50); plt.grid(True, linestyle='--', linewidth=0.5)
         plt.xlabel('Position error (m)'); plt.ylabel('Count'); plt.title('Error histogram')
         plt.tight_layout(); plt.savefig(os.path.join(out_dir, 'err_hist.png')); plt.close()
+
+        # True vs Predicted trajectory plot (always saved)
+        plt.figure(figsize=(6,5), dpi=160)
+        plt.title('True vs Predicted Positions')
+        plt.plot(y_true_a[:,0], y_true_a[:,1], 'b-', linewidth=1.5, label='True Trajectory')
+        sc = plt.scatter(y_pred_a[:,0], y_pred_a[:,1], c=np.arange(len(y_pred_a)), cmap='plasma', s=2, alpha=0.8, label='Predicted')
+        cb = plt.colorbar(sc); cb.set_label('Frame index')
+        plt.xlabel('X'); plt.ylabel('Y'); plt.grid(True, linestyle='--', linewidth=0.5); plt.axis('equal'); plt.legend()
+        plt.tight_layout(); plt.savefig(os.path.join(out_dir, 'pred_vs_true.png')); plt.close()
 
         np.savez(os.path.join(out_dir, 'val_preds.npz'), y_true=y_true_a, y_pred=y_pred_a, err=err,
                  mean=np.float32(mean), median=np.float32(median), p80=np.float32(p80), p90=np.float32(p90))

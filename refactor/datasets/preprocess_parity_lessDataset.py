@@ -20,143 +20,23 @@ import numpy as np
 from scipy.io import loadmat
 from numpy.fft import ifft
 
+from .preprocess_luvira_lazy import (
+    _infer_seconds,
+    load_gt_csv,
+    select_radio_tensor,
+    cir_features_batch,
+)
+
 def _extract_num_id(name: str) -> Optional[int]:
     import re as _re
     m = _re.findall(r'\d+', name)
     return None if not m else int(m[-1])
 
-def _infer_seconds(ts: np.ndarray) -> np.ndarray:
-    ts = np.asarray(ts).astype(np.float64).reshape(-1)
-    if ts.size < 2:
-        return ts
-    dif = np.diff(ts)
-    dif = dif[np.isfinite(dif) & (dif > 0)]
-    if dif.size == 0:
-        return ts
-    md = float(np.median(dif))
-    if md > 1e-2:
-        scale = 1.0
-    elif md > 1e-4:
-        scale = 1e-3
-    else:
-        scale = 1e-6
-    return ts * scale
-
-def _sniff_delimiter(path: str, encodings: tuple[str, ...] = ("utf-8", "utf-8-sig", "gbk", "latin1")) -> Tuple[str, str]:
-    candidates = [",", ";", "\t", " "]
-    candidate_str = ",;\t "
-    for enc in encodings:
-        try:
-            with open(path, "r", encoding=enc, newline="") as f:
-                sample = f.read(65536)
-            if not sample:
-                continue
-            try:
-                dialect = csv.Sniffer().sniff(sample, delimiters=candidate_str)
-                delim = dialect.delimiter
-            except Exception:
-                counts = {d: sample.count(d) for d in candidates}
-                delim = "," if sum(counts.values()) == 0 else max(counts.items(), key=lambda kv: kv[1])[0]
-            return enc, delim
-        except Exception:
-            continue
-    return "utf-8", ","
-
-def load_gt_csv(path_csv: str, pos_units: str = "mm") -> Tuple[np.ndarray, np.ndarray]:
-    enc, delim = _sniff_delimiter(path_csv)
-    try:
-        data = np.genfromtxt(path_csv, delimiter=delim, names=True, dtype=None, encoding=enc)
-    except Exception:
-        data = None
-    have_header = (isinstance(data, np.ndarray) and getattr(data, "size", 0) > 0 and getattr(data.dtype, "names", None) is not None)
-    if not have_header:
-        try:
-            raw = np.genfromtxt(path_csv, delimiter=delim, dtype=float, encoding=enc)
-        except Exception:
-            raw = np.genfromtxt(path_csv, delimiter=delim, dtype=float)
-        if raw.ndim == 1:
-            raw = raw.reshape(1, -1)
-        raw = raw[np.isfinite(raw).all(axis=1)]
-        if raw.shape[1] < 3 or raw.shape[0] < 2:
-            raise ValueError(f"CSV {path_csv}: not enough numeric rows/cols")
-        ts = raw[:, 0].astype(np.float64)
-        xy = raw[:, 1:3].astype(np.float64)
-    else:
-        names = [n.lower() for n in (data.dtype.names or [])] # type: ignore[attr-defined]
-        def _find(keys):
-            for k in keys:
-                if k in names:
-                    return k
-            return None
-        tk = _find(["time", "timestamp", "ts", "t"]) or names[0]
-        xk = _find(["x", "pos_x", "px"]) or names[1]
-        yk = _find(["y", "pos_y", "py"]) or names[2]
-        rec = cast(np.ndarray, data)
-        ts = np.asarray(rec[tk], dtype=np.float64).reshape(-1)
-        x  = np.asarray(rec[xk], dtype=np.float64).reshape(-1)
-        y  = np.asarray(rec[yk], dtype=np.float64).reshape(-1)
-        m = np.isfinite(ts) & np.isfinite(x) & np.isfinite(y)
-        ts = ts[m]; x = x[m]; y = y[m]
-        xy = np.stack([x, y], axis=1)
-    ts = _infer_seconds(ts)
-    if pos_units == "mm":
-        xy = xy / 1000.0
-    elif pos_units != "m":
-        raise ValueError("pos_units must be 'mm' or 'm'")
-    order = np.argsort(ts)
-    return ts[order], xy[order].astype(np.float32)
-
-PREF_KEYS = ["H_ueprocess", "H", "Yc", "CSI", "CIR"]
-
-def select_radio_tensor(md: Dict[str, Any]) -> np.ndarray:
-    key: Optional[str] = None
-    for k in PREF_KEYS:
-        if k in md and isinstance(md[k], np.ndarray):
-            key = k; break
-    if key is None:
-        cands = [(k, v) for k, v in md.items() if isinstance(v, np.ndarray) and v.ndim == 3]
-        if not cands:
-            raise ValueError("No 3D ndarray in .mat")
-        key, _ = max(cands, key=lambda kv: kv[1].size)
-    A = np.asarray(md[key])
-    if not np.iscomplexobj(A):
-        re_key, im_key = key + "_real", key + "_imag"
-        if re_key in md and im_key in md:
-            A = np.asarray(md[re_key]) + 1j * np.asarray(md[im_key])
-        else:
-            raise ValueError(f"{key} is not complex and no ({re_key},{im_key}) provided")
-    if A.ndim != 3:
-        raise ValueError(f"{key} must be 3D, got {A.ndim}D")
-    # ensure (T,F,A)
-    dims = list(A.shape)
-    t_ax = int(np.argmax(dims))
-    if t_ax == 0:
-        Yt = A
-    elif t_ax == 1:
-        Yt = np.transpose(A, (1, 0, 2))
-    else:
-        Yt = np.transpose(A, (2, 0, 1))
-    T, a, b = Yt.shape
-    Y = Yt if a >= b else np.transpose(Yt, (0, 2, 1))
-    return Y
-
-def cir_features_batch(Y: np.ndarray, L: int) -> np.ndarray:
-    D = ifft(Y, axis=1)[:, :L, :]  # (T, L, A)
-    p = np.sqrt(np.mean(np.abs(D)**2, axis=(0, 1), keepdims=True)) + 1e-8  # (1,1,A)
-    Dn = D / p
-    T, _, A = Dn.shape
-    feat_cir = np.stack([Dn.real, Dn.imag], axis=2)      # (T, L, 2, A)
-    feat_cir = feat_cir.transpose(0, 1, 3, 2).reshape(T, L * A * 2)
-    power = np.log1p(np.mean(np.abs(D)**2, axis=1))      # (T, A)
-    feats = np.concatenate([feat_cir.astype(np.float32), power.astype(np.float32)], axis=1)
-    return feats
-
-
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--radio_dir", required=True)
-    ap.add_argument("--gt_dir", required=True)
-    ap.add_argument("--out_dir", required=True)
+    ap.add_argument("--radio_dir", type=str, default="./data/radio/grid")
+    ap.add_argument("--gt_dir", type=str, default="./data/truth/grid")
+    ap.add_argument("--out_dir", type=str, default="./data/features/lessData")
     ap.add_argument("--taps", type=int, default=10)
     ap.add_argument("--fps", type=int, default=100)
     ap.add_argument("--pos_units", choices=["mm", "m"], default="mm")

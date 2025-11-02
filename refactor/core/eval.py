@@ -1,7 +1,12 @@
 import os
 import argparse
+from pathlib import Path
+import numpy as np
 import torch
 from torch.utils.data import DataLoader
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 
 from .train import evaluate, TrainConfig, build_datasets, set_seed
 from .losses import HuberEPE
@@ -37,6 +42,8 @@ def main():
     p.add_argument("--pe_scale", type=float, default=1.0)
     p.add_argument("--gate_off", action="store_true")
     p.add_argument("--agg_pool", type=str, default="", choices=["", "avg", "max"])
+    p.add_argument("--out_dir", type=str, default="./eval_out")
+    p.add_argument("--save_csv", action="store_true")
     args = p.parse_args()
 
     set_seed(42)
@@ -132,6 +139,63 @@ def main():
     show = (args.progress or (not args.no_progress))
     ev_loss, stats = evaluate(model, dl, device, loss_fn, show_progress=show) #type: ignore
     print({"eval_loss": ev_loss, **stats})
+
+    # Full-dataset prediction pass for plots and detailed outputs
+    Path(args.out_dir).mkdir(parents=True, exist_ok=True)
+    model.eval()
+    y_true_list = []
+    y_pred_list = []
+    with torch.no_grad():
+        for xb, yb in dl:
+            xb = xb.to(device, non_blocking=True).float()
+            yb = yb.squeeze(1).to(device, non_blocking=True).float()
+            pred = model(xb)
+            y_true_list.append(yb.detach().cpu().numpy())
+            y_pred_list.append(pred.detach().cpu().numpy())
+    if y_true_list:
+        y_true = np.concatenate(y_true_list, axis=0)
+        y_pred = np.concatenate(y_pred_list, axis=0)
+        err = np.sqrt(np.sum((y_pred - y_true) ** 2, axis=1))
+        mean = float(err.mean()); median = float(np.median(err))
+        p80 = float(np.percentile(err, 80)); p90 = float(np.percentile(err, 90))
+
+        # Save npz
+        np.savez(os.path.join(args.out_dir, 'val_preds.npz'), y_true=y_true, y_pred=y_pred, err=err,
+                 mean=np.float32(mean), median=np.float32(median), p80=np.float32(p80), p90=np.float32(p90))
+        # Optional CSV
+        if args.save_csv:
+            import csv
+            with open(os.path.join(args.out_dir, 'pred_vs_true.csv'), 'w', newline='') as f:
+                w = csv.writer(f); w.writerow(['y_true_x','y_true_y','y_pred_x','y_pred_y','err_m'])
+                for (yt, yp, e_) in zip(y_true, y_pred, err):
+                    w.writerow([yt[0], yt[1], yp[0], yp[1], e_])
+
+        # Plots: CDF zoom, CDF full, error hist, trajectory
+        e_sorted = np.sort(err); ycdf = np.arange(1, len(e_sorted) + 1) / len(e_sorted)
+        plt.figure(figsize=(5,4), dpi=160)
+        plt.plot(e_sorted, ycdf); plt.xlim(0, 0.5); plt.xticks(np.arange(0, 0.51, 0.05))
+        plt.grid(True, linestyle='--', linewidth=0.5); plt.xlabel('Position error (m)'); plt.ylabel('CDF'); plt.title('Error CDF (0-0.5 m)')
+        plt.tight_layout(); plt.savefig(os.path.join(args.out_dir, 'cdf_zoom.png')); plt.close()
+
+        plt.figure(figsize=(5,4), dpi=160)
+        plt.plot(e_sorted, ycdf)
+        xticks = list(np.arange(0, 0.41, 0.10)) + list(np.arange(0, 2.1, 0.2))
+        plt.xticks(xticks); plt.grid(True, linestyle='--', linewidth=0.5)
+        plt.xlabel('Position error (m)'); plt.ylabel('CDF'); plt.title('Error CDF')
+        plt.tight_layout(); plt.savefig(os.path.join(args.out_dir, 'cdf.png')); plt.close()
+
+        plt.figure(figsize=(5,4), dpi=160)
+        plt.hist(err, bins=50); plt.grid(True, linestyle='--', linewidth=0.5)
+        plt.xlabel('Position error (m)'); plt.ylabel('Count'); plt.title('Error histogram')
+        plt.tight_layout(); plt.savefig(os.path.join(args.out_dir, 'err_hist.png')); plt.close()
+
+        plt.figure(figsize=(6,5), dpi=160)
+        plt.title('True vs Predicted Positions')
+        plt.plot(y_true[:,0], y_true[:,1], 'b-', linewidth=1.5, label='True Trajectory')
+        sc = plt.scatter(y_pred[:,0], y_pred[:,1], c=np.arange(len(y_pred)), cmap='plasma', s=2, alpha=0.8, label='Predicted')
+        cb = plt.colorbar(sc); cb.set_label('Frame index')
+        plt.xlabel('X'); plt.ylabel('Y'); plt.grid(True, linestyle='--', linewidth=0.5); plt.axis('equal'); plt.legend()
+        plt.tight_layout(); plt.savefig(os.path.join(args.out_dir, 'pred_vs_true.png')); plt.close()
 
 
 if __name__ == "__main__":
