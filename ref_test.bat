@@ -30,12 +30,12 @@ goto :eof
 python -m refactor.core.eval ^
   --eval_root=./data/features/lessData/test ^
   --ckpt ckpt_refactor\less_python\best_epe_mean.pt ^
-  --out_dir=test_out/testing
+  --out_dir=test_out/test
 
 python -m refactor.core.test.test ^
   --eval_root=./data/features/lessData/test ^
   --ckpt ckpt_refactor\less_python\best_epe_mean.pt ^
-  --out_dir=eval_out_testing --out_dir=test_out/testing
+  --out_dir=test_out/test
 
 goto :eof
 

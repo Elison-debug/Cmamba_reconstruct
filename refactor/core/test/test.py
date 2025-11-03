@@ -9,7 +9,8 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from tqdm import tqdm
-
+from .heatmap import plot_error_heatmaps
+from ..eval import make_truncated_cmap
 from ..train import TrainConfig, set_seed
 from ...datasets.frames_lazy import FramesLazyDataset
 import glob
@@ -18,6 +19,7 @@ import glob
 def euclid_err(a: np.ndarray, b: np.ndarray) -> np.ndarray:
     return np.sqrt(np.sum((a - b) ** 2, axis=1))
 
+cmap = make_truncated_cmap(base='turbo', lo=0.10, hi=0.95)
 
 def main():
     p = argparse.ArgumentParser()
@@ -87,169 +89,8 @@ def main():
     if args.use_dwconv: os.environ["USE_DWCONV"] = "1"
     from ..mamba_regressor import MambaRegressor
 
-    # helper to evaluate a single directory and save plots under a sub-outdir
-    def eval_dir(dir_path: str, out_dir: str):
-        ds_cfg = TrainConfig(Din=cfg.Din, K=cfg.K, proj_dim=cfg.proj_dim, d_model=cfg.d_model,
-                             n_layer=cfg.n_layer, patch_len=cfg.patch_len, stride=cfg.stride,
-                             batch_size=args.batch_size, train_root=dir_path, eval_root=None)
-        # Build dataset directly to honor --target selection
-        ds = FramesLazyDataset(root=dir_path, seq_len=cfg.K, predict="current", mmap=True, target=args.target)
-        dl = DataLoader(ds, batch_size=args.batch_size, shuffle=False, num_workers=args.workers, pin_memory=True,
-                        persistent_workers=(args.workers>0), prefetch_factor=(2 if args.workers>0 else None))
-        Path(out_dir).mkdir(parents=True, exist_ok=True)
-        print({"eval_samples": len(ds), "root": dir_path, "out": out_dir, "device": str(device)})
-
-        model = MambaRegressor(Din=cfg.Din, K=cfg.K, proj_dim=cfg.proj_dim, d_model=cfg.d_model,
-                               n_layer=cfg.n_layer, patch_len=cfg.patch_len, stride=cfg.stride,
-                               pe_off=args.pe_off, pe_scale=args.pe_scale, gate_off=args.gate_off, agg_pool=args.agg_pool).to(device)
-        if ckpt_obj is not None:
-            sd = ckpt_obj.get("state_dict", ckpt_obj)
-            model.load_state_dict(sd, strict=False)
-        model.eval()
-
-        nbins = int(args.live_bins)
-        emax = float(args.live_max_err)
-        bins = np.linspace(0.0, emax, nbins + 1)
-        counts = np.zeros(nbins, dtype=np.int64)
-
-        def _update_hist(vals: np.ndarray):
-            hist, _ = np.histogram(vals, bins=bins)
-            counts[:] += hist
-
-        def _approx_percentile(p: float) -> float:
-            target = p / 100.0 * counts.sum()
-            csum = np.cumsum(counts)
-            idx = np.searchsorted(csum, target)
-            if idx <= 0: return float(bins[1])
-            if idx >= nbins: return float(bins[-1])
-            left_c = csum[idx-1]; right_c = csum[idx]
-            frac = 0.0 if right_c == left_c else (target - left_c) / (right_c - left_c)
-            return float(bins[idx] + frac * (bins[idx+1] - bins[idx]))
-
-        y_true, y_pred = [], []
-        run_mean, run_n, run_max = 0.0, 0, 0.0
-        ema_batch, ema_alpha = None, 0.2
-        from contextlib import nullcontext
-        def Autocast():
-            return torch.cuda.amp.autocast() if (args.amp and torch.cuda.is_available()) else nullcontext()
-
-        t0 = time.perf_counter()
-        with torch.inference_mode():
-            pbar = tqdm(enumerate(dl, 1), total=len(dl), ncols=130, desc=f"eval:{os.path.basename(dir_path)}")
-            for i, (xb, yb) in pbar:
-                xb = xb.to(device, non_blocking=True).float()
-                yb = yb.squeeze(1).to(device, non_blocking=True).float()
-                with Autocast():
-                    yhat = model(xb)
-                err_gpu = torch.linalg.vector_norm(yhat - yb, ord=2, dim=1)
-                err = err_gpu.detach().cpu().numpy()
-
-                y_true.append(yb.detach().cpu().numpy())
-                y_pred.append(yhat.detach().cpu().numpy())
-
-                bcnt = int(err.size)
-                if bcnt > 0:
-                    bsum = float(err.sum())
-                    run_n += bcnt
-                    run_mean += (bsum - bcnt * run_mean) / run_n
-                    run_max = max(run_max, float(np.max(err)))
-                    _update_hist(err)
-                    bmean = float(err.mean())
-                    ema_batch = bmean if (ema_batch is None) else (ema_alpha * bmean + (1 - ema_alpha) * ema_batch)
-
-                if i % max(1, int(args.live_every)) == 0:
-                    p50 = _approx_percentile(50.0) if run_n > 0 else 0.0
-                    p80 = _approx_percentile(80.0) if run_n > 0 else 0.0
-                    elapsed = max(1e-6, time.perf_counter() - t0)
-                    ips = run_n / elapsed
-                    pbar.set_postfix(batch=f"{(ema_batch or 0.0):.3f}", mean=f"{run_mean:.3f}", p50=f"{p50:.3f}", p80=f"{p80:.3f}", max=f"{run_max:.2f}", ips=f"{ips:.1f}")
-
-        y_true_a = np.concatenate(y_true, axis=0)
-        y_pred_a = np.concatenate(y_pred, axis=0)
-        err = euclid_err(y_pred_a, y_true_a)
-        mean = float(err.mean()); median = float(np.median(err))
-        p80 = float(np.percentile(err, 80)); p90 = float(np.percentile(err, 90))
-        print(f"[STATS:{os.path.basename(dir_path)}] N={len(err)}  mean={mean:.4f} m  median={median:.4f} m  P80={p80:.4f} m  P90={p90:.4f} m")
-
-        e_sorted = np.sort(err)
-        ycdf = np.arange(1, len(e_sorted) + 1) / len(e_sorted)
-        plt.figure(figsize=(5,4), dpi=160)
-        plt.plot(e_sorted, ycdf); plt.xlim(0, 0.5); plt.xticks(np.arange(0, 0.51, 0.05))
-        plt.grid(True, linestyle='--', linewidth=0.5); plt.xlabel('Position error (m)'); plt.ylabel('CDF'); plt.title('Error CDF (0-0.5 m)')
-        plt.tight_layout(); plt.savefig(os.path.join(out_dir, 'cdf_zoom.png')); plt.close()
-
-        plt.figure(figsize=(5,4), dpi=160)
-        plt.plot(e_sorted, ycdf)
-        xticks = list(np.arange(0, 0.41, 0.10)) + list(np.arange(0, 2.1, 0.2))
-        plt.xticks(xticks); plt.grid(True, linestyle='--', linewidth=0.5)
-        plt.xlabel('Position error (m)'); plt.ylabel('CDF'); plt.title('Error CDF')
-        plt.tight_layout(); plt.savefig(os.path.join(out_dir, 'cdf.png')); plt.close()
-
-        plt.figure(figsize=(5,4), dpi=160)
-        plt.hist(err, bins=50); plt.grid(True, linestyle='--', linewidth=0.5)
-        plt.xlabel('Position error (m)'); plt.ylabel('Count'); plt.title('Error histogram')
-        plt.tight_layout(); plt.savefig(os.path.join(out_dir, 'err_hist.png')); plt.close()
-
-        # True vs Predicted trajectory plot (always saved)
-        plt.figure(figsize=(6,5), dpi=160)
-        plt.title('True vs Predicted Positions')
-        plt.plot(y_true_a[:,0], y_true_a[:,1], 'b-', linewidth=1.5, label='True Trajectory')
-        sc = plt.scatter(y_pred_a[:,0], y_pred_a[:,1], c=np.arange(len(y_pred_a)), cmap='plasma', s=2, alpha=0.8, label='Predicted')
-        cb = plt.colorbar(sc); cb.set_label('Frame index')
-        plt.xlabel('X'); plt.ylabel('Y'); plt.grid(True, linestyle='--', linewidth=0.5); plt.axis('equal'); plt.legend()
-        plt.tight_layout(); plt.savefig(os.path.join(out_dir, 'pred_vs_true.png')); plt.close()
-
-        np.savez(os.path.join(out_dir, 'val_preds.npz'), y_true=y_true_a, y_pred=y_pred_a, err=err,
-                 mean=np.float32(mean), median=np.float32(median), p80=np.float32(p80), p90=np.float32(p90))
-        if not args.dont_save_csv:
-            import csv
-            with open(os.path.join(out_dir, 'pred_vs_true.csv'), 'w', newline='') as f:
-                w = csv.writer(f); w.writerow(['y_true_x','y_true_y','y_pred_x','y_pred_y','err_m'])
-                for (yt, yp, e_) in zip(y_true_a, y_pred_a, err):
-                    w.writerow([yt[0], yt[1], yp[0], yp[1], e_])
-
-        md = ["| Metric | Value (m) |", "|--------|-----------|",
-              f"| Mean   | {mean:.4f} |", f"| Median | {median:.4f} |",
-              f"| P80    | {p80:.4f} |", f"| P90    | {p90:.4f} |",
-              f"| Max    | {err.max():.4f} |"]
-        print("\n[SUMMARY]" , os.path.basename(dir_path), "\n" + "\n".join(md) + "\n")
-        print(f"[OK] saved plots & stats under {out_dir}")
-        return {
-            "name": os.path.basename(dir_path),
-            "count": int(len(err)),
-            "mean": float(mean),
-            "median": float(median),
-            "p80": float(p80),
-            "p90": float(p90),
-            "out_dir": out_dir,
-        }
-
-    # mode A: per-subdir (if subdirs with .feats.npy exist)
-    subdirs = [d.path for d in os.scandir(args.eval_root) if d.is_dir() and any(fn.lower().endswith('.feats.npy') for fn in os.listdir(d.path))]
+    # per-file mode only: evaluate each .feats.npy directly under eval_root
     summary: list[dict] = []
-    if subdirs:
-        print({"grids": len(subdirs), "mode": "per-subdir"})
-        for sd in sorted(subdirs):
-            out_sub = os.path.join(args.out_dir, os.path.basename(sd))
-            rec = eval_dir(sd, out_sub)
-            summary.append(rec)
-        # after all, write ranking
-        summary.sort(key=lambda r: r["mean"])  # ascending mean error
-        txt = os.path.join(args.out_dir, "eval_out.txt")
-        csv_path = os.path.join(args.out_dir, "eval_summary.csv")
-        with open(txt, "w", encoding="utf-8") as f:
-            f.write("# Mean error ranking (per grid)\n")
-            f.write("rank,name,count,mean,median,p80,p90,out_dir\n")
-            for i, r in enumerate(summary, 1):
-                f.write(f"{i},{r['name']},{r['count']},{r['mean']:.6f},{r['median']:.6f},{r['p80']:.6f},{r['p90']:.6f},{r['out_dir']}\n")
-        with open(csv_path, "w", encoding="utf-8") as f:
-            f.write("rank,name,count,mean,median,p80,p90,out_dir\n")
-            for i, r in enumerate(summary, 1):
-                f.write(f"{i},{r['name']},{r['count']},{r['mean']:.6f},{r['median']:.6f},{r['p80']:.6f},{r['p90']:.6f},{r['out_dir']}\n")
-        print({"summary": txt, "csv": csv_path})
-        return
-
-    # mode B: per-file (all .feats.npy under one folder) — create one output folder per file stem
     npz_files = sorted([p for p in glob.glob(os.path.join(args.eval_root, '*.feats.npy'))])
     if npz_files:
         print({"files": len(npz_files), "mode": "per-file"})
@@ -349,14 +190,32 @@ def main():
             plt.xlabel('Position error (m)'); plt.ylabel('Count'); plt.title('Error histogram')
             plt.tight_layout(); plt.savefig(os.path.join(out_sub, 'err_hist.png')); plt.close()
 
-            np.savez(os.path.join(out_sub, 'val_preds.feats.npy'), y_true=y_true_a, y_pred=y_pred_a, err=err,
+            plot_error_heatmaps(y_true_a, y_pred_a, out_sub)
+
+            # True vs Predicted trajectory plot (SVG hybrid output)
+            plt.figure(figsize=(7.5, 6.5))
+            plt.title('True vs Predicted Positions')
+            # ---- True trajectory (vector) ----
+            plt.plot(y_true_a[:,0], y_true_a[:,1],color='blue', linewidth=1, label='True Trajectory',zorder=3)
+
+            # ---- Predicted points (rasterized) ----
+            sc = plt.scatter(y_pred_a[:,0], y_pred_a[:,1],c=err,cmap=cmap,s=1, alpha=0.65,edgecolors='none',rasterized=True ,zorder=2)# scatter 栅格化
+            #sc = plt.scatter(y_pred_a[:,0], y_pred_a[:,1],c=np.arange(len(y_pred_a)),cmap='plasma',s=0.3, alpha=0.65,edgecolors='none',rasterized=True ,zorder=2)# scatter 栅格化
+            cb = plt.colorbar(sc); cb.set_label('Frame index')
+            plt.xlabel('X'); plt.ylabel('Y'); plt.grid(True, linestyle='--', linewidth=0.2); plt.axis('equal'); plt.legend()
+            # ---- Export SVG (vector + raster mix) ----
+            plt.tight_layout(); plt.savefig(os.path.join(out_sub, 'pred_vs_true.svg'),bbox_inches='tight',pad_inches=0.01,dpi=300); plt.close()
+
+            np.savez(os.path.join(out_sub, 'val_preds.npz'), y_true=y_true_a, y_pred=y_pred_a, err=err,
                      mean=np.float32(mean), median=np.float32(median), p80=np.float32(p80), p90=np.float32(p90))
+            
             if not args.dont_save_csv:
                 import csv
                 with open(os.path.join(out_sub, 'pred_vs_true.csv'), 'w', newline='') as f:
                     w = csv.writer(f); w.writerow(['y_true_x','y_true_y','y_pred_x','y_pred_y','err_m'])
                     for (yt, yp, e_) in zip(y_true_a, y_pred_a, err):
                         w.writerow([yt[0], yt[1], yp[0], yp[1], e_])
+
             summary.append({
                 "name": stem,
                 "count": int(len(err)),
@@ -380,10 +239,10 @@ def main():
             for i, r in enumerate(summary, 1):
                 f.write(f"{i},{r['name']},{r['count']},{r['mean']:.6f},{r['median']:.6f},{r['p80']:.6f},{r['p90']:.6f},{r['out_dir']}\n")
         print({"summary": txt, "csv": csv_path})
+        # write ranking summary even in per-file mode
         return
 
-    # fallback: no subdirs and no files matched, evaluate root (should not happen)
-    eval_dir(args.eval_root, args.out_dir)
+    print({"error": "no .feats.npy files found under eval_root", "eval_root": args.eval_root})
 
 
 if __name__ == "__main__":

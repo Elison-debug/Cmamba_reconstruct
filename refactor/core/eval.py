@@ -7,10 +7,17 @@ from torch.utils.data import DataLoader
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap, PowerNorm
 
-from .train import evaluate, TrainConfig, build_datasets, set_seed
+from .train import evaluate, TrainConfig, set_seed
 from .losses import HuberEPE
 
+def make_truncated_cmap(base='turbo', lo=0.10, hi=0.95, n=256):
+    #从 base cmap 截取对比更强的区间，提升可辨识度。
+    base_cmap = plt.get_cmap(base)
+    return LinearSegmentedColormap.from_list(
+        f'{base}_trunc_{lo}_{hi}', base_cmap(np.linspace(lo, hi, n))
+    )
 
 def main():
     p = argparse.ArgumentParser()
@@ -42,6 +49,7 @@ def main():
     p.add_argument("--pe_scale", type=float, default=1.0)
     p.add_argument("--gate_off", action="store_true")
     p.add_argument("--agg_pool", type=str, default="", choices=["", "avg", "max"])
+    p.add_argument("--break_thresh", type=float, default=0.05, help="break true line when jump exceeds this distance (m)")
     p.add_argument("--out_dir", type=str, default="./eval_out")
     p.add_argument("--save_csv", action="store_true")
     args = p.parse_args()
@@ -189,13 +197,31 @@ def main():
         plt.xlabel('Position error (m)'); plt.ylabel('Count'); plt.title('Error histogram')
         plt.tight_layout(); plt.savefig(os.path.join(args.out_dir, 'err_hist.png')); plt.close()
 
-        plt.figure(figsize=(6,5), dpi=160)
+
+        cmap = make_truncated_cmap(base='turbo', lo=0.10, hi=0.95)
+
+        # True vs Predicted trajectory plot (SVG hybrid output) with broken true line across grids
+        plt.figure(figsize=(7.5, 6.5))
         plt.title('True vs Predicted Positions')
-        plt.plot(y_true[:,0], y_true[:,1], 'b-', linewidth=1.5, label='True Trajectory')
-        sc = plt.scatter(y_pred[:,0], y_pred[:,1], c=np.arange(len(y_pred)), cmap='plasma', s=2, alpha=0.8, label='Predicted')
+        # ---- True trajectory (vector), break on large spatial jumps ----
+        thr = float(max(0.0, args.break_thresh))
+        if len(y_true) > 1:
+            start = 0
+            for i in range(1, len(y_true)):
+                if np.linalg.norm(y_true[i] - y_true[i-1]) > thr:
+                    if i - start > 1:
+                        plt.plot(y_true[start:i,0], y_true[start:i,1], color='blue', linewidth=0.4, label='True Trajectory' if start == 0 else None, zorder=3)
+                    start = i
+            if len(y_true) - start > 1:
+                plt.plot(y_true[start:,0], y_true[start:,1], color='blue', linewidth=0.4, label=None if start > 0 else 'True Trajectory', zorder=3)
+
+        # ---- Predicted points (rasterized) ----
+        sc = plt.scatter(y_pred[:,0], y_pred[:,1], c=err, cmap=cmap, s=0.3, alpha=0.65, edgecolors='none', rasterized=True, zorder=2)
+        #sc = plt.scatter(y_pred[:,0], y_pred[:,1], c=np.arange(len(y_pred)), cmap=cmap, s=0.3, alpha=0.65, edgecolors='none', rasterized=True, zorder=2)
         cb = plt.colorbar(sc); cb.set_label('Frame index')
-        plt.xlabel('X'); plt.ylabel('Y'); plt.grid(True, linestyle='--', linewidth=0.5); plt.axis('equal'); plt.legend()
-        plt.tight_layout(); plt.savefig(os.path.join(args.out_dir, 'pred_vs_true.png')); plt.close()
+        plt.xlabel('X'); plt.ylabel('Y'); plt.grid(True, linestyle='--', linewidth=0.2); plt.axis('equal'); plt.legend()
+        # ---- Export SVG (vector + raster mix) ----
+        plt.tight_layout(); plt.savefig(os.path.join(args.out_dir, 'pred_vs_true.svg'),bbox_inches='tight',pad_inches=0.01,dpi=300); plt.close()
 
 
 if __name__ == "__main__":
