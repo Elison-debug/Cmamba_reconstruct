@@ -1,35 +1,53 @@
 # CMamba for Wireless Positioning on LuViRA Dataset
 
-This repo contains a PyTorch implementation of a **channel-sequence regression model** based on
-[Simple-CMamba](https://github.com/Prismadic/simple-CMamba), adapted for **wireless localization** tasks
-on the [LuViRA Dataset](https://github.com/ilaydayaman/LuViRA_Dataset).
+This repo contains a PyTorch implementation of a **Mamba model** based on the [LuViRA Dataset](https://github.com/ilaydayaman/LuViRA_Dataset).
 
-Our goal is to explore **lightweight Mamba-style architectures** for radio-based positioning,
-and compare them with CNN baselines (e.g. FCNN).
+Our goal is to explore **lightweight Mamba-style architectures** for radio-based positioning,and compare them with CNN baselines (e.g. FCNN).
 
-## 📂 Project Structure
+This document summarizes the current training, evaluation, dataset layout, and quantization pipeline, with tips and examples.
 
-```bash
-.
-├── datasets/ # Lazy sliding-window dataset loader  /
-├── models/ # CMamba regressor, training & evaluation scripts/
-├── data/ # Put LuViRA preprocessed .npz features here/
-├── ckpt/ # Model checkpoints/
-    ├── lessData/ 
-    ├── grid/ 
-    └── parity/
-└── test/ # validation results (plots, csv, npz)/
+## 📁 Project Directory Structure
+
+```txt
+project/
+├── data/
+│ ├── radio/ # raw CSI or CIR data per grid
+│ ├── truth/ # raw grid truth data per grid
+│ └── features/
+│   ├── logo/ # windowed feature samples (per grid)
+│     ├── json/ # json data for nxy (pergrid) 
+│     ├── npy / # feats/ts/xy.npy 
+│     └── stats.json # mean/std computed on train windows only
+├── test_out/
+│ ├── train/
+│ ├── test/
+│ └── eval/
+├── ckpt_refactor/
+└── refactor/
+  ├── core/ #core mamba scripts(python)
+    ├── preprocess.py # data splitting + windowing + feature gen
+    ├── dataset.py # unified dataset & normalization
+    ├── sampler.py # grid-pure batch sampler
+    ├── train.py   # training loop with grid-pure batches
+    ├── eval.py    # per-grid evaluation and reporting
+    └── utils_logging.py
 ```
 
 ## ⚙️ Setup
 
-```bash
-conda create -n mamba-pos python=3.10
-conda activate mamba-pos
-pip install -r requirements.txt
+```powershell
+    conda create -n mamba python=3.10
+    conda init python-transformers
+    conda activate python-transformers
+    pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cu129
 ```
 
-## Installation
+After install torch you can try:
+
+```powershell
+    #testing transformers
+    python -c "from transformers import pipeline; print(pipeline('sentiment-analysis')('we love you'))"
+```
 
 To use this model, you need to have the following libraries installed:
 
@@ -44,7 +62,7 @@ To use this model, you need to have the following libraries installed:
 You can install them using pip:
 
 ```bash
-pip install torch einops numpy pandas scikit-learn matplotlib wandb
+    pip install torch einops numpy pandas scikit-learn matplotlib wandb 
 ```
 
 📊 Data Preparation
@@ -53,69 +71,134 @@ Download the [LuViRA Dataset](https://github.com/ilaydayaman/LuViRA_Dataset)
 
 Convert raw .mat/.csv into .npz feature files using the provided preprocessing scripts:
 
-```bash
-python dataprocess/preprocess_luvira.py --input_root ./LuViRA --output_root ./data/features
+## Data Layout
+
+- Feature root: `feat_root/`
+  - `npy/`: per-sequence arrays
+    - `base.feats.npy` (T, Din) float16/float32
+    - `base.xy.npy` (T, 2) float32
+    - `base.ts.npy` (T,) float64 (optional)
+  - `json/`: one `base.json` per sequence with metadata and split indices
+    - keys: `role` (train/eval/test), `indices_*` window end indices, `win_len`, `stride`, etc.
+  - Optional global stats (train-only): `stats_train.npz` with `feat_mean`, `feat_std`, `std_floor`
+
+Use `refactor/datasets/preprocess_logo.py` to convert raw `.mat` + `.csv` into this layout with LOGO split, temporal embargo, and windowing.
+
+## Dataset Loader
+
+- `FramesLazyDataset` builds windows lazily from the npy/json layout.
+- Role filtering: `target=train|eval|test|auto` uses the corresponding indices from JSON.
+- Normalization: if `stats_train.npz` is found, features are normalized via (x - mean) / max(std, std_floor).
+
+## Model
+
+- `MambaRegressor`:
+  - Input: (B, K, Din)
+  - 1x1 Conv projection (or quantized linear) to `proj_dim` channels per timestep.
+  - Backbone: `CMambaSlim` (conv-patch-embedded, selective-scan block, optional DWConv, optional PE, residual blocks, RMSNorm, and either flat or pooled head).
+  - Head: 1x1 Conv (or quantized linear) to 2D (x,y).
+
+Key knobs: `K`, `Din`, `proj_dim`, `d_model`, `n_layer`, `patch_len`, `stride`, `pe_off`, `pe_scale`, `gate_off`, `agg_pool`, `use_dwconv`.
+
+## Training
+
+Entry: `python -m refactor.core.train [args]`
+
+- Data: only pass `--feat_root=...` of the new layout. The script loads `train` and `eval` splits from JSON.
+- Sampler: `GridPureBatchSampler` ensures grid-pure batches (batches from a single file/grid).
+- AMP: `--amp` enables autocast + GradScaler if CUDA is available.
+- Scheduler: cosine or constant (`--lr_schedule`), stepped per-batch.
+- Din inference: the script now infers `Din` from the dataset and overrides `cfg.Din` if mismatched.
+- Logging: CSV at `out_dir/train_log.csv`; per-epoch console summary is a single stable f-string line.
+- Checkpoints: `last.pt` per epoch, best by `--best_metric` (default `epe_mean`), and a convenience `refactor_last.pt` at repo root for quick eval.
+
+Example:
+
+```powershell
+python -m refactor.core.train \
+  --feat_root=./data/features/logo \
+  --Din=4200 --K=16 \
+  --proj_dim=64 --d_model=64 --n_layer=3 \
+  --patch_len=8 --stride=4 \
+  --batch_size=32 --epochs=20 --lr=1e-4 --lr_schedule=cosine \
+  --workers=4 --prefetch=4 --amp --use_dwconv --preload 
 ```
 
-Or in Windows(CMD/PowerShell):
+## Evaluation
 
-```bash
-./data.bat grid/random/parity/less
-```
+Entry: `python -m refactor.core.eval [args]`
 
-Each `-.npz` will contain:
+- Dims: resolved from `--ckpt` (preferred) to avoid size mismatches.
+- Data: `--feat_root=...` with the new layout; `--target=train|eval|test|auto` chooses indices from JSON.
+- Outputs: metrics printed; saved `val_preds.npz` (y_true, y_pred, err, percentiles), CDFs, histogram, and `pred_vs_true.svg`.
 
-- `-feats`: time-series feature tensor
-- `-xy`: ground-truth positions
+Example (float):
 
-Use args grid/random to process grid*/random*.mat files with different strategy
-
-## 🚀 Training
-
-```bash
-source ./train.bat 
-```
-
-## test quantization using cpp
-
-```bash
-python -m refactor.quant.build_and_use --prebuild
-python -m refactor.quant.build_and_use --backend=cpp --test_linear
-python -m refactor.quant.build_and_use --backend=cpp --test_linear
-```
-
-Usage Examples:
-Precompile C++ extensions only
-
-- python -m refactor.quant.build_and_use --prebuild
-
-Test Python pseudo-quantification
-
-- python -m refactor.quant.build_and_use --backend=python --test_linear
-
-Test C++ quantification (compilation triggered on first run)
-
-- python -m refactor.quant.build_and_use --backend=cpp --test_linear
-
-## 📈 Validation
-
-After training, run:
-
-```bash
-source ./test.bat 
+```powershell
+python -m refactor.core.eval \
+  --feat_root=./data/features/logo \
+  --ckpt=ckpt_refactor/logo/best_epe_mean.pt \
+  --target=eval --out_dir=./eval_out --preload
 ```
 
 - support per-grid result
 
 This will produce:
 
-- `-cdf.png`: error CDF plot
-- `-err_hist.png`: histogram of position errors
-- `-val_preds.npz`: predictions + ground truth + errors
-- `-pred_vs_true.csv`: optional CSV for analysis
+- `-cdf.png`             : error CDF plot
+- `-err_hist.png`        : histogram of position errors
+- `-val_preds.npz`       : predictions + ground truth + errors
+- `-k_error_heatmap.svg` : heatmap for each grid predicted result
+- `-pred_vs_true.svg`    : predicted location(point) VS true location (line)
+- `-pred_vs_true.csv`    : optional CSV for analysis
+
+## Quantization (Eval)
+
+Two interchangeable backends for `QLinearINT8` (only for 1x1 projections):
+
+- `--quant_backend=python`: LSQ fake-quant in Python (no build needed).
+- `--quant_backend=cpp`: C++ extension via `torch.utils.cpp_extension` (JIT builds on first use).
+
+Where quant is applied:
+
+- `--quantize_all` applies to proj/head and backbone 1x1 projections.
+- Fine-grained: `--q_proj_head`, `--q_block_linear`, `--q_backbone_linear`.
+
+Examples:
+
+```powershell
+# Prebuild/test C++ extension (optional)
+python -m refactor.quant.build_and_use --prebuild
+python -m refactor.quant.build_and_use --backend=cpp --test_linear
+```
+
+```powershell
+# Eval with C++ quant (all 1x1 projections quantized)
+python -m refactor.core.eval \
+  --feat_root=./data/features/logo \
+  --ckpt=ckpt_refactor/logo/best_epe_mean.pt \
+  --quant_backend=cpp --quantize_all \
+  --target=eval --out_dir=./eval_out_cpp --preload
+```
+
+## Preprocessing Notes (LOGO)
+
+- `preprocess_logo.py` supports leave-one-grid-out split and temporal embargo.
+- By default, it currently applies embargo and uses `eval_stride` across roles for uniform density. If you prefer denser training, re-enable the role-specific stride (commented branch in the script).
+
+## Batch Files
+
+- `train.bat`: starts a default training run (adjust to your `feat_root`).
+- `eval.bat`: fixed to use `--feat_root` (was `--eval_root`).
+- `test.bat`: runs eval and per-file tests for selected targets.
+
+## Pitfalls & Tips
+
+- Make sure `feat_root` points to the new npy/json layout; legacy npz is not supported by `FramesLazyDataset`.
+- If you modify preprocessing, keep `Din` consistent; training now auto-infers and overrides.
+- When using `--quant_backend=cpp` on Windows, ensure your compiler toolchain is set up for PyTorch C++ extensions.
 
 ## 🙏 Acknowledgements
 
 - Dataset  :  [LuViRA Dataset](https://github.com/ilaydayaman/LuViRA_Dataset)
-- Base Code  : [Prismadic/simple-CMamba](https://github.com/Prismadic/simple-CMamba/tree/main))
 - Inspired by the Mamba architecture (Selective State Spaces).

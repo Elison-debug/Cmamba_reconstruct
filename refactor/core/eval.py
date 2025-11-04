@@ -32,17 +32,17 @@ def main():
     p.add_argument("--stride", type=int, default=4)
     p.add_argument("--batch_size", type=int, default=64)
     p.add_argument("--ckpt", type=str, default="refactor_last.pt")
-    p.add_argument("--quant_backend", type=str, choices=["cpp", "python"], default=os.environ.get("QUANT_BACKEND", "python"))
-    p.add_argument("--quantize_all", action="store_true")
+    p.add_argument("--quant_backend", type=str, choices=["cpp", "python"], default="python")
+    p.add_argument("--quantize_all", type=bool, default= False)
     p.add_argument("--use_dwconv", action="store_true")
     p.add_argument("--workers", type=int, default=4)
     p.add_argument("--prefetch", type=int, default=4)
     p.add_argument("--mmap_off", action="store_true")
     p.add_argument("--target", type=str, default="eval", choices=["auto","train","eval","test"], help="which indices to use")
     # fine-grained quant toggles (env-based)
-    p.add_argument("--q_proj_head", action="store_true")
-    p.add_argument("--q_block_linear", action="store_true")
-    p.add_argument("--q_backbone_linear", action="store_true")
+    p.add_argument("--q_proj_head", type=bool, default= False)
+    p.add_argument("--q_block_linear", type=bool, default= False)
+    p.add_argument("--q_backbone_linear", type=bool, default= False)
     p.add_argument("--progress", action="store_true")
     p.add_argument("--no_progress", action="store_true")
     p.add_argument("--preload", action="store_true", help="preload all arrays into RAM (set workers=0/1)")
@@ -143,11 +143,12 @@ def main():
         gate_off=gate_off,
         agg_pool=agg_pool,
         use_dwconv=use_dwconv,
-        quantize_all=False,
-        q_proj_head=False,
-        q_block_linear=False,
-        q_backbone_linear=False,
-        quant_backend=None,
+        # Quantization toggles from CLI
+        quantize_all=bool(args.quantize_all),
+        q_proj_head=bool(args.q_proj_head),
+        q_block_linear=bool(args.q_block_linear),
+        q_backbone_linear=bool(args.q_backbone_linear),
+        quant_backend=str(args.quant_backend),
     ).to(device)
 
     if ckpt_obj is not None:

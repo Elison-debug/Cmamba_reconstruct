@@ -21,20 +21,99 @@ features as per‑frame sequences keeps IO simple and quantization‑friendly.
 from __future__ import annotations
 
 import argparse
+import csv
 import glob
 import json
 import os
 import re
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional, Tuple
+from typing import Dict, Iterable, List, Optional, Tuple, cast
 
 import numpy as np
 from numpy.fft import ifft
 from scipy.io import loadmat
 
-# Reuse robust CSV and tensor utilities
-from .preprocess_luvira_lazy import _infer_seconds, load_gt_csv
+def _sniff_delimiter(path: str, encodings: tuple[str, ...] = ("utf-8", "utf-8-sig", "gbk", "latin1")) -> Tuple[str, str]:
+    candidates = [",", ";", "\t", " "]
+    candidate_str = ",;\t "
+    for enc in encodings:
+        try:
+            with open(path, "r", encoding=enc, newline="") as f:
+                sample = f.read(65536)
+            if not sample:
+                continue
+            try:
+                dialect = csv.Sniffer().sniff(sample, delimiters=candidate_str)
+                delim = dialect.delimiter
+            except Exception:
+                counts = {d: sample.count(d) for d in candidates}
+                delim = "," if sum(counts.values()) == 0 else max(counts.items(), key=lambda kv: kv[1])[0]
+            return enc, delim
+        except Exception:
+            continue
+    return "utf-8", ","
 
+
+def load_gt_csv(path_csv: str, pos_units: str = "mm") -> Tuple[np.ndarray, np.ndarray]:
+    enc, delim = _sniff_delimiter(path_csv)
+    try:
+        data = np.genfromtxt(path_csv, delimiter=delim, names=True, dtype=None, encoding=enc)
+    except Exception:
+        data = None
+    have_header = (isinstance(data, np.ndarray) and getattr(data, "size", 0) > 0 and getattr(data.dtype, "names", None) is not None)
+    if not have_header:
+        try:
+            raw = np.genfromtxt(path_csv, delimiter=delim, dtype=float, encoding=enc)
+        except Exception:
+            raw = np.genfromtxt(path_csv, delimiter=delim, dtype=float)
+        if raw.ndim == 1:
+            raw = raw.reshape(1, -1)
+        raw = raw[np.isfinite(raw).all(axis=1)]
+        if raw.shape[1] < 3 or raw.shape[0] < 2:
+            raise ValueError(f"CSV {path_csv}: not enough numeric rows/cols")
+        ts = raw[:, 0].astype(np.float64)
+        xy = raw[:, 1:3].astype(np.float64)
+    else:
+        names = [n.lower() for n in (data.dtype.names or [])] # type: ignore[attr-defined]
+        def _find(keys):
+            for k in keys:
+                if k in names:
+                    return k
+            return None
+        tk = _find(["time", "timestamp", "ts", "t"]) or names[0]
+        xk = _find(["x", "pos_x", "px"]) or names[1]
+        yk = _find(["y", "pos_y", "py"]) or names[2]
+        rec = cast(np.ndarray, data)
+        ts = np.asarray(rec[tk], dtype=np.float64).reshape(-1)
+        x  = np.asarray(rec[xk], dtype=np.float64).reshape(-1)
+        y  = np.asarray(rec[yk], dtype=np.float64).reshape(-1)
+        m = np.isfinite(ts) & np.isfinite(x) & np.isfinite(y)
+        ts = ts[m]; x = x[m]; y = y[m]
+        xy = np.stack([x, y], axis=1)
+    ts = _infer_seconds(ts)
+    if pos_units == "mm":
+        xy = xy / 1000.0
+    elif pos_units != "m":
+        raise ValueError("pos_units must be 'mm' or 'm'")
+    order = np.argsort(ts)
+    return ts[order], xy[order].astype(np.float32)
+
+def _infer_seconds(ts: np.ndarray) -> np.ndarray:
+    ts = np.asarray(ts).astype(np.float64).reshape(-1)
+    if ts.size < 2:
+        return ts
+    dif = np.diff(ts)
+    dif = dif[np.isfinite(dif) & (dif > 0)]
+    if dif.size == 0:
+        return ts
+    md = float(np.median(dif))
+    if md > 1e-2:
+        scale = 1.0
+    elif md > 1e-4:
+        scale = 1e-3
+    else:
+        scale = 1e-6
+    return ts * scale
 
 def _extract_num_id(name: str) -> Optional[int]:
     """Extract the last integer token from a basename as grid id, if any."""

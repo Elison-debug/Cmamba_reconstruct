@@ -250,6 +250,15 @@ def main():
         ) if eval_ds is not None else None
     )
 
+    # Infer Din from dataset if mismatched
+    try:
+        din_ds = int(train_ds[0][0].shape[-1])
+        if din_ds != cfg.Din:
+            print({"Din_override": {"from": int(cfg.Din), "to": din_ds}})
+            cfg.Din = din_ds
+    except Exception as e:
+        print({"Din_infer_warn": str(e)})
+
     model = MambaRegressor(
         Din=cfg.Din,
         K=cfg.K,
@@ -331,6 +340,15 @@ def main():
                 def autocast_cm():
                     return torch.cuda.amp.autocast()
 
+        # Architecture summary (persisted in checkpoints)
+        arch = {
+            "use_dwconv": bool(args.use_dwconv),
+            "pe_off": bool(args.pe_off),
+            "pe_scale": float(args.pe_scale),
+            "gate_off": bool(args.gate_off),
+            "agg_pool": str(args.agg_pool),
+        }
+
         for epoch in range(cfg.epochs):
             print(f"==== Epoch {epoch+1}/{cfg.epochs} ====")
             model.train()
@@ -373,20 +391,16 @@ def main():
                 ev_loss, stats = float("nan"), {"epe_mean": float("nan"), "epe_median": float("nan"), "epe_p80": float("nan"), "epe_p90": float("nan"), "mae_x": float("nan"), "mae_y": float("nan")}
             row = {"epoch": epoch + 1, "train_loss": tr_loss, "eval_loss": ev_loss}
             row.update(stats)
-            print({"epoch: " + row["epoch"]})
-            print({"epe_mean: " + f"{row['epe_mean']:.6f}" + " epe_median: " + f"{row['epe_median']:.6f}" + " epe_p80: " + f"{row['epe_p80']:.6f}"})
-            print({"mae_x: " f"{row['mae_x']:.6f}" + " mae_y: " + f"{row['mae_y']:.6f}"})
+            print(
+                f"epoch={row['epoch']} train_loss={row['train_loss']:.6f} "
+                f"eval_loss={row['eval_loss']:.6f} epe_mean={row['epe_mean']:.6f} "
+                f"epe_median={row['epe_median']:.6f} epe_p80={row['epe_p80']:.6f} "
+                f"epe_p90={row['epe_p90']:.6f} mae_x={row['mae_x']:.6f} mae_y={row['mae_y']:.6f}"
+            )
             w.writerow(row)
 
             # save last and best
             last_path = os.path.join(args.out_dir, "last.pt")
-            arch = {
-                "use_dwconv": bool(args.use_dwconv),
-                "pe_off": bool(args.pe_off),
-                "pe_scale": float(args.pe_scale),
-                "gate_off": bool(args.gate_off),
-                "agg_pool": str(args.agg_pool),
-            }
             torch.save({
                 "state_dict": model.state_dict(),
                 "cfg": vars(cfg),

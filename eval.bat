@@ -7,6 +7,6 @@ setlocal
 @REM   goto :eof
 @REM )
 
-python -m refactor.core.eval --eval_root=./data/features/lessData/test --target=auto --ckpt ckpt_refactor\less_python\best_epe_mean.pt --out_dir ./test_out/test
+python -m refactor.core.eval --feat_root=./data/features/lessData/test --target=auto --ckpt ckpt_refactor\less_python\best_epe_mean.pt --out_dir ./test_out/test
  %*
 goto :eof

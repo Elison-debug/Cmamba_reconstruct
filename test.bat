@@ -23,6 +23,7 @@ python -m refactor.core.test.test ^
   --ckpt ckpt_refactor\logo\best_epe_mean.pt ^
   --target=train --out_dir=test_out/train ^
   --preload 
+goto :eof
 
 :run_train_all
 python -m refactor.core.eval ^
