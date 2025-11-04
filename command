@@ -54,8 +54,22 @@
     --live_bins=120 --live_max_err=10 --live_every=1 `
     --save_csv
 
+预处理(LOGO + embargo + windowing)：
+python -m refactor.datasets.preprocess_logo --radio_dir=./data/radio/grid --gt_dir=./data/truth/grid --out_dir=./data/features/logo --split=logo --logo_holdout_gids="2,5" --embargo_sec=20 --fps=50 --win_len=64 --train_stride=32 --eval_stride=64 --taps=10 --phase_center --append_delta --dtype=float32
 
+python -m refactor.datasets.preprocess_logo --phase_center --append_delta --dtype=float32
 
+生成的 feature 根目录为 ./data/features/logo/train
+
+训练：
+python -m refactor.core.train  --Din=2100 --K=16 --proj_dim=64 --d_model=128 --n_layer=4 --patch_len=8 --stride=4 --batch_size=32 --epochs=20 --lr=3e-4 --lr_schedule=cosine --use_dwconv --out_dir=./ckpt_refactor/logo --preload
+
+评估：
+
+python -m refactor.core.eval --ckpt=ckpt_refactor/logo/best_epe_mean.pt --batch_size=256 --target=eval --out_dir=./test_out/eval --preload
+
+测试/出图（逐文件子集）：
+python -m refactor.core.test.test --feat_root=./data/features/logo --ckpt=best_epe_mean.pt --target=eval --out_dir=./test_out
    
   
   

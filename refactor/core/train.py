@@ -1,14 +1,14 @@
 import os
 import random
 from dataclasses import dataclass
-from typing import Optional
-
+from typing import Dict, List, Optional
 import numpy as np
 import torch
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Subset
 import csv
 
 from .losses import HuberEPE
+from ..datasets.samplers import GridPureBatchSampler
 
 
 @dataclass
@@ -26,8 +26,8 @@ class TrainConfig:
     epochs: int = 5
     num_workers: int = 2
     mmap: bool = True
-    train_root: Optional[str] = None
-    eval_root: Optional[str] = None
+    # 新布局：仅提供 feature 根目录（其下包含子目录 npy 与 json）
+    feat_root: Optional[str] = None
     seed: int = 42
 
 
@@ -43,15 +43,10 @@ def set_seed(seed: int) -> None:
 def build_datasets(cfg: TrainConfig):
     from refactor.datasets.frames_lazy import FramesLazyDataset
 
-    assert cfg.train_root is not None, "cfg.train_root must be provided"
-    # Training targets come from indices_train when available
-    train_ds = FramesLazyDataset(root=cfg.train_root, seq_len=cfg.K, predict="current", mmap=cfg.mmap, target="train")
-    eval_ds = None
-    if cfg.eval_root:
-        # If eval_root equals train_root or eval files contain indices_eval, dataset will use eval targets
-        # target_kind = "eval" if (cfg.eval_root == cfg.train_root) else "auto"
-        target_kind = "eval"
-        eval_ds = FramesLazyDataset(root=cfg.eval_root, seq_len=cfg.K, predict="current", mmap=cfg.mmap, target=target_kind)
+    assert cfg.feat_root is not None, "cfg.feat_root must be provided (features root containing npy/ and json/)"
+    # 使用统一特征根目录，按 JSON 中角色划分
+    train_ds = FramesLazyDataset(root=cfg.feat_root, seq_len=cfg.K, predict="current", mmap=cfg.mmap, target="train")
+    eval_ds = FramesLazyDataset(root=cfg.feat_root, seq_len=cfg.K, predict="current", mmap=cfg.mmap, target="eval")
     return train_ds, eval_ds
 
 
@@ -155,8 +150,8 @@ def evaluate(model, loader, device, criterion, show_progress: bool = False):
 def main():
     import argparse
     p = argparse.ArgumentParser()
-    p.add_argument("--train_root", type=str, default=os.environ.get("TRAIN_ROOT"))
-    p.add_argument("--eval_root", type=str, default=os.environ.get("EVAL_ROOT"))
+    # 新布局：仅提供 features 根目录（包含子目录 npy 与 json）
+    p.add_argument("--feat_root", type=str, default="./data/features/logo")
     p.add_argument("--Din", type=int, default=int(os.environ.get("DIN", 2100)))
     p.add_argument("--K", type=int, default=int(os.environ.get("K", 12)))
     p.add_argument("--proj_dim", type=int, default=64)
@@ -173,19 +168,15 @@ def main():
     p.add_argument("--no_progress", action="store_true")
     p.add_argument("--prefetch", type=int, default=4)
     p.add_argument("--mmap_off", action="store_true")
-    p.add_argument("--quant_backend", type=str, choices=["cpp", "python"], default=os.environ.get("QUANT_BACKEND", "python"))
-    p.add_argument("--out_dir", type=str, default=os.environ.get("OUT_DIR", "./ckpt_refactor"))
+    p.add_argument("--preload", action="store_true", help="preload all arrays into RAM (set workers=0/1)")
+    p.add_argument("--out_dir", type=str, default=os.environ.get("OUT_DIR", "./ckpt_refactor/logo"))
     p.add_argument("--resume", type=str, default="")
     p.add_argument("--best_metric", type=str, choices=["eval_loss", "epe_mean"], default="epe_mean")
     p.add_argument("--workers", type=int, default=4)
     p.add_argument("--amp", action="store_true")
-    p.add_argument("--quantize_all", action="store_true")
+    # backbone knob kept (depthwise conv is hardware friendly)
     p.add_argument("--use_dwconv", action="store_true")
     p.add_argument("--seed", type=int, default=42)
-    # fine-grained quant toggles (env-based)
-    p.add_argument("--q_proj_head", action="store_true")
-    p.add_argument("--q_block_linear", action="store_true")
-    p.add_argument("--q_backbone_linear", action="store_true")
     # SSM/PE/AGG knobs
     p.add_argument("--pe_off", action="store_true")
     p.add_argument("--pe_scale", type=float, default=1.0)
@@ -205,8 +196,7 @@ def main():
         batch_size=args.batch_size,
         epochs=args.epochs,
         lr=args.lr,
-        train_root=args.train_root,
-        eval_root=args.eval_root,
+        feat_root=args.feat_root,
         mmap=not bool(args.mmap_off),
         seed=args.seed,
     )
@@ -214,11 +204,13 @@ def main():
     set_seed(cfg.seed)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # Delay import so QUANT_BACKEND env can take effect
-    os.environ["QUANT_BACKEND"] = args.quant_backend  # backend selection for QLinearINT8
     from .mamba_regressor import MambaRegressor  # type: ignore
 
-    train_ds, eval_ds = build_datasets(cfg)
+    # 构建数据集（可选预加载）
+    from refactor.datasets.frames_lazy import FramesLazyDataset
+    assert cfg.feat_root is not None
+    train_ds = FramesLazyDataset(root=cfg.feat_root, seq_len=cfg.K, predict="current", mmap=not bool(args.mmap_off), in_memory=bool(args.preload), target="train")
+    eval_ds = FramesLazyDataset(root=cfg.feat_root, seq_len=cfg.K, predict="current", mmap=not bool(args.mmap_off), in_memory=bool(args.preload), target="eval")
     print({
         "train_samples": len(train_ds),
         "eval_samples": (0 if eval_ds is None else len(eval_ds)),
@@ -227,10 +219,18 @@ def main():
     })
     nw = int(args.workers)
     pin = True
-    train_loader = DataLoader(
+    # Grid‑pure batching: ensure each batch contains samples from a single grid/file
+    train_batch_sampler = GridPureBatchSampler(
         train_ds,
         batch_size=cfg.batch_size,
-        shuffle=True,
+        drop_last=False,
+        shuffle_files=True,
+        shuffle_within=True,
+        seed=cfg.seed,
+    )
+    train_loader = DataLoader(
+        train_ds,
+        batch_sampler=train_batch_sampler,
         num_workers=nw,
         pin_memory=pin,
         persistent_workers=(nw > 0),
@@ -247,9 +247,7 @@ def main():
             persistent_workers=(nw > 0),
             prefetch_factor=(args.prefetch if nw > 0 else None),
             worker_init_fn=seed_worker if nw > 0 else None,
-        )
-        if eval_ds is not None
-        else None
+        ) if eval_ds is not None else None
     )
 
     model = MambaRegressor(
@@ -265,11 +263,12 @@ def main():
         gate_off=args.gate_off,
         agg_pool=args.agg_pool,
         use_dwconv=args.use_dwconv,
-        quantize_all=args.quantize_all,
-        q_proj_head=args.q_proj_head,
-        q_block_linear=args.q_block_linear,
-        q_backbone_linear=args.q_backbone_linear,
-        quant_backend=args.quant_backend,
+        # Training‑time quantization is disabled for hardware‑friendly inference prep
+        quantize_all=False,
+        q_proj_head=False,
+        q_block_linear=False,
+        q_backbone_linear=False,
+        quant_backend=None,
     ).to(device)
     n_params = sum(p.numel() for p in model.parameters())
     print({"model_params": int(n_params), "device": str(device)})
@@ -374,28 +373,41 @@ def main():
                 ev_loss, stats = float("nan"), {"epe_mean": float("nan"), "epe_median": float("nan"), "epe_p80": float("nan"), "epe_p90": float("nan"), "mae_x": float("nan"), "mae_y": float("nan")}
             row = {"epoch": epoch + 1, "train_loss": tr_loss, "eval_loss": ev_loss}
             row.update(stats)
-            print({"epoch": row["epoch"], "train_loss": f"{row['train_loss']:.6f}", "eval_loss": f"{row['eval_loss']:.6f}"})
-            print({"epe_mean": f"{row['epe_mean']:.6f}", "epe_median": f"{row['epe_median']:.6f}", "epe_p80": f"{row['epe_p80']:.6f}", "epe_p90": f"{row['epe_p90']:.6f}"})
-            print({"mae_x": f"{row['mae_x']:.6f}", "mae_y": f"{row['mae_y']:.6f}"})
+            print({"epoch: " + row["epoch"]})
+            print({"epe_mean: " + f"{row['epe_mean']:.6f}" + " epe_median: " + f"{row['epe_median']:.6f}" + " epe_p80: " + f"{row['epe_p80']:.6f}"})
+            print({"mae_x: " f"{row['mae_x']:.6f}" + " mae_y: " + f"{row['mae_y']:.6f}"})
             w.writerow(row)
 
             # save last and best
             last_path = os.path.join(args.out_dir, "last.pt")
-            torch.save({"state_dict": model.state_dict(), "cfg": vars(cfg), "epoch": epoch + 1}, last_path)
+            arch = {
+                "use_dwconv": bool(args.use_dwconv),
+                "pe_off": bool(args.pe_off),
+                "pe_scale": float(args.pe_scale),
+                "gate_off": bool(args.gate_off),
+                "agg_pool": str(args.agg_pool),
+            }
+            torch.save({
+                "state_dict": model.state_dict(),
+                "cfg": vars(cfg),
+                "arch": arch,
+                "epoch": epoch + 1,
+            }, last_path)
             metric_val = row.get(args.best_metric, None)
             if metric_val is not None and isinstance(metric_val, (int, float)) and not (metric_val != metric_val) and metric_val < best_val:
                 best_val = metric_val
                 torch.save({
                     "state_dict": model.state_dict(),
                     "cfg": vars(cfg),
+                    "arch": arch,
                     "epoch": epoch + 1,
                     "best_metric": args.best_metric,
                     "best_val": best_val,
                 }, best_path)
                 print({"best_update": args.best_metric, "value": f"{best_val:.6f}", "path": best_path})
 
-    # save quick copy at project root
-    torch.save({"state_dict": model.state_dict(), "cfg": vars(cfg)}, "refactor_last.pt")
+    # Save a root copy with arch info for downstream eval/test auto-config
+    torch.save({"state_dict": model.state_dict(), "cfg": vars(cfg), "arch": arch}, "refactor_last.pt")
 
 
 if __name__ == "__main__":

@@ -96,3 +96,7 @@ class MambaRegressor(nn.Module):
         y = self.backbone(x)              # (B, C, 1)
         out = self.head(y).squeeze(-1)    # (B, 2)
         return out
+
+    # For API compatibility with stateful models; here it is a no‑op.
+    def reset_state(self) -> None:
+        return None

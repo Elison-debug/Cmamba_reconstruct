@@ -27,79 +27,84 @@ class FramesLazyDataset(Dataset):
         self,
         root: Optional[str | os.PathLike] = None,
         *,
-        files: Optional[Iterable[str | os.PathLike]] = None,
         seq_len: int = 12,
         predict: str = "current",
         mmap: bool = True,
+        in_memory: bool = True,
         stats_root: Optional[str | os.PathLike] = None,
-        target: str = "auto",  # "train" | "eval" | "auto"
+        target: str = "auto",  # "train" | "eval" | "test" | "auto"
+        role_filter: Optional[str] = None,
     ) -> None:
         super().__init__()
-        assert (root is not None) ^ (files is not None), "root 与 files 必须二选一"
-
-        if files is None:
-            root_path = Path(root) # type: ignore[arg-type]
-            # recursively include all .feats.npy under root
-            feats_list = sorted(str(p) for p in root_path.rglob("*.feats.npy"))
-        else:
-            feats_list = sorted(str(Path(p)) for p in files)
-
-        if not feats_list:
-            raise FileNotFoundError("No .feats.npy files found for FramesLazyDataset")
+        # 新规范：仅支持传入 feature 根目录 root，并在其下查找 json/ 与 npy/
+        if root is None:
+            raise AssertionError("必须提供 feature 根目录 root（其下包含子目录 npy 与 json）")
+        use_json_mode = True
 
         self.seq_len: int = int(seq_len)
         if predict not in ("current", "next"):
             raise ValueError("predict must be 'current' or 'next'")
         self.predict: str = predict
         self._mmap: bool = bool(mmap)
+        self._in_memory: bool = bool(in_memory)
 
         entries: List[Dict[str, object]] = []
-        for feats_path in feats_list:
-            feats_path = str(feats_path)
-            if not feats_path.endswith(".feats.npy"):
-                raise ValueError(f"Unsupported file type: {feats_path}. Expected *.feats.npy")
-            base = Path(feats_path).name[:-len(".feats.npy")]
-            dir_path = Path(feats_path).parent
-            xy_path = dir_path / f"{base}.xy.npy"
-            if not xy_path.exists():
-                raise FileNotFoundError(f"Missing XY file for {feats_path}")
-            ts_path = dir_path / f"{base}.ts.npy"
-            meta_path = dir_path / f"{base}.json"
-
-            meta: Dict[str, object] = {}
-            if meta_path.exists():
-                with open(meta_path, "r", encoding="utf-8") as mf:
+        if use_json_mode:
+            # 统一从 root/json 与 root/npy 读取
+            npy_base = Path(root)  # type: ignore[arg-type]
+            npy_base = npy_base / "npy"
+            js_base = Path(root) / "json"
+            json_files = sorted(p for p in js_base.glob("*.json"))
+            if not json_files:
+                raise FileNotFoundError(f"No JSON under {js_base}")
+            for jp in json_files:
+                base = jp.stem
+                meta: Dict[str, object] = {}
+                with open(jp, "r", encoding="utf-8") as mf:
                     meta = json.load(mf)
-
-            # Determine full sequence length from feats file and optional target indices
-            arr = np.load(feats_path, mmap_mode="r")
-            length = int(arr.shape[0])
-            del arr
-            # pick target indices per requested split
-            targets = None
-            if target == "train":
-                indices = meta.get("indices_train")
-                if isinstance(indices, list) and len(indices) > 0:
-                    targets = [int(i) for i in indices]
-            elif target == "eval":
-                indices = meta.get("indices_eval")
-                if isinstance(indices, list) and len(indices) > 0:
-                    targets = [int(i) for i in indices]
-            else:
-                indices = meta.get("indices")
-                if isinstance(indices, list) and len(indices) > 0:
-                    targets = [int(i) for i in indices]
-
-            entries.append(
-                {
+                role = str(meta.get("role", "train")).lower()
+                if role_filter and role != role_filter:
+                    continue
+                # 当 target 指定为 train/eval/test 时，严格过滤到相同 role 的文件
+                if target in ("train", "eval", "test") and role != target:
+                    continue
+                feats_path = npy_base / f"{base}.feats.npy"
+                xy_path = npy_base / f"{base}.xy.npy"
+                ts_path = npy_base / f"{base}.ts.npy"
+                if (not feats_path.exists()) or (not xy_path.exists()):
+                    continue
+                arr = np.load(feats_path, mmap_mode="r")
+                length = int(arr.shape[0]); del arr
+                targets = None
+                if target == "train":
+                    indices = meta.get("indices_train")
+                    if isinstance(indices, list) and len(indices) > 0:
+                        targets = [int(i) for i in indices]
+                elif target == "eval":
+                    indices = meta.get("indices_eval")
+                    if isinstance(indices, list) and len(indices) > 0:
+                        targets = [int(i) for i in indices]
+                elif target == "test":
+                    indices = meta.get("indices_test", meta.get("indices"))
+                    if isinstance(indices, list) and len(indices) > 0:
+                        targets = [int(i) for i in indices]
+                else:
+                    indices = meta.get("indices")
+                    if isinstance(indices, list) and len(indices) > 0:
+                        targets = [int(i) for i in indices]
+                # 指定 target 时，必须存在对应索引，否则跳过该文件，避免退化为全序列抽样
+                if target in ("train", "eval", "test") and (not isinstance(targets, list) or len(targets) == 0):
+                    continue
+                entries.append({
                     "base": base,
-                    "feats": feats_path,
+                    "feats": str(feats_path),
                     "xy": str(xy_path),
                     "ts": str(ts_path) if ts_path.exists() else None,
                     "length": length,
                     "targets": targets,
-                }
-            )
+                })
+            if not entries:
+                raise RuntimeError(f"No entries built from JSON at {js_base}")
 
         self.entries: List[Dict[str, object]] = entries
         self._cache: Dict[int, Dict[str, np.ndarray]] = {}
@@ -142,7 +147,7 @@ class FramesLazyDataset(Dataset):
         if stats_root is not None:
             stats_roots.append(Path(stats_root))
         default_root = Path(self.entries[0]["feats"]).parent # type: ignore[assignment]
-        stats_roots += [default_root, default_root.parent]
+        stats_roots += [default_root, default_root.parent, Path(root), Path(root).parent]
         for sr in stats_roots:
             sp = sr / "stats_train.npz"
             if sp.exists():
@@ -177,6 +182,10 @@ class FramesLazyDataset(Dataset):
         ts_path = entry["ts"]
         if ts_path:
             ts = np.load(ts_path, mmap_mode="r" if self._mmap else None) # type: ignore[assignment]
+        if self._in_memory:
+            feats = np.array(feats, copy=True)
+            xy = np.array(xy, copy=True)
+            ts = (np.array(ts, copy=True) if ts is not None else None)
         cached = {"feats": feats, "xy": xy, "ts": ts}
         self._cache[fi] = cached
         return cached
@@ -203,7 +212,33 @@ class FramesLazyDataset(Dataset):
         seq_len: int = 12,
         predict: str = "current",
         mmap: bool = True,
+        in_memory: bool = False,
         stats_root: Optional[str | os.PathLike] = None,
         target: str = "auto",
+        role_filter: Optional[str] = None,
     ) -> "FramesLazyDataset":
-        return cls(files=[str(p) for p in files], seq_len=seq_len, predict=predict, mmap=mmap, stats_root=stats_root, target=target)
+        # 兼容函数：从 feats.npy 列表推断 feature 根目录（要求位于 .../npy 下）
+        files = [Path(p) for p in files]
+        if not files:
+            raise ValueError("empty file list")
+        parents = []
+        for p in files:
+            if p.suffix != ".npy" or not p.name.endswith(".feats.npy"):
+                raise ValueError(f"expect *.feats.npy, got {p}")
+            if p.parent.name != "npy":
+                raise ValueError(f"expect files under .../npy, got {p.parent}")
+            parents.append(p.parent.parent)
+        # 所有文件应共用同一 feature 根目录
+        root = parents[0]
+        if any(pr != root for pr in parents):
+            raise ValueError("files belong to different feature roots")
+        return cls(
+            root=str(root),
+            seq_len=seq_len,
+            predict=predict,
+            mmap=mmap,
+            in_memory=in_memory,
+            stats_root=stats_root,
+            target=target,
+            role_filter=role_filter,
+        )

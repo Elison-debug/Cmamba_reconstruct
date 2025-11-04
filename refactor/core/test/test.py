@@ -2,6 +2,7 @@
 import argparse
 import time
 from pathlib import Path
+import json
 import numpy as np
 import torch
 from torch.utils.data import DataLoader
@@ -23,8 +24,9 @@ cmap = make_truncated_cmap(base='turbo', lo=0.10, hi=0.95)
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--eval_root", type=str, required=True)
-    p.add_argument("--ckpt", type=str, default="best_epe_mean.pt")
+    # 新布局：仅提供 features 根目录（包含子目录 npy 与 json）
+    p.add_argument("--feat_root", type=str, default="./data/features/logo")
+    p.add_argument("--ckpt", type=str, default="ckpt_refactor/logo/best_epe_mean.pt")
     p.add_argument("--out_dir", type=str, default="./test_out")
 
     # model dims (will be overridden by ckpt if present)
@@ -40,7 +42,7 @@ def main():
     p.add_argument("--workers", type=int, default=4)
     p.add_argument("--amp", action="store_true")
     p.add_argument("--dont_save_csv", action="store_true")
-    p.add_argument("--target", type=str, default="auto", choices=["auto","train","eval"], help="which indices to use if present in JSON")
+    p.add_argument("--target", type=str, default="eval", choices=["auto","train","eval","test"], help="which indices to use if present in JSON")
 
     # quantization toggles
     p.add_argument("--quant_backend", type=str, choices=["cpp", "python"], default=os.environ.get("QUANT_BACKEND", "python"))
@@ -56,6 +58,8 @@ def main():
     p.add_argument("--pe_scale", type=float, default=1.0)
     p.add_argument("--gate_off", action="store_true")
     p.add_argument("--agg_pool", type=str, default="", choices=["", "avg", "max"])
+
+    p.add_argument("--preload", action="store_true", help="preload all arrays into RAM (set workers=0/1)")
     args = p.parse_args()
 
     set_seed(42)
@@ -81,7 +85,7 @@ def main():
     cfg = TrainConfig(
         Din=int(dims["Din"]), K=int(dims["K"]), proj_dim=int(dims["proj_dim"]), d_model=int(dims["d_model"]),
         n_layer=int(dims["n_layer"]), patch_len=int(dims["patch_len"]), stride=int(dims["stride"]),
-        batch_size=args.batch_size, train_root=args.eval_root, eval_root=None,
+        batch_size=args.batch_size, feat_root=args.feat_root,
     )
     # backend toggles
     os.environ["QUANT_BACKEND"] = args.quant_backend
@@ -89,25 +93,45 @@ def main():
     if args.use_dwconv: os.environ["USE_DWCONV"] = "1"
     from ..mamba_regressor import MambaRegressor
 
-    # per-file mode only: evaluate each .feats.npy directly under eval_root
+    # Build per-file evaluation using a shared dataset + per-file subsets
     summary: list[dict] = []
-    npz_files = sorted([p for p in glob.glob(os.path.join(args.eval_root, '*.feats.npy'))])
-    if npz_files:
-        print({"files": len(npz_files), "mode": "per-file"})
-        # build a common model once to reduce overhead? Keep per-file new model to mirror old exact behavior
-        for f in npz_files:
-            stem = os.path.splitext(os.path.basename(f))[0]
+    js = Path(args.feat_root) / 'json'
+    json_files = sorted(js.glob('*.json'))
+    if json_files:
+        print({"files": len(json_files), "mode": "per-file"})
+        stats_root = Path(args.feat_root)
+        ds_all = FramesLazyDataset(root=args.feat_root, seq_len=cfg.K, predict="current", mmap=True, stats_root=stats_root, target=args.target, in_memory=bool(args.preload))
+        base_to_fi = { ds_all.entries[i]["base"]: i for i in range(len(ds_all.entries)) }
+        for jp in json_files:
+            stem = jp.stem
+            if stem not in base_to_fi:
+                continue
             out_sub = os.path.join(args.out_dir, stem)
-            # dataset for single file with correct stats root (parent of eval_root)
-            ds = FramesLazyDataset.from_filelist([f], seq_len=cfg.K, predict="current", mmap=True, stats_root=Path(args.eval_root).parent, target=args.target)
+            fi_target = int(base_to_fi[stem])
+            sel_idx = [k for k,(fi,_,_) in enumerate(ds_all.index) if fi == fi_target]
+            if not sel_idx:
+                continue
+            from torch.utils.data import Subset
+            ds = Subset(ds_all, sel_idx)
             dl = DataLoader(ds, batch_size=args.batch_size, shuffle=False, num_workers=args.workers, pin_memory=True,
                             persistent_workers=(args.workers>0), prefetch_factor=(2 if args.workers>0 else None))
             Path(out_sub).mkdir(parents=True, exist_ok=True)
-            print({"eval_samples": len(ds), "file": os.path.basename(f), "out": out_sub, "device": str(device)})
+            print({"eval_samples": len(sel_idx), "file": stem, "out": out_sub, "device": str(device)})
+
+            # Read arch toggles from ckpt to avoid mismatch
+            arch = {}
+            if ckpt_obj is not None and isinstance(ckpt_obj, dict):
+                arch = ckpt_obj.get("arch", {}) or {}
+            pe_off = bool(arch.get("pe_off", args.pe_off))
+            pe_scale = float(arch.get("pe_scale", args.pe_scale))
+            gate_off = bool(arch.get("gate_off", args.gate_off))
+            agg_pool = str(arch.get("agg_pool", args.agg_pool))
+            use_dwconv = bool(arch.get("use_dwconv", args.use_dwconv))
 
             model = MambaRegressor(Din=cfg.Din, K=cfg.K, proj_dim=cfg.proj_dim, d_model=cfg.d_model,
                                    n_layer=cfg.n_layer, patch_len=cfg.patch_len, stride=cfg.stride,
-                                   pe_off=args.pe_off, pe_scale=args.pe_scale, gate_off=args.gate_off, agg_pool=args.agg_pool).to(device)
+                                   pe_off=pe_off, pe_scale=pe_scale, gate_off=gate_off, agg_pool=agg_pool,
+                                   use_dwconv=use_dwconv).to(device)
             if ckpt_obj is not None:
                 sd = ckpt_obj.get("state_dict", ckpt_obj)
                 model.load_state_dict(sd, strict=False)
@@ -199,7 +223,7 @@ def main():
             plt.plot(y_true_a[:,0], y_true_a[:,1],color='blue', linewidth=1, label='True Trajectory',zorder=3)
 
             # ---- Predicted points (rasterized) ----
-            sc = plt.scatter(y_pred_a[:,0], y_pred_a[:,1],c=err,cmap=cmap,s=1, alpha=0.65,edgecolors='none',rasterized=True ,zorder=2)# scatter 栅格化
+            sc = plt.scatter(y_pred_a[:,0], y_pred_a[:,1],c=err,cmap='plasma',s=1, alpha=0.65,edgecolors='none',rasterized=True ,zorder=2)# scatter 栅格化
             #sc = plt.scatter(y_pred_a[:,0], y_pred_a[:,1],c=np.arange(len(y_pred_a)),cmap='plasma',s=0.3, alpha=0.65,edgecolors='none',rasterized=True ,zorder=2)# scatter 栅格化
             cb = plt.colorbar(sc); cb.set_label('Frame index')
             plt.xlabel('X'); plt.ylabel('Y'); plt.grid(True, linestyle='--', linewidth=0.2); plt.axis('equal'); plt.legend()

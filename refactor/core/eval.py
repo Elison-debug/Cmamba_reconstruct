@@ -21,7 +21,8 @@ def make_truncated_cmap(base='turbo', lo=0.10, hi=0.95, n=256):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--eval_root", type=str, required=True)
+    # 新布局：仅提供 features 根目录（包含子目录 npy 与 json）
+    p.add_argument("--feat_root", type=str, default="./data/features/logo")
     p.add_argument("--Din", type=int, default=int(os.environ.get("DIN", 2100)))
     p.add_argument("--K", type=int, default=int(os.environ.get("K", 12)))
     p.add_argument("--proj_dim", type=int, default=64)
@@ -37,13 +38,14 @@ def main():
     p.add_argument("--workers", type=int, default=4)
     p.add_argument("--prefetch", type=int, default=4)
     p.add_argument("--mmap_off", action="store_true")
-    p.add_argument("--target", type=str, default="auto", choices=["auto","train","eval"], help="which indices to use if present in JSON")
+    p.add_argument("--target", type=str, default="eval", choices=["auto","train","eval","test"], help="which indices to use")
     # fine-grained quant toggles (env-based)
     p.add_argument("--q_proj_head", action="store_true")
     p.add_argument("--q_block_linear", action="store_true")
     p.add_argument("--q_backbone_linear", action="store_true")
     p.add_argument("--progress", action="store_true")
     p.add_argument("--no_progress", action="store_true")
+    p.add_argument("--preload", action="store_true", help="preload all arrays into RAM (set workers=0/1)")
     # SSM/PE/AGG knobs
     p.add_argument("--pe_off", action="store_true")
     p.add_argument("--pe_scale", type=float, default=1.0)
@@ -76,9 +78,9 @@ def main():
                 for k in list(dims.keys()):
                     if k in ck_cfg:
                         dims[k] = int(ck_cfg[k]) if isinstance(ck_cfg[k], (int,)) else ck_cfg[k]
-                print({"eval_dims_from_ckpt": True, **dims})
+                print("eval_dims_from_ckpt: True" ,dims)
             else:
-                print({"eval_dims_from_ckpt": False})
+                print("eval_dims_from_ckpt: False")
         except Exception as e:
             print({"ckpt_load": f"warn: {e}"})
 
@@ -91,13 +93,12 @@ def main():
         patch_len=int(dims["patch_len"]),
         stride=int(dims["stride"]),
         batch_size=args.batch_size,
-        train_root=args.eval_root,
-        eval_root=None,
+        feat_root=args.feat_root,
         mmap=not bool(args.mmap_off),
     )
-    # Build dataset for eval_root only; respect target selection
+    # 构建数据集（仅从 feat_root 读取 json/npy）
     from refactor.datasets.frames_lazy import FramesLazyDataset
-    ds = FramesLazyDataset(root=args.eval_root, seq_len=cfg.K, predict="current", mmap=cfg.mmap, target=args.target)
+    ds = FramesLazyDataset(root=args.feat_root, seq_len=cfg.K, predict="current", mmap=cfg.mmap, target=args.target, in_memory=bool(args.preload))
     dl = DataLoader(
         ds,
         batch_size=cfg.batch_size,
@@ -107,17 +108,27 @@ def main():
         persistent_workers=(int(args.workers) > 0),
         prefetch_factor=(args.prefetch if int(args.workers) > 0 else None),
     )
-    print({
-        "eval_samples": len(ds),
-        "K": cfg.K,
-        "Din": cfg.Din,
-        "device": str(device),
-    })
+    print(
+        "eval_samples: " + str(len(ds)) +
+        " K: " + str(cfg.K) +
+        " Din: " + str(cfg.Din) +
+        " device: " + str(device)
+    )
 
     # Set backend before import
     os.environ["QUANT_BACKEND"] = args.quant_backend
     # no env toggles for model config; pass explicitly to constructor
     from .mamba_regressor import MambaRegressor  # delayed import
+
+    # Read arch toggles from ckpt if available to avoid mismatch with training
+    arch = {}
+    if ckpt_obj is not None and isinstance(ckpt_obj, dict):
+        arch = ckpt_obj.get("arch", {}) or {}
+    pe_off = bool(arch.get("pe_off", args.pe_off))
+    pe_scale = float(arch.get("pe_scale", args.pe_scale))
+    gate_off = bool(arch.get("gate_off", args.gate_off))
+    agg_pool = str(arch.get("agg_pool", args.agg_pool))
+    use_dwconv = bool(arch.get("use_dwconv", args.use_dwconv))
 
     model = MambaRegressor(
         Din=cfg.Din,
@@ -127,16 +138,16 @@ def main():
         n_layer=cfg.n_layer,
         patch_len=cfg.patch_len,
         stride=cfg.stride,
-        pe_off=args.pe_off,
-        pe_scale=args.pe_scale,
-        gate_off=args.gate_off,
-        agg_pool=args.agg_pool,
-        quantize_all=args.quantize_all,
-        q_proj_head=args.q_proj_head,
-        q_block_linear=args.q_block_linear,
-        q_backbone_linear=args.q_backbone_linear,
-        use_dwconv=args.use_dwconv,
-        quant_backend=args.quant_backend,
+        pe_off=pe_off,
+        pe_scale=pe_scale,
+        gate_off=gate_off,
+        agg_pool=agg_pool,
+        use_dwconv=use_dwconv,
+        quantize_all=False,
+        q_proj_head=False,
+        q_block_linear=False,
+        q_backbone_linear=False,
+        quant_backend=None,
     ).to(device)
 
     if ckpt_obj is not None:
@@ -146,7 +157,7 @@ def main():
     loss_fn = HuberEPE(delta=1.0)
     show = (args.progress or (not args.no_progress))
     ev_loss, stats = evaluate(model, dl, device, loss_fn, show_progress=show) #type: ignore
-    print({"eval_loss": ev_loss, **stats})
+    print(f"eval_loss: {ev_loss}, stats: {stats}")
 
     # Full-dataset prediction pass for plots and detailed outputs
     Path(args.out_dir).mkdir(parents=True, exist_ok=True)
@@ -198,7 +209,7 @@ def main():
         plt.tight_layout(); plt.savefig(os.path.join(args.out_dir, 'err_hist.png')); plt.close()
 
 
-        cmap = make_truncated_cmap(base='turbo', lo=0.10, hi=0.95)
+        #cmap = make_truncated_cmap(base='turbo', lo=0.10, hi=0.95)
 
         # True vs Predicted trajectory plot (SVG hybrid output) with broken true line across grids
         plt.figure(figsize=(7.5, 6.5))
@@ -216,7 +227,7 @@ def main():
                 plt.plot(y_true[start:,0], y_true[start:,1], color='blue', linewidth=0.4, label=None if start > 0 else 'True Trajectory', zorder=3)
 
         # ---- Predicted points (rasterized) ----
-        sc = plt.scatter(y_pred[:,0], y_pred[:,1], c=err, cmap=cmap, s=0.3, alpha=0.65, edgecolors='none', rasterized=True, zorder=2)
+        sc = plt.scatter(y_pred[:,0], y_pred[:,1], c=err, cmap='plasma', s=0.7, alpha=0.65, edgecolors='none', rasterized=True, zorder=2)
         #sc = plt.scatter(y_pred[:,0], y_pred[:,1], c=np.arange(len(y_pred)), cmap=cmap, s=0.3, alpha=0.65, edgecolors='none', rasterized=True, zorder=2)
         cb = plt.colorbar(sc); cb.set_label('Frame index')
         plt.xlabel('X'); plt.ylabel('Y'); plt.grid(True, linestyle='--', linewidth=0.2); plt.axis('equal'); plt.legend()

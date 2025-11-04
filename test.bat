@@ -1,60 +1,56 @@
 @echo off
-set arg=%1
-set args=%2
-set multi=%3
+set target=%1
 
-if "%arg%"=="" (
-    echo Usage: train.bat grid ^| random | parity
-    goto :eof
+if "%target%"=="" (
+  echo Usage: ref_data.bat train ^| eval ^| test
+  goto :eof
 )
+if "%target%"=="train_all" goto run_train_all
+if "%target%"=="train" goto run_train
+if "%target%"=="eval" goto run_eval
+if "%target%"=="test" goto run_test
 
-if "%multi%"=="multi"  (goto run4)  else  echo invalid args %multi%...
-if "%arg%"=="grid" goto run1
-if "%arg%"=="random" goto run2
-if "%arg%"=="parity" goto run3
-if "%arg%"=="less" goto run5
-
-:run1
-echo Running grid eval...
-python -m models.eval.eval_cdf_lazy ^
-  --ckpt=ckpt/grid/result/best%args%_epe.pt ^
-  --predict=current --sigma=0.1^
-  --out_dir=.\eval_out --save_csv^
-  --amp
+echo Unknown target: %target%
 goto :eof
 
-:run2
-echo Running random eval...
-python -m models.eval.eval_cdf_lazy ^
-  --ckpt=ckpt/grid/result/best%args%_epe.pt ^
-  --predict=current --sigma=0.1^
-  --out_dir=eval_out --save_csv^
-  --amp
+:run_train
+python -m refactor.core.eval ^
+  --ckpt ckpt_refactor\logo\best_epe_mean.pt ^
+  --target=train --out_dir ./test_out/train ^
+  --preload 
+
+python -m refactor.core.test.test ^
+  --ckpt ckpt_refactor\logo\best_epe_mean.pt ^
+  --target=train --out_dir=test_out/train ^
+  --preload 
+
+:run_train_all
+python -m refactor.core.eval ^
+  --ckpt ckpt_refactor\logo\best_epe_mean.pt ^
+  --target=train --out_dir ./test_out/train ^
+  --preload 
+
 goto :eof
 
-:run3
-echo Running parity grid eval...
-python -m models.eval.eval_cdf_lazy ^
-  --ckpt=ckpt/parity/result/best%args%_epe.pt ^
-  --predict=current --sigma=0.1^
-  --out_dir=eval_out --save_csv^
-  --amp
+:run_test
+python -m refactor.core.eval ^
+  --ckpt ckpt_refactor\logo\best_epe_mean.pt ^
+  --target=test --out_dir=test_out/test ^
+  --preload 
+
+python -m refactor.core.test.test ^
+  --ckpt ckpt_refactor\logo\best_epe_mean.pt ^
+  --target=test --out_dir=test_out/test ^
+  --preload 
+
 goto :eof
 
-:run4
-echo Running multi eval...
-python -m models.eval.eval_multi ^
-  --ckpt=ckpt/parity/result/best%args%_epe.pt ^
-  --predict=current --sigma=0.1^
-  --out_dir=eval_out_parity_%args% --save_csv^
-  --amp
-goto :eof
+:run_eval
+python -m refactor.core.eval ^
+  --ckpt ckpt_refactor\logo\best_epe_mean.pt ^
+  --target=eval --out_dir ./test_out/eval --preload 
 
-:run5
-echo Running testing eval...
-python -m models.eval.eval_multi ^
-  --ckpt=ckpt/lessData/result/best%args%_epe.pt ^
-  --predict=current --sigma=0.1^
-  --out_dir=eval_out_testing_%args% --save_csv^
-  --amp --eval_root=./data/features/lessData/test
+python -m refactor.core.test.test ^
+  --ckpt ckpt_refactor\logo\best_epe_mean.pt ^
+  --target=eval --out_dir=test_out/eval --preload 
 goto :eof
