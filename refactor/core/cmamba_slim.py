@@ -5,31 +5,28 @@ import torch
 import torch.nn as nn
 
 try:
-    from ..quant.qat_layers import QLinearINT8, set_default_backend  # type: ignore
+    from ..quant.qat_layers import QConv1x1INT, set_default_backend  # type: ignore
 except Exception:  # pragma: no cover - optional dependency
-    QLinearINT8 = None
+    QConv1x1INT = None
     set_default_backend = None
 
 
 class _Pointwise1x1(nn.Module):
     """Shared helper for 1x1 projections with optional QLinear backend."""
 
-    def __init__(self, in_ch: int, out_ch: int, *, bias: bool = True, use_q: bool = False, backend: Optional[str] = None):
+    def __init__(self, in_ch: int, out_ch: int, *, bias: bool = True, use_q: bool = False, backend: Optional[str] = None, quant_bits: int = 8):
         super().__init__()
-        self._use_q = bool(use_q and QLinearINT8 is not None)
+        self._use_q = bool(use_q and QConv1x1INT is not None)
         if self._use_q:
             if backend and set_default_backend is not None:
                 set_default_backend(backend)
-            self.lin = QLinearINT8(in_ch, out_ch, bias=bias, backend=backend)  # type: ignore[call-arg]
+            self.qconv = QConv1x1INT(in_ch, out_ch, bias=bias, a_bits=quant_bits, w_bits=quant_bits, backend=backend)  # type: ignore[call-arg]
         else:
             self.conv = nn.Conv1d(in_ch, out_ch, kernel_size=1, bias=bias)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         if self._use_q:
-            B, C, K = x.shape
-            flat = x.permute(0, 2, 1).reshape(-1, C)
-            y = self.lin(flat)
-            return y.view(B, K, -1).permute(0, 2, 1).contiguous()
+            return self.qconv(x)
         return self.conv(x)
 
 class ModelArgs:
@@ -62,6 +59,7 @@ class ModelArgs:
         q_backbone_linear: bool = False,
         quantize_all: bool = False,
         quant_backend: Optional[str] = None,
+        quant_bits: int = 8,
     ) -> None:
         self.d_model = d_model
         self.n_layer = n_layer
@@ -100,6 +98,7 @@ class ModelArgs:
         self.q_backbone_linear = bool(q_backbone_linear)
         self.quantize_all = bool(quantize_all)
         self.quant_backend = quant_backend
+        self.quant_bits = int(quant_bits)
 
 
 class RMSNorm(nn.Module):
@@ -178,6 +177,7 @@ class SlimMambaBlock(nn.Module):
             bias=args.bias,
             use_q=use_q_block,
             backend=args.quant_backend,
+            quant_bits=args.quant_bits,
         )
         if use_dw:
             pad = k // 2
@@ -193,6 +193,7 @@ class SlimMambaBlock(nn.Module):
             bias=args.bias,
             use_q=use_q_block,
             backend=args.quant_backend,
+            quant_bits=args.quant_bits,
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -253,6 +254,7 @@ class CMambaSlim(nn.Module):
             bias=True,
             use_q=bool(args.q_backbone_linear or args.quantize_all),
             backend=args.quant_backend,
+            quant_bits=args.quant_bits,
         )
 
     @staticmethod

@@ -12,7 +12,7 @@
      python -m refactor.quant.build_and_use --backend=cpp --test_linear
 
 说明：
-  - 仅量化线性 QLinearINT8 会使用选择的后端（cpp/python），其余网络计算仍在 PyTorch 中。
+  - 仅量化 1x1 卷积 QConv1x1INT 会使用选择的后端（cpp/python），其余网络计算仍在 PyTorch 中。
   - 脚本只做最小验证（前向与梯度），方便快速确认环境可用。
 """
 
@@ -41,11 +41,11 @@ def prebuild_cpp() -> bool:
 
 def test_qlinear(backend: str = "python") -> bool:
     try:
-        from .qat_layers import QLinearINT8, set_default_backend
+        from .qat_layers import QConv1x1INT, set_default_backend
         set_default_backend(backend)
-        in_f, out_f, B = 16, 8, 4
-        x = torch.randn(B, in_f, dtype=torch.float32, requires_grad=True)
-        lin = QLinearINT8(in_f, out_f, backend=backend)
+        in_f, out_f, B, K = 16, 8, 4, 12
+        x = torch.randn(B, in_f, K, dtype=torch.float32, requires_grad=True)
+        lin = QConv1x1INT(in_f, out_f, backend=backend)
         y = lin(x)
         loss = y.pow(2).mean()
         loss.backward()
@@ -66,7 +66,7 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--backend", type=str, choices=["cpp", "python"], default="cpp")
     p.add_argument("--prebuild", action="store_true", help="仅预编译/加载 C++ 扩展")
-    p.add_argument("--test_linear", action="store_true", help="运行一个最小的 QLinearINT8 前向+反向测试")
+    p.add_argument("--test_linear", action="store_true", help="运行一个最小的 QConv1x1INT 前向+反向测试")
     args = p.parse_args()
 
     ok = True
@@ -79,4 +79,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

@@ -16,7 +16,7 @@ def _save_npy(out_dir: Path, name: str, arr: np.ndarray) -> str:
 
 
 def _extract_qparams_from_module(mod: torch.nn.Module):
-    """Try to read QLinearINT8 learnable params for export."""
+    """Try to read QConv1x1INT learnable params for export (python or cpp backend)."""
     q = {}
     # cpp impl attributes
     for name in ["a_scale", "a_zp", "w_scale"]:
@@ -24,7 +24,7 @@ def _extract_qparams_from_module(mod: torch.nn.Module):
             val = getattr(mod, name)
             if isinstance(val, torch.nn.Parameter) or torch.is_tensor(val):
                 q[name] = val.detach().cpu().numpy()
-    # lsq fallback
+    # python lsq
     if hasattr(mod, "qa") and hasattr(mod.qa, "scale") and mod.qa.scale is not None:  # type: ignore
         q["a_scale"] = mod.qa.scale.detach().cpu().numpy()  # type: ignore
         # no zp in symmetric LSQ fallback

@@ -32,17 +32,33 @@ def main():
     p.add_argument("--stride", type=int, default=4)
     p.add_argument("--batch_size", type=int, default=64)
     p.add_argument("--ckpt", type=str, default="refactor_last.pt")
-    p.add_argument("--quant_backend", type=str, choices=["cpp", "python"], default="python")
-    p.add_argument("--quantize_all", type=bool, default= False)
+    # Quantization backend/bits (CLI can override ckpt; unset -> fallback to ckpt)
+    p.add_argument("--quant_backend", type=str, choices=["cpp", "python"], default=None)
+    # Tri-state toggles: --foo / --no-foo; default None -> fallback to ckpt
+    g_all = p.add_mutually_exclusive_group()
+    g_all.add_argument("--quantize_all", dest="quantize_all", action="store_true")
+    g_all.add_argument("--no_quantize_all", dest="quantize_all", action="store_false")
+    p.set_defaults(quantize_all=None)
+    g_ph = p.add_mutually_exclusive_group()
+    g_ph.add_argument("--q_proj_head", dest="q_proj_head", action="store_true")
+    g_ph.add_argument("--no_q_proj_head", dest="q_proj_head", action="store_false")
+    p.set_defaults(q_proj_head=None)
+    g_bl = p.add_mutually_exclusive_group()
+    g_bl.add_argument("--q_block_linear", dest="q_block_linear", action="store_true")
+    g_bl.add_argument("--no_q_block_linear", dest="q_block_linear", action="store_false")
+    p.set_defaults(q_block_linear=None)
+    g_bb = p.add_mutually_exclusive_group()
+    g_bb.add_argument("--q_backbone_linear", dest="q_backbone_linear", action="store_true")
+    g_bb.add_argument("--no_q_backbone_linear", dest="q_backbone_linear", action="store_false")
+    p.set_defaults(q_backbone_linear=None)
+    # bits: 0 -> fallback to ckpt; otherwise validate later (8 or 16)
+    p.add_argument("--quant_bits", type=int, default=0)
     p.add_argument("--use_dwconv", action="store_true")
     p.add_argument("--workers", type=int, default=4)
     p.add_argument("--prefetch", type=int, default=4)
     p.add_argument("--mmap_off", action="store_true")
     p.add_argument("--target", type=str, default="eval", choices=["auto","train","eval","test"], help="which indices to use")
-    # fine-grained quant toggles (env-based)
-    p.add_argument("--q_proj_head", type=bool, default= False)
-    p.add_argument("--q_block_linear", type=bool, default= False)
-    p.add_argument("--q_backbone_linear", type=bool, default= False)
+    # fine-grained toggles configured above via tri-state groups
     p.add_argument("--progress", action="store_true")
     p.add_argument("--no_progress", action="store_true")
     p.add_argument("--preload", action="store_true", help="preload all arrays into RAM (set workers=0/1)")
@@ -54,6 +70,10 @@ def main():
     p.add_argument("--break_thresh", type=float, default=0.05, help="break true line when jump exceeds this distance (m)")
     p.add_argument("--out_dir", type=str, default="./eval_out")
     p.add_argument("--save_csv", action="store_true")
+    # Quantization calibration (eval-time)
+    p.add_argument("--quant_calib_batches", type=int, default=0, help="run N batches to calibrate quant scales before eval (0=all)")
+    p.add_argument("--save_calib_ckpt", type=str, default="ckpt_refactor/logo_quant_head/calibrate_last.pt", help="path to save scale-initialized checkpoint after eval")
+    p.add_argument("--dont_save_calib_ckpt", action="store_true")
     args = p.parse_args()
 
     set_seed(42)
@@ -115,15 +135,34 @@ def main():
         " device: " + str(device)
     )
 
-    # Set backend before import
-    os.environ["QUANT_BACKEND"] = args.quant_backend
-    # no env toggles for model config; pass explicitly to constructor
-    from .mamba_regressor import MambaRegressor  # delayed import
-
     # Read arch toggles from ckpt if available to avoid mismatch with training
     arch = {}
     if ckpt_obj is not None and isinstance(ckpt_obj, dict):
         arch = ckpt_obj.get("arch", {}) or {}
+    # Resolve effective quant config: CLI overrides when provided; otherwise fall back to ckpt arch
+    eff_quant_backend = (args.quant_backend if args.quant_backend is not None else str(arch.get("quant_backend", "python")))
+    def _res_bool(cli_val, key, default=False):
+        return bool(cli_val) if cli_val is not None else bool(arch.get(key, default))
+    eff_quantize_all = _res_bool(args.quantize_all, "quantize_all", False)
+    eff_q_proj_head = _res_bool(args.q_proj_head, "q_proj_head", False)
+    eff_q_block_linear = _res_bool(args.q_block_linear, "q_block_linear", False)
+    eff_q_backbone_linear = _res_bool(args.q_backbone_linear, "q_backbone_linear", False)
+    eff_quant_bits = int(args.quant_bits) if int(args.quant_bits) in (8,16) else int(arch.get("quant_bits", 8))
+    quant_cfg = {
+        "quant_backend": eff_quant_backend,
+        "quantize_all": eff_quantize_all,
+        "q_proj_head": eff_q_proj_head,
+        "q_block_linear": eff_q_block_linear,
+        "q_backbone_linear": eff_q_backbone_linear,
+        "quant_bits": eff_quant_bits,
+    }
+    print({"quant_cfg": quant_cfg})
+
+    # Set backend before import
+    os.environ["QUANT_BACKEND"] = eff_quant_backend
+    # no env toggles for model config; pass explicitly to constructor
+    from .mamba_regressor import MambaRegressor  # delayed import
+
     pe_off = bool(arch.get("pe_off", args.pe_off))
     pe_scale = float(arch.get("pe_scale", args.pe_scale))
     gate_off = bool(arch.get("gate_off", args.gate_off))
@@ -143,17 +182,209 @@ def main():
         gate_off=gate_off,
         agg_pool=agg_pool,
         use_dwconv=use_dwconv,
-        # Quantization toggles from CLI
-        quantize_all=bool(args.quantize_all),
-        q_proj_head=bool(args.q_proj_head),
-        q_block_linear=bool(args.q_block_linear),
-        q_backbone_linear=bool(args.q_backbone_linear),
-        quant_backend=str(args.quant_backend),
+        # Quantization toggles (effective)
+        quantize_all=eff_quantize_all,
+        q_proj_head=eff_q_proj_head,
+        q_block_linear=eff_q_block_linear,
+        q_backbone_linear=eff_q_backbone_linear,
+        quant_backend=eff_quant_backend,
+        quant_bits=eff_quant_bits,
     ).to(device)
+    # Diagnostic: summarize model pointwise impls
+    def _pointwise_kind(mod):
+        try:
+            return "QConv1x1INT" if hasattr(mod, "qconv") else "Conv1d"
+        except Exception:
+            return "unknown"
+    print({
+        "model_pointwise": {
+            "proj": _pointwise_kind(getattr(model, "proj", None)),
+            "head": _pointwise_kind(getattr(model, "head", None)),
+        },
+        "use_dwconv": bool(use_dwconv),
+        "pe_off": bool(pe_off),
+        "agg_pool": str(agg_pool),
+    })
 
     if ckpt_obj is not None:
         sd = ckpt_obj.get("state_dict", ckpt_obj)
-        model.load_state_dict(sd, strict=False)
+        r = model.load_state_dict(sd, strict=False)
+        try:
+            miss = list(getattr(r, "missing_keys", []))
+            unexp = list(getattr(r, "unexpected_keys", []))
+            print({
+                "ckpt_load": {
+                    "missing": len(miss),
+                    "unexpected": len(unexp),
+                    "missing_samp": miss[:5],
+                    "unexpected_samp": unexp[:5],
+                }
+            })
+        except Exception:
+            pass
+
+    # Optional: eval-time calibration of quant scales
+    if int(args.quant_calib_batches) >= 0:
+        def _collect_targets(modules_root):
+            pairs = []
+            for m in modules_root.modules():
+                qc = getattr(m, "qconv", None)
+                if qc is None:
+                    continue
+                if hasattr(qc, "qa") and hasattr(qc, "qw"):
+                    pairs.append((m, qc, "python"))
+                elif hasattr(qc, "impl"):
+                    pairs.append((m, qc, "cpp"))
+            return pairs
+
+        targets = _collect_targets(model)
+        cal_stats = { id(lin): {"sum_abs": 0.0, "count": 0} for (_, lin, _) in targets }
+        handles = []
+        def _prehook(mod, inputs):
+            try:
+                x = inputs[0]
+                s = cal_stats.get(id(mod), None)
+                if s is not None:
+                    s["sum_abs"] += float(x.detach().abs().sum().item())
+                    s["count"] += int(x.numel())
+            except Exception:
+                pass
+            return None
+        # register hooks on QConv1x1INT modules (the inner module referenced by parent.lin)
+        for (_, lin, _) in targets:
+            try:
+                h = lin.register_forward_pre_hook(_prehook)
+                handles.append(h)
+            except Exception:
+                pass
+        # run N batches to accumulate activation stats
+        nb = int(args.quant_calib_batches)
+        model.eval()
+        with torch.no_grad():
+            for i, (xb, yb) in enumerate(dl, 1):
+                xb = xb.to(device, non_blocking=True).float()
+                _ = model(xb)
+                if nb > 0 and i >= nb:
+                    break
+        # remove hooks
+        for h in handles:
+            try:
+                h.remove()
+            except Exception:
+                pass
+        # write back scales for activations and weights
+        for (parent, lin, be) in targets:
+            try:
+                # activation scale: per-tensor symmetric, approx 2*mean(|x|)
+                s = cal_stats.get(id(lin), None)
+                if s and s["count"] > 0:
+                    a_scale = max(1e-8, 2.0 * (s["sum_abs"] / s["count"]))
+                if be == "python" and hasattr(lin, "qa") and hasattr(lin.qa, "scale") and lin.qa.scale is not None:
+                    with torch.no_grad():
+                        lin.qa.scale.data.fill_(float(a_scale))  # type: ignore
+                elif be == "cpp" and hasattr(lin, "impl") and hasattr(lin.impl, "a_scale"):
+                    with torch.no_grad():
+                        lin.impl.a_scale.data.fill_(float(a_scale))
+                # weight scale: per-out symmetric, approx 2*mean(|W|) along in_features
+                W = lin.conv.weight.detach() if hasattr(lin, "conv") else None
+                if W is not None:
+                    w_mean = 2.0 * W.abs().mean(dim=1)  # (out_f,)
+                    if be == "python" and hasattr(lin, "qw") and hasattr(lin.qw, "scale") and lin.qw.scale is not None:
+                        ws = w_mean.view(-1, 1).to(lin.qw.scale.device, dtype=lin.qw.scale.dtype)
+                        with torch.no_grad():
+                            lin.qw.scale.data.copy_(ws)  # type: ignore
+                    elif be == "cpp" and hasattr(lin, "impl") and hasattr(lin.impl, "w_scale"):
+                        ws = w_mean.to(lin.impl.w_scale.device, dtype=lin.impl.w_scale.dtype)
+                        if lin.impl.w_scale.numel() == ws.numel():
+                            with torch.no_grad():
+                                lin.impl.w_scale.data.copy_(ws)
+            except Exception:
+                pass
+
+        # If ckpt contains LSQ scales (python backend) but current model uses cpp backend,
+        # import those scales into cpp impl to preserve calibration.
+        try:
+            def _import_scales_from_lsq(sdict, pw_mod):
+                if pw_mod is None or not hasattr(pw_mod, "qconv"):
+                    return False
+                lin = pw_mod.qconv
+                if not hasattr(lin, "impl"):
+                    return False
+                impl = lin.impl
+                changed = False
+                # activation scale (per-tensor)
+                a_key = None
+                w_key = None
+                # find relative name by probing known prefixes
+                # We call this function per proj/head with concrete keys outside.
+                return False
+
+            # Project/head mapping
+            for name in ("proj", "head"):
+                pw = getattr(model, name, None)
+                if pw is None or not hasattr(pw, "qconv") or not hasattr(pw.qconv, "impl"):
+                    continue
+                impl = pw.qconv.impl
+                a_key = f"{name}.qconv.qa.scale"
+                w_key = f"{name}.qconv.qw.scale"
+                if a_key in sd:
+                    try:
+                        a_sc = sd[a_key]
+                        if isinstance(a_sc, torch.Tensor):
+                            val = float(a_sc.detach().mean().abs().item())
+                        else:
+                            val = float(a_sc)
+                        if hasattr(impl, "a_scale"):
+                            with torch.no_grad():
+                                impl.a_scale.data.fill_(max(1e-8, val))
+                    except Exception:
+                        pass
+                if w_key in sd:
+                    try:
+                        w_sc = sd[w_key]
+                        if isinstance(w_sc, torch.Tensor):
+                            w_vec = w_sc.detach().view(-1).float().abs()
+                        else:
+                            w_vec = torch.as_tensor(w_sc).view(-1).float().abs()
+                        if hasattr(impl, "w_scale") and impl.w_scale.numel() == w_vec.numel():
+                            with torch.no_grad():
+                                impl.w_scale.data.copy_(w_vec.view_as(impl.w_scale))
+                    except Exception:
+                        pass
+        except Exception:
+            pass
+
+    # Diagnostic: quant param summary for proj/head
+    def _qsummary(pw):
+        try:
+            if hasattr(pw, "lin"):
+                lin = pw.lin
+                if hasattr(lin, "impl"):  # cpp backend
+                    impl = lin.impl
+                    return {
+                        "backend": "cpp",
+                        "a_bits": int(getattr(impl, "a_bits", -1)),
+                        "w_bits": int(getattr(impl, "w_bits", -1)),
+                        "a_scale": float(getattr(impl, "a_scale", torch.tensor(0.0)).detach().abs().mean().item()) if hasattr(impl, "a_scale") else None,
+                        "w_scale_shape": list(getattr(impl, "w_scale").shape) if hasattr(impl, "w_scale") else None,
+                    }
+                elif hasattr(lin, "qa") and hasattr(lin, "qw"):
+                    qa = lin.qa; qw = lin.qw
+                    sc = (None if getattr(qa, "scale", None) is None else qa.scale.detach().abs().mean().item())
+                    return {
+                        "backend": "python",
+                        "a_bits": int(getattr(qa, "bits", -1)),
+                        "w_bits": int(getattr(qw, "bits", -1)),
+                        "a_scale_mean_abs": (float(sc) if sc is not None else None),
+                        "w_scale_len": (int(qw.scale.numel()) if getattr(qw, "scale", None) is not None else None),
+                    }
+        except Exception:
+            return {"error": "qsummary_failed"}
+        return {"note": "not_quantized"}
+    print({
+        "q_proj": _qsummary(getattr(model, "proj", None)),
+        "q_head": _qsummary(getattr(model, "head", None)),
+    })
 
     loss_fn = HuberEPE(delta=1.0)
     show = (args.progress or (not args.no_progress))
@@ -208,6 +439,34 @@ def main():
         plt.hist(err, bins=50); plt.grid(True, linestyle='--', linewidth=0.5)
         plt.xlabel('Position error (m)'); plt.ylabel('Count'); plt.title('Error histogram')
         plt.tight_layout(); plt.savefig(os.path.join(args.out_dir, 'err_hist.png')); plt.close()
+
+    # Save a scale-initialized checkpoint for deployment if requested
+    if not bool(args.dont_save_calib_ckpt) and args.save_calib_ckpt:
+        save_path = os.path.abspath(args.save_calib_ckpt)
+        try:
+            meta_arch = dict(arch)
+            # ensure quant cfg fields are present
+            meta_arch.update({
+                "quant_backend": eff_quant_backend,
+                "quantize_all": eff_quantize_all,
+                "q_proj_head": eff_q_proj_head,
+                "q_block_linear": eff_q_block_linear,
+                "q_backbone_linear": eff_q_backbone_linear,
+                "quant_bits": eff_quant_bits,
+                "use_dwconv": bool(use_dwconv),
+                "pe_off": bool(pe_off),
+                "pe_scale": float(pe_scale),
+                "gate_off": bool(gate_off),
+                "agg_pool": str(agg_pool),
+            })
+            torch.save({
+                "state_dict": model.state_dict(),
+                "cfg": vars(cfg),
+                "arch": meta_arch,
+            }, save_path)
+            print({"save_calib_ckpt": save_path})
+        except Exception as e:
+            print({"save_calib_ckpt": f"failed: {e}"})
 
 
         #cmap = make_truncated_cmap(base='turbo', lo=0.10, hi=0.95)

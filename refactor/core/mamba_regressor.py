@@ -6,31 +6,30 @@ import torch.nn as nn
 from .cmamba_slim import CMambaSlim, ModelArgs
 
 try:
-    from ..quant.qat_layers import QLinearINT8, set_default_backend  # type: ignore
+    # Use quantized 1x1 Conv implementation explicitly
+    from ..quant.qat_layers import QConv1x1INT, set_default_backend  # type: ignore
 except Exception:  # pragma: no cover - optional dependency
-    QLinearINT8 = None
+    QConv1x1INT = None
     set_default_backend = None
 
 
 class _Pointwise1x1(nn.Module):
-    """Apply either Conv1d(1x1) or QLinearINT8 depending on quant toggle."""
+    """Apply either Conv1d(1x1) or quantized Conv1d(1x1) depending on quant toggle."""
 
-    def __init__(self, in_ch: int, out_ch: int, *, bias: bool = True, use_q: bool = False, backend: Optional[str] = None):
+    def __init__(self, in_ch: int, out_ch: int, *, bias: bool = True, use_q: bool = False, backend: Optional[str] = None, quant_bits: int = 8):
         super().__init__()
-        self._use_q = bool(use_q and QLinearINT8 is not None)
+        self._use_q = bool(use_q and QConv1x1INT is not None)
         if self._use_q:
             if backend and set_default_backend is not None:
                 set_default_backend(backend)
-            self.lin = QLinearINT8(in_ch, out_ch, bias=bias, backend=backend)  # type: ignore[call-arg]
+            # Use explicit name 'qconv' for quantized conv
+            self.qconv = QConv1x1INT(in_ch, out_ch, bias=bias, a_bits=quant_bits, w_bits=quant_bits, backend=backend)  # type: ignore[call-arg]
         else:
             self.conv = nn.Conv1d(in_ch, out_ch, kernel_size=1, bias=bias)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         if self._use_q:
-            B, C, K = x.shape
-            flat = x.permute(0, 2, 1).reshape(-1, C)
-            y = self.lin(flat)
-            return y.view(B, K, -1).permute(0, 2, 1).contiguous()
+            return self.qconv(x)
         return self.conv(x)
 
 
@@ -55,6 +54,7 @@ class MambaRegressor(nn.Module):
         q_block_linear: bool = False,
         q_backbone_linear: bool = False,
         quant_backend: Optional[str] = None,
+        quant_bits: int = 8,
     ) -> None:
         super().__init__()
         self.Din = Din
@@ -65,7 +65,7 @@ class MambaRegressor(nn.Module):
         if quant_backend and set_default_backend is not None:
             set_default_backend(quant_backend)
         # Conv1d projection across channels per time-step
-        self.proj = _Pointwise1x1(Din, proj_dim, bias=True, use_q=q_proj, backend=quant_backend)
+        self.proj = _Pointwise1x1(Din, proj_dim, bias=True, use_q=q_proj, backend=quant_backend, quant_bits=quant_bits)
 
         args = ModelArgs(
             d_model=d_model,
@@ -85,9 +85,10 @@ class MambaRegressor(nn.Module):
             q_block_linear=q_block,
             q_backbone_linear=q_backbone,
             quant_backend=quant_backend,
+            quant_bits=quant_bits,
         )
         self.backbone = CMambaSlim(args)
-        self.head = _Pointwise1x1(proj_dim, 2, bias=True, use_q=q_proj, backend=quant_backend)
+        self.head = _Pointwise1x1(proj_dim, 2, bias=True, use_q=q_proj, backend=quant_backend, quant_bits=quant_bits)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # x: (B, K, Din)

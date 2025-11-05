@@ -47,6 +47,7 @@ def main():
     # quantization toggles
     p.add_argument("--quant_backend", type=str, choices=["cpp", "python"], default=os.environ.get("QUANT_BACKEND", "python"))
     p.add_argument("--quantize_all", action="store_true")
+    p.add_argument("--quant_bits", type=int, choices=[8,16], default=8)
     p.add_argument("--use_dwconv", action="store_true")
 
     # live histogram
@@ -87,10 +88,7 @@ def main():
         n_layer=int(dims["n_layer"]), patch_len=int(dims["patch_len"]), stride=int(dims["stride"]),
         batch_size=args.batch_size, feat_root=args.feat_root,
     )
-    # backend toggles
-    os.environ["QUANT_BACKEND"] = args.quant_backend
-    if args.quantize_all: os.environ["QUANTIZE_ALL"] = "1"
-    if args.use_dwconv: os.environ["USE_DWCONV"] = "1"
+    # backend toggles (will prefer ckpt arch if present)
     from ..mamba_regressor import MambaRegressor
 
     # Build per-file evaluation using a shared dataset + per-file subsets
@@ -122,6 +120,24 @@ def main():
             arch = {}
             if ckpt_obj is not None and isinstance(ckpt_obj, dict):
                 arch = ckpt_obj.get("arch", {}) or {}
+            # Resolve effective quant config
+            eff_quant_backend = str(arch.get("quant_backend", args.quant_backend))
+            eff_quantize_all = bool(arch.get("quantize_all", args.quantize_all))
+            eff_q_proj_head = bool(arch.get("q_proj_head", False))
+            eff_q_block_linear = bool(arch.get("q_block_linear", False))
+            eff_q_backbone_linear = bool(arch.get("q_backbone_linear", False))
+            eff_quant_bits = int(arch.get("quant_bits", args.quant_bits))
+            quant_cfg = {
+                "quant_backend": eff_quant_backend,
+                "quantize_all": eff_quantize_all,
+                "q_proj_head": eff_q_proj_head,
+                "q_block_linear": eff_q_block_linear,
+                "q_backbone_linear": eff_q_backbone_linear,
+                "quant_bits": eff_quant_bits,
+            }
+            print({"quant_cfg": quant_cfg})
+            os.environ["QUANT_BACKEND"] = eff_quant_backend
+
             pe_off = bool(arch.get("pe_off", args.pe_off))
             pe_scale = float(arch.get("pe_scale", args.pe_scale))
             gate_off = bool(arch.get("gate_off", args.gate_off))
@@ -131,7 +147,35 @@ def main():
             model = MambaRegressor(Din=cfg.Din, K=cfg.K, proj_dim=cfg.proj_dim, d_model=cfg.d_model,
                                    n_layer=cfg.n_layer, patch_len=cfg.patch_len, stride=cfg.stride,
                                    pe_off=pe_off, pe_scale=pe_scale, gate_off=gate_off, agg_pool=agg_pool,
-                                   use_dwconv=use_dwconv).to(device)
+                                   use_dwconv=use_dwconv,
+                                   quantize_all=eff_quantize_all, q_proj_head=eff_q_proj_head,
+                                   q_block_linear=eff_q_block_linear, q_backbone_linear=eff_q_backbone_linear,
+                                   quant_backend=eff_quant_backend, quant_bits=eff_quant_bits).to(device)
+            # Diagnostic: pointwise kind and ckpt load status
+            def _pointwise_kind(mod):
+                try:
+                    return "QConv1x1INT" if hasattr(mod, "qconv") else "Conv1d"
+                except Exception:
+                    return "unknown"
+            print({
+                "model_pointwise": {
+                    "proj": _pointwise_kind(getattr(model, "proj", None)),
+                    "head": _pointwise_kind(getattr(model, "head", None)),
+                },
+                "use_dwconv": bool(use_dwconv),
+            })
+            if ckpt_obj is not None:
+                sd = ckpt_obj.get("state_dict", ckpt_obj)
+                r = model.load_state_dict(sd, strict=False)
+                try:
+                    miss = list(getattr(r, "missing_keys", []))
+                    unexp = list(getattr(r, "unexpected_keys", []))
+                    print({
+                        "ckpt_load": {"missing": len(miss), "unexpected": len(unexp),
+                                       "missing_samp": miss[:5], "unexpected_samp": unexp[:5]}
+                    })
+                except Exception:
+                    pass
             if ckpt_obj is not None:
                 sd = ckpt_obj.get("state_dict", ckpt_obj)
                 model.load_state_dict(sd, strict=False)

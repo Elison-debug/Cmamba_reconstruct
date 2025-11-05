@@ -154,7 +154,7 @@ This will produce:
 
 ## Quantization (Eval)
 
-Two interchangeable backends for `QLinearINT8` (only for 1x1 projections):
+Two interchangeable backends for `QConv1x1INT` (quantized 1x1 conv):
 
 - `--quant_backend=python`: LSQ fake-quant in Python (no build needed).
 - `--quant_backend=cpp`: C++ extension via `torch.utils.cpp_extension` (JIT builds on first use).
@@ -189,8 +189,8 @@ python -m refactor.core.eval \
 ## Batch Files
 
 - `train.bat`: starts a default training run (adjust to your `feat_root`).
-- `eval.bat`: fixed to use `--feat_root` (was `--eval_root`).
-- `test.bat`: runs eval and per-file tests for selected targets.
+- `eval.bat` : starts a default eval run (adjust to your `feat_root`)..
+- `test.bat` : runs eval and per-file tests for selected targets.
 
 ## Pitfalls & Tips
 

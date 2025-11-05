@@ -169,7 +169,7 @@ def main():
     p.add_argument("--prefetch", type=int, default=4)
     p.add_argument("--mmap_off", action="store_true")
     p.add_argument("--preload", action="store_true", help="preload all arrays into RAM (set workers=0/1)")
-    p.add_argument("--out_dir", type=str, default=os.environ.get("OUT_DIR", "./ckpt_refactor/logo"))
+    p.add_argument("--out_dir", type=str, default="./ckpt_refactor/logo")
     p.add_argument("--resume", type=str, default="")
     p.add_argument("--best_metric", type=str, choices=["eval_loss", "epe_mean"], default="epe_mean")
     p.add_argument("--workers", type=int, default=4)
@@ -182,6 +182,14 @@ def main():
     p.add_argument("--pe_scale", type=float, default=1.0)
     p.add_argument("--gate_off", action="store_true")
     p.add_argument("--agg_pool", type=str, default="", choices=["", "avg", "max"])
+
+    # fine-grained quant toggles (standard store_true flags)
+    p.add_argument("--quantize_all", action="store_true")
+    p.add_argument("--q_proj_head", action="store_true")
+    p.add_argument("--q_block_linear", action="store_true")
+    p.add_argument("--q_backbone_linear", action="store_true")
+    p.add_argument("--quant_backend", type=str, choices=["cpp", "python"], default="python")
+    p.add_argument("--quant_bits", type=int, choices=[8,16], default=8)
     args = p.parse_args()
 
     # parse CLI first to set env for quant backend
@@ -259,6 +267,17 @@ def main():
     except Exception as e:
         print({"Din_infer_warn": str(e)})
 
+    # Effective quant config (mirror into ckpt.arch and print for traceability)
+    quant_cfg = {
+        "quant_backend": str(args.quant_backend),
+        "quantize_all": bool(args.quantize_all),
+        "q_proj_head": bool(args.q_proj_head),
+        "q_block_linear": bool(args.q_block_linear),
+        "q_backbone_linear": bool(args.q_backbone_linear),
+        "quant_bits": int(args.quant_bits),
+    }
+    print({"quant_cfg": quant_cfg})
+
     model = MambaRegressor(
         Din=cfg.Din,
         K=cfg.K,
@@ -272,12 +291,12 @@ def main():
         gate_off=args.gate_off,
         agg_pool=args.agg_pool,
         use_dwconv=args.use_dwconv,
-        # Training‑time quantization is disabled for hardware‑friendly inference prep
-        quantize_all=False,
-        q_proj_head=False,
-        q_block_linear=False,
-        q_backbone_linear=False,
-        quant_backend=None,
+        quantize_all=quant_cfg["quantize_all"],
+        q_proj_head=quant_cfg["q_proj_head"],
+        q_block_linear=quant_cfg["q_block_linear"],
+        q_backbone_linear=quant_cfg["q_backbone_linear"],
+        quant_backend=quant_cfg["quant_backend"],
+        quant_bits=quant_cfg["quant_bits"],
     ).to(device)
     n_params = sum(p.numel() for p in model.parameters())
     print({"model_params": int(n_params), "device": str(device)})
@@ -347,6 +366,13 @@ def main():
             "pe_scale": float(args.pe_scale),
             "gate_off": bool(args.gate_off),
             "agg_pool": str(args.agg_pool),
+            # persist quantization runtime config for eval/test
+            "quant_backend": quant_cfg["quant_backend"],
+            "quantize_all": quant_cfg["quantize_all"],
+            "q_proj_head": quant_cfg["q_proj_head"],
+            "q_block_linear": quant_cfg["q_block_linear"],
+            "q_backbone_linear": quant_cfg["q_backbone_linear"],
+            "quant_bits": quant_cfg["quant_bits"],
         }
 
         for epoch in range(cfg.epochs):
@@ -421,7 +447,7 @@ def main():
                 print({"best_update": args.best_metric, "value": f"{best_val:.6f}", "path": best_path})
 
     # Save a root copy with arch info for downstream eval/test auto-config
-    torch.save({"state_dict": model.state_dict(), "cfg": vars(cfg), "arch": arch}, "refactor_last.pt")
+    # torch.save({"state_dict": model.state_dict(), "cfg": vars(cfg), "arch": arch}, "refactor_last.pt")
 
 
 if __name__ == "__main__":
