@@ -50,7 +50,8 @@ class MambaRegressor(nn.Module):
         agg_pool: str = "",
         use_dwconv: bool = False,
         quantize_all: bool = False,
-        q_proj_head: bool = False,
+        q_proj: bool = False,
+        q_head: bool = False,
         q_block_linear: bool = False,
         q_backbone_linear: bool = False,
         quant_backend: Optional[str] = None,
@@ -59,13 +60,15 @@ class MambaRegressor(nn.Module):
         super().__init__()
         self.Din = Din
         self.K = K
-        q_proj = bool(quantize_all or q_proj_head)
+        # resolve quant toggles
+        q_proj_res = bool(quantize_all or q_proj)
+        q_head_res = bool(quantize_all or q_head)
         q_block = bool(quantize_all or q_block_linear)
         q_backbone = bool(quantize_all or q_backbone_linear)
         if quant_backend and set_default_backend is not None:
             set_default_backend(quant_backend)
         # Conv1d projection across channels per time-step
-        self.proj = _Pointwise1x1(Din, proj_dim, bias=True, use_q=q_proj, backend=quant_backend, quant_bits=quant_bits)
+        self.proj = _Pointwise1x1(Din, proj_dim, bias=True, use_q=q_proj_res, backend=quant_backend, quant_bits=quant_bits)
 
         args = ModelArgs(
             d_model=d_model,
@@ -88,7 +91,7 @@ class MambaRegressor(nn.Module):
             quant_bits=quant_bits,
         )
         self.backbone = CMambaSlim(args)
-        self.head = _Pointwise1x1(proj_dim, 2, bias=True, use_q=q_proj, backend=quant_backend, quant_bits=quant_bits)
+        self.head = _Pointwise1x1(proj_dim, 2, bias=True, use_q=q_head_res, backend=quant_backend, quant_bits=quant_bits)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # x: (B, K, Din)

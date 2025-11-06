@@ -34,9 +34,13 @@ class QuantPerTensorAsymSTE(torch.autograd.Function):
     @staticmethod
     def forward(ctx, x, scale, zp, qmin, qmax):
         m = get_cpp_quant()
-        xq = m.quant_per_tensor_asym(x.contiguous(), float(scale), int(zp), int(qmin), int(qmax))  # type: ignore
-        xhat = m.dequant_per_tensor_asym(xq, float(scale), int(zp))  # type: ignore
-        return xhat
+        dev = x.device
+        x_cpu = x.contiguous().to(torch.float32).cpu()
+        sc = float(scale.item()) if torch.is_tensor(scale) else float(scale)
+        zp_i = int(zp.item()) if torch.is_tensor(zp) else int(zp)
+        xq = m.quant_per_tensor_asym(x_cpu, sc, zp_i, int(qmin), int(qmax))  # CPU
+        xhat = m.dequant_per_tensor_asym(xq, sc, zp_i)  # CPU
+        return xhat.to(device=dev, dtype=x.dtype)
 
     @staticmethod
     def backward(ctx, gO):
@@ -47,11 +51,13 @@ class QuantPerChannelSymSTE(torch.autograd.Function):
     @staticmethod
     def forward(ctx, w, scale, ch_axis, qmin, qmax):
         m = get_cpp_quant()
-        wq = m.quant_per_channel_sym(w.contiguous(), scale.contiguous(), int(ch_axis), int(qmin), int(qmax))  # type: ignore
-        shape = [1] * w.dim()
-        shape[ch_axis] = -1
-        w_hat = (wq.to(torch.float32) * scale.view(shape))
-        return w_hat
+        dev = w.device
+        w_cpu = w.contiguous().to(torch.float32).cpu()
+        scale_cpu = scale.detach().to(torch.float32).contiguous().cpu() if torch.is_tensor(scale) else torch.tensor(scale, dtype=torch.float32)
+        wq = m.quant_per_channel_sym(w_cpu, scale_cpu, int(ch_axis), int(qmin), int(qmax))  # CPU
+        shape = [1] * w.dim(); shape[int(ch_axis)] = -1
+        w_hat_cpu = (wq.to(torch.float32) * scale_cpu.view(shape))
+        return w_hat_cpu.to(device=dev, dtype=w.dtype)
 
     @staticmethod
     def backward(ctx, gO):
@@ -61,9 +67,13 @@ class QuantPerTensorAsym16STE(torch.autograd.Function):
     @staticmethod
     def forward(ctx, x, scale, zp, qmin, qmax):
         m = get_cpp_quant()
-        xq = m.quant_per_tensor_asym16(x.contiguous(), float(scale), int(zp), int(qmin), int(qmax))  # type: ignore
-        xhat = m.dequant_per_tensor_asym16(xq, float(scale), int(zp))  # type: ignore
-        return xhat
+        dev = x.device
+        x_cpu = x.contiguous().to(torch.float32).cpu()
+        sc = float(scale.item()) if torch.is_tensor(scale) else float(scale)
+        zp_i = int(zp.item()) if torch.is_tensor(zp) else int(zp)
+        xq = m.quant_per_tensor_asym16(x_cpu, sc, zp_i, int(qmin), int(qmax))  # CPU
+        xhat = m.dequant_per_tensor_asym16(xq, sc, zp_i)  # CPU
+        return xhat.to(device=dev, dtype=x.dtype)
 
     @staticmethod
     def backward(ctx, gO):
@@ -73,11 +83,13 @@ class QuantPerChannelSym16STE(torch.autograd.Function):
     @staticmethod
     def forward(ctx, w, scale, ch_axis, qmin, qmax):
         m = get_cpp_quant()
-        wq = m.quant_per_channel_sym16(w.contiguous(), scale.contiguous(), int(ch_axis), int(qmin), int(qmax))  # type: ignore
-        shape = [1] * w.dim()
-        shape[ch_axis] = -1
-        w_hat = (wq.to(torch.float32) * scale.view(shape))
-        return w_hat
+        dev = w.device
+        w_cpu = w.contiguous().to(torch.float32).cpu()
+        scale_cpu = scale.detach().to(torch.float32).contiguous().cpu() if torch.is_tensor(scale) else torch.tensor(scale, dtype=torch.float32)
+        wq = m.quant_per_channel_sym16(w_cpu, scale_cpu, int(ch_axis), int(qmin), int(qmax))  # CPU
+        shape = [1] * w.dim(); shape[int(ch_axis)] = -1
+        w_hat_cpu = (wq.to(torch.float32) * scale_cpu.view(shape))
+        return w_hat_cpu.to(device=dev, dtype=w.dtype)
 
     @staticmethod
     def backward(ctx, gO):
@@ -90,7 +102,9 @@ class QConv1x1INT(torch.nn.Module):
         if a_bits not in (8, 16) or w_bits not in (8, 16):
             raise ValueError(f"Unsupported bit-width (a_bits={a_bits}, w_bits={w_bits}); supported: 8, 16")
         self.conv = torch.nn.Conv1d(in_f, out_f, kernel_size=1, bias=bias)
-        self.a_scale = torch.nn.Parameter(torch.tensor(0.1, dtype=torch.float32))
+        # Per-channel activation scale along input channel axis (C)
+        # Match Python LSQ per-channel activation quantization behavior
+        self.a_scale = torch.nn.Parameter(torch.ones(in_f, dtype=torch.float32))
         self.a_zp = torch.nn.Parameter(torch.tensor(0.0, dtype=torch.float32))
         self.w_scale = torch.nn.Parameter(torch.ones(out_f, dtype=torch.float32))
         self.a_bits, self.w_bits = a_bits, w_bits
@@ -109,9 +123,10 @@ class QConv1x1INT(torch.nn.Module):
         qmin_w, qmax_w = self._qrange(self.w_bits, symmetric=True)
         # Dispatch by bit-width
         if self.a_bits == 8:
-            x_hat = QuantPerTensorAsymSTE.apply(x, self.a_scale.abs() + 1e-8, self.a_zp, qmin_a, qmax_a)
+            # Per-channel symmetric activation quantization along axis=1 (channel axis for (B,C,K))
+            x_hat = QuantPerChannelSymSTE.apply(x, self.a_scale.abs() + 1e-8, 1, qmin_a, qmax_a)
         elif self.a_bits == 16:
-            x_hat = QuantPerTensorAsym16STE.apply(x, self.a_scale.abs() + 1e-8, self.a_zp, qmin_a, qmax_a)
+            x_hat = QuantPerChannelSym16STE.apply(x, self.a_scale.abs() + 1e-8, 1, qmin_a, qmax_a)
         else:
             raise ValueError(f"Unsupported activation bits: {self.a_bits}")
         w = self.conv.weight

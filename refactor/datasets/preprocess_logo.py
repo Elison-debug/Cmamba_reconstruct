@@ -57,39 +57,16 @@ def _sniff_delimiter(path: str, encodings: tuple[str, ...] = ("utf-8", "utf-8-si
 def load_gt_csv(path_csv: str, pos_units: str = "mm") -> Tuple[np.ndarray, np.ndarray]:
     enc, delim = _sniff_delimiter(path_csv)
     try:
-        data = np.genfromtxt(path_csv, delimiter=delim, names=True, dtype=None, encoding=enc)
+        raw = np.genfromtxt(path_csv, delimiter=delim, dtype=float, encoding=enc)
     except Exception:
-        data = None
-    have_header = (isinstance(data, np.ndarray) and getattr(data, "size", 0) > 0 and getattr(data.dtype, "names", None) is not None)
-    if not have_header:
-        try:
-            raw = np.genfromtxt(path_csv, delimiter=delim, dtype=float, encoding=enc)
-        except Exception:
-            raw = np.genfromtxt(path_csv, delimiter=delim, dtype=float)
-        if raw.ndim == 1:
-            raw = raw.reshape(1, -1)
-        raw = raw[np.isfinite(raw).all(axis=1)]
-        if raw.shape[1] < 3 or raw.shape[0] < 2:
-            raise ValueError(f"CSV {path_csv}: not enough numeric rows/cols")
-        ts = raw[:, 0].astype(np.float64)
-        xy = raw[:, 1:3].astype(np.float64)
-    else:
-        names = [n.lower() for n in (data.dtype.names or [])] # type: ignore[attr-defined]
-        def _find(keys):
-            for k in keys:
-                if k in names:
-                    return k
-            return None
-        tk = _find(["time", "timestamp", "ts", "t"]) or names[0]
-        xk = _find(["x", "pos_x", "px"]) or names[1]
-        yk = _find(["y", "pos_y", "py"]) or names[2]
-        rec = cast(np.ndarray, data)
-        ts = np.asarray(rec[tk], dtype=np.float64).reshape(-1)
-        x  = np.asarray(rec[xk], dtype=np.float64).reshape(-1)
-        y  = np.asarray(rec[yk], dtype=np.float64).reshape(-1)
-        m = np.isfinite(ts) & np.isfinite(x) & np.isfinite(y)
-        ts = ts[m]; x = x[m]; y = y[m]
-        xy = np.stack([x, y], axis=1)
+        raw = np.genfromtxt(path_csv, delimiter=delim, dtype=float)
+    if raw.ndim == 1:
+        raw = raw.reshape(1, -1)
+    raw = raw[np.isfinite(raw).all(axis=1)]
+    if raw.shape[1] < 3 or raw.shape[0] < 2:
+        raise ValueError(f"CSV {path_csv}: not enough numeric rows/cols")
+    ts = raw[:, 0].astype(np.float64)
+    xy = raw[:, 1:3].astype(np.float64)
     ts = _infer_seconds(ts)
     if pos_units == "mm":
         xy = xy / 1000.0
@@ -250,10 +227,10 @@ def main():
 
     # split + windowing
     ap.add_argument("--split", type=str, default="logo", choices=["logo", "oddeven"], help="split strategy")
-    ap.add_argument("--logo_holdout_gids", type=str, default="102,125", help="comma‑separated held‑out grid IDs for LOGO (eval)")
-    ap.add_argument("--logo_test_gids", type=str, default="105,140", help="optional comma‑separated grid IDs for TEST set")
-    ap.add_argument("--embargo_sec", type=float, default=1.0, help="temporal buffer removed near split boundaries")
-    ap.add_argument("--fps", type=int, default=50, help="frames per second fallback for missing timestamps")
+    ap.add_argument("--logo_holdout_gids", type=str, default="109,125", help="comma‑separated held‑out grid IDs for LOGO (eval)")
+    ap.add_argument("--logo_test_gids", type=str, default="107,140", help="optional comma‑separated grid IDs for TEST set")
+    ap.add_argument("--embargo_sec", type=float, default=0.4, help="temporal buffer removed near split boundaries")
+    ap.add_argument("--fps", type=int, default=100, help="frames per second fallback for missing timestamps")
     ap.add_argument("--win_len", type=int, default=16, help="window length K")
     ap.add_argument("--train_stride", type=int, default=4, help="stride for train windows")
     ap.add_argument("--eval_stride", type=int, default=4, help="stride for eval windows")
@@ -262,9 +239,9 @@ def main():
     ap.add_argument("--taps", type=int, default=10, help="number of CIR taps to keep")
     ap.add_argument("--phase_center", action="store_true", help="enable phase centering")
     ap.add_argument("--append_delta", action="store_true", help="append first‑order delta features")
-    ap.add_argument("--dtype", type=str, default="float32", choices=["float16", "float32"], help="feature dtype on disk")
+    ap.add_argument("--dtype", type=str, default="float16", choices=["float16", "float32"], help="feature dtype on disk")
     ap.add_argument("--pos_units", type=str, default="mm", choices=["mm", "m"], help="position units in CSV")
-    ap.add_argument("--std_floor", type=float, default=1e-3, help="minimum std for normalization")
+    ap.add_argument("--std_floor", type=float, default=1e-5, help="minimum std for normalization")
     args = ap.parse_args()
 
     out = Path(args.out_dir)

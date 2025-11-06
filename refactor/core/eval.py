@@ -36,11 +36,19 @@ def main():
     p.add_argument("--quant_backend", type=str, choices=["cpp", "python"], default=None)
     # 三态开关：未提供(None)→回退 ckpt；提供则为 True
     p.add_argument("--quantize_all", action="store_true", default=None)
-    p.add_argument("--q_proj_head", action="store_true", default=None)
+    p.add_argument("--q_proj", action="store_true", default=None)
+    p.add_argument("--q_head", action="store_true", default=None)
     p.add_argument("--q_block_linear", action="store_true", default=None)
     p.add_argument("--q_backbone_linear", action="store_true", default=None)
+    # legacy flag for backward compatibility: maps to both q_proj and q_head
+    p.add_argument("--q_proj_head", action="store_true", default=None)
     # bits: 0 -> fallback to ckpt; otherwise validate later (8 or 16)
     p.add_argument("--quant_bits", type=int, default=0)
+    # quantization mode and calibration controls
+    p.add_argument("--quant_mode", type=str, choices=["dynamic", "fixed88"], default="fixed88",
+                   help="dynamic: standard dynamic scaling; fixed88: INT16 fixed-point (scale=1/256)")
+    p.add_argument("--calib_method", type=str, choices=["maxabs", "p99"], default="maxabs",
+                   help="eval-time calibration method for dynamic scale")
     p.add_argument("--use_dwconv", action="store_true")
     p.add_argument("--workers", type=int, default=4)
     p.add_argument("--prefetch", type=int, default=4)
@@ -131,24 +139,34 @@ def main():
     # 解析量化配置：use_cli=False → 完全按 ckpt；use_cli=True → CLI 覆写（未提供的回退 ckpt）
     def resolve_quant_cfg(use_cli: bool) -> dict:
         if not use_cli:
+            # backward-compat: map old q_proj_head->(q_proj,q_head)
+            qph = bool(arch.get("q_proj_head", False))
             return {
                 "quant_backend": str(arch.get("quant_backend", "python")),
                 "quantize_all": bool(arch.get("quantize_all", False)),
-                "q_proj_head": bool(arch.get("q_proj_head", False)),
+                "q_proj": bool(arch.get("q_proj", qph)),
+                "q_head": bool(arch.get("q_head", qph)),
                 "q_block_linear": bool(arch.get("q_block_linear", False)),
                 "q_backbone_linear": bool(arch.get("q_backbone_linear", False)),
                 "quant_bits": int(arch.get("quant_bits", 8)),
+                "quant_mode": str(arch.get("quant_mode", "dynamic")),
             }
         def _res_flag(cli_val, key):
             return bool(cli_val) if cli_val is not None else bool(arch.get(key, False))
-        return {
+        cfg_local = {
             "quant_backend": (args.quant_backend if args.quant_backend is not None else str(arch.get("quant_backend", "python"))),
             "quantize_all": _res_flag(args.quantize_all, "quantize_all"),
-            "q_proj_head": _res_flag(args.q_proj_head, "q_proj_head"),
+            "q_proj": _res_flag(args.q_proj, "q_proj") if ("q_proj" in arch or args.q_proj is not None) else bool(arch.get("q_proj_head", False)),
+            "q_head": _res_flag(args.q_head, "q_head") if ("q_head" in arch or args.q_head is not None) else bool(arch.get("q_proj_head", False)),
             "q_block_linear": _res_flag(args.q_block_linear, "q_block_linear"),
             "q_backbone_linear": _res_flag(args.q_backbone_linear, "q_backbone_linear"),
             "quant_bits": (int(args.quant_bits) if int(args.quant_bits) in (8,16) else int(arch.get("quant_bits", 8))),
+            "quant_mode": (str(args.quant_mode) if (args.quant_mode is not None) else str(arch.get("quant_mode", "dynamic"))),
         }
+        if args.q_proj_head:
+            cfg_local["q_proj"] = True
+            cfg_local["q_head"] = True
+        return cfg_local
 
     # 单次评估流程（可选校准/保存）
     def run_once(quant_cfg: dict, out_dir_sub: str, calib_batches: int | None, save_ckpt_path: str | None):
@@ -177,7 +195,8 @@ def main():
             agg_pool=agg_pool,
             use_dwconv=use_dwconv,
             quantize_all=bool(quant_cfg["quantize_all"]),
-            q_proj_head=bool(quant_cfg["q_proj_head"]),
+            q_proj=bool(quant_cfg["q_proj"]),
+            q_head=bool(quant_cfg["q_head"]),
             q_block_linear=bool(quant_cfg["q_block_linear"]),
             q_backbone_linear=bool(quant_cfg["q_backbone_linear"]),
             quant_backend=str(quant_cfg["quant_backend"]),
@@ -250,15 +269,34 @@ def main():
                     elif hasattr(qc, "impl"): pairs.append((m, qc, "cpp"))
                 return pairs
             targets = _collect_targets(model)
-            cal_stats = { id(l): {"sum_abs": 0.0, "count": 0} for (_, l, _) in targets }
+            cal_stats = { id(l): {"amax": 0.0, "abs_vals": [], "amax_c": None} for (_, l, _) in targets }
             handles = []
             def _pre(mod, inputs):
                 try:
                     x = inputs[0]
                     s = cal_stats.get(id(mod), None)
                     if s is not None:
-                        s["sum_abs"] += float(x.detach().abs().sum().item())
-                        s["count"] += int(x.numel())
+                        xa = x.detach().abs()
+                        s["amax"] = max(float(xa.max().item()), float(s["amax"]))
+                        # If per-channel activation quantization, track channel-wise maxima (axis=1 for (B,C,K))
+                        try:
+                            qa = getattr(mod, "qa", None)
+                            if qa is not None and getattr(qa, "per_channel", False):
+                                amax_c = xa.amax(dim=(0, 2)).to(torch.float32).cpu()
+                                if s.get("amax_c", None) is None:
+                                    s["amax_c"] = amax_c
+                                else:
+                                    s["amax_c"] = torch.maximum(s["amax_c"], amax_c)
+                        except Exception:
+                            pass
+                        if args.calib_method == "p99":
+                            # collect a small sample for percentile (subsample to avoid memory blowup)
+                            flat = xa.view(-1)
+                            if flat.numel() > 4096:
+                                idx = torch.randperm(flat.numel(), device=flat.device)[:4096]
+                                s["abs_vals"].append(flat[idx].cpu())
+                            else:
+                                s["abs_vals"].append(flat.cpu())
                 except Exception:
                     pass
                 return None
@@ -280,22 +318,75 @@ def main():
             for (_, qc, be) in targets:
                 try:
                     s = cal_stats.get(id(qc), None)
-                    if s and s["count"] > 0:
-                        a_scale = max(1e-8, 2.0 * (s["sum_abs"] / s["count"]))
-                        if be == "python" and hasattr(qc, "qa") and hasattr(qc.qa, "scale") and qc.qa.scale is not None:
-                            with torch.no_grad(): qc.qa.scale.data.fill_(float(a_scale))  # type: ignore
-                        elif be == "cpp" and hasattr(qc, "impl") and hasattr(qc.impl, "a_scale"):
-                            with torch.no_grad(): qc.impl.a_scale.data.fill_(float(a_scale))
+                    # Select quantization mode
+                    qmode = str(quant_cfg.get("quant_mode", "dynamic"))
+                    qb = int(quant_cfg.get("quant_bits", 8))
+                    if qmode == "fixed88":
+                        # Force INT16 8.8: scale = 1/256 for activations and weights
+                        a_scale = 1.0 / 256.0
+                        # For cpp per-channel activation, fill vector with 1/256
+                        if be == "cpp" and hasattr(qc, "impl") and hasattr(qc.impl, "a_scale"):
+                            with torch.no_grad():
+                                qc.impl.a_scale.data.fill_(float(a_scale))
+                            a_scale = None
+                    else:
+                        # dynamic: max-abs or percentile
+                        qa = getattr(qc, "qa", None)
+                        # Try per-channel activations if we have channel stats
+                        a_scales = None
+                        if s is not None and s.get("amax_c", None) is not None:
+                            amax_c = s["amax_c"].to(torch.float32)
+                            qmax = (1 << (qb - 1)) - 1
+                            a_scales = torch.clamp(amax_c / max(1, qmax), min=1e-8)
+                        # Python backend: if per-channel QA, write vector
+                        if be == "python" and qa is not None and getattr(qa, "per_channel", False) and a_scales is not None and hasattr(qc.qa, "scale") and qc.qa.scale is not None:
+                            with torch.no_grad():
+                                sc = a_scales.to(qc.qa.scale.device, dtype=qc.qa.scale.dtype)
+                                qc.qa.scale.data = sc.view(-1)  # (C,)
+                            a_scale = None
+                        # C++ backend: write per-channel vector into impl.a_scale
+                        elif be == "cpp" and a_scales is not None and hasattr(qc, "impl") and hasattr(qc.impl, "a_scale"):
+                            with torch.no_grad():
+                                sc = a_scales.to(qc.impl.a_scale.device, dtype=qc.impl.a_scale.dtype)
+                                if qc.impl.a_scale.dim() == 1 and qc.impl.a_scale.numel() == sc.numel():
+                                    qc.impl.a_scale.data.copy_(sc)
+                                else:
+                                    qc.impl.a_scale.data.fill_(float(a_scales.mean().item()))
+                            a_scale = None
+                        else:
+                            # Per-tensor fallback
+                            if args.calib_method == "p99" and s is not None and s["abs_vals"]:
+                                vals = torch.cat(s["abs_vals"], dim=0)
+                                amax = float(torch.quantile(vals, 0.99).item())
+                            else:
+                                amax = float(s["amax"]) if s is not None else 1.0
+                            qmax = (1 << (qb - 1)) - 1
+                            a_scale = max(1e-8, amax / max(1, qmax))
+                    if a_scale is not None and be == "python" and hasattr(qc, "qa") and hasattr(qc.qa, "scale") and qc.qa.scale is not None:
+                        with torch.no_grad(): qc.qa.scale.data.fill_(float(a_scale))  # type: ignore
+                    elif be == "cpp" and hasattr(qc, "impl") and hasattr(qc.impl, "a_scale"):
+                        with torch.no_grad(): qc.impl.a_scale.data.fill_(float(a_scale)) # type: ignore
                     W = qc.conv.weight.detach() if hasattr(qc, "conv") else None
                     if W is not None:
-                        w_mean = 2.0 * W.abs().mean(dim=1)
-                        if be == "python" and hasattr(qc, "qw") and hasattr(qc.qw, "scale") and qc.qw.scale is not None:
-                            ws = w_mean.view(-1, 1).to(qc.qw.scale.device, dtype=qc.qw.scale.dtype)
-                            with torch.no_grad(): qc.qw.scale.data.copy_(ws)  # type: ignore
-                        elif be == "cpp" and hasattr(qc, "impl") and hasattr(qc.impl, "w_scale"):
-                            ws = w_mean.to(qc.impl.w_scale.device, dtype=qc.impl.w_scale.dtype)
-                            if qc.impl.w_scale.numel() == ws.numel():
-                                with torch.no_grad(): qc.impl.w_scale.data.copy_(ws)
+                        if str(quant_cfg.get("quant_mode", "dynamic")) == "fixed88":
+                            # fixed 8.8 -> uniform 1/256
+                            ws = torch.full((W.shape[0],), 1.0/256.0, device=W.device, dtype=torch.float32)
+                        else:
+                            # dynamic per-channel max-abs
+                            w_amax = W.abs().amax(dim=(1,2)) if W.dim() == 3 else W.abs().amax(dim=1)
+                            qmax_w = (1 << (int(quant_cfg.get("quant_bits", 8)) - 1)) - 1
+                            ws = (w_amax / max(1, qmax_w)).clamp(min=1e-8)
+                    if be == "python" and hasattr(qc, "qw") and hasattr(qc.qw, "scale") and qc.qw.scale is not None:
+                        # Support both legacy (out,1) and new (out,) scale parameter shapes
+                        if qc.qw.scale.dim() == 2 and qc.qw.scale.shape[1] == 1:
+                            ws_ = ws.view(-1, 1).to(qc.qw.scale.device, dtype=qc.qw.scale.dtype)
+                        else:
+                            ws_ = ws.view(-1).to(qc.qw.scale.device, dtype=qc.qw.scale.dtype)
+                        with torch.no_grad(): qc.qw.scale.data.copy_(ws_)  # type: ignore
+                    elif be == "cpp" and hasattr(qc, "impl") and hasattr(qc.impl, "w_scale"):
+                            ws_ = ws.to(qc.impl.w_scale.device, dtype=qc.impl.w_scale.dtype)
+                            if qc.impl.w_scale.numel() == ws_.numel():
+                                with torch.no_grad(): qc.impl.w_scale.data.copy_(ws_)
                 except Exception:
                     pass
         # 评估
@@ -347,8 +438,23 @@ def main():
             # True vs Predicted (SVG) — 恢复 pred_vs_true.svg 绘制
             plt.figure(figsize=(7.5, 6.5))
             plt.title('True vs Predicted Positions')
-            # True trajectory
-            plt.plot(y_true[:,0], y_true[:,1], color='blue', linewidth=1, label='True Trajectory', zorder=3)
+            # True trajectory with breaks between grids and large jumps
+            try:
+                N = int(y_true.shape[0])
+                # dataset order matches concatenated predictions when shuffle=False
+                fi_seq = [fi for (fi, _s, _t) in ds.index[:N]]
+                breaks = np.zeros(N, dtype=bool)
+                bt = float(max(0.0, args.break_thresh))
+                for i in range(1, N):
+                    jump = float(np.linalg.norm(y_true[i] - y_true[i-1]))
+                    if fi_seq[i] != fi_seq[i-1] or (bt > 0.0 and jump > bt):
+                        breaks[i] = True
+                true_xy = y_true.copy().astype(np.float32)
+                true_xy[breaks] = np.nan
+                plt.plot(true_xy[:,0], true_xy[:,1], color='blue', linewidth=1, label='True Trajectory', zorder=3)
+            except Exception:
+                # Fallback: plot as a single line if anything goes wrong
+                plt.plot(y_true[:,0], y_true[:,1], color='blue', linewidth=1, label='True Trajectory', zorder=3)
             # Predicted points (rasterized for lightweight SVG)
             sc = plt.scatter(
                 y_pred[:,0], y_pred[:,1], c=err, cmap='plasma', s=1,
@@ -367,10 +473,12 @@ def main():
                 meta_arch.update({
                     "quant_backend": str(quant_cfg["quant_backend"]),
                     "quantize_all": bool(quant_cfg["quantize_all"]),
-                    "q_proj_head": bool(quant_cfg["q_proj_head"]),
+                    "q_proj": bool(quant_cfg["q_proj"]),
+                    "q_head": bool(quant_cfg["q_head"]),
                     "q_block_linear": bool(quant_cfg["q_block_linear"]),
                     "q_backbone_linear": bool(quant_cfg["q_backbone_linear"]),
                     "quant_bits": int(quant_cfg["quant_bits"]),
+                    "quant_mode": str(quant_cfg.get("quant_mode", "dynamic")),
                     "use_dwconv": bool(use_dwconv),
                     "pe_off": bool(pe_off),
                     "pe_scale": float(pe_scale),

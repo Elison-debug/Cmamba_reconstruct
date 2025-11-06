@@ -8,7 +8,7 @@ if "%target%"=="" (
 if "%target%"=="grid" goto run_grid
 if "%target%"=="random" goto run_random
 if "%target%"=="parity" goto run_parity
-if "%target%"=="less" goto run_less
+if "%target%"=="less" goto run_logo
 
 echo Unknown target: %target%
 goto :eof
@@ -43,14 +43,9 @@ python -m refactor.datasets.preprocess_parity_split ^
   --odd_even=odd
 goto :eof
 
-:run_less
-python -m refactor.datasets.preprocess_parity_lessDataset ^
-  --radio_dir=./data/radio/grid ^
-  --gt_dir=./data/truth/grid ^
-  --out_dir=./data/features/lessData ^
+:run_logo
+python -m refactor.datasets.preprocess_logo ^
+  --out_dir=./data/features/logo ^
   --taps=10 --fps=100 ^
-  --pos_units=mm --dtype=float16 ^
-  --per_block=5  ^
-  --m_per_block=4 --n_per_block=1 ^
-  --odd_even=odd
+  --phase_center --append_delta 
 goto :eof

@@ -28,6 +28,7 @@ def main():
     p.add_argument("--feat_root", type=str, default="./data/features/logo")
     p.add_argument("--ckpt", type=str, default="ckpt_refactor/logo/best_epe_mean.pt")
     p.add_argument("--out_dir", type=str, default="./test_out")
+    p.add_argument("--break_thresh", type=float, default=0.05, help="break true line when jump exceeds this distance (m)")
 
     # model dims (will be overridden by ckpt if present)
     p.add_argument("--Din", type=int, default=int(os.environ.get("DIN", 2100)))
@@ -263,8 +264,20 @@ def main():
             # True vs Predicted trajectory plot (SVG hybrid output)
             plt.figure(figsize=(7.5, 6.5))
             plt.title('True vs Predicted Positions')
-            # ---- True trajectory (vector) ----
-            plt.plot(y_true_a[:,0], y_true_a[:,1],color='blue', linewidth=1, label='True Trajectory',zorder=3)
+            # ---- True trajectory (vector) with breaks on large jumps ----
+            try:
+                N = int(y_true_a.shape[0])
+                bt = float(max(0.0, args.break_thresh))
+                breaks = np.zeros(N, dtype=bool)
+                for i in range(1, N):
+                    jump = float(np.linalg.norm(y_true_a[i] - y_true_a[i-1]))
+                    if bt > 0.0 and jump > bt:
+                        breaks[i] = True
+                true_xy = y_true_a.copy().astype(np.float32)
+                true_xy[breaks] = np.nan
+                plt.plot(true_xy[:,0], true_xy[:,1], color='blue', linewidth=1, label='True Trajectory', zorder=3)
+            except Exception:
+                plt.plot(y_true_a[:,0], y_true_a[:,1], color='blue', linewidth=1, label='True Trajectory', zorder=3)
 
             # ---- Predicted points (rasterized) ----
             sc = plt.scatter(y_pred_a[:,0], y_pred_a[:,1],c=err,cmap='plasma',s=1, alpha=0.65,edgecolors='none',rasterized=True ,zorder=2)# scatter 栅格化

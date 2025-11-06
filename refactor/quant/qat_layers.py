@@ -130,16 +130,17 @@ class QConv1x1INT(nn.Module):
             return
         # Python LSQ fake-quant (Conv1d 1x1)
         self.conv = nn.Conv1d(in_f, out_f, kernel_size=1, bias=bias)
-        self.qa = LSQQuantizer(bits=a_bits, per_channel=False, symmetric=True, learn_scale=True)
+        # Per-channel activation quantization (channel axis=1 for NCHW-like (B,C,K))
+        self.qa = LSQQuantizer(bits=a_bits, per_channel=True, ch_axis=1, symmetric=True, learn_scale=True)
         self.qw = LSQQuantizer(bits=w_bits, per_channel=True, ch_axis=CH_AXIS, symmetric=True, learn_scale=True)
         # Ensure scales exist up-front so load_state_dict can load them
         try:
             if getattr(self.qa, "scale", None) is None:
-                # per-tensor activation scale (scalar)
-                self.qa.scale = nn.Parameter(torch.tensor(1.0, dtype=torch.float32))  # type: ignore[attr-defined]
+                # per-channel activation scale vector length = input channels (axis=1)
+                self.qa.scale = nn.Parameter(torch.ones(in_f, dtype=torch.float32))  # type: ignore[attr-defined]
             if getattr(self.qw, "scale", None) is None:
-                # per-channel weight scale with keepdim along input dim => (out_f, 1)
-                self.qw.scale = nn.Parameter(torch.ones(out_f, 1, dtype=torch.float32))  # type: ignore[attr-defined]
+                # per-channel weight scale as 1D vector (out_f,)
+                self.qw.scale = nn.Parameter(torch.ones(out_f, dtype=torch.float32))  # type: ignore[attr-defined]
         except Exception:
             pass
         self._use_cpp = False

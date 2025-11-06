@@ -8,6 +8,6 @@ python -m refactor.core.train ^
   --proj_dim=64 --d_model=64 --n_layer=3 ^
   --patch_len=8 --stride=4 ^
   --batch_size=32 --epochs=6 --lr=1e-4 --lr_schedule=cosine ^
-  --workers=4 --prefetch=4 --amp  --use_dwconv --preload 
-  @REM --q_proj_head --quant_bits=16
+  --workers=4 --prefetch=4 --amp --use_dwconv --preload 
+  @REM --q_proj --quant_bits=16
 goto :eof

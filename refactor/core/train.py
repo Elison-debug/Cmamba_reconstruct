@@ -185,11 +185,15 @@ def main():
 
     # fine-grained quant toggles (standard store_true flags)
     p.add_argument("--quantize_all", action="store_true")
+    p.add_argument("--q_proj", action="store_true")
+    p.add_argument("--q_head", action="store_true")
+    # backward-compat legacy flag; if provided, maps to both q_proj and q_head
     p.add_argument("--q_proj_head", action="store_true")
     p.add_argument("--q_block_linear", action="store_true")
     p.add_argument("--q_backbone_linear", action="store_true")
     p.add_argument("--quant_backend", type=str, choices=["cpp", "python"], default="python")
     p.add_argument("--quant_bits", type=int, choices=[8,16], default=8)
+    p.add_argument("--quant_mode", type=str, choices=["dynamic","fixed88"], default="dynamic")
     args = p.parse_args()
 
     # parse CLI first to set env for quant backend
@@ -268,13 +272,17 @@ def main():
         print({"Din_infer_warn": str(e)})
 
     # Effective quant config (mirror into ckpt.arch and print for traceability)
+    q_proj = bool(args.q_proj or args.q_proj_head)
+    q_head = bool(args.q_head or args.q_proj_head)
     quant_cfg = {
         "quant_backend": str(args.quant_backend),
         "quantize_all": bool(args.quantize_all),
-        "q_proj_head": bool(args.q_proj_head),
+        "q_proj": q_proj,
+        "q_head": q_head,
         "q_block_linear": bool(args.q_block_linear),
         "q_backbone_linear": bool(args.q_backbone_linear),
         "quant_bits": int(args.quant_bits),
+        "quant_mode": str(args.quant_mode),
     }
     print({"quant_cfg": quant_cfg})
 
@@ -292,7 +300,8 @@ def main():
         agg_pool=args.agg_pool,
         use_dwconv=args.use_dwconv,
         quantize_all=quant_cfg["quantize_all"],
-        q_proj_head=quant_cfg["q_proj_head"],
+        q_proj=quant_cfg["q_proj"],
+        q_head=quant_cfg["q_head"],
         q_block_linear=quant_cfg["q_block_linear"],
         q_backbone_linear=quant_cfg["q_backbone_linear"],
         quant_backend=quant_cfg["quant_backend"],
@@ -369,10 +378,12 @@ def main():
             # persist quantization runtime config for eval/test
             "quant_backend": quant_cfg["quant_backend"],
             "quantize_all": quant_cfg["quantize_all"],
-            "q_proj_head": quant_cfg["q_proj_head"],
+            "q_proj": quant_cfg["q_proj"],
+            "q_head": quant_cfg["q_head"],
             "q_block_linear": quant_cfg["q_block_linear"],
             "q_backbone_linear": quant_cfg["q_backbone_linear"],
             "quant_bits": quant_cfg["quant_bits"],
+            "quant_mode": quant_cfg["quant_mode"],
         }
 
         for epoch in range(cfg.epochs):

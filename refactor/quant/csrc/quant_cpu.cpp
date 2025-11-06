@@ -24,7 +24,9 @@ torch::Tensor quantize_per_tensor_asym_T(torch::Tensor x, double scale, int64_t 
     auto N = x_f.numel();
     const float* xp = x_f.data_ptr<float>();
     QI* op = out.data_ptr<QI>();
-    const double s_inv = 1.0 / scale;
+    double sc = std::abs(scale);
+    if (sc < 1e-12) sc = 1e-8;
+    const double s_inv = 1.0 / sc;
     for (int64_t i = 0; i < N; ++i) {
         double v = static_cast<double>(xp[i]) * s_inv + static_cast<double>(zp);
         int64_t qi = rnd_nearest_even(v);
@@ -68,7 +70,8 @@ torch::Tensor quantize_per_channel_sym_T(torch::Tensor w, torch::Tensor scale, i
         shape[i]  = sizes[i];
     }
 
-    auto sp = scale.to(torch::kFloat64).contiguous().data_ptr<double>();
+    auto sp_t = scale.to(torch::kFloat64).contiguous();
+    auto sp = sp_t.data_ptr<double>();
     int64_t total = w_f.numel();
     int64_t nd = w_f.dim();
     std::vector<int64_t> idx(nd, 0);
@@ -80,7 +83,9 @@ torch::Tensor quantize_per_channel_sym_T(torch::Tensor w, torch::Tensor scale, i
             tmp   /= shape[d];
         }
         int64_t c = idx[ch_axis];
-        double s_inv = 1.0 / sp[c];
+        double sc = std::abs(sp[c]);
+        if (sc < 1e-12) sc = 1e-8;
+        double s_inv = 1.0 / sc;
         double v = static_cast<double>(wp[linear]) * s_inv;
         int64_t qi = rnd_nearest_even(v);
         qi = sat<int64_t>(qi, qmin, qmax);
