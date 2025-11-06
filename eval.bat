@@ -10,6 +10,6 @@ set ckptdir=logo_quant_head
 
 python -m refactor.core.eval ^
   --ckpt ckpt_refactor\%ckptdir%\best_epe_mean.pt ^
-  --target=eval --out_dir ./test_out/val_quant_head ^
-  --preload  --quant_bits=16 %*
+  --target=test --out_dir ./test_out/test_quant_head ^
+  --preload  --quant_bits=8 %*
 goto :eof

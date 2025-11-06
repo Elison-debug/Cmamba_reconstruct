@@ -38,8 +38,8 @@ class QuantPerTensorAsymSTE(torch.autograd.Function):
         x_cpu = x.contiguous().to(torch.float32).cpu()
         sc = float(scale.item()) if torch.is_tensor(scale) else float(scale)
         zp_i = int(zp.item()) if torch.is_tensor(zp) else int(zp)
-        xq = m.quant_per_tensor_asym(x_cpu, sc, zp_i, int(qmin), int(qmax))  # CPU
-        xhat = m.dequant_per_tensor_asym(xq, sc, zp_i)  # CPU
+        xq = m.quant_per_tensor_asym(x_cpu, sc, zp_i, int(qmin), int(qmax))  # type: ignore # CPU
+        xhat = m.dequant_per_tensor_asym(xq, sc, zp_i) # type: ignore # CPU
         return xhat.to(device=dev, dtype=x.dtype)
 
     @staticmethod
@@ -54,7 +54,7 @@ class QuantPerChannelSymSTE(torch.autograd.Function):
         dev = w.device
         w_cpu = w.contiguous().to(torch.float32).cpu()
         scale_cpu = scale.detach().to(torch.float32).contiguous().cpu() if torch.is_tensor(scale) else torch.tensor(scale, dtype=torch.float32)
-        wq = m.quant_per_channel_sym(w_cpu, scale_cpu, int(ch_axis), int(qmin), int(qmax))  # CPU
+        wq = m.quant_per_channel_sym(w_cpu, scale_cpu, int(ch_axis), int(qmin), int(qmax))  # type: ignore # CPU
         shape = [1] * w.dim(); shape[int(ch_axis)] = -1
         w_hat_cpu = (wq.to(torch.float32) * scale_cpu.view(shape))
         return w_hat_cpu.to(device=dev, dtype=w.dtype)
@@ -71,8 +71,8 @@ class QuantPerTensorAsym16STE(torch.autograd.Function):
         x_cpu = x.contiguous().to(torch.float32).cpu()
         sc = float(scale.item()) if torch.is_tensor(scale) else float(scale)
         zp_i = int(zp.item()) if torch.is_tensor(zp) else int(zp)
-        xq = m.quant_per_tensor_asym16(x_cpu, sc, zp_i, int(qmin), int(qmax))  # CPU
-        xhat = m.dequant_per_tensor_asym16(xq, sc, zp_i)  # CPU
+        xq = m.quant_per_tensor_asym16(x_cpu, sc, zp_i, int(qmin), int(qmax))  # type: ignore # CPU
+        xhat = m.dequant_per_tensor_asym16(xq, sc, zp_i)  # type: ignore # CPU
         return xhat.to(device=dev, dtype=x.dtype)
 
     @staticmethod
@@ -86,7 +86,7 @@ class QuantPerChannelSym16STE(torch.autograd.Function):
         dev = w.device
         w_cpu = w.contiguous().to(torch.float32).cpu()
         scale_cpu = scale.detach().to(torch.float32).contiguous().cpu() if torch.is_tensor(scale) else torch.tensor(scale, dtype=torch.float32)
-        wq = m.quant_per_channel_sym16(w_cpu, scale_cpu, int(ch_axis), int(qmin), int(qmax))  # CPU
+        wq = m.quant_per_channel_sym16(w_cpu, scale_cpu, int(ch_axis), int(qmin), int(qmax))  # type: ignore # CPU
         shape = [1] * w.dim(); shape[int(ch_axis)] = -1
         w_hat_cpu = (wq.to(torch.float32) * scale_cpu.view(shape))
         return w_hat_cpu.to(device=dev, dtype=w.dtype)

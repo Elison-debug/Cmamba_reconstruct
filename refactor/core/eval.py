@@ -70,6 +70,7 @@ def main():
     p.add_argument("--quant_calib_batches", type=int, default=0, help="run N batches to calibrate quant scales before eval (0=all)")
     p.add_argument("--save_calib_ckpt", type=str, default="ckpt_refactor/logo_quant_head/calibrate_last.pt", help="path to save scale-initialized checkpoint after eval")
     p.add_argument("--dont_save_calib_ckpt", action="store_true")
+    p.add_argument("--dump_quant_stats", action="store_true", help="print per‑layer a_scale/w_scale and saturation ratios for a small sample")
     args = p.parse_args()
 
     set_seed(42)
@@ -227,16 +228,27 @@ def main():
                     if mod_root is None:
                         return moved
                     qc = getattr(mod_root, "qconv", None)
-                    if qc is None or not hasattr(qc, "conv"):
+                    if qc is None:
                         return moved
                     w_old, b_old = f"{name}.conv.weight", f"{name}.conv.bias"
-                    w_new, b_new = f"{name}.qconv.conv.weight", f"{name}.qconv.conv.bias"
-                    if w_old in sd:
-                        sd[w_new] = sd[w_old]
-                        moved += 1
-                    if b_old in sd and qc.conv.bias is not None:
-                        sd[b_new] = sd[b_old]
-                        moved += 1
+                    # Python backend path: qconv.conv.*
+                    if hasattr(qc, "conv"):
+                        w_new, b_new = f"{name}.qconv.conv.weight", f"{name}.qconv.conv.bias"
+                        if w_old in sd:
+                            sd[w_new] = sd[w_old]
+                            moved += 1
+                        if b_old in sd and getattr(qc.conv, "bias", None) is not None:
+                            sd[b_new] = sd[b_old]
+                            moved += 1
+                    # C++ backend path: qconv.impl.conv.*
+                    elif hasattr(qc, "impl") and hasattr(qc.impl, "conv"):
+                        w_new, b_new = f"{name}.qconv.impl.conv.weight", f"{name}.qconv.impl.conv.bias"
+                        if w_old in sd:
+                            sd[w_new] = sd[w_old]
+                            moved += 1
+                        if b_old in sd and getattr(qc.impl.conv, "bias", None) is not None:
+                            sd[b_new] = sd[b_old]
+                            moved += 1
                     return moved
 
                 moved_total = 0
@@ -324,9 +336,11 @@ def main():
                     if qmode == "fixed88":
                         # Force INT16 8.8: scale = 1/256 for activations and weights
                         a_scale = 1.0 / 256.0
+                        w_scale = 1.0 / 256.0
                         # For cpp per-channel activation, fill vector with 1/256
                         if be == "cpp" and hasattr(qc, "impl") and hasattr(qc.impl, "a_scale"):
                             with torch.no_grad():
+                                qc.impl.w_scale.data.fill_(float(w_scale))
                                 qc.impl.a_scale.data.fill_(float(a_scale))
                             a_scale = None
                     else:
@@ -366,7 +380,12 @@ def main():
                         with torch.no_grad(): qc.qa.scale.data.fill_(float(a_scale))  # type: ignore
                     elif be == "cpp" and hasattr(qc, "impl") and hasattr(qc.impl, "a_scale"):
                         with torch.no_grad(): qc.impl.a_scale.data.fill_(float(a_scale)) # type: ignore
-                    W = qc.conv.weight.detach() if hasattr(qc, "conv") else None
+                    # Resolve weight tensor for scaling (python: qc.conv, cpp: qc.impl.conv)
+                    W = None
+                    if hasattr(qc, "conv") and getattr(qc, "conv", None) is not None:
+                        W = qc.conv.weight.detach()
+                    elif hasattr(qc, "impl") and hasattr(qc.impl, "conv") and getattr(qc.impl, "conv", None) is not None:
+                        W = qc.impl.conv.weight.detach()
                     if W is not None:
                         if str(quant_cfg.get("quant_mode", "dynamic")) == "fixed88":
                             # fixed 8.8 -> uniform 1/256
@@ -384,9 +403,19 @@ def main():
                             ws_ = ws.view(-1).to(qc.qw.scale.device, dtype=qc.qw.scale.dtype)
                         with torch.no_grad(): qc.qw.scale.data.copy_(ws_)  # type: ignore
                     elif be == "cpp" and hasattr(qc, "impl") and hasattr(qc.impl, "w_scale"):
+                        with torch.no_grad():
                             ws_ = ws.to(qc.impl.w_scale.device, dtype=qc.impl.w_scale.dtype)
-                            if qc.impl.w_scale.numel() == ws_.numel():
-                                with torch.no_grad(): qc.impl.w_scale.data.copy_(ws_)
+                            tgt = qc.impl.w_scale
+                            if tgt.numel() == ws_.numel():
+                                tgt.data.copy_(ws_)
+                            elif tgt.dim() == 2 and tgt.shape[1] == 1 and tgt.shape[0] == ws_.numel():
+                                tgt.data.copy_(ws_.view(-1, 1))
+                            else:
+                                flat = ws_.view(-1)
+                                need = tgt.numel()
+                                rep = (need + flat.numel() - 1) // flat.numel()
+                                upd = flat.repeat(rep)[:need]
+                                tgt.data.view(-1).copy_(upd)
                 except Exception:
                     pass
         # 评估
@@ -394,6 +423,59 @@ def main():
         show = (args.progress or (not args.no_progress))
         ev_loss, stats = evaluate(model, dl, device, loss_fn, show_progress=show)  # type: ignore
         print({"eval_loss": ev_loss, **stats})
+        # 可选：量化统计（快速诊断常量输出）
+        if bool(args.dump_quant_stats):
+            try:
+                def _iter_qconvs(root):
+                    for m in root.modules():
+                        qc = getattr(m, "qconv", None)
+                        if qc is not None:
+                            yield m, qc
+                # collect one small batch for saturation estimate
+                xs = None
+                for xb, _ in dl:
+                    xs = xb.to(device).float()
+                    break
+                qstats = []
+                for mod, qc in _iter_qconvs(model):
+                    be = "cpp" if hasattr(qc, "impl") else ("python" if hasattr(qc, "qa") else "unknown")
+                    # scales
+                    a_s = None; w_s = None
+                    try:
+                        if be == "python" and hasattr(qc, "qa") and getattr(qc.qa, "scale", None) is not None:
+                            a_s = qc.qa.scale.detach().flatten().abs().float().cpu()
+                        if be == "cpp" and hasattr(qc, "impl") and getattr(qc.impl, "a_scale", None) is not None:
+                            a_s = qc.impl.a_scale.detach().flatten().abs().float().cpu()
+                        if be == "python" and hasattr(qc, "qw") and getattr(qc.qw, "scale", None) is not None:
+                            w_s = qc.qw.scale.detach().flatten().abs().float().cpu()
+                        if be == "cpp" and hasattr(qc, "impl") and getattr(qc.impl, "w_scale", None) is not None:
+                            w_s = qc.impl.w_scale.detach().flatten().abs().float().cpu()
+                    except Exception:
+                        pass
+                    # saturation estimate on one batch
+                    sat_ratio = None
+                    try:
+                        if xs is not None:
+                            # forward input to this module boundary: project using registered name
+                            # Use module's own forward pre-hook idea: approximate by taking current xs through parent up to this mod is complex; instead, use scale to estimate: assume Gaussian and compute fraction > qmax*scale ~ conservative not trivial.
+                            # Here we fallback to printing scale min/max only.
+                            sat_ratio = -1.0
+                    except Exception:
+                        pass
+                    qstats.append({
+                        "name": mod.__class__.__name__,
+                        "backend": be,
+                        "a_scale_min": (float(a_s.min()) if a_s is not None else None),
+                        "a_scale_max": (float(a_s.max()) if a_s is not None else None),
+                        "a_scale_len": (int(a_s.numel()) if a_s is not None else 0),
+                        "w_scale_min": (float(w_s.min()) if w_s is not None else None),
+                        "w_scale_max": (float(w_s.max()) if w_s is not None else None),
+                        "w_scale_len": (int(w_s.numel()) if w_s is not None else 0),
+                        "sat_ratio": sat_ratio,
+                    })
+                print({"quant_stats": qstats[:6]})
+            except Exception as e:
+                print({"quant_stats_error": str(e)})
         # 输出
         out_dir = os.path.join(args.out_dir, out_dir_sub)
         Path(out_dir).mkdir(parents=True, exist_ok=True)
