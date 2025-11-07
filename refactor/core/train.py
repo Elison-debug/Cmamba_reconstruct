@@ -183,17 +183,16 @@ def main():
     p.add_argument("--gate_off", action="store_true")
     p.add_argument("--agg_pool", type=str, default="", choices=["", "avg", "max"])
 
-    # fine-grained quant toggles (standard store_true flags)
+    # fine-grained quant toggles
     p.add_argument("--quantize_all", action="store_true")
     p.add_argument("--q_proj", action="store_true")
     p.add_argument("--q_head", action="store_true")
-    # backward-compat legacy flag; if provided, maps to both q_proj and q_head
-    p.add_argument("--q_proj_head", action="store_true")
+    # backward-compat legacy flag;
     p.add_argument("--q_block_linear", action="store_true")
     p.add_argument("--q_backbone_linear", action="store_true")
     p.add_argument("--quant_backend", type=str, choices=["cpp", "python"], default="python")
-    p.add_argument("--quant_bits", type=int, choices=[8,16], default=8)
-    p.add_argument("--quant_mode", type=str, choices=["dynamic","fixed88"], default="dynamic")
+    p.add_argument("--quant_bits", type=int, choices=[8,16], default=16)
+    p.add_argument("--quant_mode", type=str, choices=["dynamic","fixed88"], default="fixed88")
     args = p.parse_args()
 
     # parse CLI first to set env for quant backend
@@ -216,9 +215,9 @@ def main():
     set_seed(cfg.seed)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    from .mamba_regressor import MambaRegressor  # type: ignore
+    from .mamba_regressor import MambaRegressor  
 
-    # 构建数据集（可选预加载）
+    # Build the dataset (optional preloading)
     from refactor.datasets.frames_lazy import FramesLazyDataset
     assert cfg.feat_root is not None
     train_ds = FramesLazyDataset(root=cfg.feat_root, seq_len=cfg.K, predict="current", mmap=not bool(args.mmap_off), in_memory=bool(args.preload), target="train")
@@ -231,7 +230,8 @@ def main():
     })
     nw = int(args.workers)
     pin = True
-    # Grid‑pure batching: ensure each batch contains samples from a single grid/file
+
+    # Grid‑pure sampler: ensure each batch contains samples from a single grid/file
     train_batch_sampler = GridPureBatchSampler(
         train_ds,
         batch_size=cfg.batch_size,
@@ -272,13 +272,11 @@ def main():
         print({"Din_infer_warn": str(e)})
 
     # Effective quant config (mirror into ckpt.arch and print for traceability)
-    q_proj = bool(args.q_proj or args.q_proj_head)
-    q_head = bool(args.q_head or args.q_proj_head)
     quant_cfg = {
         "quant_backend": str(args.quant_backend),
         "quantize_all": bool(args.quantize_all),
-        "q_proj": q_proj,
-        "q_head": q_head,
+        "q_proj": bool(args.q_proj),
+        "q_head": bool(args.q_head),
         "q_block_linear": bool(args.q_block_linear),
         "q_backbone_linear": bool(args.q_backbone_linear),
         "quant_bits": int(args.quant_bits),

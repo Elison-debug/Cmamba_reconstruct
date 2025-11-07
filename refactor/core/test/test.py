@@ -24,53 +24,28 @@ cmap = make_truncated_cmap(base='turbo', lo=0.10, hi=0.95)
 
 def main():
     p = argparse.ArgumentParser()
-    # 新布局：仅提供 features 根目录（包含子目录 npy 与 json）
     p.add_argument("--feat_root", type=str, default="./data/features/logo")
     p.add_argument("--ckpt", type=str, default="ckpt_refactor/logo/best_epe_mean.pt")
     p.add_argument("--out_dir", type=str, default="./test_out")
     p.add_argument("--break_thresh", type=float, default=0.05, help="break true line when jump exceeds this distance (m)")
-
-    # model dims (will be overridden by ckpt if present)
-    p.add_argument("--Din", type=int, default=int(os.environ.get("DIN", 2100)))
-    p.add_argument("--K", type=int, default=int(os.environ.get("K", 12)))
-    p.add_argument("--proj_dim", type=int, default=64)
-    p.add_argument("--d_model", type=int, default=96)
-    p.add_argument("--n_layer", type=int, default=3)
-    p.add_argument("--patch_len", type=int, default=8)
-    p.add_argument("--stride", type=int, default=4)
-
     p.add_argument("--batch_size", type=int, default=64)
     p.add_argument("--workers", type=int, default=4)
-    p.add_argument("--amp", action="store_true")
     p.add_argument("--dont_save_csv", action="store_true")
     p.add_argument("--target", type=str, default="eval", choices=["auto","train","eval","test"], help="which indices to use if present in JSON")
-
-    # quantization toggles
-    p.add_argument("--quant_backend", type=str, choices=["cpp", "python"], default=os.environ.get("QUANT_BACKEND", "python"))
-    p.add_argument("--quantize_all", action="store_true")
-    p.add_argument("--quant_bits", type=int, choices=[8,16], default=8)
-    p.add_argument("--use_dwconv", action="store_true")
-
-    # live histogram
+    p.add_argument("--preload", action="store_true", help="preload all arrays into RAM (set workers=0/1)")
+    # Diagnostic Mapping Parameters
     p.add_argument("--live_bins", type=int, default=100)
     p.add_argument("--live_max_err", type=float, default=1.0)
     p.add_argument("--live_every", type=int, default=1)
-    # SSM/PE/AGG knobs
-    p.add_argument("--pe_off", action="store_true")
-    p.add_argument("--pe_scale", type=float, default=1.0)
-    p.add_argument("--gate_off", action="store_true")
-    p.add_argument("--agg_pool", type=str, default="", choices=["", "avg", "max"])
-
-    p.add_argument("--preload", action="store_true", help="preload all arrays into RAM (set workers=0/1)")
     args = p.parse_args()
 
     set_seed(42)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     Path(args.out_dir).mkdir(parents=True, exist_ok=True)
 
-    # dims from ckpt
-    dims = {"Din": args.Din, "K": args.K, "proj_dim": args.proj_dim, "d_model": args.d_model,
-            "n_layer": args.n_layer, "patch_len": args.patch_len, "stride": args.stride}
+    # Read dims from ckpt cfg if present
+    dims = {"Din": None, "K": None, "proj_dim": None, "d_model": None,
+            "n_layer": None, "patch_len": None, "stride": None}
     ckpt_obj = None
     if os.path.exists(args.ckpt):
         try:
@@ -79,16 +54,23 @@ def main():
             if isinstance(ck_cfg, dict):
                 for k in dims.keys():
                     if k in ck_cfg:
-                        dims[k] = int(ck_cfg[k]) if isinstance(ck_cfg[k], (int,)) else ck_cfg[k]
-                print({"eval_dims_from_ckpt": True, **dims})
+                        dims[k] = int(ck_cfg[k]) if isinstance(ck_cfg[k], (int,)) else ck_cfg[k] # type: ignore
+                print({"test_dims_from_ckpt": True, **dims})
         except Exception as e:
             print({"ckpt_load": f"warn: {e}"})
 
-    cfg = TrainConfig(
-        Din=int(dims["Din"]), K=int(dims["K"]), proj_dim=int(dims["proj_dim"]), d_model=int(dims["d_model"]),
-        n_layer=int(dims["n_layer"]), patch_len=int(dims["patch_len"]), stride=int(dims["stride"]),
-        batch_size=args.batch_size, feat_root=args.feat_root,
-    )
+    # The ckpt must exist; otherwise, the model dimension cannot be determined.
+    if not all(v is not None for v in dims.values()):
+        raise RuntimeError("Checkpoint is required and must contain cfg with dims (Din,K,proj_dim,d_model,n_layer,patch_len,stride)")
+    assert dims["Din"] and dims["K"] and dims["proj_dim"] and dims["d_model"] and dims["n_layer"] and dims["patch_len"] and dims["stride"] is not None
+    try:
+        cfg = TrainConfig(
+            Din=int(dims["Din"]), K=int(dims["K"]), proj_dim=int(dims["proj_dim"]), d_model=int(dims["d_model"]),
+            n_layer=int(dims["n_layer"]), patch_len=int(dims["patch_len"]), stride=int(dims["stride"]),
+            batch_size=args.batch_size, feat_root=args.feat_root,
+        )
+    except Exception as e:
+            print({"cfg_load": f"warn: {e}"})
     # backend toggles (will prefer ckpt arch if present)
     from ..mamba_regressor import MambaRegressor
 
@@ -121,35 +103,40 @@ def main():
             arch = {}
             if ckpt_obj is not None and isinstance(ckpt_obj, dict):
                 arch = ckpt_obj.get("arch", {}) or {}
-            # Resolve effective quant config
-            eff_quant_backend = str(arch.get("quant_backend", args.quant_backend))
-            eff_quantize_all = bool(arch.get("quantize_all", args.quantize_all))
-            eff_q_proj_head = bool(arch.get("q_proj_head", False))
+            # Resolve effective quant config from ckpt arch (preferred)
+            eff_quant_backend = str(arch.get("quant_backend", "python"))
+            eff_quantize_all = bool(arch.get("quantize_all", False))
+            eff_q_proj = bool(arch.get("q_proj"))
+            eff_q_head = bool(arch.get("q_head"))
             eff_q_block_linear = bool(arch.get("q_block_linear", False))
             eff_q_backbone_linear = bool(arch.get("q_backbone_linear", False))
-            eff_quant_bits = int(arch.get("quant_bits", args.quant_bits))
+            eff_quant_bits = int(arch.get("quant_bits", 16))
+            eff_quant_mode = str(arch.get("quant_mode", "dynamic"))
             quant_cfg = {
                 "quant_backend": eff_quant_backend,
                 "quantize_all": eff_quantize_all,
-                "q_proj_head": eff_q_proj_head,
+                "q_proj": eff_q_proj,
+                "q_head": eff_q_head,
                 "q_block_linear": eff_q_block_linear,
                 "q_backbone_linear": eff_q_backbone_linear,
                 "quant_bits": eff_quant_bits,
+                "quant_mode": eff_quant_mode,
             }
             print({"quant_cfg": quant_cfg})
             os.environ["QUANT_BACKEND"] = eff_quant_backend
 
-            pe_off = bool(arch.get("pe_off", args.pe_off))
-            pe_scale = float(arch.get("pe_scale", args.pe_scale))
-            gate_off = bool(arch.get("gate_off", args.gate_off))
-            agg_pool = str(arch.get("agg_pool", args.agg_pool))
-            use_dwconv = bool(arch.get("use_dwconv", args.use_dwconv))
+            # 其他结构开关也从 ckpt.arch 读取
+            pe_off = bool(arch.get("pe_off", False))
+            pe_scale = float(arch.get("pe_scale", 1.0))
+            gate_off = bool(arch.get("gate_off", False))
+            agg_pool = str(arch.get("agg_pool", ""))
+            use_dwconv = bool(arch.get("use_dwconv", False))
 
             model = MambaRegressor(Din=cfg.Din, K=cfg.K, proj_dim=cfg.proj_dim, d_model=cfg.d_model,
                                    n_layer=cfg.n_layer, patch_len=cfg.patch_len, stride=cfg.stride,
                                    pe_off=pe_off, pe_scale=pe_scale, gate_off=gate_off, agg_pool=agg_pool,
                                    use_dwconv=use_dwconv,
-                                   quantize_all=eff_quantize_all, q_proj_head=eff_q_proj_head,
+                                   quantize_all=eff_quantize_all, q_proj=eff_q_proj, q_head=eff_q_head,
                                    q_block_linear=eff_q_block_linear, q_backbone_linear=eff_q_backbone_linear,
                                    quant_backend=eff_quant_backend, quant_bits=eff_quant_bits).to(device)
             # Diagnostic: pointwise kind and ckpt load status
@@ -166,6 +153,7 @@ def main():
                 "use_dwconv": bool(use_dwconv),
             })
             if ckpt_obj is not None:
+                # 直接按导出结果加载（不做键名迁移）
                 sd = ckpt_obj.get("state_dict", ckpt_obj)
                 r = model.load_state_dict(sd, strict=False)
                 try:
@@ -177,9 +165,6 @@ def main():
                     })
                 except Exception:
                     pass
-            if ckpt_obj is not None:
-                sd = ckpt_obj.get("state_dict", ckpt_obj)
-                model.load_state_dict(sd, strict=False)
             model.eval()
 
             nbins = int(args.live_bins)
@@ -202,17 +187,13 @@ def main():
             y_true, y_pred = [], []
             run_mean, run_n, run_max = 0.0, 0, 0.0
             ema_batch, ema_alpha = None, 0.2
-            from contextlib import nullcontext
-            def Autocast():
-                return torch.cuda.amp.autocast() if (args.amp and torch.cuda.is_available()) else nullcontext()
             t0 = time.perf_counter()
             with torch.inference_mode():
                 pbar = tqdm(enumerate(dl, 1), total=len(dl), ncols=130, desc=f"eval:{stem}")
                 for i, (xb, yb) in pbar:
                     xb = xb.to(device, non_blocking=True).float()
                     yb = yb.squeeze(1).to(device, non_blocking=True).float()
-                    with Autocast():
-                        yhat = model(xb)
+                    yhat = model(xb)
                     err_gpu = torch.linalg.vector_norm(yhat - yb, ord=2, dim=1)
                     err = err_gpu.detach().cpu().numpy()
                     y_true.append(yb.detach().cpu().numpy())
@@ -308,22 +289,16 @@ def main():
             })
         # write ranking summary
         summary.sort(key=lambda r: r["mean"])  # ascending
-        txt = os.path.join(args.out_dir, "eval_out.txt")
         csv_path = os.path.join(args.out_dir, "eval_summary.csv")
-        with open(txt, "w", encoding="utf-8") as f:
-            f.write("# Mean error ranking (per file)\n")
-            f.write("rank,name,count,mean,median,p80,p90,out_dir\n")
-            for i, r in enumerate(summary, 1):
-                f.write(f"{i},{r['name']},{r['count']},{r['mean']:.6f},{r['median']:.6f},{r['p80']:.6f},{r['p90']:.6f},{r['out_dir']}\n")
         with open(csv_path, "w", encoding="utf-8") as f:
             f.write("rank,name,count,mean,median,p80,p90,out_dir\n")
             for i, r in enumerate(summary, 1):
                 f.write(f"{i},{r['name']},{r['count']},{r['mean']:.6f},{r['median']:.6f},{r['p80']:.6f},{r['p90']:.6f},{r['out_dir']}\n")
-        print({"summary": txt, "csv": csv_path})
+        print({"summary": csv_path})
         # write ranking summary even in per-file mode
         return
 
-    print({"error": "no .feats.npy files found under eval_root", "eval_root": args.eval_root})
+    print({"error": "no .json/.npy files found under feat_root", "feat_root": args.feat_root})
 
 
 if __name__ == "__main__":

@@ -1,60 +1,62 @@
 @echo off
+setlocal
 set target=%1
-
-set ckptdir=logo_quant_head
+set data=%2
+set quant=%3
 
 if "%target%"=="" (
-  echo Usage: ref_data.bat train ^| eval ^| test
+echo Usage: ./test.bat logo^|logo_delta test^|eval^|train ori^|quant ^[extra args...^]
+  goto :eof
+) else if "%data%"=="" (
+  echo Usage: ./test.bat logo^|logo_delta test^|eval^|train ^[extra args...^]
   goto :eof
 )
-if "%target%"=="train_all" goto run_train_all
-if "%target%"=="train" goto run_train
-if "%target%"=="eval" goto run_eval
-if "%target%"=="test" goto run_test
 
+:proceed
+if "%quant%"=="" (
+  set model=best_epe_mean.pt
+  echo Using original model for testing
+) else if "%quant%"=="ori" (
+  set model=best_epe_mean.pt
+  echo Using original model for testing
+) else if "%quant%"=="quant" (
+  set model=calibrate_best.pt
+  echo Using calibrated model for testing
+) else (
+  echo Unknown model type: %model%
+  goto :eof
+)
+
+
+
+if "%target%"=="logo" ( 
+  set dataform=logo_2100
+  goto run
+)
+if "%target%"=="logo_delta" ( 
+  set dataform=logo_4200
+  goto run
+)
 
 echo Unknown target: %target%
 goto :eof
 
-:run_train
+:run
+echo running eval for %dataform% with model %model%
 python -m refactor.core.eval ^
-  --ckpt ckpt_refactor\%ckptdir%\best_epe_mean.pt ^
-  --target=train --out_dir ./test_out/train ^
-  --preload 
+  --feat_root=./data/features/%dataform% ^
+  --ckpt=./ckpt_refactor/%dataform%/%model% ^
+  --dont_save_calib_ckpt ^
+  --target=%data% --out_dir=./test_out/%target%_%data%_%model%^
+  --preload
+
+if "%data%"=="train_all" (
+  goto :eof
+)
 
 python -m refactor.core.test.test ^
-  --ckpt ckpt_refactor\%ckptdir%\best_epe_mean.pt ^
-  --target=train --out_dir=test_out/train ^
+--feat_root=./data/features/%dataform% ^
+  --ckpt ckpt_refactor\%dataform%\%model%  ^
+  --target=%data% --out_dir=test_out/%target%_%data%_%model% ^
   --preload 
-goto :eof
-
-:run_train_all
-python -m refactor.core.eval ^
-  --ckpt ckpt_refactor\%ckptdir%\best_epe_mean.pt ^
-  --target=train --out_dir ./test_out/train ^
-  --preload 
-
-goto :eof
-
-:run_test
-python -m refactor.core.eval ^
-  --ckpt ckpt_refactor\%ckptdir%\best_epe_mean.pt ^
-  --target=test --out_dir=test_out/test ^
-  --preload --quant_bits=16
-
-python -m refactor.core.test.test ^
-  --ckpt ckpt_refactor\%ckptdir%\best_epe_mean.pt ^
-  --target=test --out_dir=test_out/test ^
-  --preload --quant_bits=16
-
-goto :eof
-
-:run_eval
-python -m refactor.core.eval ^
-  --ckpt ckpt_refactor\%ckptdir%\best_epe_mean.pt ^
-  --target=eval --out_dir ./test_out/eval --preload 
-
-python -m refactor.core.test.test ^
-  --ckpt ckpt_refactor\%ckptdir%\best_epe_mean.pt ^
-  --target=eval --out_dir=test_out/eval --preload 
 goto :eof

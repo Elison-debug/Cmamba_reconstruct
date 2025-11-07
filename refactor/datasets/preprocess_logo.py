@@ -1,31 +1,26 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Preprocess radio (.mat) + GT (.csv) into hardware/FPGA‑friendly NPY format
-with LOGO (leave‑one‑grid‑out) split, temporal embargo, and explicit windowing.
+Preprocess radio (.mat) + GT (.csv) into hardware/FPGA-friendly NPY format
+with LOGO (leave-one-grid-out) split, temporal embargo, and explicit windowing.
 
 For each grid file pair we write four companions sharing the same basename:
   - base.feats.npy  # (T, Din) float16/float32 features
   - base.xy.npy     # (T, 2)   float32 positions (meters)
   - base.ts.npy     # (T,)     float64 timestamps (seconds)
-  - base.json       # metadata + role‑specific window target indices, e.g.:
+  - base.json       # metadata + role-specific window target indices, e.g.:
         { "indices_train": [...],  "indices_eval": [...],  "win_len": K, ... }
 
-Additionally, we compute train‑only global normalization stats and save to:
+Additionally, we compute train-only global normalization stats and save to:
   - out_dir/stats_train.npz  with keys {feat_mean, feat_std, count, Din, std_floor}
 
 This output is directly consumable by FramesLazyDataset, which constructs
-grid‑pure windows on the fly using the stored target indices. Keeping the
-features as per‑frame sequences keeps IO simple and quantization‑friendly.
+grid-pure windows on the fly using the stored target indices. Keeping the
+features as per-frame sequences keeps IO simple and quantization-friendly.
 """
 from __future__ import annotations
 
-import argparse
-import csv
-import glob
-import json
-import os
-import re
+import argparse, csv, glob, json, os, re
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Tuple, cast
 
@@ -145,14 +140,14 @@ def cir_features_hw(
     phase_center: bool = True,
     append_delta: bool = True,
 ) -> np.ndarray:
-    """Hardware‑friendly CIR feature extraction with optional phase centering
-    and delta channels. Output is strictly real‑valued and contiguous.
+    """Hardware-friendly CIR feature extraction with optional phase centering
+    and delta channels. Output is strictly real-valued and contiguous.
 
     Steps:
       1) IFFT across frequency to obtain CIR taps, take first Ltap.
-      2) Per‑antenna power normalization.
+      2) Per-antenna power normalization.
       3) Optional phase centering: subtract mean phase per (tap, antenna).
-      4) Concatenate [real, imag] and log‑power; optionally first‑order time delta.
+      4) Concatenate [real, imag] and log-power; optionally first-order time delta.
     """
     D = ifft(Y, axis=1)[:, :Ltap, :]                        # (T, Ltap, A)
     p = np.sqrt(np.mean(np.abs(D) ** 2, axis=(0, 1), keepdims=True)) + 1e-8
@@ -193,7 +188,7 @@ def _role_of_gid(gid: int, split: str, holdout: set[int]) -> str:
     if split == "oddeven":
         # Simple legacy split: odd -> train, even -> eval
         return "train" if (gid % 2 == 1) else "eval"
-    # LOGO: held‑out gids are eval, others train
+    # LOGO: held-out gids are eval, others train
     return "eval" if gid in holdout else "train"
 
 
@@ -227,8 +222,8 @@ def main():
 
     # split + windowing
     ap.add_argument("--split", type=str, default="logo", choices=["logo", "oddeven"], help="split strategy")
-    ap.add_argument("--logo_holdout_gids", type=str, default="109,125", help="comma‑separated held‑out grid IDs for LOGO (eval)")
-    ap.add_argument("--logo_test_gids", type=str, default="107,140", help="optional comma‑separated grid IDs for TEST set")
+    ap.add_argument("--logo_holdout_gids", type=str, default="109,125", help="comma-separated held-out grid IDs for LOGO (eval)")
+    ap.add_argument("--logo_test_gids", type=str, default="107,140", help="optional comma-separated grid IDs for TEST set")
     ap.add_argument("--embargo_sec", type=float, default=0.4, help="temporal buffer removed near split boundaries")
     ap.add_argument("--fps", type=int, default=100, help="frames per second fallback for missing timestamps")
     ap.add_argument("--win_len", type=int, default=16, help="window length K")
@@ -238,7 +233,7 @@ def main():
     # features
     ap.add_argument("--taps", type=int, default=10, help="number of CIR taps to keep")
     ap.add_argument("--phase_center", action="store_true", help="enable phase centering")
-    ap.add_argument("--append_delta", action="store_true", help="append first‑order delta features")
+    ap.add_argument("--append_delta", action="store_true", help="append first-order delta features")
     ap.add_argument("--dtype", type=str, default="float16", choices=["float16", "float32"], help="feature dtype on disk")
     ap.add_argument("--pos_units", type=str, default="mm", choices=["mm", "m"], help="position units in CSV")
     ap.add_argument("--std_floor", type=float, default=1e-5, help="minimum std for normalization")
@@ -288,7 +283,7 @@ def main():
     for mp in mat_paths:
         base = os.path.splitext(os.path.basename(mp))[0]
         gid = _extract_num_id(base)
-        # unknown id -> treat as non‑held‑out train by default
+        # unknown id -> treat as non-held-out train by default
         # role priority: TEST > EVAL(LOGO holdout) > TRAIN
         role = _role_of_gid(gid or -1, args.split, holdout)
         if (gid is not None) and (gid in testset):
@@ -376,7 +371,7 @@ def main():
             json.dump(meta, mf, ensure_ascii=False, indent=2)
         print(f"[OK][{role:5s}] {base}  L={L}  windows={len(indices)}  Din={Din}")
 
-        # accumulate train‑only stats across frames inside train windows
+        # accumulate train-only stats across frames inside train windows
         if role == "train" and len(indices) > 0:
             # naive accumulation over all window frames (double counts overlapping frames by design)
             for s, e in build_windows(L, K, stride, start, end):
