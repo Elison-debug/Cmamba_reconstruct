@@ -181,6 +181,38 @@ python -m refactor.core.eval \
   --target=eval --out_dir=./eval_out_cpp --preload
 ```
 
+## Quantization Analysis (CSV)
+
+- Script: `tools/analyze_quant.py` compares baseline vs quantized results from CSVs and summarizes accuracy loss per grid.
+- Expected layout under a root (default `test_out`):
+  - `logo_eval_ori/Grid*/pred_vs_true.csv`
+  - `logo_eval_quant16/Grid*/pred_vs_true.csv`
+  - `logo_test_ori/Grid*/pred_vs_true.csv`
+  - `logo_test_quant16/Grid*/pred_vs_true.csv`
+- Pairing rules (in order):
+  - Prefer `logo_eval_ori` ↔ `logo_eval_quant16`, `logo_test_ori` ↔ `logo_test_quant16`.
+  - Fallback: `logo_eval_best_epe_mean.pt` ↔ `logo_eval_calibrate_best.pt`, and similarly for `logo_test_*`.
+  - Last resort: keyword heuristic by split (`eval`/`test`) and `quant16|calibrate|int|qat|quant`.
+
+Usage
+
+- Basic run: `python tools/analyze_quant.py --root test_out --rel-threshold 0.05`
+- Options:
+  - `--root`: root directory containing the paired run folders (default `test_out`).
+  - `--rel-threshold`: maximum allowed relative increase of `mean_err_m` to declare success (default `0.05` for 5%).
+
+Outputs
+
+- Console summary per split and grid with relative change in `mean_err_m` and pass/fail.
+- CSV summary at `test_out/quant_analysis_summary.csv` with columns:
+  - `split`, `grid`, `success`, sample counts, and metrics per grid.
+  - Metrics include: `mean_err_m`, `median_err_m`, `p95_err_m`, `mae_x`, `mae_y`, `rmse_x`, `rmse_y`, plus deltas and relative deltas.
+
+Notes
+
+- Success is defined as: no NaN/Inf detected, sample counts match, and relative `mean_err_m` increase ≤ threshold.
+- If you change folder names, keep the `*_ori` for baseline and `*_quant16` for quantized, or rely on the fallback pairing.
+
 ## Preprocessing Notes (LOGO)
 
 - `preprocess_logo.py` supports leave-one-grid-out split and temporal embargo.

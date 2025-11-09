@@ -50,9 +50,6 @@ class _QuantConv1d(nn.Module):
             elif QConv1dINT is not None:
                 self.qconv = QConv1dINT(in_ch, out_ch, kernel_size=kernel_size, stride=stride,
                                         padding=padding, bias=bias, a_bits=quant_bits, w_bits=quant_bits)
-            else:
-                # Fallback: if generic conv not available, degrade to 1x1 (not ideal but avoids crash)
-                self.qconv = QConv1x1INT(in_ch, out_ch, bias=bias, a_bits=quant_bits, w_bits=quant_bits, backend=backend)  # type: ignore
         else:
             self.conv = nn.Conv1d(in_ch, out_ch, kernel_size=kernel_size, stride=stride, padding=padding, bias=bias)
 

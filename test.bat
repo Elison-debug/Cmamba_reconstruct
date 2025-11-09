@@ -19,8 +19,11 @@ if "%quant%"=="" (
 ) else if "%quant%"=="ori" (
   set model=best_epe_mean.pt
   echo Using original model for testing
-) else if "%quant%"=="quant" (
+) else if "%quant%"=="quant16" (
   set model=calibrate_best.pt
+  echo Using calibrated model for testing
+) else if "%quant%"=="quant8" (
+  set model=calibrate_int8_best.pt
   echo Using calibrated model for testing
 ) else (
   echo Unknown model type: %model%

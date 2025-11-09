@@ -95,112 +95,47 @@ def try_pair_runs(root: str) -> List[Tuple[str, str, str]]:
     candidates = [d for d in os.listdir(root) if os.path.isdir(os.path.join(root, d))]
     pairs: List[Tuple[str, str, str]] = []
 
-    # Heuristic: group by 'eval' vs 'test'; pair one baseline (no 'calibrate') with one quant ('calibrate').
-    for split in ("eval", "test"):
+    def add_pair(label: str, base_name: str, quant_name: str):
+        b = os.path.join(root, base_name)
+        q = os.path.join(root, quant_name)
+        if os.path.isdir(b) and os.path.isdir(q):
+            pairs.append((label, b, q))
+
+    # Prefer new naming: *_ori vs *_quant16
+    add_pair("eval", "logo_eval_ori",   "logo_eval_quant16")
+    add_pair("test",  "logo_test_ori",  "logo_test_quant16")
+    add_pair("train", "logo_train_ori", "logo_train_quant16")
+    if pairs:
+        return pairs
+
+    # Fallback: explicit older names
+    add_pair("eval", "logo_eval_best_epe_mean.pt", "logo_eval_calibrate_best.pt")
+    add_pair("test", "logo_test_best_epe_mean.pt", "logo_test_calibrate_best.pt")
+    add_pair("train", "logo_train_best_epe_mean.pt", "logo_train_calibrate_best.pt")
+    if pairs:
+        return pairs
+
+    # Last resort heuristic by keywords
+    for split in ("eval", "test", "train"):
         base = None
         quant = None
         for d in candidates:
             low = d.lower()
             if split not in low:
                 continue
-            if "calibrate" in low or "int" in low or "qat" in low or "quant" in low:
-                quant = d if quant is None else quant
+            if any(k in low for k in ("quant16", "calibrate", "int", "qat", "quant")):
+                if quant is None:
+                    quant = d
             else:
-                base = d if base is None else base
+                if base is None:
+                    base = d
         if base and quant:
             pairs.append((split, os.path.join(root, base), os.path.join(root, quant)))
-
-    # Fallback: explicit known names if heuristic failed
-    explicit = [
-        ("eval", os.path.join(root, "logo_eval_best_epe_mean.pt"), os.path.join(root, "logo_eval_calibrate_best.pt")),
-        ("test", os.path.join(root, "logo_test_best_epe_mean.pt"), os.path.join(root, "logo_test_calibrate_best.pt")),
-    ]
-    for label, b, q in explicit:
-        if os.path.isdir(b) and os.path.isdir(q) and (label, b, q) not in pairs:
-            pairs.append((label, b, q))
 
     return pairs
 
 
-def validate_q88(csv_path: str, frac_bits: int = 8, eps_lsb: float = 1e-3) -> Dict[str, float]:
-    # Validate that y_pred_x/y_pred_y align to Q8.8 grid and within int16 range
-    scale = float(1 << frac_bits)
-    code_min = -32768
-    code_max = 32767
-    total = 0
-    aligned = 0
-    max_resid = 0.0
-    oob = 0
-    min_code = None
-    max_code = None
-    # Track per-axis as well
-    total_x = total_y = 0
-    aligned_x = aligned_y = 0
-    max_resid_x = 0.0
-    max_resid_y = 0.0
-
-    with open(csv_path, newline="") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            for axis in ("y_pred_x", "y_pred_y"):
-                v = safe_float(row.get(axis, "nan"))
-                if math.isnan(v) or math.isinf(v):
-                    # Treat NaN/Inf as not aligned and out-of-bounds
-                    total += 1
-                    if axis.endswith("_x"):
-                        total_x += 1
-                    else:
-                        total_y += 1
-                    oob += 1
-                    continue
-                raw = v * scale
-                code = int(round(raw))
-                resid = abs(raw - code)
-                total += 1
-                if axis.endswith("_x"):
-                    total_x += 1
-                else:
-                    total_y += 1
-                if resid <= eps_lsb:
-                    aligned += 1
-                    if axis.endswith("_x"):
-                        aligned_x += 1
-                    else:
-                        aligned_y += 1
-                max_resid = max(max_resid, resid)
-                if axis.endswith("_x"):
-                    max_resid_x = max(max_resid_x, resid)
-                else:
-                    max_resid_y = max(max_resid_y, resid)
-                if code < code_min or code > code_max:
-                    oob += 1
-                if min_code is None or code < min_code:
-                    min_code = code
-                if max_code is None or code > max_code:
-                    max_code = code
-
-    aligned_ratio = (aligned / total) if total else float("nan")
-    aligned_ratio_x = (aligned_x / total_x) if total_x else float("nan")
-    aligned_ratio_y = (aligned_y / total_y) if total_y else float("nan")
-    oob_ratio = (oob / total) if total else float("nan")
-    ok = (
-        (not math.isnan(aligned_ratio))
-        and aligned_ratio >= 0.999
-        and oob_ratio == 0.0
-        and max_resid <= max(5e-4, eps_lsb)
-    )
-    return {
-        "q88_ok": int(bool(ok)),
-        "q88_aligned_ratio": aligned_ratio,
-        "q88_aligned_ratio_x": aligned_ratio_x,
-        "q88_aligned_ratio_y": aligned_ratio_y,
-        "q88_max_residual_lsb": max_resid,
-        "q88_max_residual_lsb_x": max_resid_x,
-        "q88_max_residual_lsb_y": max_resid_y,
-        "q88_oob_ratio": oob_ratio,
-        "q88_min_code": min_code if min_code is not None else "",
-        "q88_max_code": max_code if max_code is not None else "",
-    } # type: ignore
+# Q-format validation removed per request.
 
 
 def compare_metrics(base: Dict[str, float], quant: Dict[str, float]) -> Dict[str, float]:
@@ -255,11 +190,6 @@ def write_csv(path: str, rows: List[Dict[str, object]]):
         "base_rmse_x", "quant_rmse_x", "delta_rmse_x", "rel_rmse_x",
         "base_rmse_y", "quant_rmse_y", "delta_rmse_y", "rel_rmse_y",
         "has_nan_any",
-        # Q8.8 validation on quant predictions
-        "q88_ok", "q88_aligned_ratio", "q88_max_residual_lsb", "q88_oob_ratio",
-        "q88_min_code", "q88_max_code",
-        "q88_aligned_ratio_x", "q88_aligned_ratio_y",
-        "q88_max_residual_lsb_x", "q88_max_residual_lsb_y",
     ]
     # Ensure all keys exist
     fieldnames = base_keys
@@ -271,11 +201,9 @@ def write_csv(path: str, rows: List[Dict[str, object]]):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Analyze quantization accuracy loss and Q8.8 conformity per grid from pred_vs_true.csv")
+    parser = argparse.ArgumentParser(description="Analyze quantization accuracy loss per grid from pred_vs_true.csv")
     parser.add_argument("--root", default="test_out", help="Root directory containing run folders")
     parser.add_argument("--rel-threshold", type=float, default=0.05, help="Max allowed relative increase on mean_err_m (e.g., 0.05 for 5%)")
-    parser.add_argument("--q-frac-bits", type=int, default=8, help="Fractional bits for Q format (default 8 for Q8.8)")
-    parser.add_argument("--q-eps-lsb", type=float, default=1e-3, help="Alignment tolerance in LSB units for Q check")
     args = parser.parse_args()
 
     pairs = try_pair_runs(args.root)
@@ -301,15 +229,12 @@ def main():
             success = decide_success(comp, args.rel_threshold)
             row = {"split": split, "grid": grid, "success": int(success)}
             row.update(comp)
-            # Q8.8 conformity on quant predictions
-            qchk = validate_q88(quant_grids[grid], frac_bits=args.q_frac_bits, eps_lsb=args.q_eps_lsb)
-            row.update(qchk)
             all_rows.append(row)
 
             rel_pct = comp.get("rel_mean_err_m", float("nan"))
             rel_str = f"{rel_pct*100:.2f}%" if not (math.isnan(rel_pct) or math.isinf(rel_pct)) else "NaN"
             print(
-                f"  - {grid}: mean_err base={comp.get('base_mean_err_m'):.6f} | quant={comp.get('quant_mean_err_m'):.6f} | rel={rel_str} | success={success} | q88_ok={qchk.get('q88_ok')}"
+                f"  - {grid}: mean_err base={comp.get('base_mean_err_m'):.6f} | quant={comp.get('quant_mean_err_m'):.6f} | rel={rel_str} | success={success}"
             )
 
     # Write summary CSV
