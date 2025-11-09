@@ -105,6 +105,9 @@ def try_pair_runs(root: str) -> List[Tuple[str, str, str]]:
     add_pair("eval", "logo_eval_ori",   "logo_eval_quant16")
     add_pair("test",  "logo_test_ori",  "logo_test_quant16")
     add_pair("train", "logo_train_ori", "logo_train_quant16")
+    add_pair("eval", "logo_eval_ori",   "logo_eval_quant8")
+    add_pair("test",  "logo_test_ori",  "logo_test_quant8")
+    add_pair("train", "logo_train_ori", "logo_train_quant8")
     if pairs:
         return pairs
 

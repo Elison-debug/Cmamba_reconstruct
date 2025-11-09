@@ -54,19 +54,6 @@ python tools/analyze_quant.py --root test_out --rel-threshold 0.05
   - Grid153: mean_err base=0.027512 | quant=0.031972 | rel=16.21% | success=False
   - Grid154: mean_err base=0.027115 | quant=0.032360 | rel=19.35% | success=False
   - Grid155: mean_err base=0.026062 | quant=0.030666 | rel=17.67% | success=False
-  - Grid153: mean_err base=0.027512 | quant=0.031972 | rel=16.21% | success=False
-  - Grid154: mean_err base=0.027115 | quant=0.032360 | rel=19.35% | success=False
-  - Grid153: mean_err base=0.027512 | quant=0.031972 | rel=16.21% | success=False
-  - Grid154: mean_err base=0.027115 | quant=0.032360 | rel=19.35% | success=False
-  - Grid155: mean_err base=0.026062 | quant=0.030666 | rel=17.67% | success=False
-  - Grid156: mean_err base=0.025507 | quant=0.030851 | rel=20.95% | success=False
-  - Grid153: mean_err base=0.027512 | quant=0.031972 | rel=16.21% | success=False
-  - Grid154: mean_err base=0.027115 | quant=0.032360 | rel=19.35% | success=False
-  - Grid153: mean_err base=0.027512 | quant=0.031972 | rel=16.21% | success=False
-  - Grid153: mean_err base=0.027512 | quant=0.031972 | rel=16.21% | success=False
-  - Grid153: mean_err base=0.027512 | quant=0.031972 | rel=16.21% | success=False
-  - Grid154: mean_err base=0.027115 | quant=0.032360 | rel=19.35% | success=False
-  - Grid155: mean_err base=0.026062 | quant=0.030666 | rel=17.67% | success=False
   - Grid156: mean_err base=0.025507 | quant=0.030851 | rel=20.95% | success=False
   - Grid157: mean_err base=0.024579 | quant=0.030184 | rel=22.80% | success=False
   - Grid158: mean_err base=0.024879 | quant=0.030805 | rel=23.82% | success=False
@@ -83,4 +70,76 @@ python tools/analyze_quant.py --root test_out --rel-threshold 0.05
   - Grid173: mean_err base=0.026491 | quant=0.033081 | rel=24.88% | success=False
   - Grid174: mean_err base=0.025144 | quant=0.033060 | rel=31.48% | success=False
   - Grid175: mean_err base=0.023847 | quant=0.034800 | rel=45.93% | success=False
-  Wrote summary: test_out\quant_analysis_summary.csv (68 rows)
+[eval] Comparing logo_eval_ori vs logo_eval_quant8 on 2 grids...
+  - Grid109: mean_err base=0.105668 | quant=0.109213 | rel=3.35% | success=True
+  - Grid125: mean_err base=0.076621 | quant=0.079269 | rel=3.46% | success=True
+[test] Comparing logo_test_ori vs logo_test_quant8 on 2 grids...
+  - Grid107: mean_err base=0.073552 | quant=0.076254 | rel=3.67% | success=True
+  - Grid140: mean_err base=0.093127 | quant=0.093602 | rel=0.51% | success=True
+[train] Comparing logo_train_ori vs logo_train_quant8 on 64 grids...
+  - Grid101: mean_err base=0.024426 | quant=0.035967 | rel=47.25% | success=False
+  - Grid102: mean_err base=0.024880 | quant=0.036266 | rel=45.76% | success=False
+  - Grid103: mean_err base=0.024308 | quant=0.033783 | rel=38.98% | success=False
+  - Grid104: mean_err base=0.023873 | quant=0.034109 | rel=42.88% | success=False
+  - Grid105: mean_err base=0.024049 | quant=0.035777 | rel=48.77% | success=False
+  - Grid106: mean_err base=0.025098 | quant=0.034188 | rel=36.22% | success=False
+  - Grid108: mean_err base=0.024631 | quant=0.033763 | rel=37.07% | success=False
+  - Grid110: mean_err base=0.025248 | quant=0.036326 | rel=43.88% | success=False
+  - Grid111: mean_err base=0.024811 | quant=0.034208 | rel=37.87% | success=False
+  - Grid112: mean_err base=0.023933 | quant=0.032398 | rel=35.37% | success=False
+  - Grid113: mean_err base=0.025124 | quant=0.034085 | rel=35.67% | success=False
+  - Grid114: mean_err base=0.023626 | quant=0.032406 | rel=37.16% | success=False
+  - Grid115: mean_err base=0.023105 | quant=0.032273 | rel=39.68% | success=False
+  - Grid116: mean_err base=0.022967 | quant=0.032018 | rel=39.41% | success=False
+  - Grid117: mean_err base=0.022769 | quant=0.034665 | rel=52.25% | success=False
+  - Grid118: mean_err base=0.023309 | quant=0.034613 | rel=48.49% | success=False
+  - Grid119: mean_err base=0.022202 | quant=0.033989 | rel=53.09% | success=False
+  - Grid121: mean_err base=0.021467 | quant=0.033632 | rel=56.67% | success=False
+  - Grid122: mean_err base=0.024158 | quant=0.035397 | rel=46.53% | success=False
+  - Grid123: mean_err base=0.021993 | quant=0.033985 | rel=54.53% | success=False
+  - Grid124: mean_err base=0.025826 | quant=0.038638 | rel=49.61% | success=False
+  - Grid126: mean_err base=0.021629 | quant=0.033757 | rel=56.07% | success=False
+  - Grid127: mean_err base=0.022797 | quant=0.035384 | rel=55.22% | success=False
+  - Grid128: mean_err base=0.021451 | quant=0.032976 | rel=53.73% | success=False
+  - Grid129: mean_err base=0.021438 | quant=0.035180 | rel=64.11% | success=False
+  - Grid130: mean_err base=0.020364 | quant=0.031985 | rel=57.07% | success=False
+  - Grid131: mean_err base=0.027455 | quant=0.036566 | rel=33.18% | success=False
+  - Grid132: mean_err base=0.029119 | quant=0.037870 | rel=30.05% | success=False
+  - Grid133: mean_err base=0.027468 | quant=0.036511 | rel=32.92% | success=False
+  - Grid134: mean_err base=0.027532 | quant=0.036469 | rel=32.46% | success=False
+  - Grid135: mean_err base=0.029798 | quant=0.038696 | rel=29.86% | success=False
+  - Grid136: mean_err base=0.029067 | quant=0.037467 | rel=28.90% | success=False
+  - Grid138: mean_err base=0.030233 | quant=0.040547 | rel=34.12% | success=False
+  - Grid139: mean_err base=0.028616 | quant=0.037500 | rel=31.04% | success=False
+  - Grid141: mean_err base=0.028003 | quant=0.035947 | rel=28.37% | success=False
+  - Grid142: mean_err base=0.027832 | quant=0.036380 | rel=30.72% | success=False
+  - Grid143: mean_err base=0.027748 | quant=0.037855 | rel=36.43% | success=False
+  - Grid144: mean_err base=0.027317 | quant=0.036819 | rel=34.79% | success=False
+  - Grid145: mean_err base=0.028133 | quant=0.039222 | rel=39.42% | success=False
+  - Grid146: mean_err base=0.028018 | quant=0.037473 | rel=33.75% | success=False
+  - Grid148: mean_err base=0.026958 | quant=0.036344 | rel=34.82% | success=False
+  - Grid149: mean_err base=0.026677 | quant=0.036709 | rel=37.60% | success=False
+  - Grid150: mean_err base=0.026584 | quant=0.036934 | rel=38.93% | success=False
+  - Grid151: mean_err base=0.027966 | quant=0.037045 | rel=32.47% | success=False
+  - Grid152: mean_err base=0.026922 | quant=0.035530 | rel=31.97% | success=False
+  - Grid153: mean_err base=0.027512 | quant=0.036955 | rel=34.32% | success=False
+  - Grid154: mean_err base=0.027115 | quant=0.037799 | rel=39.40% | success=False
+  - Grid155: mean_err base=0.026062 | quant=0.035972 | rel=38.03% | success=False
+  - Grid156: mean_err base=0.025507 | quant=0.035649 | rel=39.76% | success=False
+  - Grid157: mean_err base=0.024579 | quant=0.035546 | rel=44.62% | success=False
+  - Grid158: mean_err base=0.024879 | quant=0.035602 | rel=43.10% | success=False
+  - Grid159: mean_err base=0.028496 | quant=0.037818 | rel=32.72% | success=False
+  - Grid160: mean_err base=0.028106 | quant=0.037758 | rel=34.34% | success=False
+  - Grid161: mean_err base=0.027251 | quant=0.036829 | rel=35.15% | success=False
+  - Grid162: mean_err base=0.025306 | quant=0.038217 | rel=51.02% | success=False
+  - Grid163: mean_err base=0.028771 | quant=0.039368 | rel=36.83% | success=False
+  - Grid164: mean_err base=0.025766 | quant=0.037091 | rel=43.95% | success=False
+  - Grid167: mean_err base=0.025950 | quant=0.037548 | rel=44.69% | success=False
+  - Grid168: mean_err base=0.025937 | quant=0.036086 | rel=39.13% | success=False
+  - Grid169: mean_err base=0.026038 | quant=0.037826 | rel=45.28% | success=False
+  - Grid171: mean_err base=0.025868 | quant=0.037251 | rel=44.00% | success=False
+  - Grid173: mean_err base=0.026491 | quant=0.039579 | rel=49.40% | success=False
+  - Grid174: mean_err base=0.025144 | quant=0.039160 | rel=55.74% | success=False
+  - Grid175: mean_err base=0.023847 | quant=0.040035 | rel=67.88% | success=False
+
+Wrote summary: test_out\quant_analysis_summary.csv (136 rows)
