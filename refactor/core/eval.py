@@ -23,13 +23,7 @@ def main():
     p = argparse.ArgumentParser()
     # 新布局：仅提供 features 根目录（包含子目录 npy 与 json）
     p.add_argument("--feat_root", type=str, default="./data/features/logo")
-    p.add_argument("--Din", type=int, default=4200)
-    p.add_argument("--K", type=int, default=12)
-    p.add_argument("--proj_dim", type=int, default=64)
-    p.add_argument("--d_model", type=int, default=96)
-    p.add_argument("--n_layer", type=int, default=3)
-    p.add_argument("--patch_len", type=int, default=8)
-    p.add_argument("--stride", type=int, default=4)
+
     p.add_argument("--batch_size", type=int, default=64)
     p.add_argument("--ckpt", type=str, default="refactor_last.pt")
     # 量化后端/位宽（CLI 可覆写 ckpt；未提供则回退 ckpt）
@@ -45,8 +39,8 @@ def main():
     # bits: 0 -> fallback to ckpt; otherwise validate later (8 or 16)
     p.add_argument("--quant_bits", type=int, default=0)
     # quantization mode and calibration controls
-    p.add_argument("--quant_mode", type=str, choices=["dynamic", "fixed88"], default="fixed88",
-                   help="dynamic: standard dynamic scaling; fixed88: INT16 fixed-point (scale=1/256)")
+    p.add_argument("--quant_mode", type=str, choices=["dynamic", "fixed"], default="fixed",
+                   help="dynamic: standard dynamic scaling; fixed: INT16/8 fixed-point (scale=1/256 or 1/16)")
     p.add_argument("--calib_method", type=str, choices=["maxabs", "p99"], default="maxabs",
                    help="eval-time calibration method for dynamic scale")
     p.add_argument("--use_dwconv", action="store_true")
@@ -76,16 +70,10 @@ def main():
     set_seed(42)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # Prefer checkpoint dims to avoid size mismatch
-    dims = {
-        "Din": args.Din,
-        "K": args.K,
-        "proj_dim": args.proj_dim,
-        "d_model": args.d_model,
-        "n_layer": args.n_layer,
-        "patch_len": args.patch_len,
-        "stride": args.stride,
-    }
+    # Read dims from ckpt cfg if present
+    dims = {"Din": None, "K": None, "proj_dim": None, "d_model": None,
+            "n_layer": None, "patch_len": None, "stride": None}
+    
     ckpt_obj = None
     if os.path.exists(args.ckpt):
         try:
@@ -94,25 +82,25 @@ def main():
             if isinstance(ck_cfg, dict):
                 for k in list(dims.keys()):
                     if k in ck_cfg:
-                        dims[k] = int(ck_cfg[k]) if isinstance(ck_cfg[k], (int,)) else ck_cfg[k]
+                        dims[k] = int(ck_cfg[k]) if isinstance(ck_cfg[k], (int,)) else ck_cfg[k] # type: ignore
                 print("eval_dims_from_ckpt: True" ,dims)
             else:
                 print("eval_dims_from_ckpt: False")
         except Exception as e:
             print({"ckpt_load": f"warn: {e}"})
 
-    cfg = TrainConfig(
-        Din=int(dims["Din"]),
-        K=int(dims["K"]),
-        proj_dim=int(dims["proj_dim"]),
-        d_model=int(dims["d_model"]),
-        n_layer=int(dims["n_layer"]),
-        patch_len=int(dims["patch_len"]),
-        stride=int(dims["stride"]),
-        batch_size=args.batch_size,
-        feat_root=args.feat_root,
-        mmap=not bool(args.mmap_off),
-    )
+    # The ckpt must exist; otherwise, the model dimension cannot be determined.
+    if not all(v is not None for v in dims.values()):
+        raise RuntimeError("Checkpoint is required and must contain cfg with dims (Din,K,proj_dim,d_model,n_layer,patch_len,stride)")
+    assert dims["Din"] and dims["K"] and dims["proj_dim"] and dims["d_model"] and dims["n_layer"] and dims["patch_len"] and dims["stride"] is not None
+    try:
+        cfg = TrainConfig(
+            Din=int(dims["Din"]), K=int(dims["K"]), proj_dim=int(dims["proj_dim"]), d_model=int(dims["d_model"]),
+            n_layer=int(dims["n_layer"]), patch_len=int(dims["patch_len"]), stride=int(dims["stride"]),
+            batch_size=args.batch_size, feat_root=args.feat_root, mmap=not bool(args.mmap_off),
+        )
+    except Exception as e:
+            print({"cfg_load": f"warn: {e}"})
     # 构建数据集（仅从 feat_root 读取 json/npy）
     from refactor.datasets.frames_lazy import FramesLazyDataset
     ds = FramesLazyDataset(root=args.feat_root, seq_len=cfg.K, predict="current", mmap=cfg.mmap, target=args.target, in_memory=bool(args.preload))
@@ -223,6 +211,32 @@ def main():
             sd = ckpt_obj.get("state_dict", ckpt_obj)
             # 覆写量化场景：若模型为 qconv 而 ckpt 仍为旧 conv 键，先在内存中迁移键名（conv -> qconv）
             try:
+                be_kind = str(quant_cfg.get("quant_backend", "python")).lower()
+
+                def _ensure_scales_in_sd(prefix: str, ch_out: int, ch_in: int | None = None) -> int:
+                    moved = 0
+                    # Seed scales according to backend
+                    if be_kind == "cpp":
+                        if f"{prefix}.a_scale" not in sd:
+                            # cpp path: allow per‑tensor value (expanded later) or per‑channel; seed scalar 1.0
+                            sd[f"{prefix}.a_scale"] = torch.ones(1, dtype=torch.float32)
+                            moved += 1
+                        if f"{prefix}.a_zp" not in sd:
+                            sd[f"{prefix}.a_zp"] = torch.zeros(1, dtype=torch.float32)
+                            moved += 1
+                        if f"{prefix}.w_scale" not in sd:
+                            sd[f"{prefix}.w_scale"] = torch.ones(ch_out, dtype=torch.float32)
+                            moved += 1
+                    else:
+                        # python LSQ expects qa.scale and qw.scale
+                        if f"{prefix}.qa.scale" not in sd and (ch_in is not None):
+                            sd[f"{prefix}.qa.scale"] = torch.ones(int(ch_in), dtype=torch.float32)
+                            moved += 1
+                        if f"{prefix}.qw.scale" not in sd:
+                            sd[f"{prefix}.qw.scale"] = torch.ones(ch_out, dtype=torch.float32)
+                            moved += 1
+                    return moved
+
                 def _migrate_pw(name: str, mod_root) -> int:
                     moved = 0
                     if mod_root is None:
@@ -240,6 +254,11 @@ def main():
                         if b_old in sd and getattr(qc.conv, "bias", None) is not None:
                             sd[b_new] = sd[b_old]
                             moved += 1
+                        try:
+                            co = int(qc.conv.out_channels); ci = int(qc.conv.in_channels)
+                            moved += _ensure_scales_in_sd(f"{name}.qconv", co, ci)
+                        except Exception:
+                            pass
                     # C++ backend path: qconv.impl.conv.*
                     elif hasattr(qc, "impl") and hasattr(qc.impl, "conv"):
                         w_new, b_new = f"{name}.qconv.impl.conv.weight", f"{name}.qconv.impl.conv.bias"
@@ -249,11 +268,21 @@ def main():
                         if b_old in sd and getattr(qc.impl.conv, "bias", None) is not None:
                             sd[b_new] = sd[b_old]
                             moved += 1
+                        try:
+                            co = int(qc.impl.conv.out_channels); ci = int(qc.impl.conv.in_channels)
+                            # For cpp backend, parameters live under qconv.impl.*
+                            moved += _ensure_scales_in_sd(f"{name}.qconv.impl" if be_kind=="cpp" else f"{name}.qconv", co, ci)
+                        except Exception:
+                            pass
                     return moved
 
                 moved_total = 0
                 moved_total += _migrate_pw("proj", getattr(model, "proj", None))
                 moved_total += _migrate_pw("head", getattr(model, "head", None))
+                # backbone stem/heads
+                if hasattr(model, "backbone"):
+                    moved_total += _migrate_pw("backbone.patch_embedding", getattr(model.backbone, "patch_embedding", None))
+                    moved_total += _migrate_pw("backbone.output_layer_pool", getattr(model.backbone, "output_layer_pool", None))
                 if hasattr(model, "backbone") and hasattr(model.backbone, "blocks"):
                     for i, blk in enumerate(model.backbone.blocks):
                         moved_total += _migrate_pw(f"backbone.blocks.{i}.in_proj", getattr(blk, "in_proj", None))
@@ -262,6 +291,15 @@ def main():
                     print({"ckpt_migrate_conv_to_qconv": int(moved_total)})
             except Exception as e:
                 print({"ckpt_migrate_warn": str(e)})
+            # Shape-adapt checkpoint scales: expand scalar -> vector to match module params
+            try:
+                msd = model.state_dict()
+                for k in list(sd.keys()):
+                    if k in msd and torch.is_tensor(sd[k]) and torch.is_tensor(msd[k]):
+                        if sd[k].numel() == 1 and msd[k].numel() > 1:
+                            sd[k] = sd[k].expand_as(msd[k]).clone()
+            except Exception:
+                pass
             r = model.load_state_dict(sd, strict=False)
             try:
                 miss = list(getattr(r, "missing_keys", []))
@@ -270,18 +308,31 @@ def main():
                                        "missing_samp": miss[:5], "unexpected_samp": unexp[:5]}})
             except Exception:
                 pass
+        # Normalize quant_mode alias from older ckpts (e.g., 'fixed' -> 'fixed88')
+        try:
+            if isinstance(arch, dict) and str(arch.get("quant_mode", "")) == "fixed":
+                arch["quant_mode"] = "fixed"
+        except Exception:
+            pass
         # 可选校准
         if calib_batches is not None and int(calib_batches) >= 0:
             def _collect_targets(root):
                 pairs = []
                 for m in root.modules():
                     qc = getattr(m, "qconv", None)
-                    if qc is None: continue
-                    if hasattr(qc, "qa") and hasattr(qc, "qw"): pairs.append((m, qc, "python"))
-                    elif hasattr(qc, "impl"): pairs.append((m, qc, "cpp"))
+                    if qc is None:
+                        continue
+                    # python LSQ path
+                    if hasattr(qc, "qa") and hasattr(qc, "qw"):
+                        pairs.append((m, qc, "python"))
+                        continue
+                    # cpp path: either nested impl.* or top‑level a_scale/w_scale (e.g., QConv1dINT_CPP)
+                    if hasattr(qc, "impl") or hasattr(qc, "a_scale") or hasattr(qc, "w_scale"):
+                        pairs.append((m, qc, "cpp"))
+                        continue
                 return pairs
             targets = _collect_targets(model)
-            cal_stats = { id(l): {"amax": 0.0, "abs_vals": [], "amax_c": None} for (_, l, _) in targets }
+            cal_stats = { id(l): {"amax": 0.0, "amin": float("inf"), "amax_t": float("-inf"), "abs_vals": [], "amax_c": None} for (_, l, _) in targets }
             handles = []
             def _pre(mod, inputs):
                 try:
@@ -290,6 +341,10 @@ def main():
                     if s is not None:
                         xa = x.detach().abs()
                         s["amax"] = max(float(xa.max().item()), float(s["amax"]))
+                        # track min/max for per-tensor asymmetric calibration (INT8)
+                        xf = x.detach().to(torch.float32)
+                        s["amin"] = min(float(xf.min().item()), float(s["amin"]))
+                        s["amax_t"] = max(float(xf.max().item()), float(s["amax_t"]))
                         # If per-channel activation quantization, track channel-wise maxima (axis=1 for (B,C,K))
                         try:
                             qa = getattr(mod, "qa", None)
@@ -332,54 +387,89 @@ def main():
                     s = cal_stats.get(id(qc), None)
                     # Select quantization mode
                     qmode = str(quant_cfg.get("quant_mode", "dynamic"))
-                    qb = int(quant_cfg.get("quant_bits", 8))
-                    if qmode == "fixed88":
-                        # Force INT16 8.8: scale = 1/256 for activations and weights
-                        a_scale = 1.0 / 256.0
-                        w_scale = 1.0 / 256.0
-                        # For cpp per-channel activation, fill vector with 1/256
-                        if be == "cpp" and hasattr(qc, "impl") and hasattr(qc.impl, "a_scale"):
+                    qb = int(quant_cfg.get("quant_bits", 16))
+                    if qmode == "fixed":
+                        # Fixed-point Q format based on quant_bits
+                        # qb==16 -> Q8.8 (scale=1/256); qb==8 -> Q4.4 (scale=1/16)
+                        if qb == 16:
+                            fixed_scale = 1.0 / 256.0
+                        elif qb == 8:
+                            fixed_scale = 1.0 / 16.0
+                        else:
+                            raise ValueError(f"fixed point quant requires quant_bits in (8,16); got {qb}")
+                        a_scale = fixed_scale
+                        w_scale = fixed_scale
+                        # For cpp per-channel activation, fill vectors with fixed scale
+                        if be == "cpp":
                             with torch.no_grad():
-                                qc.impl.w_scale.data.fill_(float(w_scale))
-                                qc.impl.a_scale.data.fill_(float(a_scale))
+                                if hasattr(qc, "w_scale"):
+                                    qc.w_scale.data.fill_(float(w_scale))  # type: ignore
+                                elif hasattr(qc, "impl") and hasattr(qc.impl, "w_scale"):
+                                    qc.impl.w_scale.data.fill_(float(w_scale))  # type: ignore
+                                if hasattr(qc, "a_scale"):
+                                    qc.a_scale.data.fill_(float(a_scale))  # type: ignore
+                                elif hasattr(qc, "impl") and hasattr(qc.impl, "a_scale"):
+                                    qc.impl.a_scale.data.fill_(float(a_scale))  # type: ignore
                             a_scale = None
                     else:
-                        # dynamic: max-abs or percentile
+                        # dynamic calibration
                         qa = getattr(qc, "qa", None)
-                        # Try per-channel activations if we have channel stats
-                        a_scales = None
-                        if s is not None and s.get("amax_c", None) is not None:
-                            amax_c = s["amax_c"].to(torch.float32)
-                            qmax = (1 << (qb - 1)) - 1
-                            a_scales = torch.clamp(amax_c / max(1, qmax), min=1e-8)
-                        # Python backend: if per-channel QA, write vector
-                        if be == "python" and qa is not None and getattr(qa, "per_channel", False) and a_scales is not None and hasattr(qc.qa, "scale") and qc.qa.scale is not None:
+                        # INT8 (qb==8): use per‑tensor asymmetric (min/max -> scale+zp)
+                        if qb == 8 and be == "cpp":
+                            smin = float(s.get("amin", 0.0)) if s is not None else 0.0
+                            smax = float(s.get("amax_t", 0.0)) if s is not None else 0.0
+                            if args.calib_method == "p99" and s is not None and s["abs_vals"]:
+                                vals = torch.cat(s["abs_vals"], dim=0).to(torch.float32)
+                                smin = float(torch.quantile(vals, 0.01).item())
+                                smax = float(torch.quantile(vals, 0.99).item())
+                            rng = max(1e-8, smax - smin)
+                            a_scale = rng / 255.0
+                            a_zp = int(round(-smin / max(1e-8, a_scale)))
                             with torch.no_grad():
-                                sc = a_scales.to(qc.qa.scale.device, dtype=qc.qa.scale.dtype)
-                                qc.qa.scale.data = sc.view(-1)  # (C,)
-                            a_scale = None
-                        # C++ backend: write per-channel vector into impl.a_scale
-                        elif be == "cpp" and a_scales is not None and hasattr(qc, "impl") and hasattr(qc.impl, "a_scale"):
-                            with torch.no_grad():
-                                sc = a_scales.to(qc.impl.a_scale.device, dtype=qc.impl.a_scale.dtype)
-                                if qc.impl.a_scale.dim() == 1 and qc.impl.a_scale.numel() == sc.numel():
-                                    qc.impl.a_scale.data.copy_(sc)
-                                else:
-                                    qc.impl.a_scale.data.fill_(float(a_scales.mean().item()))
+                                if hasattr(qc, "a_scale"):
+                                    qc.a_scale.data.fill_(float(a_scale))  # type: ignore
+                                elif hasattr(qc, "impl") and hasattr(qc.impl, "a_scale"):
+                                    qc.impl.a_scale.data.fill_(float(a_scale))
+                                if hasattr(qc, "a_zp"):
+                                    qc.a_zp.data.fill_(float(a_zp))  # type: ignore
+                                elif hasattr(qc, "impl") and hasattr(qc.impl, "a_zp"):
+                                    qc.impl.a_zp.data.fill_(float(a_zp))
                             a_scale = None
                         else:
-                            # Per-tensor fallback
-                            if args.calib_method == "p99" and s is not None and s["abs_vals"]:
-                                vals = torch.cat(s["abs_vals"], dim=0)
-                                amax = float(torch.quantile(vals, 0.99).item())
+                            # Fallback: per‑channel symmetric (Python backend or non‑INT8)
+                            a_scales = None
+                            if s is not None and s.get("amax_c", None) is not None:
+                                amax_c = s["amax_c"].to(torch.float32)
+                                qmax = (1 << (qb - 1)) - 1
+                                a_scales = torch.clamp(amax_c / max(1, qmax), min=1e-8)
+                            if be == "python" and qa is not None and getattr(qa, "per_channel", False) and a_scales is not None and hasattr(qc.qa, "scale") and qc.qa.scale is not None:
+                                with torch.no_grad():
+                                    sc = a_scales.to(qc.qa.scale.device, dtype=qc.qa.scale.dtype)
+                                    qc.qa.scale.data = sc.view(-1)  # (C,)
+                                a_scale = None
+                            elif be == "cpp" and a_scales is not None and (hasattr(qc, "a_scale") or (hasattr(qc, "impl") and hasattr(qc.impl, "a_scale"))):
+                                with torch.no_grad():
+                                    tgt = qc.a_scale if hasattr(qc, "a_scale") else qc.impl.a_scale  # type: ignore
+                                    sc = a_scales.to(tgt.device, dtype=tgt.dtype)
+                                    if tgt.dim() == 1 and tgt.numel() == sc.numel():
+                                        tgt.data.copy_(sc)
+                                    else:
+                                        tgt.data.fill_(float(a_scales.mean().item()))
+                                a_scale = None
                             else:
-                                amax = float(s["amax"]) if s is not None else 1.0
-                            qmax = (1 << (qb - 1)) - 1
-                            a_scale = max(1e-8, amax / max(1, qmax))
+                                if args.calib_method == "p99" and s is not None and s["abs_vals"]:
+                                    vals = torch.cat(s["abs_vals"], dim=0)
+                                    amax = float(torch.quantile(vals, 0.99).item())
+                                else:
+                                    amax = float(s["amax"]) if s is not None else 1.0
+                                qmax = (1 << (qb - 1)) - 1
+                                a_scale = max(1e-8, amax / max(1, qmax))
                     if a_scale is not None and be == "python" and hasattr(qc, "qa") and hasattr(qc.qa, "scale") and qc.qa.scale is not None:
                         with torch.no_grad(): qc.qa.scale.data.fill_(float(a_scale))  # type: ignore
-                    elif be == "cpp" and hasattr(qc, "impl") and hasattr(qc.impl, "a_scale"):
-                        with torch.no_grad(): qc.impl.a_scale.data.fill_(float(a_scale)) # type: ignore
+                    elif a_scale is not None and be == "cpp" and (hasattr(qc, "a_scale") or (hasattr(qc, "impl") and hasattr(qc.impl, "a_scale"))):
+                        with torch.no_grad():
+                            tgt = qc.a_scale if hasattr(qc, "a_scale") else qc.impl.a_scale  # type: ignore
+                            tgt.data.fill_(float(a_scale))
                     # Resolve weight tensor for scaling (python: qc.conv, cpp: qc.impl.conv)
                     W = None
                     if hasattr(qc, "conv") and getattr(qc, "conv", None) is not None:
@@ -387,9 +477,11 @@ def main():
                     elif hasattr(qc, "impl") and hasattr(qc.impl, "conv") and getattr(qc.impl, "conv", None) is not None:
                         W = qc.impl.conv.weight.detach()
                     if W is not None:
-                        if str(quant_cfg.get("quant_mode", "dynamic")) == "fixed88":
-                            # fixed 8.8 -> uniform 1/256
-                            ws = torch.full((W.shape[0],), 1.0/256.0, device=W.device, dtype=torch.float32)
+                        if str(quant_cfg.get("quant_mode", "dynamic")) == "fixed":
+                            # Fixed Q: qb==16 -> 1/256 (Q8.8), qb==8 -> 1/16 (Q4.4)
+                            qb_local = int(quant_cfg.get("quant_bits", 8))
+                            scale_w = 1.0/256.0 if qb_local == 16 else (1.0/16.0 if qb_local == 8 else 1.0/256.0)
+                            ws = torch.full((W.shape[0],), float(scale_w), device=W.device, dtype=torch.float32)
                         else:
                             # dynamic per-channel max-abs
                             w_amax = W.abs().amax(dim=(1,2)) if W.dim() == 3 else W.abs().amax(dim=1)
@@ -402,10 +494,10 @@ def main():
                         else:
                             ws_ = ws.view(-1).to(qc.qw.scale.device, dtype=qc.qw.scale.dtype)
                         with torch.no_grad(): qc.qw.scale.data.copy_(ws_)  # type: ignore
-                    elif be == "cpp" and hasattr(qc, "impl") and hasattr(qc.impl, "w_scale"):
+                    elif be == "cpp" and (hasattr(qc, "w_scale") or (hasattr(qc, "impl") and hasattr(qc.impl, "w_scale"))):
                         with torch.no_grad():
-                            ws_ = ws.to(qc.impl.w_scale.device, dtype=qc.impl.w_scale.dtype)
-                            tgt = qc.impl.w_scale
+                            tgt = qc.w_scale if hasattr(qc, "w_scale") else qc.impl.w_scale  # type: ignore
+                            ws_ = ws.to(tgt.device, dtype=tgt.dtype)
                             if tgt.numel() == ws_.numel():
                                 tgt.data.copy_(ws_)
                             elif tgt.dim() == 2 and tgt.shape[1] == 1 and tgt.shape[0] == ws_.numel():
@@ -438,18 +530,24 @@ def main():
                     break
                 qstats = []
                 for mod, qc in _iter_qconvs(model):
-                    be = "cpp" if hasattr(qc, "impl") else ("python" if hasattr(qc, "qa") else "unknown")
+                    be = "cpp" if (hasattr(qc, "a_scale") or hasattr(qc, "impl")) else ("python" if hasattr(qc, "qa") else "unknown")
                     # scales
                     a_s = None; w_s = None
                     try:
                         if be == "python" and hasattr(qc, "qa") and getattr(qc.qa, "scale", None) is not None:
                             a_s = qc.qa.scale.detach().flatten().abs().float().cpu()
-                        if be == "cpp" and hasattr(qc, "impl") and getattr(qc.impl, "a_scale", None) is not None:
-                            a_s = qc.impl.a_scale.detach().flatten().abs().float().cpu()
+                        if be == "cpp":
+                            if hasattr(qc, "a_scale") and getattr(qc, "a_scale", None) is not None:
+                                a_s = qc.a_scale.detach().flatten().abs().float().cpu()  # type: ignore
+                            elif hasattr(qc, "impl") and getattr(qc.impl, "a_scale", None) is not None:
+                                a_s = qc.impl.a_scale.detach().flatten().abs().float().cpu()
                         if be == "python" and hasattr(qc, "qw") and getattr(qc.qw, "scale", None) is not None:
                             w_s = qc.qw.scale.detach().flatten().abs().float().cpu()
-                        if be == "cpp" and hasattr(qc, "impl") and getattr(qc.impl, "w_scale", None) is not None:
-                            w_s = qc.impl.w_scale.detach().flatten().abs().float().cpu()
+                        if be == "cpp":
+                            if hasattr(qc, "w_scale") and getattr(qc, "w_scale", None) is not None:
+                                w_s = qc.w_scale.detach().flatten().abs().float().cpu()  # type: ignore
+                            elif hasattr(qc, "impl") and getattr(qc.impl, "w_scale", None) is not None:
+                                w_s = qc.impl.w_scale.detach().flatten().abs().float().cpu()
                     except Exception:
                         pass
                     # saturation estimate on one batch

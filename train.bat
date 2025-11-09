@@ -3,7 +3,7 @@ setlocal
 
 set target=%1
 if "%target%"=="" (
-  echo Usage: ./train logo(Din=2100) ^| logo_delta(Din=4200)
+  echo Usage: ./train logo ^| logo_delta
   goto :eof
 )
 
@@ -14,6 +14,7 @@ set args=%args% %~2
 shift
 goto collect
 
+:proceed
 if "%target%"=="logo" ( 
   set dataform=logo_2100 
   goto run

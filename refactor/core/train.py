@@ -192,7 +192,7 @@ def main():
     p.add_argument("--q_backbone_linear", action="store_true")
     p.add_argument("--quant_backend", type=str, choices=["cpp", "python"], default="python")
     p.add_argument("--quant_bits", type=int, choices=[8,16], default=16)
-    p.add_argument("--quant_mode", type=str, choices=["dynamic","fixed88"], default="fixed88")
+    p.add_argument("--quant_mode", type=str, choices=["dynamic","fixed"], default="fixed")
     args = p.parse_args()
 
     # parse CLI first to set env for quant backend

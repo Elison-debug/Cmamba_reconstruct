@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "model": {
+    "seq_len": 16,
+    "proj_dim": 64,
+    "d_model": 64,
+    "n_layer": 3,
+    "patch_len": 8,
+    "stride": 4,
+    "forecast_len": 1
+  },
+  "quant": {
+    "rounding": "ties_to_even",
+    "saturate": true,
+    "act": {
+      "scheme": "per_tensor_asym",
+      "bits": 8
+    },
+    "weight": {
+      "scheme": "per_channel_sym",
+      "bits": 8,
+      "axis": 0
+    }
+  },
+  "layers": [
+    {
+      "type": "linear",
+      "name": "proj",
+      "in": 2100,
+      "out": 64,
+      "W": "proj_W.npy",
+      "B": "proj_B.npy",
+      "act_scale": 1.0,
+      "act_zp": 0,
+      "w_scale": "proj_WS.npy"
+    },
+    {
+      "type": "cmamba_slim",
+      "name": "backbone",
+      "params": "backbone.json"
+    },
+    {
+      "type": "linear",
+      "name": "head",
+      "in": 64,
+      "out": 2,
+      "W": "head_W.npy",
+      "B": "head_B.npy",
+      "act_scale": 1.0,
+      "act_zp": 0,
+      "w_scale": "head_WS.npy"
+    }
+  ]
+}

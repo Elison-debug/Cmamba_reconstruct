@@ -153,3 +153,31 @@ class QConv1x1INT(nn.Module):
         return torch.nn.functional.conv1d(xq, wq, self.conv.bias, stride=1, padding=0, groups=1)
 
 # No legacy aliases; project uses QConv1x1INT explicitly.
+
+
+class QConv1dINT(nn.Module):
+    """
+    Quantized Conv1d with arbitrary kernel/stride (Python LSQ backend).
+    Activations: per-channel symmetric (axis=1 for NCHW-like (B,C,K)).
+    Weights: per-out-channel symmetric (axis=0).
+    """
+
+    def __init__(self, in_f, out_f, kernel_size=1, stride=1, padding=0, dilation=1, groups=1,
+                 bias=True, a_bits=8, w_bits=8, *, backend: str | None = None):
+        super().__init__()
+        # Python backend only in this module; C++ variant lives in cpp_backend
+        self.conv = nn.Conv1d(in_f, out_f, kernel_size=kernel_size, stride=stride,
+                              padding=padding, dilation=dilation, groups=groups, bias=bias)
+        self.qa = LSQQuantizer(bits=a_bits, per_channel=True, ch_axis=1, symmetric=True, learn_scale=True)
+        self.qw = LSQQuantizer(bits=w_bits, per_channel=True, ch_axis=0, symmetric=True, learn_scale=True)
+        # Initialize scales
+        if getattr(self.qa, "scale", None) is None:
+            self.qa.scale = nn.Parameter(torch.ones(in_f, dtype=torch.float32))  # type: ignore[attr-defined]
+        if getattr(self.qw, "scale", None) is None:
+            self.qw.scale = nn.Parameter(torch.ones(out_f, dtype=torch.float32))  # type: ignore[attr-defined]
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        xq = self.qa(x, symmetric=True)
+        wq = self.qw(self.conv.weight, symmetric=True)
+        return nn.functional.conv1d(xq, wq, self.conv.bias, stride=self.conv.stride,
+                                    padding=self.conv.padding, dilation=self.conv.dilation, groups=self.conv.groups)

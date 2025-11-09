@@ -31,12 +31,22 @@ if "%target%"=="logo_delta" (
 echo Unknown target: %target%
 goto :eof
 
+@REM :run
+@REM echo running eval and calibrate for %dataform%
+@REM python -m refactor.core.eval ^
+@REM   --feat_root=./data/features/%dataform% ^
+@REM   --ckpt=./ckpt_refactor/%dataform%/best_epe_mean.pt  ^
+@REM   --save_calib_ckpt=./ckpt_refactor/%dataform%/calibrate_cpp_best.pt ^
+@REM   --target=%data% --out_dir=./eval_out/%target%_%data%_cpp ^
+@REM   --preload --quant_bits=16 %args%
+@REM goto :eof
+
 :run
 echo running eval and calibrate for %dataform%
 python -m refactor.core.eval ^
   --feat_root=./data/features/%dataform% ^
   --ckpt=./ckpt_refactor/%dataform%/best_epe_mean.pt  ^
-  --save_calib_ckpt=./ckpt_refactor/%dataform%/calibrate_best.pt ^
-  --target=%data% --out_dir=./eval_out/%target%_%data% ^
+  --save_calib_ckpt=./ckpt_refactor/%dataform%/calibrate_cpp_best.pt ^
+  --target=%data% --out_dir=./eval_out/%target%_%data%_cpp ^
   --preload --quant_bits=16 %args%
 goto :eof

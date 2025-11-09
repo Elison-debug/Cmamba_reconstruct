@@ -47,7 +47,7 @@ python -m refactor.core.eval ^
   --feat_root=./data/features/%dataform% ^
   --ckpt=./ckpt_refactor/%dataform%/%model% ^
   --dont_save_calib_ckpt ^
-  --target=%data% --out_dir=./test_out/%target%_%data%_%model%^
+  --target=%data% --out_dir=./test_out/%target%_%data%_%quant%^
   --preload
 
 if "%data%"=="train_all" (
@@ -57,6 +57,6 @@ if "%data%"=="train_all" (
 python -m refactor.core.test.test ^
 --feat_root=./data/features/%dataform% ^
   --ckpt ckpt_refactor\%dataform%\%model%  ^
-  --target=%data% --out_dir=test_out/%target%_%data%_%model% ^
+  --target=%data% --out_dir=test_out/%target%_%data%_%quant% ^
   --preload 
 goto :eof

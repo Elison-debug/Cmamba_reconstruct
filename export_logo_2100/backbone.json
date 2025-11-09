@@ -1,0 +1,49 @@
+{
+  "meta": {
+    "d_model": 64,
+    "d_inner": 128,
+    "n_layer": 3,
+    "d_conv": 4,
+    "num_patches": 3,
+    "patch_len": 8,
+    "stride": 4,
+    "pe_on": true,
+    "pe_scale": 1.0,
+    "gate_off": false,
+    "agg_pool": ""
+  },
+  "patch_embedding": {
+    "W": "patch_embed_W.npy",
+    "B": "patch_embed_B.npy"
+  },
+  "blocks": [
+    {
+      "dw_weight": "block0_dw_W.npy",
+      "dw_bias": "block0_dw_B.npy",
+      "dt_proj_W": "block0_dt_proj_W.npy",
+      "dt_proj_B": "block0_dt_proj_B.npy",
+      "norm_weight": "block0_norm_weight.npy"
+    },
+    {
+      "dw_weight": "block1_dw_W.npy",
+      "dw_bias": "block1_dw_B.npy",
+      "dt_proj_W": "block1_dt_proj_W.npy",
+      "dt_proj_B": "block1_dt_proj_B.npy",
+      "norm_weight": "block1_norm_weight.npy"
+    },
+    {
+      "dw_weight": "block2_dw_W.npy",
+      "dw_bias": "block2_dw_B.npy",
+      "dt_proj_W": "block2_dt_proj_W.npy",
+      "dt_proj_B": "block2_dt_proj_B.npy",
+      "norm_weight": "block2_norm_weight.npy"
+    }
+  ],
+  "final_norm_weight": "final_norm_weight.npy",
+  "output_flat": {
+    "W": "out_flat_W.npy",
+    "B": "out_flat_B.npy",
+    "WS": "out_flat_WS.npy"
+  },
+  "pe": "pe.npy"
+}

@@ -200,7 +200,7 @@ def validate_q88(csv_path: str, frac_bits: int = 8, eps_lsb: float = 1e-3) -> Di
         "q88_oob_ratio": oob_ratio,
         "q88_min_code": min_code if min_code is not None else "",
         "q88_max_code": max_code if max_code is not None else "",
-    }
+    } # type: ignore
 
 
 def compare_metrics(base: Dict[str, float], quant: Dict[str, float]) -> Dict[str, float]:

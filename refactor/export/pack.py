@@ -38,16 +38,54 @@ def _extract_qparams_from_module(mod: torch.nn.Module):
 def export_proj_head(model: torch.nn.Module, out_dir: str, meta: Dict):
     out_dir_p = Path(out_dir)
     sd = model.state_dict()
-    # Expect keys from MambaRegressor
-    proj_W = sd["proj.weight"].detach().cpu().numpy()
-    proj_B = sd["proj.bias"].detach().cpu().numpy()
-    head_W = sd["head.weight"].detach().cpu().numpy()
-    head_B = sd["head.bias"].detach().cpu().numpy()
+
+    def _pick_param(sd: dict, candidates: list[str]):
+        for k in candidates:
+            if k in sd:
+                return sd[k]
+        return None
+
+    # Robustly resolve weight/bias for proj/head supporting conv or qconv
+    proj_W_t = _pick_param(sd, [
+        "proj.weight",  # linear fallback
+        "proj.conv.weight",  # Conv1d
+        "proj.qconv.conv.weight",  # python backend qconv
+        "proj.qconv.impl.conv.weight",  # cpp backend qconv
+    ])
+    proj_B_t = _pick_param(sd, [
+        "proj.bias",
+        "proj.conv.bias",
+        "proj.qconv.conv.bias",
+        "proj.qconv.impl.conv.bias",
+    ])
+    head_W_t = _pick_param(sd, [
+        "head.weight",
+        "head.conv.weight",
+        "head.qconv.conv.weight",
+        "head.qconv.impl.conv.weight",
+    ])
+    head_B_t = _pick_param(sd, [
+        "head.bias",
+        "head.conv.bias",
+        "head.qconv.conv.bias",
+        "head.qconv.impl.conv.bias",
+    ])
+    if proj_W_t is None or head_W_t is None:
+        raise KeyError("Failed to locate proj/head weights in model.state_dict(); expected conv/qconv keys")
+    # Squeeze 1x1 conv kernel dim if present: (O,I,1)->(O,I)
+    def _to_oi(t: torch.Tensor) -> torch.Tensor:
+        if t.dim() == 3 and t.size(-1) == 1:
+            return t.squeeze(-1)
+        return t
+    proj_W = _to_oi(proj_W_t).detach().cpu().numpy()
+    head_W = _to_oi(head_W_t).detach().cpu().numpy()
+    proj_B = (proj_B_t.detach().cpu().numpy() if proj_B_t is not None else None)
+    head_B = (head_B_t.detach().cpu().numpy() if head_B_t is not None else None)
 
     proj_W_name = _save_npy(out_dir_p, "proj_W", proj_W)
-    proj_B_name = _save_npy(out_dir_p, "proj_B", proj_B)
+    proj_B_name = _save_npy(out_dir_p, "proj_B", proj_B) if proj_B is not None else None
     head_W_name = _save_npy(out_dir_p, "head_W", head_W)
-    head_B_name = _save_npy(out_dir_p, "head_B", head_B)
+    head_B_name = _save_npy(out_dir_p, "head_B", head_B) if head_B is not None else None
 
     # scales
     proj_mod = getattr(model, "proj", None)
@@ -84,7 +122,7 @@ def export_proj_head(model: torch.nn.Module, out_dir: str, meta: Dict):
                 "in": int(proj_W.shape[1]),
                 "out": int(proj_W.shape[0]),
                 "W": proj_W_name,
-                "B": proj_B_name,
+                **({"B": proj_B_name} if proj_B_name is not None else {}),
                 "act_scale": a_scale_proj,
                 "act_zp": a_zp_proj,
                 "w_scale": proj_WS_name,
@@ -100,7 +138,7 @@ def export_proj_head(model: torch.nn.Module, out_dir: str, meta: Dict):
                 "in": int(head_W.shape[1]),
                 "out": int(head_W.shape[0]),
                 "W": head_W_name,
-                "B": head_B_name,
+                **({"B": head_B_name} if head_B_name is not None else {}),
                 "act_scale": a_scale_head,
                 "act_zp": a_zp_head,
                 "w_scale": head_WS_name,

@@ -5,9 +5,12 @@ import torch
 import torch.nn as nn
 
 try:
-    from ..quant.qat_layers import QConv1x1INT, set_default_backend  # type: ignore
+    from ..quant.qat_layers import QConv1x1INT, QConv1dINT, set_default_backend  # type: ignore
+    from ..quant.cpp_backend import QConv1dINT as QConv1dINT_CPP  # type: ignore
 except Exception:  # pragma: no cover - optional dependency
     QConv1x1INT = None
+    QConv1dINT = None
+    QConv1dINT_CPP = None
     set_default_backend = None
 
 
@@ -23,6 +26,35 @@ class _Pointwise1x1(nn.Module):
             self.qconv = QConv1x1INT(in_ch, out_ch, bias=bias, a_bits=quant_bits, w_bits=quant_bits, backend=backend)  # type: ignore[call-arg]
         else:
             self.conv = nn.Conv1d(in_ch, out_ch, kernel_size=1, bias=bias)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        if self._use_q:
+            return self.qconv(x)
+        return self.conv(x)
+
+
+class _QuantConv1d(nn.Module):
+    """Conv1d wrapper that uses quantized backend when enabled."""
+
+    def __init__(self, in_ch: int, out_ch: int, *, kernel_size: int, stride: int = 1, padding: int = 0,
+                 bias: bool = True, use_q: bool = False, backend: Optional[str] = None, quant_bits: int = 8):
+        super().__init__()
+        self._use_q = bool(use_q and ((QConv1dINT is not None) or (QConv1x1INT is not None)))
+        if self._use_q:
+            if backend and set_default_backend is not None:
+                set_default_backend(backend)
+            be = (backend or "python").lower() if backend is not None else "python"
+            if be == "cpp" and QConv1dINT_CPP is not None:
+                self.qconv = QConv1dINT_CPP(in_ch, out_ch, kernel_size=kernel_size, stride=stride,
+                                            padding=padding, bias=bias, a_bits=quant_bits, w_bits=quant_bits)
+            elif QConv1dINT is not None:
+                self.qconv = QConv1dINT(in_ch, out_ch, kernel_size=kernel_size, stride=stride,
+                                        padding=padding, bias=bias, a_bits=quant_bits, w_bits=quant_bits)
+            else:
+                # Fallback: if generic conv not available, degrade to 1x1 (not ideal but avoids crash)
+                self.qconv = QConv1x1INT(in_ch, out_ch, bias=bias, a_bits=quant_bits, w_bits=quant_bits, backend=backend)  # type: ignore
+        else:
+            self.conv = nn.Conv1d(in_ch, out_ch, kernel_size=kernel_size, stride=stride, padding=padding, bias=bias)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         if self._use_q:
@@ -228,12 +260,15 @@ class CMambaSlim(nn.Module):
         self.agg_pool = self.args.agg_pool  # "avg" | "max" | ""
         self.pe_on = bool(self.args.pe_on)
         self.pe_scale = float(self.args.pe_scale)
-        self.patch_embedding = nn.Conv1d(
-            in_channels=args.num_channels,
-            out_channels=args.d_model,
+        self.patch_embedding = _QuantConv1d(
+            in_ch=args.num_channels,
+            out_ch=args.d_model,
             kernel_size=args.patch_len,
             stride=args.stride,
             bias=True,
+            use_q=bool(args.q_backbone_linear or args.quantize_all),
+            backend=args.quant_backend,
+            quant_bits=args.quant_bits,
         )
         self.blocks = nn.ModuleList([SlimMambaBlock(args) for _ in range(args.n_layer)])
         self.norm_f = RMSNorm(args.d_model)
