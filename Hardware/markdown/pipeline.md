@@ -81,7 +81,7 @@ bank_id = (⌊col / 4⌋ + 3 × array_id) mod N<sub>bank</sub>
 We want the `bank_id` values accessed by the four arrays to be **all different**, i.e.:
 
 $$
-(\text{block\_id} + 3n_1) \bmod N_{\text{bank}} \neq (\text{block\_id} + 3n_2) \bmod N_{\text{bank}}
+(\text{block\textunderscore id} + 3n_1) \bmod N_{\text{bank}} \neq (\text{block\textunderscore id} + 3n_2) \bmod N_{\text{bank}}
 $$
 
 for any $n_1 \neq n_2$.
@@ -112,7 +112,7 @@ for all $n_1, n_2 \in \{0,1,2,3\}$.
 |:--|:--|:--|
 | 4  | (0, 3, 2, 1) | ✅ All distinct, but too short; pattern overlaps when `block_id` increases |
 | 6  | (0, 3, 0, 3) | ❌ Repeats |
-| 8  | (0, 3, 6, 1) | ❌ Overlaps after rotation (`6 + 3 mod 8 = 1`) |
+| 8  | (0, 3, 6, 1) | ❌ Temporal Conflict |
 | 9  | (0, 3, 6, 0) | ❌ Repeats |
 | **12** | **(0, 3, 6, 9)** | ✅ Perfectly distinct and periodic |
 
