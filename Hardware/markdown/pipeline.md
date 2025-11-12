@@ -80,35 +80,35 @@ bank_id = (⌊col / 4⌋ + 3 × array_id) mod N<sub>bank</sub>
 
 We want the `bank_id` values accessed by the four arrays to be **all different**, i.e.:
 
-\[
+$$
 (\text{block\_id} + 3n_1) \bmod N_{\text{bank}} \neq (\text{block\_id} + 3n_2) \bmod N_{\text{bank}}
-\]
+$$
 
-for any \( n_1 \neq n_2 \).
+for any $n_1 \neq n_2$.
 
 Since `block_id` is fixed within the same cycle, the difference condition becomes:
 
-\[
+$$
 3(n_1 - n_2) \not\equiv 0 \pmod{N_{\text{bank}}}
-\]
+$$
 
 That is:
 
-> **The accesses will be conflict-free if and only if the greatest common divisor (GCD) of 3 and \( N_{\text{bank}} \) does not divide the total number of arrays (4).**
+> **The accesses will be conflict-free if and only if the greatest common divisor (GCD) of 3 and $N_{\text{bank}}$ does not divide the total number of arrays (4).**
 
-We therefore need to find the smallest \( N_{\text{bank}} \) such that
+We therefore need to find the smallest $N_{\text{bank}}$ such that
 
-\[
+$$
 3(n_1 - n_2) \bmod N_{\text{bank}} \neq 0
-\]
+$$
 
-for all \( n_1, n_2 \in \{0,1,2,3\} \).
+for all $n_1, n_2 \in \{0,1,2,3\}$.
 
 ---
 
 ### Verification Table
 
-| \(N_{\text{bank}}\) | Access sequence (for `block_id = 0`) | Conflict-free? |
+| $N_{\text{bank}}$ | Access sequence (for `block_id = 0`) | Conflict-free? |
 |:--|:--|:--|
 | 4  | (0, 3, 2, 1) | ✅ All distinct, but too short; pattern overlaps when `block_id` increases |
 | 6  | (0, 3, 0, 3) | ❌ Repeats |
@@ -178,21 +178,6 @@ Hence, **12 is the smallest number of banks** that guarantees conflict-free para
 | 127             | xt[8:11]   | xt[8:11]   | xt[4:7]    | xt[4:7]    | Array2 switches to the new xt block. |
 | 128             | xt[8:11]   | xt[8:11]   | xt[8:11]   | xt[4:7]    | Array3 switches to the new xt block; pipeline transition repeats every 64 cycles. |
 ---
-;; ## 📊 Expected Wave
-;; form  
-
-;; | **Cycle** | **Array1 (A0_mat)** | **Array2 (A1_mat)** | **Array3 (A2_mat)** | **Array4 (A3_mat)** |
-;; |:----------|:--------------------|:--------------------|:--------------------|:--------------------|
-;; | 1 | col0–3 | 0 | 0 | 0 |
-;; | 2 | col16–19 | col4–7 | 0 | 0 |
-;; | 3 | col32–35 | col20–23 | col8–11 | 0 |
-;; | 4 | col48–51 | col36–39 | col24–27 | col12–15 |
-;; | 5 | col64–67 | col52–55 | col40–43 | col28–31 |
-
-;; ✅ **Output Behavior:**  
-;; From Cycle 4 onward, one tile result is produced every cycle.
-
-;; ---
 
 ### 🧾 Notes
 - Each 4×4 block = 16 weights (aligned with MAC array width).  
