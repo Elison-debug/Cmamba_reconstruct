@@ -80,10 +80,6 @@ bank_id = (⌊col / 4⌋ + 3 × array_id) mod N<sub>bank</sub>
 
 We want the `bank_id` values accessed by the four arrays to be **all different**, i.e.:
 
-$$
-(\text{block\textunderscore id} + 3n_1) \bmod N_{\text{bank}} \neq (\text{block\textunderscore id} + 3n_2) \bmod N_{\text{bank}}
-$$
-
 for any $n_1 \neq n_2$.
 
 Since `block_id` is fixed within the same cycle, the difference condition becomes:
