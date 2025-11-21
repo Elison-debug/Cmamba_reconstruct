@@ -7,8 +7,8 @@ import torch
 from torch.utils.data import DataLoader, Subset
 import csv
 
-from .losses import HuberEPE
-from ..datasets.samplers import GridPureBatchSampler
+from refactor.core.losses import HuberEPE
+from refactor.datasets.samplers import GridPureBatchSampler
 
 
 @dataclass

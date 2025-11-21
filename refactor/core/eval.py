@@ -9,8 +9,8 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap, PowerNorm
 
-from .train import evaluate, TrainConfig, set_seed
-from .losses import HuberEPE
+from refactor.core.train import evaluate, TrainConfig, set_seed
+from refactor.core.losses import HuberEPE
 
 def make_truncated_cmap(base='turbo', lo=0.10, hi=0.95, n=256):
     #从 base cmap 截取对比更强的区间，提升可辨识度。

@@ -1,0 +1,98 @@
+epoch,train_loss,eval_loss,epe_mean,epe_median,epe_p80,epe_p90,mae_x,mae_y
+./train parity     
+The filename, directory name, or volume label syntax is incorrect.
+running training for parity_2100 
+[OK] Loaded stats (train): data\features\parity_2100\stats_train.npz Din=2100
+[OK] Loaded stats (train): data\features\parity_2100\stats_train.npz Din=2100
+{'train_samples': 34481, 'eval_samples': 2095, 'K': 16, 'Din': 2100}
+{'quant_cfg': {'quant_backend': 'python', 'quantize_all': False, 'q_proj': False, 'q_head': False, 'q_block_linear': False, 'q_backbone_linear': False, 'quant_bits': 16, 'quant_mode': 'fixed'}}
+{'model_params': 896322, 'device': 'cuda'}
+==== Epoch 1/20 ====
+train: 100%|██████████████| 1089/1089 [00:23<00:00, 45.70it/s, loss=0.0765, epe=0.4204, lr=2.98e-04]
+eval: 100%|█████████████████| 66/66 [00:05<00:00, 11.01it/s, epe=0.2479, mae_x=0.1159, mae_y=0.1929]
+epoch=1 train_loss=0.076539 eval_loss=0.021527 epe_mean=0.247886 epe_median=0.213306 epe_p80=0.359473 epe_p90=0.452308 mae_x=0.115850 mae_y=0.192885
+{'best_update': 'epe_mean', 'value': '0.247886', 'path': 'ckpt_refactor\\parity_2100\\best_epe_mean.pt'}
+==== Epoch 2/20 ====
+train: 100%|██████████████| 1089/1089 [00:16<00:00, 66.60it/s, loss=0.0093, epe=0.1650, lr=2.93e-04]
+eval: 100%|████████████████| 66/66 [00:00<00:00, 201.49it/s, epe=0.2233, mae_x=0.1040, mae_y=0.1732]
+epoch=2 train_loss=0.009334 eval_loss=0.018947 epe_mean=0.223319 epe_median=0.173625 epe_p80=0.336623 epe_p90=0.451309 mae_x=0.104012 mae_y=0.173166
+{'best_update': 'epe_mean', 'value': '0.223319', 'path': 'ckpt_refactor\\parity_2100\\best_epe_mean.pt'}
+==== Epoch 3/20 ====
+train: 100%|██████████████| 1089/1089 [00:16<00:00, 67.63it/s, loss=0.0061, epe=0.1339, lr=2.84e-04]
+eval: 100%|████████████████| 66/66 [00:00<00:00, 194.02it/s, epe=0.2009, mae_x=0.1016, mae_y=0.1485]
+epoch=3 train_loss=0.006093 eval_loss=0.014875 epe_mean=0.200906 epe_median=0.165569 epe_p80=0.282161 epe_p90=0.389955 mae_x=0.101591 mae_y=0.148478
+{'best_update': 'epe_mean', 'value': '0.200906', 'path': 'ckpt_refactor\\parity_2100\\best_epe_mean.pt'}
+==== Epoch 4/20 ====
+train: 100%|██████████████| 1089/1089 [00:16<00:00, 66.71it/s, loss=0.0042, epe=0.1104, lr=2.71e-04]
+eval: 100%|████████████████| 66/66 [00:00<00:00, 182.86it/s, epe=0.1843, mae_x=0.0852, mae_y=0.1427]
+epoch=4 train_loss=0.004198 eval_loss=0.012898 epe_mean=0.184315 epe_median=0.147432 epe_p80=0.262778 epe_p90=0.379462 mae_x=0.085152 mae_y=0.142708
+{'best_update': 'epe_mean', 'value': '0.184315', 'path': 'ckpt_refactor\\parity_2100\\best_epe_mean.pt'}
+==== Epoch 5/20 ====
+train: 100%|██████████████| 1089/1089 [00:16<00:00, 65.65it/s, loss=0.0048, epe=0.1169, lr=2.56e-04]
+eval: 100%|████████████████| 66/66 [00:00<00:00, 192.67it/s, epe=0.1856, mae_x=0.1135, mae_y=0.1235]
+epoch=5 train_loss=0.004757 eval_loss=0.011208 epe_mean=0.185628 epe_median=0.165183 epe_p80=0.248553 epe_p90=0.312075 mae_x=0.113525 mae_y=0.123497
+==== Epoch 6/20 ====
+train: 100%|██████████████| 1089/1089 [00:16<00:00, 66.11it/s, loss=0.0033, epe=0.0983, lr=2.38e-04]
+eval: 100%|████████████████| 66/66 [00:00<00:00, 177.65it/s, epe=0.1524, mae_x=0.0772, mae_y=0.1151]
+epoch=6 train_loss=0.003273 eval_loss=0.008783 epe_mean=0.152423 epe_median=0.125087 epe_p80=0.223519 epe_p90=0.285164 mae_x=0.077170 mae_y=0.115062
+{'best_update': 'epe_mean', 'value': '0.152423', 'path': 'ckpt_refactor\\parity_2100\\best_epe_mean.pt'}
+==== Epoch 7/20 ====
+train: 100%|██████████████| 1089/1089 [00:16<00:00, 67.49it/s, loss=0.0036, epe=0.1012, lr=2.18e-04]
+eval: 100%|████████████████| 66/66 [00:00<00:00, 202.80it/s, epe=0.1347, mae_x=0.0608, mae_y=0.1071]
+epoch=7 train_loss=0.003629 eval_loss=0.007523 epe_mean=0.134708 epe_median=0.101991 epe_p80=0.198451 epe_p90=0.280463 mae_x=0.060838 mae_y=0.107094
+{'best_update': 'epe_mean', 'value': '0.134708', 'path': 'ckpt_refactor\\parity_2100\\best_epe_mean.pt'}
+==== Epoch 8/20 ====
+train: 100%|██████████████| 1089/1089 [00:16<00:00, 66.01it/s, loss=0.0011, epe=0.0566, lr=1.97e-04]
+eval: 100%|████████████████| 66/66 [00:00<00:00, 154.98it/s, epe=0.1323, mae_x=0.0598, mae_y=0.1051]
+epoch=8 train_loss=0.001091 eval_loss=0.007506 epe_mean=0.132331 epe_median=0.095616 epe_p80=0.194633 epe_p90=0.295273 mae_x=0.059800 mae_y=0.105146
+{'best_update': 'epe_mean', 'value': '0.132331', 'path': 'ckpt_refactor\\parity_2100\\best_epe_mean.pt'}
+==== Epoch 9/20 ====
+train: 100%|██████████████| 1089/1089 [00:16<00:00, 66.87it/s, loss=0.0019, epe=0.0738, lr=1.74e-04]
+eval: 100%|████████████████| 66/66 [00:00<00:00, 152.03it/s, epe=0.1232, mae_x=0.0516, mae_y=0.1012]
+epoch=9 train_loss=0.001916 eval_loss=0.006527 epe_mean=0.123244 epe_median=0.092339 epe_p80=0.170068 epe_p90=0.269158 mae_x=0.051594 mae_y=0.101172
+{'best_update': 'epe_mean', 'value': '0.123244', 'path': 'ckpt_refactor\\parity_2100\\best_epe_mean.pt'}
+==== Epoch 10/20 ====
+train: 100%|██████████████| 1089/1089 [00:16<00:00, 66.14it/s, loss=0.0010, epe=0.0539, lr=1.50e-04]
+eval: 100%|████████████████| 66/66 [00:00<00:00, 203.55it/s, epe=0.1294, mae_x=0.0514, mae_y=0.1076]
+epoch=10 train_loss=0.000999 eval_loss=0.007364 epe_mean=0.129373 epe_median=0.091542 epe_p80=0.198575 epe_p90=0.296596 mae_x=0.051428 mae_y=0.107612
+==== Epoch 11/20 ====
+train: 100%|██████████████| 1089/1089 [00:16<00:00, 66.95it/s, loss=0.0008, epe=0.0469, lr=1.27e-04]
+eval: 100%|████████████████| 66/66 [00:00<00:00, 163.50it/s, epe=0.1351, mae_x=0.0517, mae_y=0.1150]
+epoch=11 train_loss=0.000754 eval_loss=0.008153 epe_mean=0.135118 epe_median=0.094770 epe_p80=0.200061 epe_p90=0.307665 mae_x=0.051744 mae_y=0.114954
+==== Epoch 12/20 ====
+train: 100%|██████████████| 1089/1089 [00:16<00:00, 65.93it/s, loss=0.0011, epe=0.0541, lr=1.04e-04]
+eval: 100%|████████████████| 66/66 [00:00<00:00, 192.43it/s, epe=0.1288, mae_x=0.0501, mae_y=0.1091]
+epoch=12 train_loss=0.001054 eval_loss=0.007684 epe_mean=0.128840 epe_median=0.090234 epe_p80=0.188615 epe_p90=0.310513 mae_x=0.050127 mae_y=0.109133
+==== Epoch 13/20 ====
+train: 100%|██████████████| 1089/1089 [00:16<00:00, 67.77it/s, loss=0.0003, epe=0.0324, lr=8.26e-05]
+eval: 100%|████████████████| 66/66 [00:00<00:00, 154.09it/s, epe=0.1152, mae_x=0.0452, mae_y=0.0972]
+epoch=13 train_loss=0.000346 eval_loss=0.006022 epe_mean=0.115202 epe_median=0.079872 epe_p80=0.174829 epe_p90=0.259513 mae_x=0.045247 mae_y=0.097217
+{'best_update': 'epe_mean', 'value': '0.115202', 'path': 'ckpt_refactor\\parity_2100\\best_epe_mean.pt'}
+==== Epoch 14/20 ====
+train: 100%|██████████████| 1089/1089 [00:16<00:00, 67.13it/s, loss=0.0004, epe=0.0330, lr=6.26e-05]
+eval: 100%|████████████████| 66/66 [00:00<00:00, 176.59it/s, epe=0.1196, mae_x=0.0490, mae_y=0.0995]
+epoch=14 train_loss=0.000368 eval_loss=0.006642 epe_mean=0.119580 epe_median=0.080841 epe_p80=0.179059 epe_p90=0.281136 mae_x=0.049044 mae_y=0.099468
+==== Epoch 15/20 ====
+train: 100%|██████████████| 1089/1089 [00:16<00:00, 65.58it/s, loss=0.0002, epe=0.0234, lr=4.48e-05]
+eval: 100%|████████████████| 66/66 [00:00<00:00, 197.98it/s, epe=0.1118, mae_x=0.0468, mae_y=0.0923]
+epoch=15 train_loss=0.000179 eval_loss=0.005791 epe_mean=0.111754 epe_median=0.077134 epe_p80=0.163062 epe_p90=0.257500 mae_x=0.046787 mae_y=0.092339
+{'best_update': 'epe_mean', 'value': '0.111754', 'path': 'ckpt_refactor\\parity_2100\\best_epe_mean.pt'}
+==== Epoch 16/20 ====
+train: 100%|██████████████| 1089/1089 [00:16<00:00, 67.96it/s, loss=0.0001, epe=0.0212, lr=2.96e-05]
+eval: 100%|████████████████| 66/66 [00:00<00:00, 184.26it/s, epe=0.1142, mae_x=0.0476, mae_y=0.0944]
+epoch=16 train_loss=0.000147 eval_loss=0.006099 epe_mean=0.114196 epe_median=0.076284 epe_p80=0.169656 epe_p90=0.266209 mae_x=0.047606 mae_y=0.094391
+==== Epoch 17/20 ====
+train: 100%|██████████████| 1089/1089 [00:16<00:00, 66.42it/s, loss=0.0001, epe=0.0187, lr=1.73e-05]
+eval: 100%|████████████████| 66/66 [00:00<00:00, 201.61it/s, epe=0.1135, mae_x=0.0476, mae_y=0.0938]
+epoch=17 train_loss=0.000113 eval_loss=0.006013 epe_mean=0.113548 epe_median=0.077096 epe_p80=0.163881 epe_p90=0.264269 mae_x=0.047554 mae_y=0.093829
+==== Epoch 18/20 ====
+train: 100%|██████████████| 1089/1089 [00:16<00:00, 64.88it/s, loss=0.0001, epe=0.0168, lr=8.32e-06]
+eval: 100%|████████████████| 66/66 [00:00<00:00, 215.48it/s, epe=0.1136, mae_x=0.0469, mae_y=0.0945]
+epoch=18 train_loss=0.000092 eval_loss=0.006091 epe_mean=0.113566 epe_median=0.075777 epe_p80=0.168842 epe_p90=0.265631 mae_x=0.046873 mae_y=0.094545
+==== Epoch 19/20 ====
+train: 100%|██████████████| 1089/1089 [00:15<00:00, 69.38it/s, loss=0.0001, epe=0.0157, lr=2.84e-06]
+eval: 100%|████████████████| 66/66 [00:00<00:00, 180.43it/s, epe=0.1128, mae_x=0.0466, mae_y=0.0937]
+epoch=19 train_loss=0.000080 eval_loss=0.006011 epe_mean=0.112753 epe_median=0.075808 epe_p80=0.166246 epe_p90=0.263737 mae_x=0.046583 mae_y=0.093681
+==== Epoch 20/20 ====
+train: 100%|██████████████| 1089/1089 [00:16<00:00, 68.06it/s, loss=0.0001, epe=0.0151, lr=1.00e-06]
+eval: 100%|████████████████| 66/66 [00:00<00:00, 202.99it/s, epe=0.1129, mae_x=0.0463, mae_y=0.0941]

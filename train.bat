@@ -1,6 +1,8 @@
 @echo off
 setlocal
 
+@REM $env:PYTHONHOME = "C:\Users\Elison\.conda\envs\python-transformers"
+
 set target=%1
 if "%target%"=="" (
   echo Usage: ./train logo ^| logo_delta
@@ -19,6 +21,12 @@ if "%target%"=="logo" (
   set dataform=logo_2100 
   goto run
 )
+
+if "%target%"=="parity" ( 
+  set dataform=parity_2100 
+  goto run
+)
+
 if "%target%"=="logo_delta" ( 
   set dataform=logo_4200 
   goto run
@@ -33,8 +41,18 @@ python -m refactor.core.train ^
   --feat_root=./data/features/%dataform% ^
   --out_dir=ckpt_refactor\%dataform% ^
   --Din=2100 --K=16 ^
+  --proj_dim=64 --d_model=128 --n_layer=4 ^
+  --patch_len=8 --stride=4 ^
+  --batch_size=32 --epochs=20 --lr=3e-4 --lr_schedule=cosine ^
+  --workers=4 --prefetch=4 --amp --pe_off  --preload %args%
+goto :eof
+
+echo analysing training for %dataform%
+python -m scalene -m refactor.core.train ^
+  --feat_root=./data/features/%dataform% ^
+  --out_dir=ckpt_refactor\%dataform% ^
+  --Din=2100 --K=16 ^
   --proj_dim=64 --d_model=64 --n_layer=3 ^
   --patch_len=8 --stride=4 ^
-  --batch_size=32 --epochs=20 --lr=1e-4 --lr_schedule=cosine ^
-  --workers=4 --prefetch=4 --amp --use_dwconv --preload %args%
-goto :eof
+  --batch_size=32 --epochs=2 --lr=1e-4 --lr_schedule=cosine ^
+  --workers=0 --prefetch=4 --amp --use_dwconv --preload %args%
