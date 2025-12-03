@@ -119,6 +119,7 @@ flowchart TD
     s12 --> s13[1x1 Conv out_proj]
     s13 --> s14[Residual add]
 ```
+
 **Equations**
 
 - **In-projection and modulation**  
@@ -181,3 +182,18 @@ All in Parity Strategy
 | ori + power(2100) | DWconv off    | 0.063                | 5.14                  | 0.1003               |  0.1782  |
 | ori + power(2100) | ori           |                      |                       |                      |          |
 | ori + power(2100) | ori           |                      |                       |                      |          |
+
+**Origin Mamba**
+All in Parity Strategy
+
+| **Data type**     | **Model**     | **first epoch loss** | **finnal loss(e-05)** | **eval mean err(m)** | **test mean err(m)** |
+| :----:            | :----:        | :-------:    | :-------:   | :------: | :------: |
+| ori(2000)         | PE&DWconv off |              |             |          |    |
+| delta(2000)       | PE&DWconv off |              |             |          |    |
+| power(100)        | PE&DWconv off |              |             |          |    |
+| ori + power(2100) | PE&DWconv off |   0.0429     |    3.83     | 0.08701  |    |
+| ori + power(2100) | ori           |   0.0578     |    5.04     | 0.09238  |    |
+| ori + power(2100) | peoff         |              |             |          |    |
+| ori + power(2100) | DWconv off    |   0.0738     |    6.13     | 0.09970  |    |
+| ori + power(2100) | ori           |              |             |          |    |
+| ori + power(2100) | ori           |              |             |          |    |

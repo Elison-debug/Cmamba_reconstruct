@@ -3,7 +3,7 @@ from typing import Optional
 import torch
 import torch.nn as nn
 
-from .cmamba_slim import CMambaSlim, ModelArgs
+from .mamba_slim import MambaSlim, ModelArgs, MambaOrigin
 
 try:
     # Use quantized 1x1 Conv implementation explicitly
@@ -90,7 +90,8 @@ class MambaRegressor(nn.Module):
             quant_backend=quant_backend,
             quant_bits=quant_bits,
         )
-        self.backbone = CMambaSlim(args)
+        self.backbone = MambaSlim(args)
+        #self.backbone = MambaOrigin(args)
         self.head = _Pointwise1x1(proj_dim, 2, bias=True, use_q=q_head_res, backend=quant_backend, quant_bits=quant_bits)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
