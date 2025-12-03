@@ -172,28 +172,28 @@ These handles provide a concrete checklist for the upcoming experiments while ke
 All in Parity Strategy
 
 | **Data type**     | **Model**     | **first epoch loss** | **finnal loss(e-05)** | **eval mean err(m)** | **test mean err(m)** |
-| :----:            | :----:        | :-------:            | :-------:             | :------:             | :------: |
-| ori(2000)         | PE&DWconv off | 0.056                | 3.96                  | 0.09631              |  0.1879  |
-| delta(2000)       | PE&DWconv off | 0.098                | 4.59                  | 0.1506               |  0.2069  |
-| power(100)        | PE&DWconv off | 0.063                | 3.96                  | 0.1528               |  0.239   |
-| ori + power(2100) | PE&DWconv off | 0.039                | 3.20                  | 0.09225              |  0.161   |
-| ori + power(2100) | ori           | 0.077                | 7.42                  | 0.1128               |  0.1879  |
-| ori + power(2100) | peoff         | 0.0498               | 4.65                  | 0.09603              |  0.1984  |
-| ori + power(2100) | DWconv off    | 0.063                | 5.14                  | 0.1003               |  0.1782  |
-| ori + power(2100) | ori           |                      |                       |                      |          |
-| ori + power(2100) | ori           |                      |                       |                      |          |
+| :----:            | :----:        | :-------: | :-------: | :------: | :------: |
+| ori(2000)         | PE&DWconv off | 0.056     | 3.96      | 0.09631  |  0.1879  |
+| delta(2000)       | PE&DWconv off | 0.098     | 4.59      | 0.1506   |  0.2069  |
+| power(100)        | PE&DWconv off | 0.063     | 6.10      | 0.1528   |  0.239   |
+| ori + power(2100) | PE&DWconv off | 0.039     | 3.20      | 0.09225  |  0.161   |
+| ori + power(2100) | ori           | 0.077     | 7.42      | 0.1128   |  0.1879  |
+| ori + power(2100) | peoff         | 0.0498    | 4.65      | 0.09603  |  0.1984  |
+| ori + power(2100) | DWconv off    | 0.064     | 5.14      | 0.1003   |  0.1782  |
+| ori               | ori           |           |           |          |          |
+| ori               | ori           |           |           |          |          |
 
 **Origin Mamba**
 All in Parity Strategy
 
 | **Data type**     | **Model**     | **first epoch loss** | **finnal loss(e-05)** | **eval mean err(m)** | **test mean err(m)** |
-| :----:            | :----:        | :-------:    | :-------:   | :------: | :------: |
-| ori(2000)         | PE&DWconv off |              |             |          |    |
-| delta(2000)       | PE&DWconv off |              |             |          |    |
-| power(100)        | PE&DWconv off |              |             |          |    |
-| ori + power(2100) | PE&DWconv off |   0.0429     |    3.83     | 0.08701  |    |
-| ori + power(2100) | ori           |   0.0578     |    5.04     | 0.09238  |    |
-| ori + power(2100) | peoff         |              |             |          |    |
-| ori + power(2100) | DWconv off    |   0.0738     |    6.13     | 0.09970  |    |
-| ori + power(2100) | ori           |              |             |          |    |
-| ori + power(2100) | ori           |              |             |          |    |
+| :----:            | :----:        | :-------: | :-------:   | :------: | :------: |
+| ori(2000)         | PE&DWconv off |   0.0578  |    5.04     | 0.09238  |          |
+| delta(2000)       | PE&DWconv off |           |             |          |          |
+| power(100)        | PE&DWconv off |   0.0717  |    7.65     | 0.14316  |          |
+| ori + power(2100) | PE&DWconv off |   0.0429  |    3.83     | 0.08701  |          |
+| ori + power(2100) | ori           |           |             |          |          |
+| ori + power(2100) | peoff         |           |             |          |          |
+| ori + power(2100) | DWconv off    |   0.0738  |    6.13     | 0.09970  |          |
+| ori + power(2100) | ori           |           |             |          |          |
+| ori + power(2100) | ori           |           |             |          |          |
