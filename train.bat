@@ -23,8 +23,8 @@ if "%target%"=="logo" (
   goto run
 )
 
-if "%target%"=="logo2000" ( 
-  set dataform=logo_2000 
+if "%target%"=="logoori" ( 
+  set dataform=logo_ori
   set Din=2000
   goto run
 )
@@ -35,13 +35,26 @@ if "%target%"=="parity" (
   goto run
 )
 
-if "%target%"=="parity2000" ( 
-  set dataform=parity_2000 
+if "%target%"=="parity_ori" ( 
+  set dataform=parity_ori 
   set Din=2000
   goto run
 )
 
-if "%target%"=="logo_delta" ( 
+if "%target%"=="parity_delta" ( 
+  set dataform=parity_delta 
+  set Din=2000
+  goto run
+)
+
+if "%target%"=="parity_power" ( 
+  set dataform=parity_power 
+  set Din=100
+  goto run
+)
+
+
+if "%target%"=="parity_ori_power_delta" ( 
   set dataform=logo_4200 
   set Din=4200
   goto run
@@ -51,6 +64,18 @@ echo Unknown target: %target%
 goto :eof
 
 :run
+echo running training for %dataform%
+python -m refactor.core.train ^
+  --feat_root=./data/features/%dataform% ^
+  --out_dir=ckpt_refactor\parity_2100_PE ^
+  --Din=%Din% --K=16 ^
+  --proj_dim=64 --d_model=128 --n_layer=4 ^
+  --patch_len=8 --stride=4 ^
+  --batch_size=32 --epochs=20 --lr=3e-4 --lr_schedule=cosine ^
+  --workers=4 --prefetch=4 --amp --preload %args%
+goto :eof
+
+:run_bak
 echo running training for %dataform%
 python -m refactor.core.train ^
   --feat_root=./data/features/%dataform% ^

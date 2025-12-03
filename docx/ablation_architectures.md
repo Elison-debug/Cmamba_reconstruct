@@ -42,8 +42,9 @@ flowchart TD
 3. **Positional encoding（optional）**  
    `PE[i, 2j] = sin(i / 10000^{2j/d_model})`, `PE[i, 2j+1] = cos(i / 10000^{2j/d_model})`.  
    `z = z + pe_scale * PE` if `pe_on`, with `PE ∈ R^{L × d_model}` cached as `pe_buf`.
-4. **SlimMambaBlock（per layer ℓ and token t）**  
-   ```
+4. **SlimMambaBlock（per layer ℓ and token t）**
+
+```matlab
    h_t = RMSNorm(x_t)
    [u_t, z_t] = W_in h_t          # 1x1 Conv yields 2*d_inner channels
    if use_dwconv: u_t = DWConv(u_t)
@@ -55,12 +56,13 @@ flowchart TD
    y_t = W_out(s_t ⊙ g_t)
    x_{t+1} = x_t + y_t
    ```
+
    `SelectiveScanIC` precomputes all `λ_t` values via a Conv1d on the channel dimension so every token shares the same update coefficients.
-5. **Aggregation head inside `CMambaSlim`**  
+1. **Aggregation head inside `CMambaSlim`**  
    - `avg`: `y = Conv_pool(mean(x_last, dim=1))`  
    - `max`: `y = Conv_pool(max(x_last, dim=1))`  
    - `flat`: `y = Conv_flat(permute(x_last, (0,2,1)))` with `kernel_size = L`.
-6. **Regressor head（MambaRegressor）**  
+2. **Regressor head（MambaRegressor）**  
    The backbone output reshapes to `(B, proj_dim, 1)` and the final head applies  
    `pred = Conv1x1_head(y).squeeze(-1) ∈ R^{B × 2}`.
 
@@ -117,7 +119,6 @@ flowchart TD
     s12 --> s13[1x1 Conv out_proj]
     s13 --> s14[Residual add]
 ```
-
 **Equations**
 
 - **In-projection and modulation**  
@@ -163,3 +164,20 @@ These handles provide a concrete checklist for the upcoming experiments while ke
 2. `SelectiveScanIC` iterates over the sequence with an explicit Python for-loop instead of the CUDA parallel scan shipped with the official Mamba kernels. This matches the EMA equations above but cannot reproduce the parallel streaming behavior of the original implementation.
 3. The gating branch in `SlimMambaBlock` is purely `SiLU(z_t)` and does not use the sigmoid normalization from the original Mamba block. When `gate_off` is passed through the CLI, the multiplicative path is literally removed.
 4. The Channel-Mamba behavior (scanning along channels) mentioned in older notes is not present in the current training code: `CMambaSlim` maintains the sequence-first order defined by the patch embedding, so experiments that rely on cross-channel recurrence need additional modifications beyond the provided backbone.
+
+## Abolation Log
+
+**Slim Mamba**
+All in Parity Strategy
+
+| **Data type**     | **Model**     | **first epoch loss** | **finnal loss(e-05)** | **eval mean err(m)** | **test mean err(m)** |
+| :----:            | :----:        | :-------:            | :-------:             | :------:             | :------: |
+| ori(2000)         | PE&DWconv off | 0.056                | 3.96                  | 0.09631              |  0.1879  |
+| delta(2000)       | PE&DWconv off | 0.098                | 4.59                  | 0.1506               |  0.2069  |
+| power(100)        | PE&DWconv off | 0.063                | 3.96                  | 0.1528               |  0.239   |
+| ori + power(2100) | PE&DWconv off | 0.039                | 3.20                  | 0.09225              |  0.161   |
+| ori + power(2100) | ori           | 0.077                | 7.42                  | 0.1128               |  0.1879  |
+| ori + power(2100) | peoff         | 0.0498               | 4.65                  | 0.09603              |  0.1984  |
+| ori + power(2100) | DWconv off    | 0.063                | 5.14                  | 0.1003               |  0.1782  |
+| ori + power(2100) | ori           |                      |                       |                      |          |
+| ori + power(2100) | ori           |                      |                       |                      |          |

@@ -1,5 +1,7 @@
 import os
 import argparse
+import json
+from datetime import datetime
 from pathlib import Path
 import numpy as np
 import torch
@@ -18,6 +20,31 @@ def make_truncated_cmap(base='turbo', lo=0.10, hi=0.95, n=256):
     return LinearSegmentedColormap.from_list(
         f'{base}_trunc_{lo}_{hi}', base_cmap(np.linspace(lo, hi, n))
     )
+
+
+class EvalLogger:
+    def __init__(self, path: str | Path):
+        self.path = Path(path)
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        self._fp = self.path.open("a", encoding="utf-8")
+        self.log(f"===== Eval start {datetime.now().isoformat()} =====", also_print=False)
+
+    def log(self, message, *, also_print: bool = True):
+        if isinstance(message, str):
+            text = message
+        else:
+            try:
+                text = json.dumps(message, ensure_ascii=False, default=str)
+            except Exception:
+                text = str(message)
+        if also_print:
+            print(text)
+        self._fp.write(text + "\n")
+        self._fp.flush()
+
+    def close(self):
+        self.log(f"===== Eval end {datetime.now().isoformat()} =====", also_print=False)
+        self._fp.close()
 
 def main():
     p = argparse.ArgumentParser()
@@ -67,6 +94,15 @@ def main():
     p.add_argument("--dump_quant_stats", action="store_true", help="print per‑layer a_scale/w_scale and saturation ratios for a small sample")
     args = p.parse_args()
 
+    log_dir = Path(args.out_dir)
+    log_dir.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    log_file = log_dir / f"eval_{Path(args.ckpt).stem}_{timestamp}.log"
+    logger = EvalLogger(log_file)
+    logger.log({"log_file": str(log_file)})
+    logger.log({"args": vars(args)})
+    logger.log({"ckpt_path": os.path.abspath(args.ckpt)})
+
     set_seed(42)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -83,11 +119,13 @@ def main():
                 for k in list(dims.keys()):
                     if k in ck_cfg:
                         dims[k] = int(ck_cfg[k]) if isinstance(ck_cfg[k], (int,)) else ck_cfg[k] # type: ignore
-                print("eval_dims_from_ckpt: True" ,dims)
+                logger.log({"eval_dims_from_ckpt": {"status": True, "dims": dims}})
             else:
-                print("eval_dims_from_ckpt: False")
+                logger.log("eval_dims_from_ckpt: False")
         except Exception as e:
-            print({"ckpt_load": f"warn: {e}"})
+            logger.log({"ckpt_load": f"warn: {e}"})
+    else:
+        logger.log({"ckpt_found": False})
 
     # The ckpt must exist; otherwise, the model dimension cannot be determined.
     if not all(v is not None for v in dims.values()):
@@ -99,8 +137,10 @@ def main():
             n_layer=int(dims["n_layer"]), patch_len=int(dims["patch_len"]), stride=int(dims["stride"]),
             batch_size=args.batch_size, feat_root=args.feat_root, mmap=not bool(args.mmap_off),
         )
+        cfg_dump = {k: (str(v) if isinstance(v, Path) else v) for k, v in vars(cfg).items()}
+        logger.log({"train_config": cfg_dump})
     except Exception as e:
-            print({"cfg_load": f"warn: {e}"})
+            logger.log({"cfg_load": f"warn: {e}"})
     # 构建数据集（仅从 feat_root 读取 json/npy）
     from refactor.datasets.frames_lazy import FramesLazyDataset
     ds = FramesLazyDataset(root=args.feat_root, seq_len=cfg.K, predict="current", mmap=cfg.mmap, target=args.target, in_memory=bool(args.preload))
@@ -113,17 +153,22 @@ def main():
         persistent_workers=(int(args.workers) > 0),
         prefetch_factor=(args.prefetch if int(args.workers) > 0 else None),
     )
-    print(
-        "eval_samples: " + str(len(ds)) +
-        " K: " + str(cfg.K) +
-        " Din: " + str(cfg.Din) +
-        " device: " + str(device)
-    )
+    dataset_summary = {
+        "samples": int(len(ds)),
+        "seq_len": int(cfg.K),
+        "Din": int(cfg.Din),
+        "device": str(device),
+        "target": str(args.target),
+        "feat_root": str(args.feat_root),
+        "workers": int(args.workers),
+    }
+    logger.log({"dataset_summary": dataset_summary})
 
     # 读取 ckpt 中的 arch（用于 baseline 与保存）
     arch = {}
     if ckpt_obj is not None and isinstance(ckpt_obj, dict):
         arch = ckpt_obj.get("arch", {}) or {}
+    logger.log({"ckpt_arch": arch})
 
     # 解析量化配置：use_cli=False → 完全按 ckpt；use_cli=True → CLI 覆写（未提供的回退 ckpt）
     def resolve_quant_cfg(use_cli: bool) -> dict:
@@ -159,6 +204,12 @@ def main():
 
     # 单次评估流程（可选校准/保存）
     def run_once(quant_cfg: dict, out_dir_sub: str, calib_batches: int | None, save_ckpt_path: str | None):
+        logger.log({
+            "run_stage": out_dir_sub,
+            "quant_cfg": quant_cfg,
+            "calib_batches": calib_batches,
+            "save_ckpt_path": save_ckpt_path,
+        })
         # 设置后端
         os.environ["QUANT_BACKEND"] = str(quant_cfg["quant_backend"])
         from .mamba_regressor import MambaRegressor
@@ -168,7 +219,7 @@ def main():
         gate_off = bool(arch.get("gate_off", args.gate_off))
         agg_pool = str(arch.get("agg_pool", args.agg_pool))
         use_dwconv = bool(arch.get("use_dwconv", args.use_dwconv))
-        print({"quant_cfg": quant_cfg})
+        logger.log({"quant_cfg_run": {"stage": out_dir_sub, **quant_cfg}})
         # 构建模型
         model = MambaRegressor(
             Din=cfg.Din,
@@ -197,7 +248,7 @@ def main():
                 return "QConv1x1INT" if hasattr(mod, "qconv") else "Conv1d"
             except Exception:
                 return "unknown"
-        print({
+        logger.log({
             "model_pointwise": {
                 "proj": _pointwise_kind(getattr(model, "proj", None)),
                 "head": _pointwise_kind(getattr(model, "head", None)),
@@ -206,6 +257,23 @@ def main():
             "pe_off": bool(pe_off),
             "agg_pool": str(agg_pool),
         })
+        logger.log({
+            "model_summary": {
+                "stage": out_dir_sub,
+                "Din": int(cfg.Din),
+                "K": int(cfg.K),
+                "proj_dim": int(cfg.proj_dim),
+                "d_model": int(cfg.d_model),
+                "n_layer": int(cfg.n_layer),
+                "patch_len": int(cfg.patch_len),
+                "stride": int(cfg.stride),
+                "pe_off": bool(pe_off),
+                "pe_scale": float(pe_scale),
+                "gate_off": bool(gate_off),
+                "agg_pool": str(agg_pool),
+                "use_dwconv": bool(use_dwconv),
+            }
+        })
         # 加载权重
         if ckpt_obj is not None:
             sd = ckpt_obj.get("state_dict", ckpt_obj)
@@ -213,87 +281,92 @@ def main():
             try:
                 be_kind = str(quant_cfg.get("quant_backend", "python")).lower()
 
-                def _ensure_scales_in_sd(prefix: str, ch_out: int, ch_in: int | None = None) -> int:
-                    moved = 0
-                    # Seed scales according to backend
+                def _ensure_scales_in_sd(prefix: str, ch_out: int, ch_in: int | None = None) -> list[str]:
+                    created: list[str] = []
                     if be_kind == "cpp":
                         if f"{prefix}.a_scale" not in sd:
-                            # cpp path: allow per‑tensor value (expanded later) or per‑channel; seed scalar 1.0
                             sd[f"{prefix}.a_scale"] = torch.ones(1, dtype=torch.float32)
-                            moved += 1
+                            created.append(f"{prefix}.a_scale")
                         if f"{prefix}.a_zp" not in sd:
                             sd[f"{prefix}.a_zp"] = torch.zeros(1, dtype=torch.float32)
-                            moved += 1
+                            created.append(f"{prefix}.a_zp")
                         if f"{prefix}.w_scale" not in sd:
                             sd[f"{prefix}.w_scale"] = torch.ones(ch_out, dtype=torch.float32)
-                            moved += 1
+                            created.append(f"{prefix}.w_scale")
                     else:
-                        # python LSQ expects qa.scale and qw.scale
                         if f"{prefix}.qa.scale" not in sd and (ch_in is not None):
                             sd[f"{prefix}.qa.scale"] = torch.ones(int(ch_in), dtype=torch.float32)
-                            moved += 1
+                            created.append(f"{prefix}.qa.scale")
                         if f"{prefix}.qw.scale" not in sd:
                             sd[f"{prefix}.qw.scale"] = torch.ones(ch_out, dtype=torch.float32)
-                            moved += 1
-                    return moved
+                            created.append(f"{prefix}.qw.scale")
+                    return created
 
-                def _migrate_pw(name: str, mod_root) -> int:
-                    moved = 0
+                def _migrate_pw(name: str, mod_root) -> list[dict[str, object]]:
+                    events: list[dict[str, object]] = []
                     if mod_root is None:
-                        return moved
+                        return events
                     qc = getattr(mod_root, "qconv", None)
                     if qc is None:
-                        return moved
+                        return events
                     w_old, b_old = f"{name}.conv.weight", f"{name}.conv.bias"
-                    # Python backend path: qconv.conv.*
+                    run_label = {"module": name, "backend": be_kind}
                     if hasattr(qc, "conv"):
                         w_new, b_new = f"{name}.qconv.conv.weight", f"{name}.qconv.conv.bias"
                         if w_old in sd:
                             sd[w_new] = sd[w_old]
-                            moved += 1
+                            events.append({**run_label, "action": "move_param", "source": w_old, "target": w_new})
                         if b_old in sd and getattr(qc.conv, "bias", None) is not None:
                             sd[b_new] = sd[b_old]
-                            moved += 1
+                            events.append({**run_label, "action": "move_param", "source": b_old, "target": b_new})
                         try:
                             co = int(qc.conv.out_channels); ci = int(qc.conv.in_channels)
-                            moved += _ensure_scales_in_sd(f"{name}.qconv", co, ci)
+                            created = _ensure_scales_in_sd(f"{name}.qconv", co, ci)
+                            for key in created:
+                                events.append({**run_label, "action": "seed_scale", "param": key})
                         except Exception:
                             pass
-                    # C++ backend path: qconv.impl.conv.*
                     elif hasattr(qc, "impl") and hasattr(qc.impl, "conv"):
                         w_new, b_new = f"{name}.qconv.impl.conv.weight", f"{name}.qconv.impl.conv.bias"
                         if w_old in sd:
                             sd[w_new] = sd[w_old]
-                            moved += 1
+                            events.append({**run_label, "action": "move_param", "source": w_old, "target": w_new})
                         if b_old in sd and getattr(qc.impl.conv, "bias", None) is not None:
                             sd[b_new] = sd[b_old]
-                            moved += 1
+                            events.append({**run_label, "action": "move_param", "source": b_old, "target": b_new})
                         try:
                             co = int(qc.impl.conv.out_channels); ci = int(qc.impl.conv.in_channels)
-                            # For cpp backend, parameters live under qconv.impl.*
-                            moved += _ensure_scales_in_sd(f"{name}.qconv.impl" if be_kind=="cpp" else f"{name}.qconv", co, ci)
+                            prefix = f"{name}.qconv.impl" if be_kind == "cpp" else f"{name}.qconv"
+                            created = _ensure_scales_in_sd(prefix, co, ci)
+                            for key in created:
+                                events.append({**run_label, "action": "seed_scale", "param": key})
                         except Exception:
                             pass
-                    return moved
+                    return events
 
-                moved_total = 0
-                moved_total += _migrate_pw("proj", getattr(model, "proj", None))
-                moved_total += _migrate_pw("head", getattr(model, "head", None))
-                # backbone stem/heads
+                ckpt_layers = [k for k in sd.keys() if isinstance(k, str)]
+                if ckpt_layers:
+                    logger.log({"ckpt_state_layers": ckpt_layers})
+                migration_events: list[dict[str, object]] = []
+                migration_events.extend(_migrate_pw("proj", getattr(model, "proj", None)))
+                migration_events.extend(_migrate_pw("head", getattr(model, "head", None)))
                 if hasattr(model, "backbone"):
-                    moved_total += _migrate_pw("backbone.patch_embedding", getattr(model.backbone, "patch_embedding", None))
-                    moved_total += _migrate_pw("backbone.output_layer_pool", getattr(model.backbone, "output_layer_pool", None))
+                    migration_events.extend(_migrate_pw("backbone.patch_embedding", getattr(model.backbone, "patch_embedding", None)))
+                    migration_events.extend(_migrate_pw("backbone.output_layer_pool", getattr(model.backbone, "output_layer_pool", None)))
                 if hasattr(model, "backbone") and hasattr(model.backbone, "blocks"):
                     for i, blk in enumerate(model.backbone.blocks):
-                        moved_total += _migrate_pw(f"backbone.blocks.{i}.in_proj", getattr(blk, "in_proj", None))
-                        moved_total += _migrate_pw(f"backbone.blocks.{i}.out_proj", getattr(blk, "out_proj", None))
-                if moved_total > 0:
-                    print({"ckpt_migrate_conv_to_qconv": int(moved_total)})
+                        migration_events.extend(_migrate_pw(f"backbone.blocks.{i}.in_proj", getattr(blk, "in_proj", None)))
+                        migration_events.extend(_migrate_pw(f"backbone.blocks.{i}.out_proj", getattr(blk, "out_proj", None)))
+                if migration_events:
+                    logger.log({"ckpt_migrate_conv_to_qconv": {"stage": out_dir_sub, "count": len(migration_events), "detail": migration_events}})
             except Exception as e:
-                print({"ckpt_migrate_warn": str(e)})
+                logger.log({"ckpt_migrate_warn": str(e)})
             # Shape-adapt checkpoint scales: expand scalar -> vector to match module params
             try:
                 msd = model.state_dict()
+                model_layers = [k for k in msd.keys() if isinstance(k, str)]
+                if model_layers:
+                    logger.log({"model_state_layers": model_layers})
                 for k in list(sd.keys()):
                     if k in msd and torch.is_tensor(sd[k]) and torch.is_tensor(msd[k]):
                         if sd[k].numel() == 1 and msd[k].numel() > 1:
@@ -304,8 +377,13 @@ def main():
             try:
                 miss = list(getattr(r, "missing_keys", []))
                 unexp = list(getattr(r, "unexpected_keys", []))
-                print({"ckpt_load": {"missing": len(miss), "unexpected": len(unexp),
-                                       "missing_samp": miss[:5], "unexpected_samp": unexp[:5]}})
+                logger.log({"ckpt_load": {
+                    "stage": out_dir_sub,
+                    "missing": len(miss),
+                    "unexpected": len(unexp),
+                    "missing_samp": miss[:5],
+                    "unexpected_samp": unexp[:5],
+                }})
             except Exception:
                 pass
         # Normalize quant_mode alias from older ckpts (e.g., 'fixed' -> 'fixed88')
@@ -514,7 +592,9 @@ def main():
         loss_fn = HuberEPE(delta=1.0)
         show = (args.progress or (not args.no_progress))
         ev_loss, stats = evaluate(model, dl, device, loss_fn, show_progress=show)  # type: ignore
-        print({"eval_loss": ev_loss, **stats})
+        eval_entry = {"stage": out_dir_sub, "eval_loss": ev_loss}
+        eval_entry.update(stats)
+        logger.log({"eval_metrics": eval_entry})
         # 可选：量化统计（快速诊断常量输出）
         if bool(args.dump_quant_stats):
             try:
@@ -571,9 +651,9 @@ def main():
                         "w_scale_len": (int(w_s.numel()) if w_s is not None else 0),
                         "sat_ratio": sat_ratio,
                     })
-                print({"quant_stats": qstats[:6]})
+                logger.log({"quant_stats": {"stage": out_dir_sub, "sample": qstats[:6]}})
             except Exception as e:
-                print({"quant_stats_error": str(e)})
+                logger.log({"quant_stats_error": {"stage": out_dir_sub, "error": str(e)}})
         # 输出
         out_dir = os.path.join(args.out_dir, out_dir_sub)
         Path(out_dir).mkdir(parents=True, exist_ok=True)
@@ -591,29 +671,38 @@ def main():
             err = np.sqrt(np.sum((y_pred - y_true) ** 2, axis=1))
             mean = float(err.mean()); median = float(np.median(err))
             p80 = float(np.percentile(err, 80)); p90 = float(np.percentile(err, 90))
-            np.savez(os.path.join(out_dir, 'val_preds.npz'), y_true=y_true, y_pred=y_pred, err=err,
+            err_stats = {"mean": mean, "median": median, "p80": p80, "p90": p90, "count": int(err.shape[0])}
+            logger.log({"error_metrics": {"stage": out_dir_sub, **err_stats}})
+            preds_path = os.path.join(out_dir, 'val_preds.npz')
+            np.savez(preds_path, y_true=y_true, y_pred=y_pred, err=err,
                      mean=np.float32(mean), median=np.float32(median), p80=np.float32(p80), p90=np.float32(p90))
+            logger.log({"predictions_saved": {"stage": out_dir_sub, "path": preds_path}})
             if args.save_csv:
                 import csv
-                with open(os.path.join(out_dir, 'pred_vs_true.csv'), 'w', newline='') as f:
+                csv_path = os.path.join(out_dir, 'pred_vs_true.csv')
+                with open(csv_path, 'w', newline='') as f:
                     w = csv.writer(f); w.writerow(['y_true_x','y_true_y','y_pred_x','y_pred_y','err_m'])
                     for (yt, yp, e_) in zip(y_true, y_pred, err):
                         w.writerow([yt[0], yt[1], yp[0], yp[1], e_])
+                logger.log({"csv_saved": {"stage": out_dir_sub, "path": csv_path}})
             e_sorted = np.sort(err); ycdf = np.arange(1, len(e_sorted) + 1) / len(e_sorted)
             plt.figure(figsize=(5,4), dpi=160)
             plt.plot(e_sorted, ycdf); plt.xlim(0, 0.5); plt.xticks(np.arange(0, 0.51, 0.05))
             plt.grid(True, linestyle='--', linewidth=0.5); plt.xlabel('Position error (m)'); plt.ylabel('CDF'); plt.title('Error CDF (0-0.5 m)')
-            plt.tight_layout(); plt.savefig(os.path.join(out_dir, 'cdf_zoom.png')); plt.close()
+            cdf_zoom_path = os.path.join(out_dir, 'cdf_zoom.png')
+            plt.tight_layout(); plt.savefig(cdf_zoom_path); plt.close()
             plt.figure(figsize=(5,4), dpi=160)
             plt.plot(e_sorted, ycdf)
             xticks = list(np.arange(0, 0.41, 0.10)) + list(np.arange(0, 2.1, 0.2))
             plt.xticks(xticks); plt.grid(True, linestyle='--', linewidth=0.5)
             plt.xlabel('Position error (m)'); plt.ylabel('CDF'); plt.title('Error CDF')
-            plt.tight_layout(); plt.savefig(os.path.join(out_dir, 'cdf.png')); plt.close()
+            cdf_path = os.path.join(out_dir, 'cdf.png')
+            plt.tight_layout(); plt.savefig(cdf_path); plt.close()
             plt.figure(figsize=(5,4), dpi=160)
             plt.hist(err, bins=50); plt.grid(True, linestyle='--', linewidth=0.5)
             plt.xlabel('Position error (m)'); plt.ylabel('Count'); plt.title('Error histogram')
-            plt.tight_layout(); plt.savefig(os.path.join(out_dir, 'err_hist.png')); plt.close()
+            err_hist_path = os.path.join(out_dir, 'err_hist.png')
+            plt.tight_layout(); plt.savefig(err_hist_path); plt.close()
             
             # True vs Predicted (SVG) — 恢复 pred_vs_true.svg 绘制
             plt.figure(figsize=(7.5, 6.5))
@@ -643,8 +732,11 @@ def main():
             cb = plt.colorbar(sc); cb.set_label('Error (m)')
             plt.xlabel('X'); plt.ylabel('Y'); plt.grid(True, linestyle='--', linewidth=0.2)
             plt.axis('equal'); plt.legend()
-            plt.tight_layout(); plt.savefig(os.path.join(out_dir, 'pred_vs_true.svg'), bbox_inches='tight', pad_inches=0.01, dpi=300)
+            pred_svg_path = os.path.join(out_dir, 'pred_vs_true.svg')
+            plt.tight_layout(); plt.savefig(pred_svg_path, bbox_inches='tight', pad_inches=0.01, dpi=300)
             plt.close()
+            figure_paths = [cdf_zoom_path, cdf_path, err_hist_path, pred_svg_path]
+            logger.log({"figures_saved": {"stage": out_dir_sub, "files": figure_paths}})
             
         # 保存校准后 ckpt（仅在覆写量化跑时）
         if (save_ckpt_path is not None) and (not bool(args.dont_save_calib_ckpt)):
@@ -666,9 +758,9 @@ def main():
                     "agg_pool": str(agg_pool),
                 })
                 torch.save({"state_dict": model.state_dict(), "cfg": vars(cfg), "arch": meta_arch}, save_ckpt_path)
-                print({"save_calib_ckpt": os.path.abspath(save_ckpt_path)})
+                logger.log({"save_calib_ckpt": os.path.abspath(save_ckpt_path)})
             except Exception as e:
-                print({"save_calib_ckpt": f"failed: {e}"})
+                logger.log({"save_calib_ckpt": f"failed: {e}"})
 
     # 先跑 baseline（严格按 ckpt.arch）
     baseline_cfg = resolve_quant_cfg(use_cli=False)
@@ -682,10 +774,13 @@ def main():
         (args.q_block_linear is not None) or
         (args.q_backbone_linear is not None)
     )
+    logger.log({"eval_plan": {"baseline": True, "quant_override": bool(any_override)}})
     if any_override:
         override_cfg = resolve_quant_cfg(use_cli=True)
         run_once(override_cfg, out_dir_sub="quant", calib_batches=int(args.quant_calib_batches), save_ckpt_path=args.save_calib_ckpt)
 
+    logger.log("Eval pipeline completed.")
+    logger.close()
     return
 
 if __name__ == "__main__":
