@@ -42,6 +42,11 @@ if "%target%"=="parity" (
   goto run
 )
 
+if "%target%"=="parity2000" ( 
+  set dataform=parity_2000
+  goto run
+)
+
 if "%target%"=="logo_delta" ( 
   set dataform=logo_4200
   goto run

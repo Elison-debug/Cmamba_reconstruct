@@ -139,6 +139,7 @@ def cir_features_hw(
     *,
     phase_center: bool = True,
     append_delta: bool = True,
+    append_power: bool = True,
 ) -> np.ndarray:
     """Hardware-friendly CIR feature extraction with optional phase centering
     and delta channels. Output is strictly real-valued and contiguous.
@@ -147,7 +148,7 @@ def cir_features_hw(
       1) IFFT across frequency to obtain CIR taps, take first Ltap.
       2) Per-antenna power normalization.
       3) Optional phase centering: subtract mean phase per (tap, antenna).
-      4) Concatenate [real, imag] and log-power; optionally first-order time delta.
+      4) Concatenate [real, imag] and optional log-power; optionally first-order time delta.
     """
     D = ifft(Y, axis=1)[:, :Ltap, :]                        # (T, Ltap, A)
     p = np.sqrt(np.mean(np.abs(D) ** 2, axis=(0, 1), keepdims=True)) + 1e-8
@@ -160,8 +161,11 @@ def cir_features_hw(
     T, L, A = Dn.shape
     feat_cir = np.stack([Dn.real, Dn.imag], axis=2)         # (T, L, 2, A)
     feat_cir = feat_cir.transpose(0, 1, 3, 2).reshape(T, L * A * 2)
-    power = np.log1p(np.mean(np.abs(D) ** 2, axis=1))       # (T, A)
-    feats = np.concatenate([feat_cir.astype(np.float32), power.astype(np.float32)], axis=1)
+    feats_parts = [feat_cir.astype(np.float32)]
+    if append_power:
+        power = np.log1p(np.mean(np.abs(D) ** 2, axis=1))   # (T, A)
+        feats_parts.append(power.astype(np.float32))
+    feats = np.concatenate(feats_parts, axis=1)
 
     if append_delta:
         d = np.zeros_like(feats)
@@ -234,6 +238,9 @@ def main():
     ap.add_argument("--taps", type=int, default=10, help="number of CIR taps to keep")
     ap.add_argument("--phase_center", action="store_true", help="enable phase centering")
     ap.add_argument("--append_delta", action="store_true", help="append first-order delta features")
+    ap.add_argument("--append_power", dest="append_power", action="store_true", help="append per-antenna log-power (default: on)")
+    ap.add_argument("--no_power", dest="append_power", action="store_false", help="omit per-antenna log-power to reduce Din by antenna count")
+    ap.set_defaults(append_power=True)
     ap.add_argument("--dtype", type=str, default="float16", choices=["float16", "float32"], help="feature dtype on disk")
     ap.add_argument("--pos_units", type=str, default="mm", choices=["mm", "m"], help="position units in CSV")
     ap.add_argument("--std_floor", type=float, default=1e-5, help="minimum std for normalization")
@@ -312,7 +319,11 @@ def main():
         L = min(T, ts_gt.shape[0])
 
         feats_full = cir_features_hw(
-            Y, args.taps, phase_center=bool(args.phase_center), append_delta=bool(args.append_delta)
+            Y,
+            args.taps,
+            phase_center=bool(args.phase_center),
+            append_delta=bool(args.append_delta),
+            append_power=bool(args.append_power),
         )
         Din = int(feats_full.shape[1])
         if Din_ref is None:
