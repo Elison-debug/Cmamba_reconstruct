@@ -70,8 +70,18 @@ module tb_nonlinear_tile_shared;
         q_to_float = qval / 2.0**(FRAC_BITS);
     endfunction
 
+    // function logic signed [DATA_WIDTH-1:0] float_to_q(input real fval);
+    //     float_to_q = $rtoi(fval * 2.0**(FRAC_BITS));                   //这里有问题！
+    // endfunction
     function logic signed [DATA_WIDTH-1:0] float_to_q(input real fval);
-        float_to_q = $rtoi(fval * 2.0**(FRAC_BITS));                   //这里有问题！
+        real scaled;
+        scaled = fval * (1 << FRAC_BITS);
+
+        // trunc toward zero
+        if (scaled >= 0)
+            float_to_q = $floor(scaled);
+        else
+            float_to_q = $ceil(scaled);
     endfunction
 
     // ============================================================

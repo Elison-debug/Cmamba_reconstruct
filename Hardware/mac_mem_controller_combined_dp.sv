@@ -5,13 +5,14 @@
 //   - Includes synchronized WBUF + XT pipelines
 //   - Fully AXI-Stream compatible
 //---------------------------------------------------------------
-module mac_mem_controller_combined #(
+module mac_mem_controller_combined_dp #(
     parameter int TILE_SIZE  = 4,
     parameter int DATA_WIDTH = 16,
     parameter int ACC_WIDTH  = 32,
     parameter int FRAC_BITS  = 8,
-    parameter int N_BANK     = 12,
-    parameter int ADDR_W     = 10,   // WBUF address width
+    parameter int N_BANK     = 6,
+    parameter int ADDR_W     = 4,   // WBUF address width
+    parameter int DEPTH      = 11,
     parameter int DATA_W     = 256,
     parameter int XT_ADDR_W  = 6     // XT ROM address width (e.g., depth 64)
 )(
@@ -38,7 +39,7 @@ module mac_mem_controller_combined #(
 
     logic [15:0] tile_cnt;
     (* keep = "true" *) logic [15:0] tile_cnt_for_xt; // duplicate register to localize XT fanout
-    logic [15:0] tile_cnt_next;
+    logic run_pipeline_d; // registered version of RUN_PIPELINE to break long paths
     logic valid_in, valid_out;
     // Track previous valid_out and last handshake to align WAIT_DONE exit
     logic valid_out_q;
@@ -51,43 +52,76 @@ module mac_mem_controller_combined #(
     // Drain cycles after reaching tile_cnt==63 to capture last WBUF returns
     logic [1:0] drain_cnt;
 
-    // 预先计算下一拍的 tile 计数，供多个寄存器复用
-    always_comb begin
-        tile_cnt_next = tile_cnt;
-        if (state == RUN_PIPELINE) begin
-            if (tile_cnt != 16'd63)
-                tile_cnt_next = tile_cnt + 1'b1;
-        end else if (state == IDLE) begin
-            tile_cnt_next = 16'd0;
-        end
-    end
+    // ==========================================================
+    // 1️⃣ WBUF pipeline stage  (UPDATED & FIXED)
+    // ==========================================================
 
-    // ==========================================================
-    // 1️⃣ WBUF pipeline stage
-    // ==========================================================
+    // bank_sel, addr_sel, en_sel, port_sel
     logic [3:0][$clog2(N_BANK)-1:0] bank_sel, bank_sel_reg;
     logic [3:0][ADDR_W-1:0]         addr_sel, addr_sel_reg;
     logic [3:0]                     en_sel, en_sel_reg;
+    logic [3:0]                     port_sel, port_sel_reg;
     logic [3:0][DATA_W-1:0]         w_data, w_data_reg;
+    logic [N_BANK-1:0] bank_hit_mask_comb;
+    logic [N_BANK-1:0] bank_hit_mask_comb_next;
 
-    // --- 控制信号生成 ---
-    // 渐进式激活：第1/2/3/4拍分别使能1/2/3/4个bank通道
-    // 地址采用每个bank独立的访问计数，而非全局tile_cnt
+    logic [1:0] phase;
+    assign phase = tile_cnt % 3;
+    
+    // --- NEW: bank mapping (3-cycle pattern) ---
     always_comb begin
-        for (int i = 0; i < 4; i++) begin
-            // Start order at {0,3,6,9} when tile_cnt==0
-            bank_sel[i] = (tile_cnt[5:0] + $unsigned(3*i)) % N_BANK;
-            addr_sel[i] = addr_bank_cnt[ bank_sel[i] ];
-        end
+        logic [2:0] bank_x, bank_y;
+
+        case (phase)
+            0: begin bank_x = 0; bank_y = 3; end
+            1: begin bank_x = 1; bank_y = 4; end
+            default: begin bank_x = 2; bank_y = 5; end
+        endcase
+
+        bank_sel[0] = bank_x;
+        bank_sel[1] = bank_y;
+        bank_sel[2] = bank_x;
+        bank_sel[3] = bank_y;
+
+        addr_sel[0] = addr_bank_cnt[bank_sel[0]];
+        addr_sel[1] = addr_bank_cnt[bank_sel[1]];
+        addr_sel[2] = addr_bank_cnt[bank_sel[2]];
+        addr_sel[3] = addr_bank_cnt[bank_sel[3]];
+
+        port_sel[0] = 1'b0;
+        port_sel[1] = 1'b0;
+        port_sel[2] = 1'b1;
+        port_sel[3] = 1'b1;
+
+        // gradual warm-up
         en_sel[0] = (state == RUN_PIPELINE);
-        en_sel[1] = (state == RUN_PIPELINE) && (tile_cnt >= 16'd1);
-        en_sel[2] = (state == RUN_PIPELINE) && (tile_cnt >= 16'd2);
-        en_sel[3] = (state == RUN_PIPELINE) && (tile_cnt >= 16'd3);
+        en_sel[1] = (state == RUN_PIPELINE && tile_cnt >= 1);
+        en_sel[2] = (state == RUN_PIPELINE && tile_cnt >= 2);
+        en_sel[3] = (state == RUN_PIPELINE && tile_cnt >= 3);
     end
 
-    // --- WBUF 实例 ---
-    multi_bank_wbuf #(
+    // mark banks touched in the current cycle (use registered selectors that actually drive WBUF reads)
+    always_comb begin
+        bank_hit_mask_comb_next = '0;
+        if (state == RUN_PIPELINE && tile_cnt != 16'd63) begin
+            for (int j = 0; j < 4; j++) begin
+                if (en_sel[j])
+                    bank_hit_mask_comb_next[bank_sel[j]] = 1'b1;
+            end
+        end
+    end
+
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n)
+            bank_hit_mask_comb <= '0;
+        else
+            bank_hit_mask_comb <= bank_hit_mask_comb_next;
+    end
+
+    // --- WBUF instance ---
+    multi_bank_wbuf_dp #(
         .N_BANK (N_BANK),
+        .DEPTH  (DEPTH),
         .ADDR_W (ADDR_W),
         .DATA_W (DATA_W)
     ) u_wbuf (
@@ -96,34 +130,53 @@ module mac_mem_controller_combined #(
         .bank_sel(bank_sel_reg),
         .addr_sel(addr_sel_reg),
         .en_sel(en_sel_reg),
+        .port_sel(port_sel_reg),
         .dout_sel(w_data)
     );
 
-    // --- 🔧 Pipeline寄存器：WBUF信号打一拍 ---
+    // ==========================================================
+    // FIXED PART: Correct per-bank address increment logic
+    // ==========================================================
+
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             bank_sel_reg <= '0;
             addr_sel_reg <= '0;
             en_sel_reg   <= '0;
+            port_sel_reg <= '0;
             w_data_reg   <= '0;
-            for (int k = 0; k < N_BANK; k++) addr_bank_cnt[k] <= '0;
+
+            for (int k = 0; k < N_BANK; k++)
+                addr_bank_cnt[k] <= '0;
+
         end else if (state == RUN_PIPELINE) begin
+
+            // pipeline registers
             bank_sel_reg <= bank_sel;
             addr_sel_reg <= addr_sel;
             en_sel_reg   <= en_sel;
+            port_sel_reg <= port_sel;
             w_data_reg   <= w_data;
-            // 对被访问的bank进行地址自增（每个bank单独计数）
-            for (int j = 0; j < 4; j++) begin
-                if (en_sel[j] && (tile_cnt != 16'd63)) begin
-                    addr_bank_cnt[ bank_sel[j] ] <= addr_bank_cnt[ bank_sel[j] ] + 1'b1;
+
+            // ---------------------------------------------
+            // FIX: count only ONCE per bank per cycle
+            // ---------------------------------------------
+
+            // increment each bank once only
+            for (int b = 0; b < N_BANK; b++) begin
+                if (bank_hit_mask_comb[b]) begin
+                    if (addr_bank_cnt[b] >= DEPTH-1)
+                        addr_bank_cnt[b] <= '0;
+                    else
+                        addr_bank_cnt[b] <= addr_bank_cnt[b] + 1;
                 end
             end
         end else if (drain_cnt != 0) begin
             // Drain阶段：保持 bank/addr/en 不变，仅采样最后返回的数据
             w_data_reg <= w_data;
         end else if (state == IDLE) begin
-            // 新tile开始时清零各bank地址计数
-            for (int k = 0; k < N_BANK; k++) addr_bank_cnt[k] <= '0;
+            for (int k = 0; k < N_BANK; k++)
+                addr_bank_cnt[k] <= '0;
         end
     end
 
@@ -255,8 +308,7 @@ module mac_mem_controller_combined #(
             B1_mat_reg <= '{default:'0};
             B2_mat_reg <= '{default:'0};
             B3_mat_reg <= '{default:'0};
-        //end else if (state == RUN_PIPELINE) begin
-        end else begin
+        end else if (state == RUN_PIPELINE) begin
             B0_mat_reg <= B0_mat;
             B1_mat_reg <= B1_mat;
             B2_mat_reg <= B2_mat;
@@ -355,14 +407,22 @@ module mac_mem_controller_combined #(
             state <= IDLE;
             tile_cnt <= 0;
             tile_cnt_for_xt <= 0;
-            valid_out_q      <= 1'b0;
-
+            valid_out_q <= 1'b0;
+            run_pipeline_d <= 1'b0;
         end else begin
             state <= next_state;
-            // 记录 valid_out 与上一拍握手，用于在结束时刻安全退出
-            valid_out_q      <= valid_out;
-            tile_cnt         <= tile_cnt_next;
-            tile_cnt_for_xt  <= tile_cnt_next;
+            valid_out_q <= valid_out;
+            run_pipeline_d <= (state == RUN_PIPELINE); // register state, cut path
+            if (run_pipeline_d && tile_cnt != 16'd63) begin
+                tile_cnt <= tile_cnt + 1;
+                tile_cnt_for_xt <= tile_cnt + 1;
+            end else if (state == IDLE) begin
+                tile_cnt <= 16'd0;
+                tile_cnt_for_xt <= 16'd0;
+            end else begin
+                tile_cnt <= tile_cnt;
+                tile_cnt_for_xt <= tile_cnt;
+            end
         end
     end
 

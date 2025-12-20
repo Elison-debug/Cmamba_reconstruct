@@ -17,28 +17,45 @@ _Memory Access Pattern & Bank Mapping Overview_
 
 ---
 
-## 🧮 Weight Input Column Scheduling (Revised)
+ ## 🧮 Weight Input Column Scheduling (Revised)
 
-| **Cycle Range** | **Array1 Columns** | **Array2 Columns** | **Array3 Columns** | **Array4 Columns** | **Description** |
-|:----------------|:------------------|:------------------|:------------------|:------------------|:----------------|
-| 1               | col0–3            | -                 | -                 | -                 | Array1 preloads the first 4×4 weight block. |
-| 2               | col16–19          | col4–7            | -                 | -                 | Array2 joins with its corresponding weight block. |
-| 3               | col32–35          | col20–23          | col8–11           | -                 | Array3 starts loading; pipeline warming up. |
-| 4               | col48–51          | col36–39          | col24–27          | col12–15          | All arrays active, pipeline fully filled. |
-| 5–61            | continue pattern with +16 column stride per array | same pattern | same pattern | same pattern | Steady-state operation for first tile (xt[0:3]). |
-| 62              | col64–67          | col52–55          | col40–43          | col28–31          | Array1 preloads next weight block (for xt[4:7]). |
-| 63              | col80–83          | col68–71          | col56–59          | col44–47          | Array2 switches to next weight block. |
-| 64              | col96–99          | col84–87          | col72–75          | col60–63          | Array3 switches to next weight block. |
-| 65–125          | col112–115 → col176–179 | col100–103 → col164–167 | col88–91 → col152–155 | col76–79 → col140–143 | All arrays now operate with new weights (steady state for xt[4:7]). |
-| 126             | col128–131        | col116–119        | col104–107        | col92–95          | Array1 preloads next (third) weight block (for xt[8:11]). |
-| 127             | col144–147        | col132–135        | col120–123        | col108–111        | Array2 switches to new weights. |
-| 128             | col160–163        | col148–151        | col136–139        | col124–127        | Array3 switches to new weights. |
-| 129–189         | continue pattern with +16 stride per array | same pattern | same pattern | same pattern | All arrays operate with updated weights; cycle repeats every 64 cycles. |
+;; | **Cycle Range** | **Array1 Columns** | **Array2 Columns** | **Array3 Columns** | **Array4 Columns** | **Description** |
+;; |:----------------|:------------------|:------------------|:------------------|:------------------|:----------------|
+;; | 1               | col0–3            | -                 | -                 | -                 | Array1 preloads the first 4×4 weight block. |
+;; | 2               | col16–19          | col4–7            | -                 | -                 | Array2 joins with its corresponding weight block. |
+;; | 3               | col32–35          | col20–23          | col8–11           | -                 | Array3 starts loading; pipeline warming up. |
+;; | 4               | col48–51          | col36–39          | col24–27          | col12–15          | All arrays active, pipeline fully filled. |
+;; | 5–61            | continue pattern with +16 column stride per array | same pattern | same pattern | same pattern | Steady-state operation for first tile (xt[0:3]). |
+;; | 62              | col64–67          | col52–55          | col40–43          | col28–31          | Array1 preloads next weight block (for xt[4:7]). |
+;; | 63              | col80–83          | col68–71          | col56–59          | col44–47          | Array2 switches to next weight block. |
+;; | 64              | col96–99          | col84–87          | col72–75          | col60–63          | Array3 switches to next weight block. |
+;; | 65–125          | col112–115 → col176–179 | col100–103 → col164–167 | col88–91 → col152–155 | col76–79 → col140–143 | All arrays now operate with new weights (steady state for xt[4:7]). |
+;; | 126             | col128–131        | col116–119        | col104–107        | col92–95          | Array1 preloads next (third) weight block (for xt[8:11]). |
+;; | 127             | col144–147        | col132–135        | col120–123        | col108–111        | Array2 switches to new weights. |
+;; | 128             | col160–163        | col148–151        | col136–139        | col124–127        | Array3 switches to new weights. |
+;; | 129–189         | continue pattern with +16 stride per array | same pattern | same pattern | same pattern | All arrays operate with updated weights; cycle repeats every 64 cycles. |
 
-> 🔹 Each array fetches one 4×4 column block per cycle.  
-> 🔹 Column spacing between adjacent arrays = 12 columns (3 blocks).  
-> 🔹 From Cycle 4 onward, one tile result is produced per cycle.
+;; > 🔹 Each array fetches one 4×4 column block per cycle.  
+;; > 🔹 Column spacing between adjacent arrays = 12 columns (3 blocks).  
+;; > 🔹 From Cycle 4 onward, one tile result is produced per cycle.
 
+| **Cycle** | **Array1 Columns**                     | **Array2 Columns**     | **Array3 Columns**     | **Array4 Columns**     | **Description**                                      |
+| :-------: | :------------------------------------- | :--------------------- | :--------------------- | :--------------------- | :--------------------------------------------------- |
+|   **1**   | col0–3                                 | –                      | –                      | –                      | ARRAY1 preloads first 4×4 block (tile1).             |
+|   **2**   | col16–19                               | col4–7                 | –                      | –                      | ARRAY2 begins tile1.                                 |
+|   **3**   | col32–35                               | col20–23               | col8–11                | –                      | ARRAY3 begins tile1 (3-cycle stagger).               |
+|   **4**   | col48–51                               | col36–39               | col24–27               | col12–15               | ARRAY4 joins; pipeline full.                         |
+|  **5–16** | continue +16 stride                    | same                   | same                   | same                   | Steady-state loading of tile1.                       |
+|   **17**  | **col256–259 → tile2 row-block start** | col244–247             | col232–235             | col220–223             | **ARRAY1 starts tile2 (row4–7).**                    |
+|   **18**  | col272–275                             | **col260–263 → tile2** | col248–251             | col236–239             | **ARRAY2 switches to tile2.**                        |
+|   **19**  | col288–291                             | col276–279             | **col264–267 → tile2** | col252–255             | **ARRAY3 switches to tile2.**                        |
+|   **20**  | col304–307                             | col292–295             | col280–283             | **col268–271 → tile2** | **ARRAY4 switches to tile2 (tile1 fully consumed).** |
+| **21–37** | continue +16 stride                    | same                   | same                   | same                   | Steady-state operation for tile2.                    |
+|   **38**  | **next tile (tile3) preload**          | –                      | –                      | –                      | ARRAY1 starts tile3.                                 |
+|   **39**  | –                                      | **tile3 preload**      | –                      | –                      | ARRAY2 starts tile3.                                 |
+|   **40**  | –                                      | –                      | **tile3 preload**      | –                      | ARRAY3 starts tile3.                                 |
+|   **41**  | –                                      | –                      | –                      | **tile3 preload**      | ARRAY4 starts tile3 (3-cycle stagger).               |
+| **42–58** | continue +16 stride                    | same                   | same                   | same                   | Steady tile3 operation.                              |
 
 ---
 
@@ -159,24 +176,41 @@ Hence, **12 is the smallest number of banks** that guarantees conflict-free para
 > - From Cycle 4 onward, one 4×4 tile result is produced each cycle.
 
 ---
-## 🕓 xt Input Scheduling (Revised)  
-| **Cycle Range** | **Array1** | **Array2** | **Array3** | **Array4** | **Description** |
-|:----------------|:-----------|:-----------|:-----------|:-----------|:----------------|
-| 1               | xt[0:3]    | -          | -          | -          | Array1 preloads the initial xt. |
-| 2               | xt[0:3]    | xt[0:3]    | -          | -          | Array2 joins with the same xt. |
-| 3               | xt[0:3]    | xt[0:3]    | xt[0:3]    | xt[0:3]    | Array3 and Array4 join, pipeline fully filled. |
-| 4–61            | xt[0:3]    | xt[0:3]    | xt[0:3]    | xt[0:3]    | All arrays operate with the first xt block (steady state). |
-| 62              | xt[4:7]    | xt[0:3]    | xt[0:3]    | xt[0:3]    | Array1 preloads the next xt (pipeline transition begins). |
-| 63              | xt[4:7]    | xt[4:7]    | xt[0:3]    | xt[0:3]    | Array2 switches to the new xt. |
-| 64              | xt[4:7]    | xt[4:7]    | xt[4:7]    | xt[0:3]    | Array3 switches to the new xt. |
-| 65–125          | xt[4:7]    | xt[4:7]    | xt[4:7]    | xt[4:7]    | All arrays now operate with the second xt block (steady state). |
-| 126             | xt[8:11]   | xt[4:7]    | xt[4:7]    | xt[4:7]    | Array1 preloads the next xt block. |
-| 127             | xt[8:11]   | xt[8:11]   | xt[4:7]    | xt[4:7]    | Array2 switches to the new xt block. |
-| 128             | xt[8:11]   | xt[8:11]   | xt[8:11]   | xt[4:7]    | Array3 switches to the new xt block; pipeline transition repeats every 64 cycles. |
----
+;; ## 🕓 xt Input Scheduling (Revised)  
+;; | **Cycle Range** | **Array1** | **Array2** | **Array3** | **Array4** | **Description** |
+;; |:----------------|:-----------|:-----------|:-----------|:-----------|:----------------|
+;; | 1               | xt[0:3]    | -          | -          | -          | Array1 preloads the initial xt. |
+;; | 2               | xt[0:3]    | xt[0:3]    | -          | -          | Array2 joins with the same xt. |
+;; | 3               | xt[0:3]    | xt[0:3]    | xt[0:3]    | xt[0:3]    | Array3 and Array4 join, pipeline fully filled. |
+;; | 4–61            | xt[0:3]    | xt[0:3]    | xt[0:3]    | xt[0:3]    | All arrays operate with the first xt block (steady state). |
+;; | 62              | xt[4:7]    | xt[0:3]    | xt[0:3]    | xt[0:3]    | Array1 preloads the next xt (pipeline transition begins). |
+;; | 63              | xt[4:7]    | xt[4:7]    | xt[0:3]    | xt[0:3]    | Array2 switches to the new xt. |
+;; | 64              | xt[4:7]    | xt[4:7]    | xt[4:7]    | xt[0:3]    | Array3 switches to the new xt. |
+;; | 65–125          | xt[4:7]    | xt[4:7]    | xt[4:7]    | xt[4:7]    | All arrays now operate with the second xt block (steady state). |
+;; | 126             | xt[8:11]   | xt[4:7]    | xt[4:7]    | xt[4:7]    | Array1 preloads the next xt block. |
+;; | 127             | xt[8:11]   | xt[8:11]   | xt[4:7]    | xt[4:7]    | Array2 switches to the new xt block. |
+;; | 128             | xt[8:11]   | xt[8:11]   | xt[8:11]   | xt[4:7]    | Array3 switches to the new xt block; pipeline transition repeats every 64 cycles. |
+;; ---
 
-### 🧾 Notes
-- Each 4×4 block = 16 weights (aligned with MAC array width).  
-- 12-bank mapping ensures **conflict-free** parallel access for 4 arrays.  
-- Mapping function `(col_blk + 3×array_id) % 12` provides even bank utilization.  
-- Proper **bank interleaving** is key to achieving simultaneous row-and-column fetching.
+;; ### 🧾 Notes
+;; - Each 4×4 block = 16 weights (aligned with MAC array width).  
+;; - 12-bank mapping ensures **conflict-free** parallel access for 4 arrays.  
+;; - Mapping function `(col_blk + 3×array_id) % 12` provides even bank utilization.  
+;; - Proper **bank interleaving** is key to achieving simultaneous row-and-column fetching.
+
+| **Cycle** | **Array1**   | **Array2**   | **Array3**   | **Array4**   | **Description**                           |
+| :-------: | :----------- | :----------- | :----------- | :----------- | :---------------------------------------- |
+|   **1**   | xt[0:3]      | –            | –            | –            | ARRAY1 begins tile1 (xt block0).          |
+|   **2**   | xt[0:3]      | xt[0:3]      | –            | –            | ARRAY2 joins tile1.                       |
+|   **3**   | xt[0:3]      | xt[0:3]      | xt[0:3]      | –            | ARRAY3 joins tile1.                       |
+|   **4**   | xt[0:3]      | xt[0:3]      | xt[0:3]      | xt[0:3]      | ARRAY4 joins tile1; steady begins.        |
+|  **5–16** | xt[0:3]      | xt[0:3]      | xt[0:3]      | xt[0:3]      | tile1 steady-state.                       |
+|   **17**  | **xt[4:7]**  | xt[0:3]      | xt[0:3]      | xt[0:3]      | **ARRAY1 starts tile2 (next row-block).** |
+|   **18**  | xt[4:7]      | **xt[4:7]**  | xt[0:3]      | xt[0:3]      | **ARRAY2 switches to tile2.**             |
+|   **19**  | xt[4:7]      | xt[4:7]      | **xt[4:7]**  | xt[0:3]      | **ARRAY3 switches to tile2.**             |
+|   **20**  | xt[4:7]      | xt[4:7]      | xt[4:7]      | **xt[4:7]**  | **ARRAY4 switches; tile1 finishes.**      |
+| **21–33** | xt[4:7]      | xt[4:7]      | xt[4:7]      | xt[4:7]      | tile2 steady-state.                       |
+|   **34**  | **xt[8:11]** | xt[4:7]      | xt[4:7]      | xt[4:7]      | ARRAY1 starts tile3.                      |
+|   **35**  | xt[8:11]     | **xt[8:11]** | xt[4:7]      | xt[4:7]      | ARRAY2 switches.                          |
+|   **36**  | xt[8:11]     | xt[8:11]     | **xt[8:11]** | xt[4:7]      | ARRAY3 switches.                          |
+|   **37**  | xt[8:11]     | xt[8:11]     | xt[8:11]     | **xt[8:11]** | ARRAY4 switches; tile2 ends.              |

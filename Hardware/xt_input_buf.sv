@@ -20,7 +20,7 @@ module xt_input_buf #(
 
     // ---------------- ROM Instance / SIM Model ----------------
 `ifdef SYNTHESIS
-    X_T_ROM u_xt_rom (
+    u_xt_rom X_T_ROM (
         .clka  (clk),
         .ena   (en),
         .addra (addr),
