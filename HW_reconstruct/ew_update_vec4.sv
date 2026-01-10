@@ -38,8 +38,8 @@ module ew_update_vec4 #(
     localparam int MEM_W     = W*TILE_SIZE;
     localparam int MEM_BYTES = MEM_W/8;
     logic signed [W-1:0] s_prev_vec [TILE_SIZE-1:0];
-    logic signed [W-1:0] s_prev_vec_w [TILE_SIZE-1:0];
-    logic [MEM_W-1:0]    s_dout_packed = '0; // init to avoid X in sim
+    logic [W-1:0]        s_prev_vec_u [TILE_SIZE-1:0];
+    logic [MEM_W-1:0]    s_dout_packed;
     wire                  s_dout_unknown = (^s_dout_packed === 1'bx);
     wire [MEM_W-1:0]      s_dout_safe   = s_dout_unknown ? {MEM_W{1'b0}} : s_dout_packed;
     
@@ -65,11 +65,12 @@ module ew_update_vec4 #(
 
     // intermediate
     logic [W-1:0] one_minus [TILE_SIZE-1:0];
-    logic signed [W-1:0] u_aligned [TILE_SIZE-1:0]; // TODO: align u to Q0.16 if needed
+    logic [W-1:0] u_aligned [TILE_SIZE-1:0]; // TODO: align u to Q0.16 if needed
 
     // EWM outputs
     logic ewm1_v, ewm1_r;
     logic ewm2_v, ewm2_r;
+    wire  ewm_in_fire = (st == ST_CALC) && ewm1_r && ewm2_r;
     logic [W-1:0] mul_a [TILE_SIZE-1:0];
     logic [W-1:0] mul_b [TILE_SIZE-1:0];
 
@@ -174,10 +175,10 @@ module ew_update_vec4 #(
         end
     end
 
-    // combinational view of RAM output for aligned multiply
+    // use registered s_prev_vec to break the addr->DSP combinational path
     always_comb begin
         for (int i=0;i<TILE_SIZE;i++) begin
-            s_prev_vec_w[i] = $signed(s_dout_mux[i*W +: W]);
+            s_prev_vec_u[i] = s_prev_vec[i];
         end
     end
 
@@ -215,7 +216,7 @@ module ew_update_vec4 #(
 
         .clkb   (clk),
         .enb    (state_we),
-        .web    (state_we ? {MEM_BYTES{1'b1}} : {MEM_BYTES{1'b0}}),
+        .web    (state_we),
         .addrb  (s_addr_w), // 写到下一地址
         .dinb   (s_new_packed),
         .doutb  ()
@@ -235,12 +236,12 @@ module ew_update_vec4 #(
     ) u_ewm1 (
         .clk      (clk),
         .rst_n    (rst_n),
-        .in_valid (st==ST_CALC),
+        .in_valid (ewm_in_fire),
         .in_ready (ewm1_r),
         .out_ready(ewa_r),
         .out_valid(ewm1_v),
         .a_vec    (lam_r),
-        .b_vec    (s_prev_vec_w),
+        .b_vec    (s_prev_vec_u),
         .y_vec    (mul_a)
     );
 
@@ -255,7 +256,7 @@ module ew_update_vec4 #(
     ) u_ewm2 (
         .clk      (clk),
         .rst_n    (rst_n),
-        .in_valid (st==ST_CALC),
+        .in_valid (ewm_in_fire),
         .in_ready (ewm2_r),
         .out_ready(ewa_r),
         .out_valid(ewm2_v),

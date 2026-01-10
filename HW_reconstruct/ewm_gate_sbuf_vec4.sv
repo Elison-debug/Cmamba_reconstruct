@@ -66,12 +66,13 @@ module ewm_gate_sbuf_vec4 #(
     // ------------------------------------------------------------
     // 2) EWM: y = s * g (signed)
     // ------------------------------------------------------------
-    logic signed [W-1:0] s_aligned [TILE_SIZE-1:0];
-    logic signed [W-1:0] g_aligned [TILE_SIZE-1:0];
+    logic [W-1:0] y_vec_u [TILE_SIZE-1:0];
+    logic [W-1:0] s_aligned [TILE_SIZE-1:0];
+    logic [W-1:0] g_aligned [TILE_SIZE-1:0];
     always_comb begin
         for (int i=0; i<TILE_SIZE; i++) begin
-            s_aligned[i] = $signed(s_aligned_u[i]);
-            g_aligned[i] = $signed(g_aligned_u[i]);
+            s_aligned[i] = s_aligned_u[i];
+            g_aligned[i] = g_aligned_u[i];
         end
     end
 
@@ -91,7 +92,13 @@ module ewm_gate_sbuf_vec4 #(
         .out_valid(y_valid),
         .a_vec    (g_aligned),
         .b_vec    (s_aligned),
-        .y_vec    (y_vec)
+        .y_vec    (y_vec_u)
     );
+
+    always_comb begin
+        for (int i=0; i<TILE_SIZE; i++) begin
+            y_vec[i] = $signed(y_vec_u[i]);
+        end
+    end
 
 endmodule

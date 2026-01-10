@@ -29,11 +29,20 @@ module axis_vec_join2 #(
     logic [DATA_WIDTH-1:0] b_mem [DEPTH-1:0][TILE_SIZE-1:0];
     logic [PTR_W-1:0] a_wr, a_rd, b_wr, b_rd;
     logic [PTR_W:0]   a_count, b_count;
+    logic             push_a, push_b, pop;
+    logic [PTR_W:0]   a_inc, a_dec, b_inc, b_dec;
 
     assign a_ready = (a_count < DEPTH);
     assign b_ready = (b_count < DEPTH);
 
     assign out_valid = (a_count != 0) && (b_count != 0);
+    assign push_a = a_valid && a_ready;
+    assign push_b = b_valid && b_ready;
+    assign pop    = out_valid && out_ready;
+    assign a_inc  = {{PTR_W{1'b0}}, push_a};
+    assign a_dec  = {{PTR_W{1'b0}}, pop};
+    assign b_inc  = {{PTR_W{1'b0}}, push_b};
+    assign b_dec  = {{PTR_W{1'b0}}, pop};
     always_comb begin
         for (int i = 0; i < TILE_SIZE; i++) begin
             lam_vec[i] = a_mem[a_rd][i];
@@ -52,12 +61,6 @@ module axis_vec_join2 #(
                 end
             end
         end else begin
-            // 计算握手
-            logic push_a, push_b, pop;
-            push_a = a_valid && a_ready;
-            push_b = b_valid && b_ready;
-            pop    = out_valid && out_ready;
-
             // push A
             if (push_a) begin
                 for (int i=0; i<TILE_SIZE; i++) a_mem[a_wr][i] <= a_vec[i];
@@ -74,9 +77,9 @@ module axis_vec_join2 #(
                 b_rd <= b_rd + 1'b1;
             end
 
-            // 更新计数，支持同拍 push+pop
-            a_count <= a_count + (push_a ? 1 : 0) - (pop ? 1 : 0);
-            b_count <= b_count + (push_b ? 1 : 0) - (pop ? 1 : 0);
+            // 更新计数，支持同拍 push+pop（显式无符号运算，避免 signedness 警告）
+            a_count <= a_count + a_inc - a_dec;
+            b_count <= b_count + b_inc - b_dec;
         end
     end
 endmodule

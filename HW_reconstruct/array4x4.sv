@@ -57,7 +57,7 @@ module array4x4 #(
         end
     endgenerate
 
-    // 防止未读 valid 位的 lint 告警：把所有 PE valid_out 归并到一个未使用的冗余信号
+    // 防止未读 valid 位的 lint 告警：把所有 PE valid_out 归并到一个汇总信号
     logic pe_valid_aggregate;
     always_comb begin
         pe_valid_aggregate = 1'b0;
@@ -70,8 +70,7 @@ module array4x4 #(
 
     // --- 驱动模块的 valid_out ---
     // 所有 PE 具有相同的 1 拍延迟，因此它们所有的 valid_out 信号都是同步的。
-    // 我们可以安全地选择任意一个 PE (例如 [3][3]) 的 valid_out
-    // 作为整个 array4x4 模块的 valid_out 信号。
-    assign valid_out = pe_valid_out[TILE_SIZE-1][TILE_SIZE-1];
+    // 使用汇总后的 OR 作为 valid_out，不改变功能。
+    assign valid_out = pe_valid_aggregate;
 
 endmodule

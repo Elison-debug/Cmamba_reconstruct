@@ -308,7 +308,7 @@ module slim_mac_mem_controller_combined_dp #(
 
     // 直接在 xt_en_reg_d1 脉冲时推送 xt_next，依赖 FIFO ready 做回压
     //assign xt_fifo_in_valid = xt_en_reg_d1;
-    assign xt_fifo_in_valid = xt_en_reg_d1 && (tile_cnt_for_xt == 16'd18);
+    assign xt_fifo_in_valid = xt_en_reg_d1 && (tile_cnt_for_xt == 16'd18) && xt_fifo_in_ready;
 
     always_comb begin
         for (int i = 0; i < TILE_SIZE; i++) xt_fifo_in_vec[i] = xt_next[i];

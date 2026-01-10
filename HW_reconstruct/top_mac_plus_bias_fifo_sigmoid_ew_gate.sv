@@ -151,10 +151,10 @@ module top_mac_plus_bias_fifo_sigmoid_ew_gate #(
 
     // ========== lambda skid + FIFO ==========
     logic lam_in_valid, lam_in_ready;
-    logic [DATA_WIDTH-1:0] lam_in_vec [TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] lam_in_vec [TILE_SIZE-1:0];
     logic lam_skid0_valid, lam_skid1_valid;
-    logic [DATA_WIDTH-1:0] lam_skid0_vec [TILE_SIZE-1:0];
-    logic [DATA_WIDTH-1:0] lam_skid1_vec [TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] lam_skid0_vec [TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] lam_skid1_vec [TILE_SIZE-1:0];
     assign sigmoid_out_ready = ~lam_skid1_valid;
     assign lam_in_valid = lam_skid0_valid;
     always_comb for (int i=0; i<TILE_SIZE; i++) lam_in_vec[i] = lam_skid0_vec[i];
@@ -168,8 +168,8 @@ module top_mac_plus_bias_fifo_sigmoid_ew_gate #(
             end
         end else begin
             logic nxt0_v, nxt1_v;
-            logic [DATA_WIDTH-1:0] nxt0_vec [TILE_SIZE-1:0];
-            logic [DATA_WIDTH-1:0] nxt1_vec [TILE_SIZE-1:0];
+            logic signed [DATA_WIDTH-1:0] nxt0_vec [TILE_SIZE-1:0];
+            logic signed [DATA_WIDTH-1:0] nxt1_vec [TILE_SIZE-1:0];
             nxt0_v = lam_skid0_valid; nxt1_v = lam_skid1_valid;
             for (int i=0; i<TILE_SIZE; i++) begin
                 nxt0_vec[i] = lam_skid0_vec[i];
@@ -199,7 +199,7 @@ module top_mac_plus_bias_fifo_sigmoid_ew_gate #(
     end
 
     logic lam_valid, lam_ready_int;
-    logic [DATA_WIDTH-1:0] lam_vec [TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] lam_vec [TILE_SIZE-1:0];
     logic [DATA_WIDTH-1:0] lam_vec_u [TILE_SIZE-1:0];
     vec_fifo_axis_ip #(
         .TILE_SIZE (TILE_SIZE),
