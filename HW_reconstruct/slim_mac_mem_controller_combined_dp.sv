@@ -5,6 +5,11 @@
 //   - Supports 4-array systolic + 6-bank dual-port WBUF
 //   - Now WBUF stores entire 256×256 matrix (4096 tiles)
 //   - Almost no modification to controller logic
+//
+// [MIN-TAP + XT FIFO INSIDE CONTROLLER]
+//   - Add internal vec_fifo_axis_ip to stream out x_t (xt_next) per-tile
+//   - Add AXIS-like output ports: xt_axis_TVALID/TREADY/xt_axis_TDATA
+//   - Do NOT modify FSM transitions / pipeline datapath
 //---------------------------------------------------------------
 module slim_mac_mem_controller_combined_dp #(
     parameter int TILE_SIZE  = 4,
@@ -31,9 +36,18 @@ module slim_mac_mem_controller_combined_dp #(
     input  logic m_axis_TREADY,
 
     // ===== Final MAC result =====
-    output logic signed [DATA_WIDTH-1:0] reduced_trunc [TILE_SIZE-1:0]
+    output logic signed [DATA_WIDTH-1:0] reduced_trunc [TILE_SIZE-1:0],
+
+    // ==========================================================
+    // [ADD] XT stream output (per-tile x_t vector)
+    // ==========================================================
+    output logic                         xt_axis_TVALID,
+    input  logic                         xt_axis_TREADY,
+    output logic signed [DATA_WIDTH-1:0]  xt_axis_TDATA [TILE_SIZE-1:0]
 );
-    localparam int TILE_CYCLE = 20;
+
+    // 单 tile 有效输入拍数：4x4 = 16 拍
+    localparam int TILE_CYCLE = 20; // 16
 
     // ==========================================================
     // FSM, tile counters — UNCHANGED
@@ -45,21 +59,13 @@ module slim_mac_mem_controller_combined_dp #(
     (* keep = "true" *) logic [15:0] tile_cnt_for_xt; // duplicate register to localize XT fanout
     logic valid_in, valid_out;
     logic valid_out_q;
-    logic run_pipeline_d;
 
     logic [2:0] wbuf_cnt;
     logic wbuf_ready;
 
     logic [1:0] drain_cnt;
-    // truancate result
-    //logic signed [15:0] reduced_trunc [0:TILE_SIZE-1];
     logic signed [ACC_WIDTH-1:0] reduced_vec [TILE_SIZE-1:0];
-    // always_comb begin
-    //     for (int i = 0; i < TILE_SIZE; i++) begin
-    //         // 保留高位，移除低 8 个 frac bits
-    //         reduced_trunc[i] = reduced_vec[i] >>> FRAC_BITS;  // FRAC_BITS=8
-    //     end
-    // end
+
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             for (int i = 0; i < TILE_SIZE; i++)
@@ -69,9 +75,10 @@ module slim_mac_mem_controller_combined_dp #(
                 reduced_trunc[i] <= reduced_vec[i] >>> FRAC_BITS;
         end
     end
+
     // ==========================================================
-    // 1️⃣ WBUF pipeline stage  (only DEPTH changed)
-    // ==========================================================
+// 1️⃣ WBUF pipeline stage  (only DEPTH changed)
+// ==========================================================
 
     logic [3:0][$clog2(N_BANK)-1:0] bank_sel, bank_sel_reg;
     logic [3:0][WADDR_W-1:0]         addr_sel, addr_sel_reg;
@@ -79,20 +86,20 @@ module slim_mac_mem_controller_combined_dp #(
     logic [3:0]                     port_sel, port_sel_reg;
     logic [3:0][DATA_W-1:0]         w_data, w_data_reg;
 
+    // 打拍后的计数与 phase，降低扇出
+    logic [15:0]                    tile_cnt_d;
+    logic [1:0]                     phase_reg;
+
     // per-bank address counter
     logic [WADDR_W-1:0] addr_bank_cnt [N_BANK];
 
     logic [N_BANK-1:0] bank_hit_mask_comb;
     logic [N_BANK-1:0] bank_hit_mask_comb_next;
 
-    // ------- NEW: bank mapping remains unchanged -------
-    logic [1:0] phase;
-    assign phase = tile_cnt % 3;
-
     always_comb begin
         logic [2:0] bank_x, bank_y;
 
-        case (phase)
+        case (phase_reg)
             0: begin bank_x=0; bank_y=3; end
             1: begin bank_x=1; bank_y=4; end
             default: begin bank_x=2; bank_y=5; end
@@ -108,15 +115,17 @@ module slim_mac_mem_controller_combined_dp #(
         addr_sel[2] = addr_bank_cnt[bank_sel[2]];
         addr_sel[3] = addr_bank_cnt[bank_sel[3]];
 
+        //array0/array1 走 Port A，array2/array3 走 Port B
         port_sel[0] = 1'b0;
         port_sel[1] = 1'b0;
         port_sel[2] = 1'b1;
         port_sel[3] = 1'b1;
 
-        en_sel[0] = (state == RUN_PIPELINE);
-        en_sel[1] = (state == RUN_PIPELINE && tile_cnt >= 1);
-        en_sel[2] = (state == RUN_PIPELINE && tile_cnt >= 2);
-        en_sel[3] = (state == RUN_PIPELINE && tile_cnt >= 3);
+        // 每个 tile 内按 tile_cnt_d 渐进且限定 16 拍窗口：0~15,1~16,2~17,3~18
+        en_sel[0] = (state == RUN_PIPELINE) && (tile_cnt_d < 18);
+        en_sel[1] = (state == RUN_PIPELINE) && (tile_cnt_d >= 1) && (tile_cnt_d < 19);
+        en_sel[2] = (state == RUN_PIPELINE) && (tile_cnt_d >= 2) && (tile_cnt_d < 20);
+        en_sel[3] = (state == RUN_PIPELINE) && (tile_cnt_d >= 3) && (tile_cnt_d < 21);
     end
 
     //-------------------------------
@@ -165,13 +174,11 @@ module slim_mac_mem_controller_combined_dp #(
         if (!rst_n) begin
             for (int k=0; k<N_BANK; k++)
                 addr_bank_cnt[k] <= '0;
-
             bank_sel_reg <= '0;
             addr_sel_reg <= '0;
             en_sel_reg   <= '0;
             port_sel_reg <= '0;
             w_data_reg   <= '0;
-
         end else if (state == RUN_PIPELINE) begin
 
             bank_sel_reg <= bank_sel;
@@ -196,10 +203,8 @@ module slim_mac_mem_controller_combined_dp #(
     // 2️⃣ XT pipeline stage
     // ==========================================================
     logic [XT_ADDR_W-1:0] xt_addr, xt_addr_reg;
-    // logic       xt_en, xt_en_req, xt_en_reg;
     logic       xt_en_req, xt_en_reg;
     logic       xt_en_reg_d1;
-    //logic       xt_switch_req, xt_switch_req_reg;
     logic       xt_switch_req;
     logic [1:0] xt_stage_cnt, xt_stage_cnt_reg;
     logic signed [DATA_WIDTH-1:0] xt_vec [TILE_SIZE-1:0];
@@ -213,19 +218,22 @@ module slim_mac_mem_controller_combined_dp #(
         .TILE_SIZE(TILE_SIZE)
     ) u_xt (
         .clk(clk),
+        .rst_n(rst_n),
         .en((state == RUN_PIPELINE) || (state == IDLE && next_state == RUN_PIPELINE)),
         .addr(xt_addr_reg),
         .dout_vec(xt_vec)
     );
 
     // --- 控制逻辑（生成 req） ---
+    logic xt_init_done;
+
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             xt_addr       <= 0;
             xt_en_req     <= 0;
             xt_switch_req <= 0;
             xt_stage_cnt  <= 0;
-            // 清零 xt_curr，避免复位后为 X
+            xt_init_done  <= 1'b0;
             for (int ii = 0; ii < 4; ii++) begin
                 for (int jj = 0; jj < TILE_SIZE; jj++) begin
                     xt_curr[ii][jj] <= '0;
@@ -233,29 +241,30 @@ module slim_mac_mem_controller_combined_dp #(
             end
         end else begin
             xt_en_req <= 0;
-            // 1) Tile 起始：进入 RUN_PIPELINE 当拍就预取当前 xt_addr，对应本 tile 使用
+
+            // 1) Tile 起始：进入 RUN_PIPELINE 当拍就预取当前 xt_addr，对应本 tile 使用，并启动渐进切换
             if (state == IDLE && next_state == RUN_PIPELINE) begin
-                xt_en_req     <= 1;      // 触发对当前 xt_addr 的读取
-                xt_switch_req <= 1;      // 启动 3 拍渐进切换（与 WBUF 暖机对齐）
-                // xt_addr 不自增：本 tile 使用当前地址
+                xt_en_req      <= 1;
+                xt_switch_req  <= 1;
+                xt_init_done   <= 1'b1;
             end
-            // 2) Tile 结束过渡：
-            //    在 tile_cnt==60 预取下一条 xt（保证 61 开始切换时 xt_next 已就绪）；
-            //    在 tile_cnt==61 启动 3 拍渐进切换（61/62/63）。
+            // 2) Tile 尾声：预取下一条 xt；切换由起始时统一发起
             else if (state == RUN_PIPELINE && tile_cnt_for_xt == 16'd15) begin
                 xt_en_req <= 1;
                 xt_addr   <= xt_addr + 1;
-            end else if (state == RUN_PIPELINE && tile_cnt_for_xt == 16'd17) begin
-                xt_switch_req <= 1;
             end
+
             if (xt_switch_req) begin
-                xt_stage_cnt <= xt_stage_cnt + 1;
-                if (xt_stage_cnt == 3) begin
+                xt_stage_cnt <= xt_stage_cnt + 1'b1;
+                // 在计数到 3 的当前拍就完成切换
+                if (xt_stage_cnt == 2'd3) begin
                     xt_switch_req <= 0;
                     xt_stage_cnt  <= 0;
                     for (int i = 0; i < 4; i++)
                         xt_curr[i] <= xt_next;
                 end
+            end else begin
+                xt_stage_cnt <= 0;
             end
         end
     end
@@ -266,13 +275,11 @@ module slim_mac_mem_controller_combined_dp #(
             xt_en_reg        <= 0;
             xt_en_reg_d1     <= 0;
             xt_addr_reg      <= 0;
-            //xt_switch_req_reg<= 0;
             xt_stage_cnt_reg <= 0;
         end else begin
             xt_en_reg        <= xt_en_req;
             xt_en_reg_d1     <= xt_en_reg;
             xt_addr_reg      <= xt_addr;
-            //xt_switch_req_reg<= xt_switch_req;
             xt_stage_cnt_reg <= xt_stage_cnt;
         end
     end
@@ -280,7 +287,6 @@ module slim_mac_mem_controller_combined_dp #(
     // --- XT 数据寄存 ---
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            // 清零 xt_next，避免复位后为 X
             for (int jj = 0; jj < TILE_SIZE; jj++) begin
                 xt_next[jj] <= '0;
             end
@@ -290,19 +296,52 @@ module slim_mac_mem_controller_combined_dp #(
     end
 
     // ==========================================================
+    // [ADD] 2.5️⃣ XT FIFO inside controller (per-tile stream out)
+    //   Push condition: xt_en_reg_d1 (i.e., when xt_next is updated)
+    //   Data payload: xt_vec (same cycle) or xt_next (registered)
+    //
+    //   We use xt_next (registered) for clean timing.
+    // ==========================================================
+    logic xt_fifo_in_valid;
+    logic xt_fifo_in_ready;
+    logic signed [DATA_WIDTH-1:0] xt_fifo_in_vec [TILE_SIZE-1:0];
+
+    // 直接在 xt_en_reg_d1 脉冲时推送 xt_next，依赖 FIFO ready 做回压
+    //assign xt_fifo_in_valid = xt_en_reg_d1;
+    assign xt_fifo_in_valid = xt_en_reg_d1 && (tile_cnt_for_xt == 16'd18);
+
+    always_comb begin
+        for (int i = 0; i < TILE_SIZE; i++) xt_fifo_in_vec[i] = xt_next[i];
+    end
+
+    // 回到通用 AXIS FIFO，深度由 IP 保证，ready 回推 xt_fifo_in_ready
+    vec_fifo_axis_ip #(
+        .TILE_SIZE (TILE_SIZE),
+        .DATA_WIDTH(DATA_WIDTH)
+    ) u_xt_vec_fifo (
+        .clk      (clk),
+        .rst_n    (rst_n),
+        .in_valid (xt_fifo_in_valid),
+        .in_ready (xt_fifo_in_ready),
+        .in_vec   (xt_fifo_in_vec),
+        .out_valid(xt_axis_TVALID),
+        .out_ready(xt_axis_TREADY),
+        .out_vec  (xt_axis_TDATA)
+    );
+
+    // ==========================================================
     // 3️⃣ Broadcast to 4 arrays (replicate vector → matrix rows)
     // ==========================================================
     logic signed [DATA_WIDTH-1:0] B0_mat [TILE_SIZE-1:0][TILE_SIZE-1:0];
     logic signed [DATA_WIDTH-1:0] B1_mat [TILE_SIZE-1:0][TILE_SIZE-1:0];
     logic signed [DATA_WIDTH-1:0] B2_mat [TILE_SIZE-1:0][TILE_SIZE-1:0];
     logic signed [DATA_WIDTH-1:0] B3_mat [TILE_SIZE-1:0][TILE_SIZE-1:0];
-    
-    // [NEW] pipeline register for timing
+
     logic signed [DATA_WIDTH-1:0] B0_mat_reg [TILE_SIZE-1:0][TILE_SIZE-1:0];
     logic signed [DATA_WIDTH-1:0] B1_mat_reg [TILE_SIZE-1:0][TILE_SIZE-1:0];
     logic signed [DATA_WIDTH-1:0] B2_mat_reg [TILE_SIZE-1:0][TILE_SIZE-1:0];
     logic signed [DATA_WIDTH-1:0] B3_mat_reg [TILE_SIZE-1:0][TILE_SIZE-1:0];
-    
+
     always_comb begin
         for (int i = 0; i < TILE_SIZE; i++) begin
             case (xt_stage_cnt_reg)
@@ -313,14 +352,13 @@ module slim_mac_mem_controller_combined_dp #(
             endcase
         end
     end
-    // Pipeline register for B matrices// [ADD] pipeline the B*_mat signals
+
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             B0_mat_reg <= '{default:'0};
             B1_mat_reg <= '{default:'0};
             B2_mat_reg <= '{default:'0};
             B3_mat_reg <= '{default:'0};
-        //end else if (state == RUN_PIPELINE) begin
         end else begin
             B0_mat_reg <= B0_mat;
             B1_mat_reg <= B1_mat;
@@ -328,6 +366,7 @@ module slim_mac_mem_controller_combined_dp #(
             B3_mat_reg <= B3_mat;
         end
     end
+
     // ==========================================================
     // 4️⃣ Unpack 256-bit → tile matrix
     // ==========================================================
@@ -359,16 +398,24 @@ module slim_mac_mem_controller_combined_dp #(
             A2_mat_reg <= '{default:'0};
             A3_mat_reg <= '{default:'0};
         end else begin
-            A0_mat_reg <= A0_mat;
-            A1_mat_reg <= A1_mat;
-            A2_mat_reg <= A2_mat;
-            A3_mat_reg <= A3_mat;
+            if (en_sel_reg[0])           A0_mat_reg <= A0_mat;
+            else if (!en_sel[0])         A0_mat_reg <= '{default:'0};
+
+            if (en_sel_reg[1])           A1_mat_reg <= A1_mat;
+            else if (!en_sel[1])         A1_mat_reg <= '{default:'0};
+
+            if (en_sel_reg[2])           A2_mat_reg <= A2_mat;
+            else if (!en_sel[2])         A2_mat_reg <= '{default:'0};
+
+            if (en_sel_reg[3])           A3_mat_reg <= A3_mat;
+            else if (!en_sel[3])         A3_mat_reg <= '{default:'0};
         end
     end
+
     // ==========================================================
     // 5️⃣ Pipeline computation
     // ==========================================================
-    (* keep = "true" *) logic signed [ACC_WIDTH-1:0] dummy_mat0 [TILE_SIZE-1:0][TILE_SIZE-1:0]; // unused sink
+    (* keep = "true" *) logic signed [ACC_WIDTH-1:0] dummy_mat0 [TILE_SIZE-1:0][TILE_SIZE-1:0];
     (* keep = "true" *) logic signed [ACC_WIDTH-1:0] dummy_mat1 [TILE_SIZE-1:0][TILE_SIZE-1:0];
     (* keep = "true" *) logic signed [ACC_WIDTH-1:0] dummy_mat2 [TILE_SIZE-1:0][TILE_SIZE-1:0];
     (* keep = "true" *) logic signed [ACC_WIDTH-1:0] dummy_mat3 [TILE_SIZE-1:0][TILE_SIZE-1:0];
@@ -390,7 +437,7 @@ module slim_mac_mem_controller_combined_dp #(
     ) u_pipeline (
         .clk(clk),
         .rst_n(rst_n),
-        .mode(3'b000),
+        .mode(2'b00),
         .valid_in(valid_in_d1),
         .A0_mat(A0_mat_reg), .A1_mat(A1_mat_reg), .A2_mat(A2_mat_reg), .A3_mat(A3_mat_reg),
         .B0_mat(B0_mat_reg), .B1_mat(B1_mat_reg), .B2_mat(B2_mat_reg), .B3_mat(B3_mat_reg),
@@ -401,9 +448,9 @@ module slim_mac_mem_controller_combined_dp #(
         .reduced_mat_3(dummy_mat3),
         .valid_reduced(valid_out)
     );
-    
+
     // ==========================================================
-    // 6️⃣ FSM + AXI handshake
+    // 6️⃣ FSM + AXI handshake  (UNCHANGED)
     // ==========================================================
     always_comb begin
         next_state = state;
@@ -417,31 +464,19 @@ module slim_mac_mem_controller_combined_dp #(
                 if (s_axis_TVALID && s_axis_TREADY) next_state = RUN_PIPELINE;
             end
             RUN_PIPELINE: begin
-                // 仅在 tile_cnt < 63 时对下游有效；尾部进入 drain 收尾
-                //valid_in = wbuf_ready && (tile_cnt <= 16'd63);
                 valid_in = (state == RUN_PIPELINE) && wbuf_ready && (data_cnt < TILE_CYCLE);
-                // if (tile_cnt == 16'd63) begin
-                //     if (drain_cnt == 0) next_state = WAIT_DONE;
-                //     else                next_state = RUN_PIPELINE; // 停留以采样最后返回
-                // end
-                 if (data_cnt == TILE_CYCLE-1) begin
+                if (data_cnt == TILE_CYCLE-1) begin
                     if (drain_cnt == 0) next_state = WAIT_DONE;
                     else next_state = RUN_PIPELINE;
-    end
+                end
             end
-            // WAIT_DONE: begin
-            //     // 仅在 valid_out 的最后一拍后打一拍 TVALID 脉冲
-            //     m_axis_TVALID = (!valid_out && valid_out_q);
-            //     if (!valid_out && valid_out_q && m_axis_TREADY) next_state = IDLE;
-            // end
             WAIT_DONE: begin
-                m_axis_TVALID = (!valid_out && valid_out_q);
+                m_axis_TVALID = (!valid_out &&valid_out_q);
                 if (m_axis_TVALID && !m_axis_TREADY)
-                    next_state = WAIT_DONE; // 保持等待
+                    next_state = WAIT_DONE;
                 else if (m_axis_TVALID && m_axis_TREADY)
                     next_state = IDLE;
             end
-
             default: next_state = IDLE;
         endcase
     end
@@ -452,21 +487,38 @@ module slim_mac_mem_controller_combined_dp #(
             tile_cnt <= 0;
             tile_cnt_for_xt <= 0;
             valid_out_q <= 1'b0;
-            run_pipeline_d <= 1'b0;
+            tile_cnt_d      <= 16'd0;
+            phase_reg       <= 2'd0;
         end else begin
             state <= next_state;
             valid_out_q <= valid_out;
-            run_pipeline_d <= (state == RUN_PIPELINE); // register state, cut path
-            if ((state == RUN_PIPELINE) && tile_cnt != TILE_CYCLE-1 ) begin
-            //if ((state == RUN_PIPELINE) && tile_cnt != 16'd63 && valid_in) begin
-                tile_cnt <= tile_cnt + 1;
-                tile_cnt_for_xt <= tile_cnt + 1;
+
+            if (state == RUN_PIPELINE) begin
+                if (data_cnt == TILE_CYCLE-1) begin
+                    tile_cnt        <= 16'd0;
+                    tile_cnt_for_xt <= 16'd0;
+                    tile_cnt_d      <= 16'd0;
+                    phase_reg       <= 2'd0;
+                end else begin
+                    tile_cnt        <= tile_cnt + 16'd1;
+                    tile_cnt_for_xt <= tile_cnt_for_xt + 16'd1;
+                    tile_cnt_d      <= tile_cnt + 16'd1;
+
+                    if (phase_reg == 2'd2)
+                        phase_reg <= 2'd0;
+                    else
+                        phase_reg <= phase_reg + 2'd1;
+                end
             end else if (state == IDLE) begin
-                tile_cnt <= 16'd0;
+                tile_cnt        <= 16'd0;
                 tile_cnt_for_xt <= 16'd0;
+                tile_cnt_d      <= 16'd0;
+                phase_reg       <= 2'd0;
             end else begin
-                tile_cnt <= tile_cnt;
-                tile_cnt_for_xt <= tile_cnt;
+                tile_cnt        <= tile_cnt;
+                tile_cnt_for_xt <= tile_cnt_for_xt;
+                tile_cnt_d      <= tile_cnt_d;
+                phase_reg       <= phase_reg;
             end
         end
     end
@@ -484,24 +536,23 @@ module slim_mac_mem_controller_combined_dp #(
     end
     assign wbuf_ready = (wbuf_cnt == 3);
 
-    // Drain counter: arm at tile_cnt==63 to allow last WBUF data to return
+    // Drain counter: arm at tile_cnt==TILE_CYCLE-1 to allow last WBUF data to return
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             drain_cnt <= '0;
         end else if (state == RUN_PIPELINE && tile_cnt == TILE_CYCLE-1 && drain_cnt == 0) begin
-            drain_cnt <= 2; // 两拍用于接收最后一批返回
+            drain_cnt <= 2;
         end else if (drain_cnt != 0) begin
             drain_cnt <= drain_cnt - 1'b1;
         end else if (state == IDLE) begin
             drain_cnt <= '0;
         end
     end
-    //data_cnt control valid_in count 64 cycles
 
+    // data_cnt control valid_in count 64 cycles
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             data_cnt <= '0;
-        //end else if ((state == RUN_PIPELINE) || (state == WAIT_DONE))begin
         end else if (state == RUN_PIPELINE) begin
             if (valid_in && data_cnt != TILE_CYCLE)
                 data_cnt <= data_cnt + 1'b1;

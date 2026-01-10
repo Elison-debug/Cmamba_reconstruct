@@ -10,7 +10,7 @@ module tb_reduction_accumulator;
     localparam CLK_PERIOD = 10;
 
     logic clk, rst_n;
-    logic [2:0] mode;
+    logic [1:0] mode;
     logic valid_in, clear;
     logic signed [ACC_WIDTH-1:0] mat_in [TILE_SIZE-1:0][TILE_SIZE-1:0];
     logic signed [ACC_WIDTH-1:0] vec_out [TILE_SIZE-1:0];
@@ -41,7 +41,7 @@ module tb_reduction_accumulator;
 
     initial begin
         rst_n = 0;
-        mode  = 3'b000; // MAC 模式
+        mode  = 2'b00; // MAC 模式
         valid_in = 0;
         clear = 0;
         #(5*CLK_PERIOD);

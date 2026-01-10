@@ -1,8 +1,8 @@
 //---------------------------------------------------------------
 // Module: pipeline_4array_with_reduction (v4 - tile-only version)
 // Function:
-//   - MAC 模式 (3'b000): 时间累加规约（仅使用 array4 的结果）
-//   - OUTER 模式 (3'b011): 空间规约（4 个阵列结果并行规约后相加）
+//   - MAC 模式 (2'b00): 时间累加规约（仅使用 array4 的结果）
+//   - 其他模式 (2'b01/2'b10): 单拍输出（不再区分 OUTER）
 //   - 支持 tile-only 接口 (A_mat, B_mat)，广播逻辑由访存模块完成。
 //---------------------------------------------------------------
 module pipeline_4array_with_reduction #(
@@ -13,7 +13,7 @@ module pipeline_4array_with_reduction #(
 )(
     input  logic clk,
     input  logic rst_n,
-    input  logic [2:0] mode,
+    input  logic [1:0] mode,
     input  logic valid_in,
 
     // --- A/B 矩阵 tile 输入 ---
@@ -69,30 +69,11 @@ module pipeline_4array_with_reduction #(
 
     // ==========================================================
     // 2. 阵列级规约
-    //    - MAC: 时间规约，只使用 array4 的结果
-    //    - OUTER: 空间规约，四阵列结果并行求和
+    //    - 当前仅保留单条规约路径，使用 array4 的结果
     // ==========================================================
-    logic signed [ACC_WIDTH-1:0] vec0 [TILE_SIZE-1:0];
-    logic signed [ACC_WIDTH-1:0] vec1 [TILE_SIZE-1:0];
-    logic signed [ACC_WIDTH-1:0] vec2 [TILE_SIZE-1:0];
     logic signed [ACC_WIDTH-1:0] vec3 [TILE_SIZE-1:0];
-    logic valid0, valid1, valid2, valid3;
+    logic                        valid3;
 
-    reduction_accumulator #(.TILE_SIZE(TILE_SIZE), .ACC_WIDTH(ACC_WIDTH)) u_red0 (
-        .clk(clk), .rst_n(rst_n), .mode(mode),
-        .valid_in(valid_array4), .clear(done_tile),
-        .mat_in(result_out_0), .vec_out(vec0), .valid_out(valid0)
-    );
-    reduction_accumulator #(.TILE_SIZE(TILE_SIZE), .ACC_WIDTH(ACC_WIDTH)) u_red1 (
-        .clk(clk), .rst_n(rst_n), .mode(mode),
-        .valid_in(valid_array4), .clear(done_tile),
-        .mat_in(result_out_1), .vec_out(vec1), .valid_out(valid1)
-    );
-    reduction_accumulator #(.TILE_SIZE(TILE_SIZE), .ACC_WIDTH(ACC_WIDTH)) u_red2 (
-        .clk(clk), .rst_n(rst_n), .mode(mode),
-        .valid_in(valid_array4), .clear(done_tile),
-        .mat_in(result_out_2), .vec_out(vec2), .valid_out(valid2)
-    );
     reduction_accumulator #(.TILE_SIZE(TILE_SIZE), .ACC_WIDTH(ACC_WIDTH)) u_red3 (
         .clk(clk), .rst_n(rst_n), .mode(mode),
         .valid_in(valid_array4), .clear(done_tile),
@@ -102,9 +83,8 @@ module pipeline_4array_with_reduction #(
     // ==========================================================
     // 3. 最终规约：根据模式决定输出
     // ==========================================================
-    logic is_vec_mode, is_outer_mode;
-    assign is_vec_mode   = (mode == 3'b000 || mode == 3'b100|| mode == 3'b010);
-    assign is_outer_mode = (mode == 3'b011);
+    logic is_vec_mode;
+    assign is_vec_mode   = (mode == 2'b00 || mode == 2'b01 || mode == 2'b10);
 
     always_comb begin
         reduced_vec   = '{default:'0};
@@ -113,15 +93,9 @@ module pipeline_4array_with_reduction #(
         reduced_mat_2 = '{default:'0};
         reduced_mat_3 = '{default:'0};
         for (int j = 0; j < TILE_SIZE; j++) begin
-            if (is_outer_mode)
-                // --- OUTER 模式: 空间规约 ---
-                // C_h=ht⊗C_raw  //C_raw(d_state, 1), ht(d_inner, 1) → C_h(d_inner, d_state) → Reduction: C_h(d_inner, 1)
-                reduced_vec[j] = vec0[j] + vec1[j] + vec2[j] + vec3[j];
-            else if (is_vec_mode)
-                // --- VEC 模式: 仅使用 array4 累加结果 ---
-                // --- MAC 模式: 仅使用 array4 累加结果 ---
+            if (is_vec_mode) begin
                 reduced_vec[j] = vec3[j];
-            else begin
+            end else begin
                 for (int i = 0; i < TILE_SIZE; i++) begin
                     reduced_mat_0[i][j] = result_out_0[i][j];
                     reduced_mat_1[i][j] = result_out_1[i][j];
@@ -132,7 +106,6 @@ module pipeline_4array_with_reduction #(
         end
     end
 
-    assign valid_reduced = is_outer_mode ? (valid0 & valid1 & valid2 & valid3)
-                                         : valid3;
+    assign valid_reduced = valid3;
 
 endmodule

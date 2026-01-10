@@ -1,21 +1,16 @@
 //---------------------------------------------------------------
 // Module: pipeline_4array_top (v17 - tile-only version)
-//   Mode Encoding (3-bit):
+//   Mode Encoding (2-bit):
 //   -----------------------------------------------------------
 //   | mode | Operation Description          | Formula                           | Output Shape |
 //   |------|--------------------------------|-----------------------------------|---------------|
-//   | 000  | MAC (Matrix × Vector)          | RAW=Wx_pj⊙x_t; Δ_t=W_Δ⊙Δ_raw    | Vector (d_state×1) |
-//   | 001  | EWM-Matrix (Matrix × Vector)   | ΔA = A ⊙ spΔ_t; ΔB_x=spΔ_t ⊙ B_x| Matrix (d_inner×d_state) |
-//   | 010  | EWM-Vector (Vector × Vector)   | D_x = D ⊙ x_t                    | Vector (d_inner×1) |
-//   | 011  | EWM-Outer (Outer Product)      | B_x = x_t ⊗ B_raw; C_h=ht⊗C_raw | Matrix (d_inner×d_state) |
-//   | 100  | EWA-Vector (Vector + Vector)   | y = C_h + D_x; Δ_t_b=Δ_t+dt_bias  | Vector (d_inner×1) |
-//   | 101  | EWA-Matrix (Matrix + Matrix)   | h_t = A_ht-1 + ΔB_x               | Matrix (d_inner×d_state) |
-//   | 110  | EWM-Matrix2 (Matrix × Matrix)  | A_ht-1 = EXP_ΔA ⊙ h_t-1          | Matrix (d_inner×d_state) |
+//   | 00   | MAC (Matrix × Vector)          | RAW=Wx_pj⊙x_t; Δ_t=W_Δ⊙Δ_raw    | Vector (d_state×1) |
+//   | 01   | EWM-Vector (Vector × Vector)   | D_x = D ⊙ x_t                    | Vector (d_inner×1) |
+//   | 10   | EWA-Vector (Vector + Vector)   | y = C_h + D_x; Δ_t_b=Δ_t+dt_bias  | Vector (d_inner×1) |
 //   -----------------------------------------------------------
 // Function:
-//   输入接口仅支持矩阵 tile（A_mat, B_mat），不再接收向量。
-//   广播与拼接逻辑全部移至访存控制器中。
-//   顶层仅实现流水线控制与 tile 分发。
+//   输入接口：A 为矩阵 tile；B 为矩阵 tile（广播由上层控制）。
+//   顶层实现流水线控制与 tile 分发。
 //---------------------------------------------------------------
 module pipeline_4array_top #(
     parameter int TILE_SIZE  = 4,
@@ -25,7 +20,7 @@ module pipeline_4array_top #(
 )(
     input  logic clk,
     input  logic rst_n,
-    input  logic [2:0] mode,
+    input  logic [1:0] mode,
     input  logic valid_in,
     output logic valid_out,
     output logic done_tile,
@@ -36,7 +31,7 @@ module pipeline_4array_top #(
     input  logic signed [DATA_WIDTH-1:0] A2_mat [TILE_SIZE-1:0][TILE_SIZE-1:0],
     input  logic signed [DATA_WIDTH-1:0] A3_mat [TILE_SIZE-1:0][TILE_SIZE-1:0],
 
-    // --- 4 组 B 矩阵 tile 输入 (取代原来的 B_vec) ---
+    // --- 4 组 B 矩阵 tile 输入 ---
     input  logic signed [DATA_WIDTH-1:0] B0_mat [TILE_SIZE-1:0][TILE_SIZE-1:0],
     input  logic signed [DATA_WIDTH-1:0] B1_mat [TILE_SIZE-1:0][TILE_SIZE-1:0],
     input  logic signed [DATA_WIDTH-1:0] B2_mat [TILE_SIZE-1:0][TILE_SIZE-1:0],
@@ -53,14 +48,7 @@ module pipeline_4array_top #(
     // Mode 映射
     // ==========================================================
     logic [1:0] pe_mode;
-    always_comb begin
-        case (mode)
-            3'b000: pe_mode = 2'b00; // MAC (乘加)
-            3'b001, 3'b010, 3'b011, 3'b110: pe_mode = 2'b01; // EWM
-            3'b100, 3'b101: pe_mode = 2'b10; // EWA
-            default: pe_mode = 2'b00;
-        endcase
-    end
+    assign pe_mode = mode; // mode 与 pe_mode 一一对应
 
     // ==========================================================
     // 内部信号定义
@@ -71,7 +59,7 @@ module pipeline_4array_top #(
     logic v1, v2, v3, v4;
     logic is_mac_mode;
 
-    assign is_mac_mode = (mode == 3'b000);
+    assign is_mac_mode = (mode == 2'b00);
 
     logic signed [ACC_WIDTH-1:0] acc_1_out [TILE_SIZE-1:0][TILE_SIZE-1:0],
                                 acc_2_out [TILE_SIZE-1:0][TILE_SIZE-1:0],
@@ -171,17 +159,15 @@ module pipeline_4array_top #(
             done_tile <= 1'b0;
         end
         else if (is_mac_mode) begin
-            if (valid_out) begin//前4拍还没出结果，计数器应该与结果同步
-                if (col_cnt == COL_BLOCKS - 1) begin
-                    col_cnt   <= '0;
-                    done_tile <= 1'b1;   // 每个 tile 完成时拉高一拍
-                end
-                else begin
-                    col_cnt   <= col_cnt + 1;
-                    done_tile <= 1'b0;
-                end
-            end
-            else begin
+            // 以 valid_out 为计数基准，遇到空拍立即重置，避免跨 tile 累计
+            if (!valid_out) begin
+                col_cnt   <= '0;
+                done_tile <= 1'b0;
+            end else if (col_cnt == COL_BLOCKS - 1) begin
+                col_cnt   <= '0;
+                done_tile <= 1'b1;   // 每个 tile 完成时拉高一拍
+            end else begin
+                col_cnt   <= col_cnt + 1;
                 done_tile <= 1'b0;
             end
         end

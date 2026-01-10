@@ -19,7 +19,7 @@ module tb_pipeline_4array_top;
     logic rst_n;
 
     // DUT I/O
-    logic [2:0] mode;
+    logic [1:0] mode;
     logic       valid_in;
     logic       valid_out;
     logic       done_tile;    // <<< 新增信号
@@ -32,10 +32,10 @@ module tb_pipeline_4array_top;
     logic signed [DATA_WIDTH-1:0] A2_mat [TILE_SIZE-1:0][TILE_SIZE-1:0];
     logic signed [DATA_WIDTH-1:0] A3_mat [TILE_SIZE-1:0][TILE_SIZE-1:0];
 
-    logic signed [DATA_WIDTH-1:0] B0_vec [TILE_SIZE-1:0];
-    logic signed [DATA_WIDTH-1:0] B1_vec [TILE_SIZE-1:0];
-    logic signed [DATA_WIDTH-1:0] B2_vec [TILE_SIZE-1:0];
-    logic signed [DATA_WIDTH-1:0] B3_vec [TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] B0_mat [TILE_SIZE-1:0][TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] B1_mat [TILE_SIZE-1:0][TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] B2_mat [TILE_SIZE-1:0][TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] B3_mat [TILE_SIZE-1:0][TILE_SIZE-1:0];
 
     logic signed [ACC_WIDTH-1:0] result_out_0 [TILE_SIZE-1:0][TILE_SIZE-1:0];
     logic signed [ACC_WIDTH-1:0] result_out_1 [TILE_SIZE-1:0][TILE_SIZE-1:0];
@@ -56,7 +56,7 @@ module tb_pipeline_4array_top;
         .valid_out(valid_out),
         .done_tile(done_tile),    // <<< 新增连接
         .A0_mat(A0_mat), .A1_mat(A1_mat), .A2_mat(A2_mat), .A3_mat(A3_mat),
-        .B0_vec(B0_vec), .B1_vec(B1_vec), .B2_vec(B2_vec), .B3_vec(B3_vec),
+        .B0_mat(B0_mat), .B1_mat(B1_mat), .B2_mat(B2_mat), .B3_mat(B3_mat),
         .result_out_0(result_out_0), .result_out_1(result_out_1),
         .result_out_2(result_out_2), .result_out_3(result_out_3)
     );
@@ -85,7 +85,7 @@ module tb_pipeline_4array_top;
     // ============================================================
     initial begin
         rst_n = 0;
-        mode = 3'b000; // MAC mode
+        mode = 2'b00; // MAC mode
         valid_in = 0;
         repeat (10) @(posedge clk);
         rst_n = 1;
@@ -154,14 +154,12 @@ module tb_pipeline_4array_top;
                     A1_mat[i][j] = (kb2 + j < K && kb2 >= 0) ? A_mem[row_base + i][kb2 + j] : '0;
                     A2_mat[i][j] = (kb3 + j < K && kb3 >= 0) ? A_mem[row_base + i][kb3 + j] : '0;
                     A3_mat[i][j] = (kb4 + j < K && kb4 >= 0) ? A_mem[row_base + i][kb4 + j] : '0;
-                end
-            end
 
-            for (j = 0; j < TILE_SIZE; j++) begin
-                B0_vec[j] = (kb1 + j < K && kb1 >= 0) ? B_mem[kb1 + j] : '0;
-                B1_vec[j] = (kb2 + j < K && kb2 >= 0) ? B_mem[kb2 + j] : '0;
-                B2_vec[j] = (kb3 + j < K && kb3 >= 0) ? B_mem[kb3 + j] : '0;
-                B3_vec[j] = (kb4 + j < K && kb4 >= 0) ? B_mem[kb4 + j] : '0;
+                    B0_mat[i][j] = (kb1 + j < K && kb1 >= 0) ? B_mem[kb1 + j] : '0;
+                    B1_mat[i][j] = (kb2 + j < K && kb2 >= 0) ? B_mem[kb2 + j] : '0;
+                    B2_mat[i][j] = (kb3 + j < K && kb3 >= 0) ? B_mem[kb3 + j] : '0;
+                    B3_mat[i][j] = (kb4 + j < K && kb4 >= 0) ? B_mem[kb4 + j] : '0;
+                end
             end
         end
     endtask

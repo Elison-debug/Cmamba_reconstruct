@@ -49,13 +49,24 @@ module array4x4 #(
                     // 之前为 a_in[i] 和 b_in[j]，已修正为元素级连接
                     .a_in       (a_in[i][j]),
                     .b_in       (b_in[i][j]),
-                    
+
                     .acc_in     (acc_in[i][j]),
                     .result_out (result_out[i][j])
                 );
             end
         end
     endgenerate
+
+    // 防止未读 valid 位的 lint 告警：把所有 PE valid_out 归并到一个未使用的冗余信号
+    logic pe_valid_aggregate;
+    always_comb begin
+        pe_valid_aggregate = 1'b0;
+        for (int rr = 0; rr < TILE_SIZE; rr++) begin
+            for (int cc = 0; cc < TILE_SIZE; cc++) begin
+                pe_valid_aggregate |= pe_valid_out[rr][cc];
+            end
+        end
+    end
 
     // --- 驱动模块的 valid_out ---
     // 所有 PE 具有相同的 1 拍延迟，因此它们所有的 valid_out 信号都是同步的。

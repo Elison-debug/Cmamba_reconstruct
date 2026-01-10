@@ -351,7 +351,7 @@ module mac_mem_controller_combined_dp #(
     ) u_pipeline (
         .clk(clk),
         .rst_n(rst_n),
-        .mode(3'b000),
+        .mode(2'b00),
         .valid_in(valid_in),
         .A0_mat(A0_mat), .A1_mat(A1_mat), .A2_mat(A2_mat), .A3_mat(A3_mat),
         .B0_mat(B0_mat_reg), .B1_mat(B1_mat_reg), .B2_mat(B2_mat_reg), .B3_mat(B3_mat_reg),

@@ -238,6 +238,10 @@ module tb_slim_mac_mem_controller_combined_dp;
                 16'(4*addr + 3),
                 16'(4*addr + 2),
                 16'(4*addr + 1)
+                // 16'd1,
+                // 16'd1,
+                // 16'd1,
+                // 16'd1
             };
         end
     end

@@ -12,7 +12,7 @@ module tb_pipeline_4array_with_reduction_v3;
 
     // ---------------- 信号定义 ----------------
     logic clk, rst_n;
-    logic [2:0] mode;
+    logic [1:0] mode;
     logic valid_in, valid_reduced;
     logic signed [DATA_WIDTH-1:0] A0_mat [TILE_SIZE-1:0][TILE_SIZE-1:0];
     logic signed [DATA_WIDTH-1:0] A1_mat [TILE_SIZE-1:0][TILE_SIZE-1:0];
@@ -100,7 +100,7 @@ module tb_pipeline_4array_with_reduction_v3;
                     endcase
                 end
 
-            // === B tile === (改为矩阵，每行重复 B_mem 的对应段)
+            // === B tile === (矩阵，每行重复 B_mem 段)
             for (i = 0; i < TILE_SIZE; i++)
                 for (j = 0; j < TILE_SIZE; j++) begin
                     case (array_id)
@@ -132,7 +132,7 @@ module tb_pipeline_4array_with_reduction_v3;
         int rb, kb;
         begin
             $display("\n===== MAC MODE TEST START =====");
-            mode = 3'b000;
+            mode = 2'b00;
             for (rb = 0; rb < num_rows; rb += TILE_SIZE) begin
                 for (kb = 0; kb < K; kb += 16)
                     send_tile_pipeline(rb, kb);
@@ -140,37 +140,6 @@ module tb_pipeline_4array_with_reduction_v3;
             end
             repeat (8) @(posedge clk);
             $display("MAC mode finished.\n");
-        end
-    endtask
-
-    // ---------------- 驱动序列 (OUTER 模式) ----------------
-    task automatic run_outer_mode(input int num_groups);
-        int i, j, g;
-        begin
-            $display("\n===== OUTER MODE TEST START =====");
-            mode = 3'b011;
-            for (g = 0; g < num_groups; g++) begin
-                valid_in = 1'b1;
-
-                // === A,B tiles: 不同组用不同常数 ===
-                for (i = 0; i < TILE_SIZE; i++)
-                    for (j = 0; j < TILE_SIZE; j++) begin
-                        A0_mat[i][j] = to_dw((i + 1 + g) * (1 << FRAC_BITS));
-                        A1_mat[i][j] = A0_mat[i][j];
-                        A2_mat[i][j] = A0_mat[i][j];
-                        A3_mat[i][j] = A0_mat[i][j];
-
-                        B0_mat[i][j] = to_dw((j + 1 + g));
-                        B1_mat[i][j] = to_dw((j + 5 + g));
-                        B2_mat[i][j] = to_dw((j + 9 + g));
-                        B3_mat[i][j] = to_dw((j + 13 + g));
-                    end
-
-                @(posedge clk);
-                for (i = 0; i < TILE_SIZE; i++)
-                    $display("OUTER[%0d] reduced_vec[%0d] = %0d", g, i, reduced_vec[i]);
-            end
-            $display("OUTER mode finished.\n");
         end
     endtask
 
@@ -189,10 +158,6 @@ module tb_pipeline_4array_with_reduction_v3;
         repeat (FLUSH_CYCLES) @(posedge clk);
         valid_in = 0;
         repeat (5) @(posedge clk);
-
-        // === OUTER 多组测试 ===
-        run_outer_mode(3);
-        repeat (10) @(posedge clk);
 
         $display("\n===== Simulation Finished =====");
         $finish;
@@ -214,7 +179,7 @@ endmodule
 
 //     // ---------------- 信号定义 ----------------
 //     logic clk, rst_n;
-//     logic [2:0] mode;
+//     logic [1:0] mode;
 //     logic valid_in, valid_reduced;
 //     logic signed [DATA_WIDTH-1:0] A0_mat [TILE_SIZE-1:0][TILE_SIZE-1:0];
 //     logic signed [DATA_WIDTH-1:0] A1_mat [TILE_SIZE-1:0][TILE_SIZE-1:0];
@@ -331,7 +296,7 @@ endmodule
 //         int rb, kb;
 //         begin
 //             $display("\n===== MAC MODE TEST START =====");
-//             mode = 3'b000;
+//             mode = 2'b00;
 //             for (rb = 0; rb < num_rows; rb += TILE_SIZE) begin
 //                 for (kb = 0; kb < K; kb += 16) begin
 //                     send_tile_pipeline(rb, kb);
@@ -348,7 +313,7 @@ endmodule
 //         int i, j, g;
 //         begin
 //             $display("\n===== OUTER MODE TEST START =====");
-//             mode = 3'b011;
+//             mode = 2'b01;
 
 //             for (g = 0; g < num_groups; g++) begin
 //                 valid_in = 1'b1;
