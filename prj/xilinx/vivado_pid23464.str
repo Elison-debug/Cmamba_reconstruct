@@ -3562,3 +3562,493 @@ selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Synthe
 // Run Command: PAResourceCommand.PACommandNames_SCHEMATIC
 // HMemoryUtils.trashcanNow. Engine heap size: 6,310 MB. GUI used memory: 271 MB. Current time: 1/11/26, 5:28:46 PM CET
 // WARNING: HEventQueue.dispatchEvent() is taking  1228 ms.
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// Elapsed Time for: 'L.f': 02h:10m:26s
+// Elapsed Time for: 'L.f': 02h:10m:30s
+// Elapsed time: 2696 seconds
+selectButton(PAResourceTtoZ.TaskBanner_CLOSE, (String) null); // j (PAResourceTtoZ.TaskBanner_CLOSE)
+closeTask("Synthesis", "Synthesized Design", "DesignTask.NETLIST_PLANNING");
+selectButton(RDIResource.BaseDialog_OK, "OK", "Confirm Close"); // a (RDIResource.BaseDialog_OK)
+dismissDialog("Confirm Close"); // t (dialog32)
+// TclEventType: DESIGN_CLOSE
+// HMemoryUtils.trashcanNow. Engine heap size: 6,310 MB. GUI used memory: 223 MB. Current time: 1/11/26, 5:50:54 PM CET
+// Engine heap size: 6,310 MB. GUI used memory: 224 MB. Current time: 1/11/26, 5:50:54 PM CET
+// TclEventType: CURR_DESIGN_SET
+// Tcl Message: close_design 
+// TclEventType: CURR_DESIGN_SET
+// TclEventType: DESIGN_CLOSE
+dismissDialog("Close"); // bj (Close Progress)
+collapseTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, top_mac_plus_bias_fifo_sigmoid_ew_gate (top_mac_plus_bias_fifo_sigmoid_ew_gate.sv)]", 1); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE)
+collapseTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Simulation Sources, sim_8, tb_top_mac_plus_bias_fifo_sigmoid_ew_gate (tb_top_mac_plus_bias_fifo_sigmoid_ew_gate.sv), dut : top_mac_plus_bias_fifo_sigmoid_ew_gate (top_mac_plus_bias_fifo_sigmoid_ew_gate.sv)]", 20); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE)
+collapseTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Simulation Sources, sim_8, tb_top_mac_plus_bias_fifo_sigmoid_ew_gate (tb_top_mac_plus_bias_fifo_sigmoid_ew_gate.sv)]", 19); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE)
+selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Simulation Sources, sim_8, tb_top_mac_plus_bias_fifo_sigmoid_ew_gate (tb_top_mac_plus_bias_fifo_sigmoid_ew_gate.sv)]", 19, true); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE) - Node
+selectButton(PAResourceCommand.PACommandNames_ADD_SOURCES, "Sources_add_sources"); // B (PAResourceCommand.PACommandNames_ADD_SOURCES, Sources_add_sources)
+// Run Command: PAResourceCommand.PACommandNames_ADD_SOURCES
+selectRadioButton(PAResourceAtoD.AddSrcWizard_SPECIFY_SIMULATION_SPECIFIC_HDL_FILES, "Add or create simulation sources"); // a (PAResourceAtoD.AddSrcWizard_SPECIFY_SIMULATION_SPECIFIC_HDL_FILES)
+selectButton("NEXT", "Next >", "Add Sources"); // JButton (NEXT)
+selectButton(PAResourceQtoS.SrcChooserPanel_ADD_HDL_AND_NETLIST_FILES_TO_YOUR_PROJECT, "Add Files", "Add Sources"); // a (PAResourceQtoS.SrcChooserPanel_ADD_HDL_AND_NETLIST_FILES_TO_YOUR_PROJECT)
+// WARNING: HEventQueue.dispatchEvent() is taking  1229 ms.
+// Elapsed time: 29 seconds
+selectComboBox(RDIResource.HJFileChooserRecentListPreview_RECENT_DIRECTORIES, "E:/Master/2025/Mamba/Cmamba_reconstruct/user/src", 3); // aa.b (RDIResource.HJFileChooserRecentListPreview_RECENT_DIRECTORIES)
+// Elapsed time: 11 seconds
+selectComboBox(RDIResource.HJFileChooserRecentListPreview_RECENT_DIRECTORIES, "E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim", 2); // aa.b (RDIResource.HJFileChooserRecentListPreview_RECENT_DIRECTORIES)
+// Elapsed time: 32 seconds
+setFileChooser("E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper.sv");
+selectButton("FINISH", "Finish", "Add Sources"); // JButton (FINISH)
+// 'f' command handler elapsed time: 78 seconds
+dismissDialog("Add Sources"); // c (dialog33)
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: FILE_SET_OPTIONS_CHANGE
+// Tcl Message: set_property SOURCE_SET sources_1 [get_filesets sim_8] 
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// Tcl Message: add_files -fileset sim_8 -norecurse -scan_for_includes E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper.sv 
+dismissDialog("Add Simulation Sources"); // bj (Add Simulation Sources  Progress)
+// Elapsed Time for: 'L.f': 02h:12m:22s
+expandTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Simulation Sources, sim_8, tb_top_mac_plus_bias_fifo_sigmoid_ew_gate (tb_top_mac_plus_bias_fifo_sigmoid_ew_gate.sv)]", 19); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE)
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// Elapsed Time for: 'L.f': 02h:12m:24s
+// Tcl Message: update_compile_order -fileset sim_8 
+// Elapsed Time for: 'L.f': 02h:12m:26s
+selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Simulation Sources, sim_8, tb_top_mac_plus_bias_fifo_sigmoid_ew_gate (tb_top_mac_plus_bias_fifo_sigmoid_ew_gate.sv)]", 19, true); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE) - Node
+collapseTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Simulation Sources, sim_8, tb_top_mac_plus_bias_fifo_sigmoid_ew_gate (tb_top_mac_plus_bias_fifo_sigmoid_ew_gate.sv)]", 19); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE)
+// Elapsed Time for: 'L.f': 02h:12m:28s
+selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Simulation Sources, sim_8]", 18, true); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE) - Node
+selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Simulation Sources, sim_8]", 18, true, false, false, false, true, false); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE) - Popup Trigger - Node
+selectMenu(PAResourceCommand.PACommandNames_SIMULATION_RUN, "Run Simulation"); // am (PAResourceCommand.PACommandNames_SIMULATION_RUN, Run Simulation)
+selectMenu(PAResourceCommand.PACommandNames_SIMULATION_RESET, "Reset Simulation"); // am (PAResourceCommand.PACommandNames_SIMULATION_RESET, Reset Simulation)
+selectMenu(PAResourceCommand.PACommandNames_SIMULATION_RUN, "Run Simulation"); // am (PAResourceCommand.PACommandNames_SIMULATION_RUN, Run Simulation)
+selectMenuItem(PAResourceCommand.PACommandNames_SIMULATION_RUN_POST_SYNTHESIS_FUNCTIONAL, "Run Post-Synthesis Functional Simulation"); // ap (PAResourceCommand.PACommandNames_SIMULATION_RUN_POST_SYNTHESIS_FUNCTIONAL, simulation_run_post_synthesis_functional_menu)
+// Run Command: PAResourceCommand.PACommandNames_SIMULATION_RUN_POST_SYNTHESIS_FUNCTIONAL
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: LAUNCH_SIM
+// TclEventType: FILE_SET_OPTIONS_CHANGE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: FILE_SET_OPTIONS_CHANGE
+// Tcl Message: launch_simulation -simset [get_filesets sim_8 ] -mode post-synthesis -type functional 
+// Tcl Message: Command: launch_simulation  -simset sim_8 -mode post-synthesis -type functional 
+// Tcl Message: INFO: [Vivado 12-12493] Simulation top is 'tb_top_mac_plus_bias_fifo_sigmoid_ew_gate' 
+// Tcl Message: Design is defaulting to impl run constrset: constrs_1 Design is defaulting to synth run part: xczu9eg-ffvb1156-2-e 
+// TclEventType: READ_XDC_FILE_START
+// TclEventType: SDC_CONSTRAINT_ADD
+// TclEventType: READ_XDC_FILE_END
+// TclEventType: FLOORPLAN_MODIFY
+// TclEventType: DESIGN_NEW
+// HMemoryUtils.trashcanNow. Engine heap size: 6,310 MB. GUI used memory: 199 MB. Current time: 1/11/26, 5:53:01 PM CET
+// TclEventType: DESIGN_NEW
+// Xgd.load filename: E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/.Xil/Vivado-23464-G14-DAWN/xczu9eg_floorplan.xgd_48F3 elapsed time: 1s
+// Xgd.load filename: E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/.Xil/Vivado-23464-G14-DAWN/xczu9eg_detail.xgd_48F3 elapsed time: 5.4s
+// DeviceModel: Load Xgds SwingWorker Join Forever elapsed time: 4.1s
+// DeviceModel: Load Xgds SwingWorker Join Forever elapsed time: 6.5s
+// DeviceView Instantiated
+// WARNING: HEventQueue.dispatchEvent() is taking  6133 ms.
+// TclEventType: CURR_DESIGN_SET
+// Tcl Message: ERROR: [Common 17-180] Spawn failed: No error 
+// Tcl Message: Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.324 . Memory (MB): peak = 7561.336 ; gain = 0.000 
+// Tcl Message: INFO: [Netlist 29-17] Analyzing 1189 Unisim elements for replacement INFO: [Netlist 29-28] Unisim Transformation completed in 1 CPU seconds INFO: [Project 1-479] Netlist was created with Vivado 2024.1 INFO: [Project 1-570] Preparing netlist for logic optimization 
+// Tcl Message: Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.005 . Memory (MB): peak = 7561.336 ; gain = 0.000 
+// Tcl Message: INFO: [Project 1-111] Unisim Transformation Summary:   A total of 145 instances were transformed.   DSP48E2 => DSP48E2 (DSP_ALU, DSP_A_B_DATA, DSP_C_DATA, DSP_MULTIPLIER, DSP_M_DATA, DSP_OUTPUT, DSP_PREADD, DSP_PREADD_DATA): 76 instances   IBUF => IBUF (IBUFCTRL, INBUF): 69 instances  
+// TclEventType: CURR_DESIGN_SET
+// Device view-level: 0.0
+// Tcl Message: open_run: Time (s): cpu = 00:00:17 ; elapsed = 00:00:20 . Memory (MB): peak = 7561.336 ; gain = 0.000 
+// Tcl Message: INFO: [SIM-utils-24] Writing simulation netlist file for design 'synth_1'... INFO: [SIM-utils-25] write_verilog -mode funcsim -nolib -force -file "E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.sim/sim_8/synth/func/xsim/tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_func_synth.v" 
+// TclEventType: PACKAGER_MESSAGE_RESET
+// TclEventType: PACKAGER_UNLOAD_CORE
+// TclEventType: PACKAGER_MESSAGE_RESET
+// TclEventType: PACKAGER_UNLOAD_CORE
+// TclEventType: PACKAGER_MESSAGE_RESET
+// TclEventType: PACKAGER_UNLOAD_CORE
+// TclEventType: PACKAGER_MESSAGE_RESET
+// TclEventType: PACKAGER_UNLOAD_CORE
+// TclEventType: PACKAGER_MESSAGE_RESET
+// TclEventType: PACKAGER_UNLOAD_CORE
+// TclEventType: HFED_INIT_ROUTE_STORAGE_COMPLETED
+// RouteApi::loadEngineXgdAndInitRouteStorage elapsed time: 3s
+// Tcl Message: "xvlog --incr --relax -L uvm -prj tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_vlog.prj" 
+// RouteApi::initDelayMediator elapsed time: 4.1s
+// RouteApi: Init Delay Mediator Swing Worker Finished
+// HMemoryUtils.trashcanNow. Engine heap size: 6,310 MB. GUI used memory: 274 MB. Current time: 1/11/26, 5:53:17 PM CET
+// TclEventType: LAUNCH_SIM_LOG
+// Tcl Message: run_program: Time (s): cpu = 00:00:02 ; elapsed = 00:00:10 . Memory (MB): peak = 7561.336 ; gain = 0.000 
+// Tcl Message: INFO: [USF-XSim-69] 'compile' step finished in '11' seconds INFO: [USF-XSim-3] XSim::Elaborate design INFO: [USF-XSim-61] Executing 'ELABORATE' step in 'E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.sim/sim_8/synth/func/xsim' 
+// Tcl Message: "xelab --incr --debug typical --relax --mt 2 -L xil_defaultlib -L uvm -L unisims_ver -L secureip --snapshot tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_func_synth xil_defaultlib.tb_top_mac_plus_bias_fifo_sigmoid_ew_gate xil_defaultlib.glbl -log elaborate.log" 
+// Tcl Message: Vivado Simulator v2024.1 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved. Running: E:/Xilinx/Vivado/2024.1/bin/unwrapped/win64.o/xelab.exe --incr --debug typical --relax --mt 2 -L xil_defaultlib -L uvm -L unisims_ver -L secureip --snapshot tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_func_synth xil_defaultlib.tb_top_mac_plus_bias_fifo_sigmoid_ew_gate xil_defaultlib.glbl -log elaborate.log  Using 2 slave threads. Starting static elaboration Pass Through NonSizing Optimizer 
+// TclEventType: LAUNCH_SIM
+// Tcl Message: run_program: Time (s): cpu = 00:00:01 ; elapsed = 00:00:05 . Memory (MB): peak = 7561.336 ; gain = 0.000 
+// Tcl Message: INFO: [USF-XSim-69] 'elaborate' step finished in '5' seconds INFO: [USF-XSim-99] Step results log file:'E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.sim/sim_8/synth/func/xsim/elaborate.log' 
+// Tcl Message: ERROR: [USF-XSim-62] 'elaborate' step failed with error(s). Please check the Tcl console output or 'E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.sim/sim_8/synth/func/xsim/elaborate.log' file for more information. ERROR: [Vivado 12-4473] Detected error while running simulation. Please correct the issue and retry this operation. 
+// Tcl Message: launch_simulation: Time (s): cpu = 00:00:23 ; elapsed = 00:00:38 . Memory (MB): peak = 7561.336 ; gain = 0.000 
+// Tcl Message: ERROR: [Common 17-39] 'launch_simulation' failed due to earlier errors. 
+// CommandFailedException: ERROR: [Common 17-69] Command failed: ERROR: [Common 17-39] 'launch_simulation' failed due to earlier errors.  
+// HOptionPane Error: 'ERROR: [Common 17-39] 'launch_simulation' failed due to earlier errors.  (Run Simulation)'
+// Elapsed Time for: 'h': 41s
+// 'd' command handler elapsed time: 41 seconds
+// Elapsed time: 42 seconds
+selectButton("OptionPane.button", "OK", "Run Simulation"); // JButton (OptionPane.button)
+selectButton(PAResourceAtoD.CmdMsgDialog_OPEN_MESSAGES_VIEW, "Open Messages View", "Critical Messages"); // a (PAResourceAtoD.CmdMsgDialog_OPEN_MESSAGES_VIEW)
+// Run Command: PAResourceCommand.PACommandNames_MESSAGE_WINDOW
+dismissDialog("Critical Messages"); // a (dialog35)
+selectTree(PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE, "[, Simulation, sim_8, [VRFC 10-3180] cannot find port 'y_axis_TDATA' on this module [E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/tb_top_mac_plus_bias_fifo_sigmoid_ew_gate.sv:90]. ]", 7, true); // u.d (PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE) - Node
+messagesViewCrossProbe(PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE, "src;-;E:\Master\2025\Mamba\Cmamba_reconstruct\user\sim\tb_top_mac_plus_bias_fifo_sigmoid_ew_gate.sv;-;;-;16;-;line;-;90;-;;-;16;-;"); // u.d (PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE)
+selectButton(PAResourceAtoD.AbstractFileView_RELOAD, "Reload"); // g (PAResourceAtoD.AbstractFileView_RELOAD)
+selectTree(PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE, "[, Simulation, sim_8, [VRFC 10-3180] cannot find port 'y_axis_TDATA' on this module [E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/tb_top_mac_plus_bias_fifo_sigmoid_ew_gate.sv:90]. ]", 7, true); // u.d (PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE) - Node
+messagesViewCrossProbe(PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE, "src;-;E:\Master\2025\Mamba\Cmamba_reconstruct\user\sim\tb_top_mac_plus_bias_fifo_sigmoid_ew_gate.sv;-;;-;16;-;line;-;90;-;;-;16;-;"); // u.d (PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE)
+selectCodeEditor("tb_top_mac_plus_bias_fifo_sigmoid_ew_gate.sv", 242, 192); // ac (tb_top_mac_plus_bias_fifo_sigmoid_ew_gate.sv)
+// Elapsed time: 21 seconds
+selectCodeEditor("tb_top_mac_plus_bias_fifo_sigmoid_ew_gate.sv", 310, 257); // ac (tb_top_mac_plus_bias_fifo_sigmoid_ew_gate.sv)
+selectCodeEditor("tb_top_mac_plus_bias_fifo_sigmoid_ew_gate.sv", 233, 266); // ac (tb_top_mac_plus_bias_fifo_sigmoid_ew_gate.sv)
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// Elapsed Time for: 'L.f': 02h:14m:59s
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// Elapsed Time for: 'L.f': 02h:15m:02s
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: DG_GRAPH_STALE
+// Elapsed Time for: 'L.f': 02h:15m:06s
+// Elapsed Time for: 'L.f': 02h:15m:10s
+// Elapsed time: 96 seconds
+selectButton(PAResourceAtoD.AbstractFileView_RELOAD, "Reload"); // g (PAResourceAtoD.AbstractFileView_RELOAD)
+selectTab((HResource) null, (HResource) null, "Sources", 0); // aa
+selectButton(PAResourceCommand.PACommandNames_ADD_SOURCES, "Sources_add_sources"); // B (PAResourceCommand.PACommandNames_ADD_SOURCES, Sources_add_sources)
+// Run Command: PAResourceCommand.PACommandNames_ADD_SOURCES
+selectButton("NEXT", "Next >", "Add Sources"); // JButton (NEXT)
+selectButton(PAResourceQtoS.SrcChooserPanel_ADD_HDL_AND_NETLIST_FILES_TO_YOUR_PROJECT, "Add Files", "Add Sources"); // a (PAResourceQtoS.SrcChooserPanel_ADD_HDL_AND_NETLIST_FILES_TO_YOUR_PROJECT)
+setFileChooser("E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_post_sysn.sv");
+selectButton("FINISH", "Finish", "Add Sources"); // JButton (FINISH)
+// 'f' command handler elapsed time: 10 seconds
+dismissDialog("Add Sources"); // c (dialog36)
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: FILE_SET_OPTIONS_CHANGE
+// Tcl Message: set_property SOURCE_SET sources_1 [get_filesets sim_8] 
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// Tcl Message: add_files -fileset sim_8 -norecurse -scan_for_includes E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_post_sysn.sv 
+dismissDialog("Add Simulation Sources"); // bj (Add Simulation Sources  Progress)
+// Elapsed Time for: 'L.f': 02h:15m:50s
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// Elapsed Time for: 'L.f': 02h:15m:52s
+// Tcl Message: update_compile_order -fileset sim_8 
+// Elapsed Time for: 'L.f': 02h:15m:54s
+// Elapsed Time for: 'L.f': 02h:15m:56s
+// Elapsed time: 17 seconds
+selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Simulation Sources, sim_8, tb_top_mac_plus_bias_fifo_sigmoid_ew_gate (tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_post_sysn.sv)]", 19, true); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE) - Node
+expandTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Simulation Sources, sim_8, tb_top_mac_plus_bias_fifo_sigmoid_ew_gate (tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_post_sysn.sv)]", 19); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE)
+expandTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Simulation Sources, sim_8, tb_top_mac_plus_bias_fifo_sigmoid_ew_gate (tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_post_sysn.sv), dut : top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper (top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper.sv)]", 20); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE)
+collapseTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Simulation Sources, sim_8, tb_top_mac_plus_bias_fifo_sigmoid_ew_gate (tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_post_sysn.sv), dut : top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper (top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper.sv)]", 20); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE)
+expandTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Simulation Sources, sim_8, tb_top_mac_plus_bias_fifo_sigmoid_ew_gate (tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_post_sysn.sv), top_mac_plus_bias_fifo_sigmoid_ew_gate (top_mac_plus_bias_fifo_sigmoid_ew_gate.sv)]", 21); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE)
+collapseTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Simulation Sources, sim_8, tb_top_mac_plus_bias_fifo_sigmoid_ew_gate (tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_post_sysn.sv), top_mac_plus_bias_fifo_sigmoid_ew_gate (top_mac_plus_bias_fifo_sigmoid_ew_gate.sv)]", 21); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE)
+selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Simulation Sources, sim_8]", 18, true, false, false, false, true, false); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE) - Popup Trigger - Node
+selectMenu(PAResourceCommand.PACommandNames_SIMULATION_RUN, "Run Simulation"); // am (PAResourceCommand.PACommandNames_SIMULATION_RUN, Run Simulation)
+selectMenu(PAResourceCommand.PACommandNames_SIMULATION_RESET, "Reset Simulation"); // am (PAResourceCommand.PACommandNames_SIMULATION_RESET, Reset Simulation)
+selectMenu(PAResourceCommand.PACommandNames_AUTO_UPDATE_HIER, "Hierarchy Update"); // am (PAResourceCommand.PACommandNames_AUTO_UPDATE_HIER, Hierarchy Update)
+selectMenu(PAResourceCommand.PACommandNames_SIMULATION_RESET, "Reset Simulation"); // am (PAResourceCommand.PACommandNames_SIMULATION_RESET, Reset Simulation)
+selectMenu(PAResourceCommand.PACommandNames_SIMULATION_RUN, "Run Simulation"); // am (PAResourceCommand.PACommandNames_SIMULATION_RUN, Run Simulation)
+selectMenuItem(PAResourceCommand.PACommandNames_SIMULATION_RUN_POST_SYNTHESIS_TIMING, "Run Post-Synthesis Timing Simulation"); // ap (PAResourceCommand.PACommandNames_SIMULATION_RUN_POST_SYNTHESIS_TIMING, simulation_run_post_synthesis_timing_menu)
+// Run Command: PAResourceCommand.PACommandNames_SIMULATION_RUN_POST_SYNTHESIS_TIMING
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: LAUNCH_SIM
+// TclEventType: FILE_SET_OPTIONS_CHANGE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: FILE_SET_OPTIONS_CHANGE
+// Tcl Message: launch_simulation -simset [get_filesets sim_8 ] -mode post-synthesis -type timing 
+// Tcl Message: Command: launch_simulation  -simset sim_8 -mode post-synthesis -type timing 
+// Tcl Message: INFO: [Vivado 12-12493] Simulation top is 'tb_top_mac_plus_bias_fifo_sigmoid_ew_gate' 
+// Tcl Message: INFO: [SIM-utils-27] Writing SDF file... INFO: [SIM-utils-28] write_sdf -mode timesim -process_corner slow -force -file "E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.sim/sim_8/synth/timing/xsim/tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_time_synth.sdf" 
+// HMemoryUtils.trashcanNow. Engine heap size: 6,310 MB. GUI used memory: 277 MB. Current time: 1/11/26, 5:57:10 PM CET
+// HMemoryUtils.trashcanNow. Engine heap size: 6,310 MB. GUI used memory: 277 MB. Current time: 1/11/26, 5:57:40 PM CET
+// TclEventType: PACKAGER_MESSAGE_RESET
+// TclEventType: PACKAGER_UNLOAD_CORE
+// TclEventType: PACKAGER_MESSAGE_RESET
+// TclEventType: PACKAGER_UNLOAD_CORE
+// TclEventType: PACKAGER_MESSAGE_RESET
+// TclEventType: PACKAGER_UNLOAD_CORE
+// TclEventType: PACKAGER_MESSAGE_RESET
+// TclEventType: PACKAGER_UNLOAD_CORE
+// TclEventType: PACKAGER_MESSAGE_RESET
+// TclEventType: PACKAGER_UNLOAD_CORE
+// Tcl Message: write_sdf: Time (s): cpu = 00:05:32 ; elapsed = 00:01:05 . Memory (MB): peak = 7561.336 ; gain = 0.000 
+// Tcl Message: "xvlog --incr --relax -L uvm -prj tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_vlog.prj" 
+// TclEventType: LAUNCH_SIM_LOG
+// Tcl Message: run_program: Time (s): cpu = 00:00:01 ; elapsed = 00:00:19 . Memory (MB): peak = 7561.336 ; gain = 0.000 
+// Tcl Message: INFO: [USF-XSim-69] 'compile' step finished in '20' seconds INFO: [USF-XSim-3] XSim::Elaborate design INFO: [USF-XSim-61] Executing 'ELABORATE' step in 'E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.sim/sim_8/synth/timing/xsim' 
+// Tcl Message: "xelab --incr --debug typical --relax --mt 2 --maxdelay -L xil_defaultlib -L uvm -L simprims_ver -L secureip --snapshot tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_time_synth -transport_int_delays -pulse_r 0 -pulse_int_r 0 -pulse_e 0 -pulse_int_e 0 xil_defaultlib.tb_top_mac_plus_bias_fifo_sigmoid_ew_gate xil_defaultlib.glbl -log elaborate.log" 
+// TclEventType: LAUNCH_SIM
+// Tcl Message: INFO: [USF-XSim-69] 'elaborate' step finished in '3' seconds INFO: [USF-XSim-99] Step results log file:'E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.sim/sim_8/synth/timing/xsim/elaborate.log' 
+// Tcl Message: ERROR: [USF-XSim-62] 'elaborate' step failed with error(s). Please check the Tcl console output or 'E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.sim/sim_8/synth/timing/xsim/elaborate.log' file for more information. ERROR: [Vivado 12-4473] Detected error while running simulation. Please correct the issue and retry this operation. 
+// Tcl Message: launch_simulation: Time (s): cpu = 00:05:34 ; elapsed = 00:01:30 . Memory (MB): peak = 7561.336 ; gain = 0.000 
+// Tcl Message: ERROR: [Common 17-39] 'launch_simulation' failed due to earlier errors. 
+// CommandFailedException: ERROR: [Common 17-69] Command failed: ERROR: [Common 17-39] 'launch_simulation' failed due to earlier errors.  
+// HOptionPane Error: 'ERROR: [Common 17-39] 'launch_simulation' failed due to earlier errors.  (Run Simulation)'
+// Elapsed Time for: 'h': 01m:39s
+// 'd' command handler elapsed time: 99 seconds
+// Elapsed time: 100 seconds
+selectButton("OptionPane.button", "OK", "Run Simulation"); // JButton (OptionPane.button)
+selectButton(PAResourceAtoD.CmdMsgDialog_OPEN_MESSAGES_VIEW, "Open Messages View", "Critical Messages"); // a (PAResourceAtoD.CmdMsgDialog_OPEN_MESSAGES_VIEW)
+// Run Command: PAResourceCommand.PACommandNames_MESSAGE_WINDOW
+dismissDialog("Critical Messages"); // a (dialog38)
+selectTree(PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE, "[, Simulation, sim_8, [VRFC 10-3180] cannot find port '\\y_axis_TDATA[3] ' on this module [E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper.sv:62]. ]", 7, true); // u.d (PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE) - Node
+messagesViewCrossProbe(PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE, "src;-;E:\Master\2025\Mamba\Cmamba_reconstruct\user\sim\top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper.sv;-;;-;16;-;line;-;62;-;;-;16;-;"); // u.d (PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE)
+selectCodeEditor("top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper.sv", 109, 241); // ac (top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper.sv)
+// Elapsed time: 12 seconds
+selectCodeEditor("top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper.sv", 172, 242); // ac (top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper.sv)
+selectButton(RDIResourceCommand.RDICommands_UNDO, (String) null); // B (RDIResourceCommand.RDICommands_UNDO)
+selectButton(RDIResourceCommand.RDICommands_UNDO, (String) null); // B (RDIResourceCommand.RDICommands_UNDO)
+selectButton(RDIResourceCommand.RDICommands_UNDO, (String) null); // B (RDIResourceCommand.RDICommands_UNDO)
+selectButton(RDIResourceCommand.RDICommands_UNDO, (String) null); // B (RDIResourceCommand.RDICommands_UNDO)
+selectTree(PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE, "[, Simulation, sim_8, [VRFC 10-3180] cannot find port '\\y_axis_TDATA[3] ' on this module [E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper.sv:62]. ]", 7, true); // u.d (PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE) - Node
+expandTree(PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE, "[, Simulation, sim_8, [VRFC 10-3180] cannot find port '\\y_axis_TDATA[3] ' on this module [E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper.sv:62]. ]", 7); // u.d (PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE)
+selectTree(PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE, "[, Simulation, sim_8, [VRFC 10-3180] cannot find port '\\y_axis_TDATA[3] ' on this module [E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper.sv:62]. ]", 7, true, false, false, false, true, false); // u.d (PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE) - Popup Trigger - Node
+// Elapsed time: 90 seconds
+selectCodeEditor("top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper.sv", 665, 281); // ac (top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper.sv)
+selectCodeEditor("top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper.sv", 339, 236); // ac (top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper.sv)
+selectCodeEditor("top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper.sv", 339, 236, false, false, false, false, true); // ac (top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper.sv) - Double Click
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// Elapsed Time for: 'L.f': 02h:23m:39s
+// Elapsed Time for: 'L.f': 02h:23m:43s
+// Elapsed time: 330 seconds
+expandTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, top_mac_plus_bias_fifo_sigmoid_ew_gate (top_mac_plus_bias_fifo_sigmoid_ew_gate.sv)]", 1); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE)
+collapseTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, top_mac_plus_bias_fifo_sigmoid_ew_gate (top_mac_plus_bias_fifo_sigmoid_ew_gate.sv)]", 1); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE)
+expandTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, top_mac_plus_bias_fifo_sigmoid_ew_gate (top_mac_plus_bias_fifo_sigmoid_ew_gate.sv)]", 1); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE)
+collapseTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, top_mac_plus_bias_fifo_sigmoid_ew_gate (top_mac_plus_bias_fifo_sigmoid_ew_gate.sv)]", 1); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE)
+expandTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, nonlinear_tile (nonlinear_tile.sv)]", 2); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE)
+collapseTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, nonlinear_tile (nonlinear_tile.sv)]", 2); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE)
+selectButton(PAResourceEtoH.FileSetPanel_MESSAGES, "3"); // g (PAResourceEtoH.FileSetPanel_MESSAGES)
+selectTree(PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE, "[, Analysis Results, sim_8, [HDL 9-3756] overwriting previous definition of module 'tb_top_mac_plus_bias_fifo_sigmoid_ew_gate' [E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_post_sysn.sv:10]. ]", 3, false); // u.d (PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE)
+messagesViewCrossProbe(PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE, "src;-;E:\Master\2025\Mamba\Cmamba_reconstruct\user\sim\tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_post_sysn.sv;-;;-;16;-;line;-;10;-;;-;16;-;"); // u.d (PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE)
+// Elapsed time: 13 seconds
+selectTree(PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE, "[, Analysis Results, sim_8, [filemgmt 20-736] The current top specification, tb_top_mac_plus_bias_fifo_sigmoid_ew_gate (Library: xil_defaultlib), does not uniquely identify a single design element. Using tb_top_mac_plus_bias_fifo_sigmoid_ew_gate (Library: xil_defaultlib, File: E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_post_sysn.sv).. ]", 4, false); // u.d (PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE)
+selectTree(PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE, "[, Analysis Results, sim_8, [filemgmt 20-1318] Duplicate Design Unit 'tb_top_mac_plus_bias_fifo_sigmoid_ew_gate()' found in library 'xil_defaultlib'. Duplicate found at line 10 of file E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/tb_top_mac_plus_bias_fifo_sigmoid_ew_gate.sv. 	(Active) Duplicate found at line 10 of file E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_post_sysn.sv. ]", 5, false); // u.d (PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE)
+messagesViewCrossProbe(PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE, "src;-;E:\Master\2025\Mamba\Cmamba_reconstruct\user\sim\tb_top_mac_plus_bias_fifo_sigmoid_ew_gate.sv;-;;-;16;-;line;-;10;-;;-;16;-;"); // u.d (PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE)
+// Elapsed time: 76 seconds
+selectTree(PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE, "[, Analysis Results, sim_8, [filemgmt 20-1318] Duplicate Design Unit 'tb_top_mac_plus_bias_fifo_sigmoid_ew_gate()' found in library 'xil_defaultlib'. Duplicate found at line 10 of file E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/tb_top_mac_plus_bias_fifo_sigmoid_ew_gate.sv. 	(Active) Duplicate found at line 10 of file E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_post_sysn.sv. ]", 5, false); // u.d (PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE)
+messagesViewCrossProbe(PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE, "src;-;E:\Master\2025\Mamba\Cmamba_reconstruct\user\sim\tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_post_sysn.sv;-;;-;16;-;line;-;10;-;;-;16;-;"); // u.d (PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE)
+// Elapsed time: 12 seconds
+selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Simulation Sources, sim_8, tb_top_mac_plus_bias_fifo_sigmoid_ew_gate (tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_post_sysn.sv), top_mac_plus_bias_fifo_sigmoid_ew_gate (top_mac_plus_bias_fifo_sigmoid_ew_gate.sv)]", 21, true, false, false, false, true, false); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE) - Popup Trigger - Node
+selectMenu(PAResourceCommand.PACommandNames_OPEN_FILE_WITH, "Open With"); // am (PAResourceCommand.PACommandNames_OPEN_FILE_WITH, Open With)
+selectMenuItem(PAResourceCommand.PACommandNames_SRC_DISABLE, "Disable File"); // ap (PAResourceCommand.PACommandNames_SRC_DISABLE, src_disable_menu)
+// Run Command: PAResourceCommand.PACommandNames_SRC_DISABLE
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// Tcl Message: set_property is_enabled false [get_files  E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/top_mac_plus_bias_fifo_sigmoid_ew_gate.sv] 
+// Elapsed Time for: 'L.f': 02h:28m:00s
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// Elapsed Time for: 'L.f': 02h:28m:06s
+// Tcl Message: update_compile_order -fileset sources_1 
+// Elapsed Time for: 'L.f': 02h:28m:08s
+// Elapsed Time for: 'L.f': 02h:28m:10s
+// Elapsed time: 15 seconds
+selectButton(RDIResource.BaseDialog_OK, "OK", "Invalid Top Modules"); // a (RDIResource.BaseDialog_OK)
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: DG_GRAPH_STALE
+dismissDialog("Invalid Top Modules"); // s (dialog39)
+// Elapsed Time for: 'L.f': 02h:28m:16s
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// Elapsed Time for: 'L.f': 02h:28m:18s
+// Tcl Message: update_compile_order -fileset sources_1 
+selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, Disabled Sources]", 13, true); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE) - Node
+// Elapsed Time for: 'L.f': 02h:28m:20s
+expandTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, Disabled Sources]", 13); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE)
+// Elapsed Time for: 'L.f': 02h:28m:22s
+selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, Disabled Sources, top_mac_plus_bias_fifo_sigmoid_ew_gate.sv]", 14, false); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE)
+selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, Disabled Sources, top_mac_plus_bias_fifo_sigmoid_ew_gate.sv]", 14, false, false, false, false, true, false); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE) - Popup Trigger
+selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, Disabled Sources, top_mac_plus_bias_fifo_sigmoid_ew_gate.sv]", 14, false, false, false, false, true, false); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE) - Popup Trigger
+selectMenu(PAResourceCommand.PACommandNames_OPEN_FILE_WITH, "Open With"); // am (PAResourceCommand.PACommandNames_OPEN_FILE_WITH, Open With)
+selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, Disabled Sources, top_mac_plus_bias_fifo_sigmoid_ew_gate.sv]", 14, false); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE)
+selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, Disabled Sources, top_mac_plus_bias_fifo_sigmoid_ew_gate.sv]", 14, false); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE)
+selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, Disabled Sources, top_mac_plus_bias_fifo_sigmoid_ew_gate.sv]", 14, false, false, false, false, true, false); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE) - Popup Trigger
+selectMenu(PAResourceCommand.PACommandNames_OPEN_FILE_WITH, "Open With"); // am (PAResourceCommand.PACommandNames_OPEN_FILE_WITH, Open With)
+selectMenuItem(PAResourceCommand.PACommandNames_SRC_ENABLE, "Enable File"); // ap (PAResourceCommand.PACommandNames_SRC_ENABLE, src_enable_menu)
+// Run Command: PAResourceCommand.PACommandNames_SRC_ENABLE
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// Tcl Message: set_property is_enabled true [get_files  E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/top_mac_plus_bias_fifo_sigmoid_ew_gate.sv] 
+// Elapsed Time for: 'L.f': 02h:28m:36s
+selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Simulation Sources, sim_8, tb_top_mac_plus_bias_fifo_sigmoid_ew_gate (tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_post_sysn.sv), dut : top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper (top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper.sv)]", 22, true); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE) - Node
+expandTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Simulation Sources, sim_8, tb_top_mac_plus_bias_fifo_sigmoid_ew_gate (tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_post_sysn.sv), dut : top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper (top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper.sv)]", 22); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE)
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// Elapsed Time for: 'L.f': 02h:28m:42s
+// Tcl Message: update_compile_order -fileset sources_1 
+// Tcl Message: ERROR: [Common 17-180] Spawn failed: No error 
+// Elapsed Time for: 'L.f': 02h:28m:44s
+selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Simulation Sources, sim_8, tb_top_mac_plus_bias_fifo_sigmoid_ew_gate (tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_post_sysn.sv), dut : top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper (top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper.sv)]", 20, true, false, false, false, true, false); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE) - Popup Trigger - Node
+selectMenu(PAResourceCommand.PACommandNames_OPEN_FILE_WITH, "Open With"); // am (PAResourceCommand.PACommandNames_OPEN_FILE_WITH, Open With)
+selectMenu(PAResourceCommand.PACommandNames_AUTO_UPDATE_HIER, "Hierarchy Update"); // am (PAResourceCommand.PACommandNames_AUTO_UPDATE_HIER, Hierarchy Update)
+selectMenuItem(PAResourceCommand.PACommandNames_MOVE_TO_DESIGN_SET, "Move to Design Sources"); // ap (PAResourceCommand.PACommandNames_MOVE_TO_DESIGN_SET, move_to_design_set_menu)
+// Run Command: PAResourceCommand.PACommandNames_MOVE_TO_DESIGN_SET
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// Tcl Message: move_files [get_files  E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper.sv] 
+// Elapsed Time for: 'L.f': 02h:28m:56s
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// Elapsed Time for: 'L.f': 02h:29m:02s
+// Tcl Message: update_compile_order -fileset sources_1 
+// Elapsed Time for: 'L.f': 02h:29m:04s
+// Elapsed time: 14 seconds
+selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper (top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper.sv)]", 10, true); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE) - Node
+selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper (top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper.sv)]", 10, true, false, false, false, true, false); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE) - Popup Trigger - Node
+selectMenu(PAResourceCommand.PACommandNames_OPEN_FILE_WITH, "Open With"); // am (PAResourceCommand.PACommandNames_OPEN_FILE_WITH, Open With)
+selectMenu(PAResourceCommand.PACommandNames_AUTO_UPDATE_HIER, "Hierarchy Update"); // am (PAResourceCommand.PACommandNames_AUTO_UPDATE_HIER, Hierarchy Update)
+selectMenu(PAResourceQtoS.SrcMenu_IP_HIERARCHY, "IP Hierarchy"); // am (PAResourceQtoS.SrcMenu_IP_HIERARCHY, IP Hierarchy)
+selectMenuItem(PAResourceCommand.PACommandNames_SET_AS_TOP, "Set as Top"); // ap (PAResourceCommand.PACommandNames_SET_AS_TOP, set_as_top_menu)
+// Run Command: PAResourceCommand.PACommandNames_SET_AS_TOP
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: FILE_SET_OPTIONS_CHANGE
+// Tcl Message: set_property top top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper [current_fileset] 
+// Tcl Message: ERROR: [Common 17-180] Spawn failed: No error 
+// Elapsed Time for: 'L.f': 02h:29m:16s
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// Elapsed Time for: 'L.f': 02h:29m:18s
+// Tcl Message: update_compile_order -fileset sources_1 
+// Tcl Message: ERROR: [Common 17-180] Spawn failed: No error 
+// Elapsed Time for: 'L.f': 02h:29m:20s
+// Elapsed Time for: 'L.f': 02h:29m:26s
+// Elapsed time: 15 seconds
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Synthesis, Run Synthesis]", 18, false); // g (PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, Flow Navigator Tree)
+// Run Command: PAResourceCommand.PACommandNames_RUN_SYNTHESIS
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_RESET
+// TclEventType: DESIGN_STALE
+// TclEventType: RUN_RESET
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_RESET
+// TclEventType: RUN_MODIFY
+// Tcl Message: reset_run synth_1 
+// Tcl Message: INFO: [Project 1-1161] Replacing file E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.srcs/utils_1/imports/synth_1/top_mac_plus_bias_fifo_sigmoid_ew_gate.dcp with file E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.runs/synth_1/top_mac_plus_bias_fifo_sigmoid_ew_gate.dcp 
+// TclEventType: FILE_SET_CHANGE
+selectButton(RDIResource.BaseDialog_CANCEL, "Cancel", "Launch Runs"); // a (RDIResource.BaseDialog_CANCEL)
+// 'i' command handler elapsed time: 3 seconds
+dismissDialog("Launch Runs"); // f (dialog40)
+selectButton(PAResourceItoN.MsgView_CLEAR_MESSAGES_RESULTING_FROM_USER_EXECUTED, "Messages_cleanUpMessages"); // B (PAResourceItoN.MsgView_CLEAR_MESSAGES_RESULTING_FROM_USER_EXECUTED, Messages_cleanUpMessages)
+selectTree(PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE, "[, Analysis Results, sim_8, [HDL 9-3756] overwriting previous definition of module 'tb_top_mac_plus_bias_fifo_sigmoid_ew_gate' [E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_post_sysn.sv:10]. ]", 2, false); // u.d (PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE)
+messagesViewCrossProbe(PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE, "src;-;E:\Master\2025\Mamba\Cmamba_reconstruct\user\sim\tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_post_sysn.sv;-;;-;16;-;line;-;10;-;;-;16;-;"); // u.d (PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE)
+selectButton(PAResourceOtoP.ProjectTab_CLOSE_DESIGN, "Close Design"); // g (PAResourceOtoP.ProjectTab_CLOSE_DESIGN)
+// TclEventType: DESIGN_CLOSE
+// HMemoryUtils.trashcanNow. Engine heap size: 6,310 MB. GUI used memory: 210 MB. Current time: 1/11/26, 6:09:57 PM CET
+// Engine heap size: 6,310 MB. GUI used memory: 210 MB. Current time: 1/11/26, 6:09:57 PM CET
+// TclEventType: CURR_DESIGN_SET
+// Tcl Message: close_design 
+// TclEventType: CURR_DESIGN_SET
+// TclEventType: DESIGN_CLOSE
+dismissDialog("Closing"); // bj (Closing Progress)
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Synthesis, Run Synthesis]", 17, false); // g (PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, Flow Navigator Tree)
+// Run Command: PAResourceCommand.PACommandNames_RUN_SYNTHESIS
+selectButton(RDIResource.BaseDialog_OK, "OK", "Launch Runs"); // a (RDIResource.BaseDialog_OK)
+dismissDialog("Launch Runs"); // f (dialog41)
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: COMPOSITE_FILE_CHANGE
+// TclEventType: RUN_LAUNCH
+// TclEventType: RUN_MODIFY
+// Tcl Message: launch_runs synth_1 -jobs 8 
+// Tcl Message: INFO: [Vivado 12-4149] The synthesis checkpoint for IP 'e:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.srcs/sources_1/ip/s_buffer/s_buffer.xci' is already up-to-date 
+// Tcl Message: [Sun Jan 11 18:10:05 2026] Launched synth_1... Run output will be captured here: E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.runs/synth_1/runme.log 
+dismissDialog("Starting Design Runs"); // bj (Starting Design Runs Progress)
+// Elapsed Time for: 'L.f': 02h:29m:52s
+// TclEventType: RUN_STATUS_CHANGE
+// Elapsed Time for: 'L.f': 02h:29m:54s
+// TclEventType: RUN_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_STEP_COMPLETED
+// Elapsed time: 1629 seconds
+selectButton(RDIResource.BaseDialog_CANCEL, "Cancel", "Synthesis Completed"); // a (RDIResource.BaseDialog_CANCEL)
+dismissDialog("Synthesis Completed"); // Q.a (dialog42)
+selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Simulation Sources, sim_8]", 18, true, false, false, false, true, false); // E (PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE) - Popup Trigger - Node
+selectMenu(PAResourceCommand.PACommandNames_SIMULATION_RUN, "Run Simulation"); // am (PAResourceCommand.PACommandNames_SIMULATION_RUN, Run Simulation)
+selectMenuItem(PAResourceCommand.PACommandNames_SIMULATION_RUN_POST_SYNTHESIS_TIMING, "Run Post-Synthesis Timing Simulation"); // ap (PAResourceCommand.PACommandNames_SIMULATION_RUN_POST_SYNTHESIS_TIMING, simulation_run_post_synthesis_timing_menu)
+// Run Command: PAResourceCommand.PACommandNames_SIMULATION_RUN_POST_SYNTHESIS_TIMING
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: LAUNCH_SIM
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: COMPOSITE_FILE_CHANGE
+// TclEventType: FILE_SET_OPTIONS_CHANGE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: FILE_SET_OPTIONS_CHANGE
+// Tcl Message: launch_simulation -simset [get_filesets sim_8 ] -mode post-synthesis -type timing 
+// Tcl Message: Command: launch_simulation  -simset sim_8 -mode post-synthesis -type timing 
+// Tcl Message: INFO: [Vivado 12-12493] Simulation top is 'tb_top_mac_plus_bias_fifo_sigmoid_ew_gate' 
+// Tcl Message: Design is defaulting to impl run constrset: constrs_1 Design is defaulting to synth run part: xczu9eg-ffvb1156-2-e 
+// TclEventType: READ_XDC_FILE_START
+// TclEventType: SDC_CONSTRAINT_ADD
+// TclEventType: READ_XDC_FILE_END
+// TclEventType: FLOORPLAN_MODIFY
+// TclEventType: DESIGN_NEW
+// HMemoryUtils.trashcanNow. Engine heap size: 6,310 MB. GUI used memory: 207 MB. Current time: 1/11/26, 6:37:35 PM CET
+// TclEventType: DESIGN_NEW
+// Xgd.load filename: E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/.Xil/Vivado-23464-G14-DAWN/xczu9eg_floorplan.xgd_6B0F elapsed time: 0.7s
+// Xgd.load filename: E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/.Xil/Vivado-23464-G14-DAWN/xczu9eg_detail.xgd_6B0F elapsed time: 4.9s
+// DeviceModel: Load Xgds SwingWorker Join Forever elapsed time: 5.7s
+// DeviceModel: Load Xgds SwingWorker Join Forever elapsed time: 3.9s
+// DeviceView Instantiated
+// WARNING: HEventQueue.dispatchEvent() is taking  5463 ms.
+// TclEventType: CURR_DESIGN_SET
+// Tcl Message: ERROR: [Common 17-180] Spawn failed: No error 
+// Tcl Message: Netlist sorting complete. Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.299 . Memory (MB): peak = 7561.336 ; gain = 0.000 
+// Tcl Message: INFO: [Netlist 29-17] Analyzing 1189 Unisim elements for replacement INFO: [Netlist 29-28] Unisim Transformation completed in 1 CPU seconds INFO: [Project 1-479] Netlist was created with Vivado 2024.1 INFO: [Project 1-570] Preparing netlist for logic optimization 
+// Tcl Message: Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.005 . Memory (MB): peak = 7561.336 ; gain = 0.000 
+// Tcl Message: INFO: [Project 1-111] Unisim Transformation Summary:   A total of 145 instances were transformed.   DSP48E2 => DSP48E2 (DSP_ALU, DSP_A_B_DATA, DSP_C_DATA, DSP_MULTIPLIER, DSP_M_DATA, DSP_OUTPUT, DSP_PREADD, DSP_PREADD_DATA): 76 instances   IBUF => IBUF (IBUFCTRL, INBUF): 69 instances  
+// TclEventType: CURR_DESIGN_SET
+// Device view-level: 0.0
+// Tcl Message: open_run: Time (s): cpu = 00:00:16 ; elapsed = 00:00:19 . Memory (MB): peak = 7561.336 ; gain = 0.000 
+// Tcl Message: INFO: [SIM-utils-24] Writing simulation netlist file for design 'synth_1'... INFO: [SIM-utils-25] write_verilog -mode timesim -nolib -sdf_anno true -force -file "E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.sim/sim_8/synth/timing/xsim/tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_time_synth.v" 
+// TclEventType: HFED_INIT_ROUTE_STORAGE_COMPLETED
+// RouteApi::loadEngineXgdAndInitRouteStorage elapsed time: 2.3s
+// RouteApi::initDelayMediator elapsed time: 3.3s
+// RouteApi: Init Delay Mediator Swing Worker Finished
+// Tcl Message: INFO: [SIM-utils-27] Writing SDF file... INFO: [SIM-utils-28] write_sdf -mode timesim -process_corner slow -force -file "E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.sim/sim_8/synth/timing/xsim/tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_time_synth.sdf" 
+// HMemoryUtils.trashcanNow. Engine heap size: 6,310 MB. GUI used memory: 283 MB. Current time: 1/11/26, 6:37:52 PM CET
+// HMemoryUtils.trashcanNow. Engine heap size: 6,310 MB. GUI used memory: 283 MB. Current time: 1/11/26, 6:38:22 PM CET
+// TclEventType: PACKAGER_MESSAGE_RESET
+// TclEventType: PACKAGER_UNLOAD_CORE
+// TclEventType: PACKAGER_MESSAGE_RESET
+// TclEventType: PACKAGER_UNLOAD_CORE
+// TclEventType: PACKAGER_MESSAGE_RESET
+// TclEventType: PACKAGER_UNLOAD_CORE
+// TclEventType: PACKAGER_MESSAGE_RESET
+// TclEventType: PACKAGER_UNLOAD_CORE
+// TclEventType: PACKAGER_MESSAGE_RESET
+// TclEventType: PACKAGER_UNLOAD_CORE
+// Tcl Message: write_sdf: Time (s): cpu = 00:03:51 ; elapsed = 00:00:50 . Memory (MB): peak = 7561.336 ; gain = 0.000 
+// Tcl Message: "xvlog --incr --relax -L uvm -prj tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_vlog.prj" 
+// TclEventType: LAUNCH_SIM_LOG
+// Tcl Message: run_program: Time (s): cpu = 00:00:00 ; elapsed = 00:00:15 . Memory (MB): peak = 7561.336 ; gain = 0.000 
+// Tcl Message: INFO: [USF-XSim-69] 'compile' step finished in '16' seconds INFO: [USF-XSim-3] XSim::Elaborate design INFO: [USF-XSim-61] Executing 'ELABORATE' step in 'E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.sim/sim_8/synth/timing/xsim' 
+// Tcl Message: "xelab --incr --debug typical --relax --mt 2 --maxdelay -L xil_defaultlib -L uvm -L simprims_ver -L secureip --snapshot tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_time_synth -transport_int_delays -pulse_r 0 -pulse_int_r 0 -pulse_e 0 -pulse_int_e 0 xil_defaultlib.tb_top_mac_plus_bias_fifo_sigmoid_ew_gate xil_defaultlib.glbl -log elaborate.log" 
+// Tcl Message: Vivado Simulator v2024.1 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved. Running: E:/Xilinx/Vivado/2024.1/bin/unwrapped/win64.o/xelab.exe --incr --debug typical --relax --mt 2 --maxdelay -L xil_defaultlib -L uvm -L simprims_ver -L secureip --snapshot tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_time_synth -transport_int_delays -pulse_r 0 -pulse_int_r 0 -pulse_e 0 -pulse_int_e 0 xil_defaultlib.tb_top_mac_plus_bias_fifo_sigmoid_ew_gate xil_defaultlib.glbl -log elaborate.log  Using 2 slave threads. Starting static elaboration Pass Through NonSizing Optimizer 
+// TclEventType: LAUNCH_SIM
+// Tcl Message: INFO: [USF-XSim-69] 'elaborate' step finished in '4' seconds INFO: [USF-XSim-99] Step results log file:'E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.sim/sim_8/synth/timing/xsim/elaborate.log' 
+// Tcl Message: ERROR: [USF-XSim-62] 'elaborate' step failed with error(s). Please check the Tcl console output or 'E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.sim/sim_8/synth/timing/xsim/elaborate.log' file for more information. ERROR: [Vivado 12-4473] Detected error while running simulation. Please correct the issue and retry this operation. 
+// Tcl Message: launch_simulation: Time (s): cpu = 00:04:12 ; elapsed = 00:01:33 . Memory (MB): peak = 7561.336 ; gain = 0.000 
+// Tcl Message: ERROR: [Common 17-39] 'launch_simulation' failed due to earlier errors. 
+// CommandFailedException: ERROR: [Common 17-69] Command failed: ERROR: [Common 17-39] 'launch_simulation' failed due to earlier errors.  
+// HOptionPane Error: 'ERROR: [Common 17-39] 'launch_simulation' failed due to earlier errors.  (Run Simulation)'
+// Elapsed Time for: 'h': 03m:02s
+// 'd' command handler elapsed time: 182 seconds
+// Elapsed time: 183 seconds
+selectButton("OptionPane.button", "OK", "Run Simulation"); // JButton (OptionPane.button)
+// Elapsed Time for: 'L.f': 03h:00m:11s
+selectButton(PAResourceAtoD.CmdMsgDialog_OPEN_MESSAGES_VIEW, "Open Messages View", "Critical Messages"); // a (PAResourceAtoD.CmdMsgDialog_OPEN_MESSAGES_VIEW)
+// Run Command: PAResourceCommand.PACommandNames_MESSAGE_WINDOW
+dismissDialog("Critical Messages"); // a (dialog43)
+// Elapsed Time for: 'L.f': 03h:00m:13s
+selectTree(PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE, "[, Simulation, sim_8, [VRFC 10-3180] cannot find port 'y_axis_TDATA' on this module [E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_post_sysn.sv:87]. ]", 10, true); // u.d (PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE) - Node
+messagesViewCrossProbe(PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE, "src;-;E:\Master\2025\Mamba\Cmamba_reconstruct\user\sim\tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_post_sysn.sv;-;;-;16;-;line;-;87;-;;-;16;-;"); // u.d (PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE)
+selectCodeEditor("tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_post_sysn.sv", 536, 110); // ac (tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_post_sysn.sv)
+selectCodeEditor("tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_post_sysn.sv", 536, 110, false, false, false, false, true); // ac (tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_post_sysn.sv) - Double Click
+selectCodeEditor("tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_post_sysn.sv", 618, 196); // ac (tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_post_sysn.sv)
+selectCodeEditor("tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_post_sysn.sv", 737, 316); // ac (tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_post_sysn.sv)

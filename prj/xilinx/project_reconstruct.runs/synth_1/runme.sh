@@ -41,4 +41,4 @@ EAStep()
      fi
 }
 
-EAStep vivado -log top_mac_plus_bias_fifo_sigmoid_ew_gate.vds -m64 -product Vivado -mode batch -messageDb vivado.pb -notrace -source top_mac_plus_bias_fifo_sigmoid_ew_gate.tcl
+EAStep vivado -log top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper.vds -m64 -product Vivado -mode batch -messageDb vivado.pb -notrace -source top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper.tcl

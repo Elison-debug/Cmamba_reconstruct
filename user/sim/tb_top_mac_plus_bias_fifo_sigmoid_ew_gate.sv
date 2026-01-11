@@ -57,7 +57,7 @@ module tb_top_mac_plus_bias_fifo_sigmoid_ew_gate;
   logic                         y_axis_TREADY;
   logic signed [DATA_WIDTH-1:0] y_axis_TDATA [TILE_SIZE-1:0];
 
-  top_mac_plus_bias_fifo_sigmoid_ew_gate #(
+top_mac_plus_bias_fifo_sigmoid_ew_gate #(
       .TILE_SIZE  (TILE_SIZE),
       .DATA_WIDTH (DATA_WIDTH),
       .ACC_WIDTH  (ACC_WIDTH),

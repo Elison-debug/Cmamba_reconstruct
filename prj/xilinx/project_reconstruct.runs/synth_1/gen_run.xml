@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<GenRun Id="synth_1" LaunchPart="xczu9eg-ffvb1156-2-e" LaunchTime="1768146524" LaunchIncrCheckpoint="$PSRCDIR/utils_1/imports/synth_1/top_mac_plus_bias_fifo_sigmoid_ew_gate.dcp">
-  <File Type="PA-TCL" Name="top_mac_plus_bias_fifo_sigmoid_ew_gate.tcl"/>
-  <File Type="RDS-PROPCONSTRS" Name="top_mac_plus_bias_fifo_sigmoid_ew_gate_drc_synth.rpt"/>
-  <File Type="REPORTS-TCL" Name="top_mac_plus_bias_fifo_sigmoid_ew_gate_reports.tcl"/>
-  <File Type="RDS-RDS" Name="top_mac_plus_bias_fifo_sigmoid_ew_gate.vds"/>
-  <File Type="RDS-UTIL" Name="top_mac_plus_bias_fifo_sigmoid_ew_gate_utilization_synth.rpt"/>
-  <File Type="RDS-UTIL-PB" Name="top_mac_plus_bias_fifo_sigmoid_ew_gate_utilization_synth.pb"/>
-  <File Type="RDS-DCP" Name="top_mac_plus_bias_fifo_sigmoid_ew_gate.dcp"/>
-  <File Type="VDS-TIMINGSUMMARY" Name="top_mac_plus_bias_fifo_sigmoid_ew_gate_timing_summary_synth.rpt"/>
-  <File Type="VDS-TIMING-PB" Name="top_mac_plus_bias_fifo_sigmoid_ew_gate_timing_summary_synth.pb"/>
+<GenRun Id="synth_1" LaunchPart="xczu9eg-ffvb1156-2-e" LaunchTime="1768151404" LaunchIncrCheckpoint="$PSRCDIR/utils_1/imports/synth_1/top_mac_plus_bias_fifo_sigmoid_ew_gate.dcp">
+  <File Type="PA-TCL" Name="top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper.tcl"/>
+  <File Type="RDS-PROPCONSTRS" Name="top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper_drc_synth.rpt"/>
+  <File Type="REPORTS-TCL" Name="top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper_reports.tcl"/>
+  <File Type="RDS-RDS" Name="top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper.vds"/>
+  <File Type="RDS-UTIL" Name="top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper_utilization_synth.rpt"/>
+  <File Type="RDS-UTIL-PB" Name="top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper_utilization_synth.pb"/>
+  <File Type="RDS-DCP" Name="top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper.dcp"/>
+  <File Type="VDS-TIMINGSUMMARY" Name="top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper_timing_summary_synth.rpt"/>
+  <File Type="VDS-TIMING-PB" Name="top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper_timing_summary_synth.pb"/>
   <FileSet Name="sources" Type="DesignSrcs" RelSrcDir="$PSRCDIR/sources_1" RelGenDir="$PGENDIR/sources_1">
     <Filter Type="Srcs"/>
     <File Path="$PSRCDIR/sources_1/ip/s_buffer/s_buffer.xci">
@@ -123,6 +123,13 @@
         <Attr Name="UsedIn" Val="simulation"/>
       </FileInfo>
     </File>
+    <File Path="$PPRDIR/../../user/src/top_mac_plus_bias_fifo_sigmoid_ew_gate.sv">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
     <File Path="$PPRDIR/../../user/src/vec_fifo_axis_ip.sv">
       <FileInfo>
         <Attr Name="UsedIn" Val="synthesis"/>
@@ -137,54 +144,30 @@
         <Attr Name="UsedIn" Val="simulation"/>
       </FileInfo>
     </File>
-    <File Path="$PPRDIR/../../user/src/top_mac_plus_bias_fifo_sigmoid_ew_gate.sv">
+    <File Path="$PPRDIR/../../user/sim/top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper.sv">
       <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../../user/src/exp_sp_cell.sv">
+      <FileInfo>
+        <Attr Name="AutoDisabled" Val="1"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../../user/src/nonlinear_tile.sv">
+      <FileInfo>
+        <Attr Name="AutoDisabled" Val="1"/>
         <Attr Name="UsedIn" Val="synthesis"/>
         <Attr Name="UsedIn" Val="implementation"/>
         <Attr Name="UsedIn" Val="simulation"/>
       </FileInfo>
     </File>
     <File Path="$PPRDIR/../../user/bd/design_1/design_1.bd">
-      <FileInfo>
-        <Attr Name="AutoDisabled" Val="1"/>
-        <Attr Name="UsedIn" Val="synthesis"/>
-        <Attr Name="UsedIn" Val="implementation"/>
-        <Attr Name="UsedIn" Val="simulation"/>
-      </FileInfo>
-    </File>
-    <File Path="$PPRDIR/../../user/src/broadcast_unit.sv">
-      <FileInfo>
-        <Attr Name="AutoDisabled" Val="1"/>
-        <Attr Name="UsedIn" Val="synthesis"/>
-        <Attr Name="UsedIn" Val="implementation"/>
-        <Attr Name="UsedIn" Val="simulation"/>
-      </FileInfo>
-    </File>
-    <File Path="$PPRDIR/../../user/src/multi_bank_wbuf.sv">
-      <FileInfo>
-        <Attr Name="AutoDisabled" Val="1"/>
-        <Attr Name="UsedIn" Val="synthesis"/>
-        <Attr Name="UsedIn" Val="implementation"/>
-        <Attr Name="UsedIn" Val="simulation"/>
-      </FileInfo>
-    </File>
-    <File Path="$PPRDIR/../../user/src/multi_bank_wbuf_dp.sv">
-      <FileInfo>
-        <Attr Name="AutoDisabled" Val="1"/>
-        <Attr Name="UsedIn" Val="synthesis"/>
-        <Attr Name="UsedIn" Val="implementation"/>
-        <Attr Name="UsedIn" Val="simulation"/>
-      </FileInfo>
-    </File>
-    <File Path="$PPRDIR/../../user/src/mac_mem_controller_combined_dp.sv">
-      <FileInfo>
-        <Attr Name="AutoDisabled" Val="1"/>
-        <Attr Name="UsedIn" Val="synthesis"/>
-        <Attr Name="UsedIn" Val="implementation"/>
-        <Attr Name="UsedIn" Val="simulation"/>
-      </FileInfo>
-    </File>
-    <File Path="$PPRDIR/../../user/src/top_mac_plus_bias_fifo.sv">
       <FileInfo>
         <Attr Name="AutoDisabled" Val="1"/>
         <Attr Name="UsedIn" Val="synthesis"/>
@@ -208,15 +191,7 @@
         <Attr Name="UsedIn" Val="simulation"/>
       </FileInfo>
     </File>
-    <File Path="$PPRDIR/../../user/src/top_mac_plus_bias_fifo_sigmoid.sv">
-      <FileInfo>
-        <Attr Name="AutoDisabled" Val="1"/>
-        <Attr Name="UsedIn" Val="synthesis"/>
-        <Attr Name="UsedIn" Val="implementation"/>
-        <Attr Name="UsedIn" Val="simulation"/>
-      </FileInfo>
-    </File>
-    <File Path="$PPRDIR/../../user/src/nonlinear_tile.sv">
+    <File Path="$PPRDIR/../../user/src/broadcast_unit.sv">
       <FileInfo>
         <Attr Name="AutoDisabled" Val="1"/>
         <Attr Name="UsedIn" Val="synthesis"/>
@@ -232,7 +207,7 @@
         <Attr Name="UsedIn" Val="simulation"/>
       </FileInfo>
     </File>
-    <File Path="$PPRDIR/../../user/src/top_mac_plus_bias_fifo_sigmoid_ew.sv">
+    <File Path="$PPRDIR/../../user/src/mac_mem_controller_combined_dp.sv">
       <FileInfo>
         <Attr Name="AutoDisabled" Val="1"/>
         <Attr Name="UsedIn" Val="synthesis"/>
@@ -240,7 +215,7 @@
         <Attr Name="UsedIn" Val="simulation"/>
       </FileInfo>
     </File>
-    <File Path="$PPRDIR/../../user/src/exp_sp_cell.sv">
+    <File Path="$PPRDIR/../../user/src/multi_bank_wbuf.sv">
       <FileInfo>
         <Attr Name="AutoDisabled" Val="1"/>
         <Attr Name="UsedIn" Val="synthesis"/>
@@ -248,7 +223,7 @@
         <Attr Name="UsedIn" Val="simulation"/>
       </FileInfo>
     </File>
-    <File Path="$PPRDIR/../../user/src/top_mac_plus_bias.sv">
+    <File Path="$PPRDIR/../../user/src/multi_bank_wbuf_dp.sv">
       <FileInfo>
         <Attr Name="AutoDisabled" Val="1"/>
         <Attr Name="UsedIn" Val="synthesis"/>
@@ -264,10 +239,42 @@
         <Attr Name="UsedIn" Val="simulation"/>
       </FileInfo>
     </File>
+    <File Path="$PPRDIR/../../user/src/top_mac_plus_bias.sv">
+      <FileInfo>
+        <Attr Name="AutoDisabled" Val="1"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../../user/src/top_mac_plus_bias_fifo.sv">
+      <FileInfo>
+        <Attr Name="AutoDisabled" Val="1"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../../user/src/top_mac_plus_bias_fifo_sigmoid.sv">
+      <FileInfo>
+        <Attr Name="AutoDisabled" Val="1"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../../user/src/top_mac_plus_bias_fifo_sigmoid_ew.sv">
+      <FileInfo>
+        <Attr Name="AutoDisabled" Val="1"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
     <File Path="$PPRDIR/../../user/data/sigmoid_lut_q016_2048.hex"/>
     <Config>
       <Option Name="DesignMode" Val="RTL"/>
-      <Option Name="TopModule" Val="top_mac_plus_bias_fifo_sigmoid_ew_gate"/>
+      <Option Name="TopModule" Val="top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper"/>
     </Config>
   </FileSet>
   <FileSet Name="constrs_in" Type="Constrs" RelSrcDir="$PSRCDIR/constrs_1" RelGenDir="$PGENDIR/constrs_1">

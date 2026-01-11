@@ -128,3 +128,30 @@ close_design
 reset_simulation -simset sim_8 -mode post-synthesis -type timing
 launch_simulation -simset [get_filesets sim_8 ] -mode post-synthesis -type timing
 launch_simulation -simset [get_filesets sim_8 ] -mode post-synthesis -type timing
+close_design
+set_property SOURCE_SET sources_1 [get_filesets sim_8]
+add_files -fileset sim_8 -norecurse -scan_for_includes E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper.sv
+update_compile_order -fileset sim_8
+launch_simulation -simset [get_filesets sim_8 ] -mode post-synthesis -type functional
+set_property SOURCE_SET sources_1 [get_filesets sim_8]
+add_files -fileset sim_8 -norecurse -scan_for_includes E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_post_sysn.sv
+update_compile_order -fileset sim_8
+launch_simulation -simset [get_filesets sim_8 ] -mode post-synthesis -type timing
+set_property is_enabled false [get_files  E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/top_mac_plus_bias_fifo_sigmoid_ew_gate.sv]
+update_compile_order -fileset sources_1
+update_compile_order -fileset sources_1
+set_property is_enabled true [get_files  E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/top_mac_plus_bias_fifo_sigmoid_ew_gate.sv]
+update_compile_order -fileset sources_1
+move_files [get_files  E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper.sv]
+update_compile_order -fileset sources_1
+# Disabling source management mode.  This is to allow the top design properties to be set without GUI intervention.
+set_property source_mgmt_mode None [current_project]
+set_property top top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper [current_fileset]
+# Re-enabling previously disabled source management mode.
+set_property source_mgmt_mode All [current_project]
+update_compile_order -fileset sources_1
+reset_run synth_1
+close_design
+launch_runs synth_1 -jobs 8
+wait_on_run synth_1
+launch_simulation -simset [get_filesets sim_8 ] -mode post-synthesis -type timing

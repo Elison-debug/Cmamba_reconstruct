@@ -24,7 +24,7 @@ eval( EAInclude(ISEJScriptLib) );
 
 
 ISEStep( "vivado",
-         "-log top_mac_plus_bias_fifo_sigmoid_ew_gate.vds -m64 -product Vivado -mode batch -messageDb vivado.pb -notrace -source top_mac_plus_bias_fifo_sigmoid_ew_gate.tcl" );
+         "-log top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper.vds -m64 -product Vivado -mode batch -messageDb vivado.pb -notrace -source top_mac_plus_bias_fifo_sigmoid_ew_gate_post_synth_wrapper.tcl" );
 
 
 
