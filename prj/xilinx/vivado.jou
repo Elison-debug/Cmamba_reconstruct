@@ -1,0 +1,130 @@
+#-----------------------------------------------------------
+# Vivado v2024.1 (64-bit)
+# SW Build 5076996 on Wed May 22 18:37:14 MDT 2024
+# IP Build 5075265 on Wed May 22 21:45:21 MDT 2024
+# SharedData Build 5076995 on Wed May 22 18:29:18 MDT 2024
+# Start of session at: Sun Jan 11 15:39:30 2026
+# Process ID: 23464
+# Current directory: E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx
+# Command line: vivado.exe -gui_launcher_event rodinguilauncherevent21388 E:\Master\2025\Mamba\Cmamba_reconstruct\prj\xilinx\project_reconstruct.xpr
+# Log file: E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/vivado.log
+# Journal file: E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx\vivado.jou
+# Running On        :G14-DAWN
+# Platform          :Windows Server 2016 or Windows 10
+# Operating System  :22621
+# Processor Detail  :AMD Ryzen 9 5900HS with Radeon Graphics        
+# CPU Frequency     :3294 MHz
+# CPU Physical cores:8
+# CPU Logical cores :16
+# Host memory       :33721 MB
+# Swap memory       :2147 MB
+# Total Virtual     :35868 MB
+# Available Virtual :13054 MB
+#-----------------------------------------------------------
+start_gui
+open_project E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.xpr
+update_compile_order -fileset sources_1
+open_bd_design {E:/Master/2025/Mamba/Cmamba_reconstruct/user/bd/design_1/design_1.bd}
+add_files -norecurse -scan_for_includes {E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/broadcast_unit.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/top_mac_plus_bias_fifo_sigmoid_ew_gate.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/multi_bank_wbuf.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/reduction_accumulator.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/slim_multi_bank_wbuf_dp.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/axis_vec_join2.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/sigmoid4_vec.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/multi_bank_wbuf_dp.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/array4x4.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/mac_mem_controller_combined_dp.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/vec_fifo_axis_ip.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/slim_mac_mem_controller_combined_dp.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/ewm_gate_sbuf_vec4.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/top_mac_plus_bias_fifo.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/pe_unit_pipe.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/pipeline_4array_top.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/ewa_vec4.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/bias_input_buf.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/broadcast_tile_gen.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/bias_add_regslice_ip.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/pulse_to_stream_adapter.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/top_mac_plus_bias_fifo_sigmoid.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/pipeline_4array_with_reduction.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/xt_input_buf.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/ew_update_vec4.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/nonlinear_tile.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/mac_mem_controller_combined.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/top_mac_plus_bias_fifo_sigmoid_ew.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/exp_sp_cell.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/ewm_vec4.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/top_mac_plus_bias.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/slim_mac_mem_controller_combined_dp_b.sv}
+update_compile_order -fileset sources_1
+set_property SOURCE_SET sources_1 [get_filesets sim_8]
+add_files -fileset sim_8 -norecurse -scan_for_includes {E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/tb_pe_new.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/tb_top_mac_to_sigmoid_fullpath.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/tb_mac_mem_controller_combined.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/tb_top_mac_plus_bias_pure_ip.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/tb_sigmoid4_vec.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/tb_nonlinear_tile.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/tb_axis_join_ew_update_top.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/tb_ew_update_vec4.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/tb_mac_mem_controller_combined_dp.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/tb_recfg_array_debug.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/tb_recfg_array_EWA.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/tb_recfg_array_fpverify.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/tb_top_mac_plus_bias_fifo_sigmoid_ew.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/tb_pipeline_4array_with_reduction.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/tb_pipeline_4array_top.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/tb_recfg_array.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/tb_top_mac_plus_bias_fifo_sigmoid_ew_gate.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/tb_slim_mac_mem_controller_combined_dp.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/tb_top_mac_plus_bias_fifo.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/tb_top_mac_sigmoid_xt_join_fullpath.sv E:/Master/2025/Mamba/Cmamba_reconstruct/user/sim/tb_reduction_accumulator.sv}
+update_compile_order -fileset sim_8
+generate_target all [get_files E:/Master/2025/Mamba/Cmamba_reconstruct/user/ip/bias2sigmoid_fifo/bias2sigmoid_fifo.xci]
+create_ip_run [get_files -of_objects [get_fileset sources_1] E:/Master/2025/Mamba/Cmamba_reconstruct/user/ip/bias2sigmoid_fifo/bias2sigmoid_fifo.xci]
+generate_target all [get_files E:/Master/2025/Mamba/Cmamba_reconstruct/user/ip/bias_ROM/bias_ROM.xci]
+create_ip_run [get_files -of_objects [get_fileset sources_1] E:/Master/2025/Mamba/Cmamba_reconstruct/user/ip/bias_ROM/bias_ROM.xci]
+generate_target all [get_files E:/Master/2025/Mamba/Cmamba_reconstruct/user/ip/slim_WBUF_bank_dp/slim_WBUF_bank_dp.xci]
+create_ip_run [get_files -of_objects [get_fileset sources_1] E:/Master/2025/Mamba/Cmamba_reconstruct/user/ip/slim_WBUF_bank_dp/slim_WBUF_bank_dp.xci]
+launch_runs bias2sigmoid_fifo_synth_1
+wait_on_run bias2sigmoid_fifo_synth_1
+launch_runs bias_ROM_synth_1
+wait_on_run bias_ROM_synth_1
+launch_runs slim_WBUF_bank_dp_synth_1
+wait_on_run slim_WBUF_bank_dp_synth_1
+synth_design -top top_mac_plus_bias_fifo_sigmoid_ew_gate -part xczu9eg-ffvb1156-2-e -lint 
+close_bd_design [get_bd_designs design_1]
+create_ip -name blk_mem_gen -vendor xilinx.com -library ip -version 8.4 -module_name s_buffer
+set_property -dict [list \
+  CONFIG.Memory_Type {True_Dual_Port_RAM} \
+  CONFIG.Operating_Mode_A {READ_FIRST} \
+  CONFIG.Operating_Mode_B {READ_FIRST} \
+  CONFIG.Write_Depth_A {64} \
+  CONFIG.Write_Width_A {64} \
+] [get_ips s_buffer]
+generate_target {instantiation_template} [get_files e:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.srcs/sources_1/ip/s_buffer/s_buffer.xci]
+generate_target all [get_files  e:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.srcs/sources_1/ip/s_buffer/s_buffer.xci]
+catch { config_ip_cache -export [get_ips -all s_buffer] }
+export_ip_user_files -of_objects [get_files e:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.srcs/sources_1/ip/s_buffer/s_buffer.xci] -no_script -sync -force -quiet
+create_ip_run [get_files -of_objects [get_fileset sources_1] e:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.srcs/sources_1/ip/s_buffer/s_buffer.xci]
+export_simulation -of_objects [get_files e:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.srcs/sources_1/ip/s_buffer/s_buffer.xci] -directory E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.ip_user_files/sim_scripts -ip_user_files_dir E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.ip_user_files -ipstatic_source_dir E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.ip_user_files/ipstatic -lib_map_path [list {modelsim=E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.cache/compile_simlib/modelsim} {questa=E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.cache/compile_simlib/questa} {riviera=E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.cache/compile_simlib/riviera} {activehdl=E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.cache/compile_simlib/activehdl}] -use_ip_compiled_libs -force -quiet
+update_compile_order -fileset sources_1
+create_ip -name blk_mem_gen -vendor xilinx.com -library ip -version 8.4 -module_name u_xt_rom
+set_property -dict [list \
+  CONFIG.Write_Depth_A {64} \
+  CONFIG.Write_Width_A {64} \
+] [get_ips u_xt_rom]
+generate_target {instantiation_template} [get_files e:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.srcs/sources_1/ip/u_xt_rom/u_xt_rom.xci]
+generate_target all [get_files  e:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.srcs/sources_1/ip/u_xt_rom/u_xt_rom.xci]
+catch { config_ip_cache -export [get_ips -all u_xt_rom] }
+export_ip_user_files -of_objects [get_files e:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.srcs/sources_1/ip/u_xt_rom/u_xt_rom.xci] -no_script -sync -force -quiet
+create_ip_run [get_files -of_objects [get_fileset sources_1] e:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.srcs/sources_1/ip/u_xt_rom/u_xt_rom.xci]
+launch_runs u_xt_rom_synth_1 -jobs 8
+wait_on_run u_xt_rom_synth_1
+export_simulation -of_objects [get_files e:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.srcs/sources_1/ip/u_xt_rom/u_xt_rom.xci] -directory E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.ip_user_files/sim_scripts -ip_user_files_dir E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.ip_user_files -ipstatic_source_dir E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.ip_user_files/ipstatic -lib_map_path [list {modelsim=E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.cache/compile_simlib/modelsim} {questa=E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.cache/compile_simlib/questa} {riviera=E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.cache/compile_simlib/riviera} {activehdl=E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.cache/compile_simlib/activehdl}] -use_ip_compiled_libs -force -quiet
+wait_on_run u_xt_rom_synth_1
+synth_design -top top_mac_plus_bias_fifo_sigmoid_ew_gate -part xczu9eg-ffvb1156-2-e -lint 
+synth_design -top top_mac_plus_bias_fifo_sigmoid_ew_gate -part xczu9eg-ffvb1156-2-e -lint 
+synth_design -rtl -rtl_skip_mlo -name rtl_1
+refresh_design
+add_files -norecurse -scan_for_includes E:/Master/2025/Mamba/Cmamba_reconstruct/user/data/sigmoid_lut_q016_2048.hex
+synth_design -top top_mac_plus_bias_fifo_sigmoid_ew_gate -part xczu9eg-ffvb1156-2-e -lint 
+close_design
+open_run impl_1
+launch_simulation -simset [get_filesets sim_8 ]
+source slim_mac_mem_controller_combined_dp_b.tcl
+run all
+run 1 us
+run 1 us
+run 1 us
+run 1 us
+run 1 us
+run 1 us
+run 1 us
+run 1 us
+run 1 us
+close_sim
+# Disabling source management mode.  This is to allow the top design properties to be set without GUI intervention.
+set_property source_mgmt_mode None [current_project]
+set_property top tb_top_mac_plus_bias_fifo_sigmoid_ew_gate [get_filesets sim_8]
+set_property top_lib xil_defaultlib [get_filesets sim_8]
+# Re-enabling previously disabled source management mode.
+set_property source_mgmt_mode All [current_project]
+update_compile_order -fileset sim_8
+launch_simulation
+source top_mac_plus_bias_fifo_sigmoid_ew_gate.tcl
+run 1 us
+run 1 us
+run 1 ms
+run 1 ms
+run 1 ms
+run 1 ms
+close_sim
+current_fileset -simset [ get_filesets sim_8 ]
+launch_simulation -simset [get_filesets sim_8 ]
+source tb_top_mac_plus_bias_fifo_sigmoid_ew_gate.tcl
+open_wave_config {E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_behav.wcfg}
+close_sim
+launch_simulation -simset [get_filesets sim_8 ] -mode post-synthesis -type timing
+reset_run synth_1
+launch_runs synth_1 -jobs 8
+wait_on_run synth_1
+close_design
+close_design
+open_run synth_1 -name synth_1
+reset_simulation -simset sim_8 -mode post-synthesis -type timing
+reset_simulation -simset sim_8 -mode post-synthesis -type timing
+close_design
+reset_simulation -simset sim_8 -mode post-synthesis -type timing
+launch_simulation -simset [get_filesets sim_8 ] -mode post-synthesis -type timing
+launch_simulation -simset [get_filesets sim_8 ] -mode post-synthesis -type timing

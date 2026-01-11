@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="tb_ew_update_vec4_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="tb_ew_update_vec4" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0.000 ns"></ZoomStartTime>
+      <ZoomEndTime time="92.001 ns"></ZoomEndTime>
+      <Cursor1Time time="65.000 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="255"></NameColumnWidth>
+      <ValueColumnWidth column_width="106"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="41" />
+   <wvobject fp_name="/tb_ew_update_vec4/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/rst_n" type="logic">
+      <obj_property name="ElementShortName">rst_n</obj_property>
+      <obj_property name="ObjectShortName">rst_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/in_valid" type="logic">
+      <obj_property name="ElementShortName">in_valid</obj_property>
+      <obj_property name="ObjectShortName">in_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/in_ready" type="logic">
+      <obj_property name="ElementShortName">in_ready</obj_property>
+      <obj_property name="ObjectShortName">in_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/lam_vec" type="array">
+      <obj_property name="ElementShortName">lam_vec[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">lam_vec[3:0][15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/u_vec" type="array">
+      <obj_property name="ElementShortName">u_vec[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">u_vec[3:0][15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/dut/one_minus" type="array">
+      <obj_property name="ElementShortName">one_minus[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">one_minus[3:0][15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/dut/st" type="array">
+      <obj_property name="ElementShortName">st[2:0]</obj_property>
+      <obj_property name="ObjectShortName">st[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/dut/state_we" type="logic">
+      <obj_property name="ElementShortName">state_we</obj_property>
+      <obj_property name="ObjectShortName">state_we</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/dut/ena_a" type="logic">
+      <obj_property name="ElementShortName">ena_a</obj_property>
+      <obj_property name="ObjectShortName">ena_a</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/dut/s_addr" type="array">
+      <obj_property name="ElementShortName">s_addr[5:0]</obj_property>
+      <obj_property name="ObjectShortName">s_addr[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/dut/s_addr_r" type="array">
+      <obj_property name="ElementShortName">s_addr_r[5:0]</obj_property>
+      <obj_property name="ObjectShortName">s_addr_r[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/dut/s_prev_vec" type="array">
+      <obj_property name="ElementShortName">s_prev_vec[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">s_prev_vec[3:0][15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/s_new_vec" type="array">
+      <obj_property name="ElementShortName">s_new_vec[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">s_new_vec[3:0][15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/dut/s_dout_packed" type="array">
+      <obj_property name="ElementShortName">s_dout_packed[63:0]</obj_property>
+      <obj_property name="ObjectShortName">s_dout_packed[63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/dut/s_new_packed" type="array">
+      <obj_property name="ElementShortName">s_new_packed[63:0]</obj_property>
+      <obj_property name="ObjectShortName">s_new_packed[63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/dut/s_dout_unknown" type="logic">
+      <obj_property name="ElementShortName">s_dout_unknown</obj_property>
+      <obj_property name="ObjectShortName">s_dout_unknown</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/dut/s_dout_safe" type="array">
+      <obj_property name="ElementShortName">s_dout_safe[63:0]</obj_property>
+      <obj_property name="ObjectShortName">s_dout_safe[63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/dut/u_aligned" type="array">
+      <obj_property name="ElementShortName">u_aligned[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">u_aligned[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/dut/mul_a" type="array">
+      <obj_property name="ElementShortName">mul_a[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">mul_a[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/dut/mul_b" type="array">
+      <obj_property name="ElementShortName">mul_b[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">mul_b[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/dut/sum_y" type="array">
+      <obj_property name="ElementShortName">sum_y[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">sum_y[3:0][15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/s_addr" type="array">
+      <obj_property name="ElementShortName">s_addr[5:0]</obj_property>
+      <obj_property name="ObjectShortName">s_addr[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/out_valid" type="logic">
+      <obj_property name="ElementShortName">out_valid</obj_property>
+      <obj_property name="ObjectShortName">out_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/out_ready" type="logic">
+      <obj_property name="ElementShortName">out_ready</obj_property>
+      <obj_property name="ObjectShortName">out_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/exp_state" type="array">
+      <obj_property name="ElementShortName">exp_state[0:63][0:3][15:0]</obj_property>
+      <obj_property name="ObjectShortName">exp_state[0:63][0:3][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/TILE_SIZE" type="array">
+      <obj_property name="ElementShortName">TILE_SIZE[31:0]</obj_property>
+      <obj_property name="ObjectShortName">TILE_SIZE[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/W" type="array">
+      <obj_property name="ElementShortName">W[31:0]</obj_property>
+      <obj_property name="ObjectShortName">W[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/S_ADDR_W" type="array">
+      <obj_property name="ElementShortName">S_ADDR_W[31:0]</obj_property>
+      <obj_property name="ObjectShortName">S_ADDR_W[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/dut/u_s_buffer/clka" type="logic">
+      <obj_property name="ElementShortName">clka</obj_property>
+      <obj_property name="ObjectShortName">clka</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/dut/u_s_buffer/ena" type="logic">
+      <obj_property name="ElementShortName">ena</obj_property>
+      <obj_property name="ObjectShortName">ena</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/dut/u_s_buffer/wea" type="array">
+      <obj_property name="ElementShortName">wea[0:0]</obj_property>
+      <obj_property name="ObjectShortName">wea[0:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/dut/u_s_buffer/addra" type="array">
+      <obj_property name="ElementShortName">addra[5:0]</obj_property>
+      <obj_property name="ObjectShortName">addra[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/dut/u_s_buffer/dina" type="array">
+      <obj_property name="ElementShortName">dina[63:0]</obj_property>
+      <obj_property name="ObjectShortName">dina[63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/dut/u_s_buffer/douta" type="array">
+      <obj_property name="ElementShortName">douta[63:0]</obj_property>
+      <obj_property name="ObjectShortName">douta[63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/dut/u_s_buffer/clkb" type="logic">
+      <obj_property name="ElementShortName">clkb</obj_property>
+      <obj_property name="ObjectShortName">clkb</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/dut/u_s_buffer/enb" type="logic">
+      <obj_property name="ElementShortName">enb</obj_property>
+      <obj_property name="ObjectShortName">enb</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/dut/u_s_buffer/web" type="array">
+      <obj_property name="ElementShortName">web[0:0]</obj_property>
+      <obj_property name="ObjectShortName">web[0:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/dut/u_s_buffer/addrb" type="array">
+      <obj_property name="ElementShortName">addrb[5:0]</obj_property>
+      <obj_property name="ObjectShortName">addrb[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/dut/u_s_buffer/dinb" type="array">
+      <obj_property name="ElementShortName">dinb[63:0]</obj_property>
+      <obj_property name="ObjectShortName">dinb[63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ew_update_vec4/dut/u_s_buffer/doutb" type="array">
+      <obj_property name="ElementShortName">doutb[63:0]</obj_property>
+      <obj_property name="ObjectShortName">doutb[63:0]</obj_property>
+   </wvobject>
+</wave_config>

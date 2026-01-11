@@ -1,0 +1,9 @@
+# compile verilog/system verilog design source files
+verilog xil_defaultlib  \
+"tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_time_synth.v" \
+
+sv xil_defaultlib  \
+"../../../../../../../user/sim/tb_top_mac_plus_bias_fifo_sigmoid_ew_gate.sv" \
+
+# Do not sort compile order
+nosort

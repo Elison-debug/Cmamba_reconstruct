@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenRun Id="bias_ROM_synth_1" LaunchPart="xczu9eg-ffvb1156-2-e" LaunchTime="1768142582">
+  <File Type="PA-TCL" Name="bias_ROM.tcl"/>
+  <File Type="RDS-PROPCONSTRS" Name="bias_ROM_drc_synth.rpt"/>
+  <File Type="REPORTS-TCL" Name="bias_ROM_reports.tcl"/>
+  <File Type="RDS-RDS" Name="bias_ROM.vds"/>
+  <File Type="RDS-UTIL" Name="bias_ROM_utilization_synth.rpt"/>
+  <File Type="RDS-UTIL-PB" Name="bias_ROM_utilization_synth.pb"/>
+  <File Type="RDS-DCP" Name="bias_ROM.dcp"/>
+  <File Type="VDS-TIMINGSUMMARY" Name="bias_ROM_timing_summary_synth.rpt"/>
+  <File Type="VDS-TIMING-PB" Name="bias_ROM_timing_summary_synth.pb"/>
+  <FileSet Name="sources" Type="BlockSrcs" RelSrcDir="$PSRCDIR/bias_ROM" RelGenDir="$PGENDIR/bias_ROM">
+    <File Path="$PPRDIR/../../user/ip/bias_ROM/bias_ROM.xci">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <Config>
+      <Option Name="TopModule" Val="bias_ROM"/>
+      <Option Name="UseBlackboxStub" Val="1"/>
+    </Config>
+  </FileSet>
+  <FileSet Name="constrs_in" Type="BlockSrcs" RelSrcDir="$PSRCDIR/bias_ROM" RelGenDir="$PGENDIR/bias_ROM">
+    <File Path="$PPRDIR/../../user/ip/bias_ROM/bias_ROM.xci">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <Config>
+      <Option Name="TopModule" Val="bias_ROM"/>
+      <Option Name="UseBlackboxStub" Val="1"/>
+    </Config>
+  </FileSet>
+  <FileSet Name="utils" Type="Utils" RelSrcDir="$PSRCDIR/utils_1" RelGenDir="$PGENDIR/utils_1">
+    <Filter Type="Utils"/>
+    <Config>
+      <Option Name="TopAutoSet" Val="TRUE"/>
+    </Config>
+  </FileSet>
+  <Strategy Version="1" Minor="2">
+    <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2024">
+      <Desc>Vivado Synthesis Defaults</Desc>
+    </StratHandle>
+    <Step Id="synth_design"/>
+  </Strategy>
+</GenRun>

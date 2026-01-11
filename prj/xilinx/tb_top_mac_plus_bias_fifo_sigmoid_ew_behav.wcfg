@@ -1,0 +1,862 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="tb_top_mac_plus_bias_fifo_sigmoid_ew_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="tb_top_mac_plus_bias_fifo_sigmoid_ew" />
+            <top_module name="vcomponents" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0.000 ns"></ZoomStartTime>
+      <ZoomEndTime time="109.403 ns"></ZoomEndTime>
+      <Cursor1Time time="133.000 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="255"></NameColumnWidth>
+      <ValueColumnWidth column_width="86"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="191" />
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/rst_n" type="logic">
+      <obj_property name="ElementShortName">rst_n</obj_property>
+      <obj_property name="ObjectShortName">rst_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/s_axis_TVALID" type="logic">
+      <obj_property name="ElementShortName">s_axis_TVALID</obj_property>
+      <obj_property name="ObjectShortName">s_axis_TVALID</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/s_axis_TREADY" type="logic">
+      <obj_property name="ElementShortName">s_axis_TREADY</obj_property>
+      <obj_property name="ObjectShortName">s_axis_TREADY</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/fifo_out_valid" type="logic">
+      <obj_property name="ElementShortName">fifo_out_valid</obj_property>
+      <obj_property name="ObjectShortName">fifo_out_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/fifo_out_ready" type="logic">
+      <obj_property name="ElementShortName">fifo_out_ready</obj_property>
+      <obj_property name="ObjectShortName">fifo_out_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/fifo_out_vec" type="array">
+      <obj_property name="ElementShortName">fifo_out_vec[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">fifo_out_vec[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/lam_axis_TVALID" type="logic">
+      <obj_property name="ElementShortName">lam_axis_TVALID</obj_property>
+      <obj_property name="ObjectShortName">lam_axis_TVALID</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/lam_axis_TREADY" type="logic">
+      <obj_property name="ElementShortName">lam_axis_TREADY</obj_property>
+      <obj_property name="ObjectShortName">lam_axis_TREADY</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/lam_axis_TDATA" type="array">
+      <obj_property name="ElementShortName">lam_axis_TDATA[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">lam_axis_TDATA[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/xt_axis_TVALID" type="logic">
+      <obj_property name="ElementShortName">xt_axis_TVALID</obj_property>
+      <obj_property name="ObjectShortName">xt_axis_TVALID</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/xt_axis_TREADY" type="logic">
+      <obj_property name="ElementShortName">xt_axis_TREADY</obj_property>
+      <obj_property name="ObjectShortName">xt_axis_TREADY</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/xt_axis_TDATA" type="array">
+      <obj_property name="ElementShortName">xt_axis_TDATA[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">xt_axis_TDATA[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/join_out_valid" type="logic">
+      <obj_property name="ElementShortName">join_out_valid</obj_property>
+      <obj_property name="ObjectShortName">join_out_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/join_out_ready" type="logic">
+      <obj_property name="ElementShortName">join_out_ready</obj_property>
+      <obj_property name="ObjectShortName">join_out_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/join_lam_vec" type="array">
+      <obj_property name="ElementShortName">join_lam_vec[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">join_lam_vec[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/join_xt_vec" type="array">
+      <obj_property name="ElementShortName">join_xt_vec[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">join_xt_vec[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/s_out_valid" type="logic">
+      <obj_property name="ElementShortName">s_out_valid</obj_property>
+      <obj_property name="ObjectShortName">s_out_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/s_out_ready" type="logic">
+      <obj_property name="ElementShortName">s_out_ready</obj_property>
+      <obj_property name="ObjectShortName">s_out_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/s_out_vec" type="array">
+      <obj_property name="ElementShortName">s_out_vec[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">s_out_vec[3:0][15:0]</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/tb_rom" type="array">
+      <obj_property name="ElementShortName">tb_rom[0:2047][15:0]</obj_property>
+      <obj_property name="ObjectShortName">tb_rom[0:2047][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/fifo_fire" type="logic">
+      <obj_property name="ElementShortName">fifo_fire</obj_property>
+      <obj_property name="ObjectShortName">fifo_fire</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/xt_fire" type="logic">
+      <obj_property name="ElementShortName">xt_fire</obj_property>
+      <obj_property name="ObjectShortName">xt_fire</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/join_fire" type="logic">
+      <obj_property name="ElementShortName">join_fire</obj_property>
+      <obj_property name="ObjectShortName">join_fire</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/s_fire" type="logic">
+      <obj_property name="ElementShortName">s_fire</obj_property>
+      <obj_property name="ObjectShortName">s_fire</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/lam_hold_seen" type="logic">
+      <obj_property name="ElementShortName">lam_hold_seen</obj_property>
+      <obj_property name="ObjectShortName">lam_hold_seen</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/xt_hold_seen" type="logic">
+      <obj_property name="ElementShortName">xt_hold_seen</obj_property>
+      <obj_property name="ObjectShortName">xt_hold_seen</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/join_hold_seen" type="logic">
+      <obj_property name="ElementShortName">join_hold_seen</obj_property>
+      <obj_property name="ObjectShortName">join_hold_seen</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/lam_hold_vec" type="array">
+      <obj_property name="ElementShortName">lam_hold_vec[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">lam_hold_vec[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/xt_hold_vec" type="array">
+      <obj_property name="ElementShortName">xt_hold_vec[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">xt_hold_vec[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/join_hold_lam" type="array">
+      <obj_property name="ElementShortName">join_hold_lam[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">join_hold_lam[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/join_hold_xt" type="array">
+      <obj_property name="ElementShortName">join_hold_xt[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">join_hold_xt[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/got_join" type="array">
+      <obj_property name="ElementShortName">got_join[31:0]</obj_property>
+      <obj_property name="ObjectShortName">got_join[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/got_s" type="array">
+      <obj_property name="ElementShortName">got_s[31:0]</obj_property>
+      <obj_property name="ObjectShortName">got_s[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/b" type="array">
+      <obj_property name="ElementShortName">b[31:0]</obj_property>
+      <obj_property name="ObjectShortName">b[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/addr" type="array">
+      <obj_property name="ElementShortName">addr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">addr[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/w" type="array">
+      <obj_property name="ElementShortName">w[31:0]</obj_property>
+      <obj_property name="ObjectShortName">w[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/tile_id" type="array">
+      <obj_property name="ElementShortName">tile_id[31:0]</obj_property>
+      <obj_property name="ObjectShortName">tile_id[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/element_id" type="array">
+      <obj_property name="ElementShortName">element_id[31:0]</obj_property>
+      <obj_property name="ObjectShortName">element_id[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/value" type="array">
+      <obj_property name="ElementShortName">value[31:0]</obj_property>
+      <obj_property name="ObjectShortName">value[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/line" type="array">
+      <obj_property name="ElementShortName">line[255:0]</obj_property>
+      <obj_property name="ObjectShortName">line[255:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/n_tiles" type="array">
+      <obj_property name="ElementShortName">n_tiles[31:0]</obj_property>
+      <obj_property name="ObjectShortName">n_tiles[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/TILE_SIZE" type="array">
+      <obj_property name="ElementShortName">TILE_SIZE[31:0]</obj_property>
+      <obj_property name="ObjectShortName">TILE_SIZE[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/DATA_WIDTH" type="array">
+      <obj_property name="ElementShortName">DATA_WIDTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">DATA_WIDTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/ACC_WIDTH" type="array">
+      <obj_property name="ElementShortName">ACC_WIDTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ACC_WIDTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/FRAC_BITS" type="array">
+      <obj_property name="ElementShortName">FRAC_BITS[31:0]</obj_property>
+      <obj_property name="ObjectShortName">FRAC_BITS[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/N_BANK" type="array">
+      <obj_property name="ElementShortName">N_BANK[31:0]</obj_property>
+      <obj_property name="ObjectShortName">N_BANK[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/WDEPTH" type="array">
+      <obj_property name="ElementShortName">WDEPTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">WDEPTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/WADDR_W" type="array">
+      <obj_property name="ElementShortName">WADDR_W[31:0]</obj_property>
+      <obj_property name="ObjectShortName">WADDR_W[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/DATA_W" type="array">
+      <obj_property name="ElementShortName">DATA_W[31:0]</obj_property>
+      <obj_property name="ObjectShortName">DATA_W[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/XT_ADDR_W" type="array">
+      <obj_property name="ElementShortName">XT_ADDR_W[31:0]</obj_property>
+      <obj_property name="ObjectShortName">XT_ADDR_W[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/D" type="array">
+      <obj_property name="ElementShortName">D[31:0]</obj_property>
+      <obj_property name="ObjectShortName">D[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/PIPE_LAT" type="array">
+      <obj_property name="ElementShortName">PIPE_LAT[31:0]</obj_property>
+      <obj_property name="ObjectShortName">PIPE_LAT[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/ADDR_BITS" type="array">
+      <obj_property name="ElementShortName">ADDR_BITS[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ADDR_BITS[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/LUT_SIZE" type="array">
+      <obj_property name="ElementShortName">LUT_SIZE[31:0]</obj_property>
+      <obj_property name="ObjectShortName">LUT_SIZE[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/X_MIN" type="array">
+      <obj_property name="ElementShortName">X_MIN[15:0]</obj_property>
+      <obj_property name="ObjectShortName">X_MIN[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/X_MAX" type="array">
+      <obj_property name="ElementShortName">X_MAX[15:0]</obj_property>
+      <obj_property name="ObjectShortName">X_MAX[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/rst_n" type="logic">
+      <obj_property name="ElementShortName">rst_n</obj_property>
+      <obj_property name="ObjectShortName">rst_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/in_valid" type="logic">
+      <obj_property name="ElementShortName">in_valid</obj_property>
+      <obj_property name="ObjectShortName">in_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/in_ready" type="logic">
+      <obj_property name="ElementShortName">in_ready</obj_property>
+      <obj_property name="ObjectShortName">in_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/lam_vec" type="array">
+      <obj_property name="ElementShortName">lam_vec[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">lam_vec[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/u_vec" type="array">
+      <obj_property name="ElementShortName">u_vec[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">u_vec[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/s_addr" type="array">
+      <obj_property name="ElementShortName">s_addr[5:0]</obj_property>
+      <obj_property name="ObjectShortName">s_addr[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/out_valid" type="logic">
+      <obj_property name="ElementShortName">out_valid</obj_property>
+      <obj_property name="ObjectShortName">out_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/out_ready" type="logic">
+      <obj_property name="ElementShortName">out_ready</obj_property>
+      <obj_property name="ObjectShortName">out_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/s_new_vec" type="array">
+      <obj_property name="ElementShortName">s_new_vec[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">s_new_vec[3:0][15:0]</obj_property>
+      <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/s_prev_vec" type="array">
+      <obj_property name="ElementShortName">s_prev_vec[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">s_prev_vec[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/s_dout_packed" type="array">
+      <obj_property name="ElementShortName">s_dout_packed[63:0]</obj_property>
+      <obj_property name="ObjectShortName">s_dout_packed[63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/s_dout_unknown" type="logic">
+      <obj_property name="ElementShortName">s_dout_unknown</obj_property>
+      <obj_property name="ObjectShortName">s_dout_unknown</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/s_dout_safe" type="array">
+      <obj_property name="ElementShortName">s_dout_safe[63:0]</obj_property>
+      <obj_property name="ObjectShortName">s_dout_safe[63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/s_new_packed" type="array">
+      <obj_property name="ElementShortName">s_new_packed[63:0]</obj_property>
+      <obj_property name="ObjectShortName">s_new_packed[63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/s_addr_r" type="array">
+      <obj_property name="ElementShortName">s_addr_r[5:0]</obj_property>
+      <obj_property name="ObjectShortName">s_addr_r[5:0]</obj_property>
+      <obj_property name="CustomSignalColor">#800080</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/st" type="array">
+      <obj_property name="ElementShortName">st[2:0]</obj_property>
+      <obj_property name="ObjectShortName">st[2:0]</obj_property>
+      <obj_property name="CustomSignalColor">#800000</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/lam_r" type="array">
+      <obj_property name="ElementShortName">lam_r[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">lam_r[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/u_r" type="array">
+      <obj_property name="ElementShortName">u_r[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">u_r[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/one_minus" type="array">
+      <obj_property name="ElementShortName">one_minus[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">one_minus[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/u_aligned" type="array">
+      <obj_property name="ElementShortName">u_aligned[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">u_aligned[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/ewm1_v" type="logic">
+      <obj_property name="ElementShortName">ewm1_v</obj_property>
+      <obj_property name="ObjectShortName">ewm1_v</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/ewm1_r" type="logic">
+      <obj_property name="ElementShortName">ewm1_r</obj_property>
+      <obj_property name="ObjectShortName">ewm1_r</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/ewm2_v" type="logic">
+      <obj_property name="ElementShortName">ewm2_v</obj_property>
+      <obj_property name="ObjectShortName">ewm2_v</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/ewm2_r" type="logic">
+      <obj_property name="ElementShortName">ewm2_r</obj_property>
+      <obj_property name="ObjectShortName">ewm2_r</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/mul_a" type="array">
+      <obj_property name="ElementShortName">mul_a[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">mul_a[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/mul_b" type="array">
+      <obj_property name="ElementShortName">mul_b[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">mul_b[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/ewa_v" type="logic">
+      <obj_property name="ElementShortName">ewa_v</obj_property>
+      <obj_property name="ObjectShortName">ewa_v</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/ewa_r" type="logic">
+      <obj_property name="ElementShortName">ewa_r</obj_property>
+      <obj_property name="ObjectShortName">ewa_r</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/sum_y" type="array">
+      <obj_property name="ElementShortName">sum_y[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">sum_y[3:0][15:0]</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/state_we" type="logic">
+      <obj_property name="ElementShortName">state_we</obj_property>
+      <obj_property name="ObjectShortName">state_we</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/ena_a" type="logic">
+      <obj_property name="ElementShortName">ena_a</obj_property>
+      <obj_property name="ObjectShortName">ena_a</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/both_mul_valid" type="logic">
+      <obj_property name="ElementShortName">both_mul_valid</obj_property>
+      <obj_property name="ObjectShortName">both_mul_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/TILE_SIZE" type="array">
+      <obj_property name="ElementShortName">TILE_SIZE[31:0]</obj_property>
+      <obj_property name="ObjectShortName">TILE_SIZE[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/W" type="array">
+      <obj_property name="ElementShortName">W[31:0]</obj_property>
+      <obj_property name="ObjectShortName">W[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/S_ADDR_W" type="array">
+      <obj_property name="ElementShortName">S_ADDR_W[31:0]</obj_property>
+      <obj_property name="ObjectShortName">S_ADDR_W[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/USE_RAM" type="logic">
+      <obj_property name="ElementShortName">USE_RAM</obj_property>
+      <obj_property name="ObjectShortName">USE_RAM</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/MEM_W" type="array">
+      <obj_property name="ElementShortName">MEM_W[31:0]</obj_property>
+      <obj_property name="ObjectShortName">MEM_W[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/MEM_BYTES" type="array">
+      <obj_property name="ElementShortName">MEM_BYTES[31:0]</obj_property>
+      <obj_property name="ObjectShortName">MEM_BYTES[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/u_s_buffer/clka" type="logic">
+      <obj_property name="ElementShortName">clka</obj_property>
+      <obj_property name="ObjectShortName">clka</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/u_s_buffer/ena" type="logic">
+      <obj_property name="ElementShortName">ena</obj_property>
+      <obj_property name="ObjectShortName">ena</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/u_s_buffer/wea" type="array">
+      <obj_property name="ElementShortName">wea[0:0]</obj_property>
+      <obj_property name="ObjectShortName">wea[0:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/u_s_buffer/addra" type="array">
+      <obj_property name="ElementShortName">addra[5:0]</obj_property>
+      <obj_property name="ObjectShortName">addra[5:0]</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/u_s_buffer/dina" type="array">
+      <obj_property name="ElementShortName">dina[63:0]</obj_property>
+      <obj_property name="ObjectShortName">dina[63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/u_s_buffer/douta" type="array">
+      <obj_property name="ElementShortName">douta[63:0]</obj_property>
+      <obj_property name="ObjectShortName">douta[63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/u_s_buffer/clkb" type="logic">
+      <obj_property name="ElementShortName">clkb</obj_property>
+      <obj_property name="ObjectShortName">clkb</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/u_s_buffer/enb" type="logic">
+      <obj_property name="ElementShortName">enb</obj_property>
+      <obj_property name="ObjectShortName">enb</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/u_s_buffer/web" type="array">
+      <obj_property name="ElementShortName">web[0:0]</obj_property>
+      <obj_property name="ObjectShortName">web[0:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/u_s_buffer/addrb" type="array">
+      <obj_property name="ElementShortName">addrb[5:0]</obj_property>
+      <obj_property name="ObjectShortName">addrb[5:0]</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/u_s_buffer/dinb" type="array">
+      <obj_property name="ElementShortName">dinb[63:0]</obj_property>
+      <obj_property name="ObjectShortName">dinb[63:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_ew/u_s_buffer/doutb" type="array">
+      <obj_property name="ElementShortName">doutb[63:0]</obj_property>
+      <obj_property name="ObjectShortName">doutb[63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/rst_n" type="logic">
+      <obj_property name="ElementShortName">rst_n</obj_property>
+      <obj_property name="ObjectShortName">rst_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/s_axis_TVALID" type="logic">
+      <obj_property name="ElementShortName">s_axis_TVALID</obj_property>
+      <obj_property name="ObjectShortName">s_axis_TVALID</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/s_axis_TREADY" type="logic">
+      <obj_property name="ElementShortName">s_axis_TREADY</obj_property>
+      <obj_property name="ObjectShortName">s_axis_TREADY</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/m_axis_TVALID" type="logic">
+      <obj_property name="ElementShortName">m_axis_TVALID</obj_property>
+      <obj_property name="ObjectShortName">m_axis_TVALID</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/m_axis_TREADY" type="logic">
+      <obj_property name="ElementShortName">m_axis_TREADY</obj_property>
+      <obj_property name="ObjectShortName">m_axis_TREADY</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/reduced_trunc" type="array">
+      <obj_property name="ElementShortName">reduced_trunc[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">reduced_trunc[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/xt_axis_TVALID" type="logic">
+      <obj_property name="ElementShortName">xt_axis_TVALID</obj_property>
+      <obj_property name="ObjectShortName">xt_axis_TVALID</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/xt_axis_TREADY" type="logic">
+      <obj_property name="ElementShortName">xt_axis_TREADY</obj_property>
+      <obj_property name="ObjectShortName">xt_axis_TREADY</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/xt_axis_TDATA" type="array">
+      <obj_property name="ElementShortName">xt_axis_TDATA[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">xt_axis_TDATA[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/state" type="array">
+      <obj_property name="ElementShortName">state[2:0]</obj_property>
+      <obj_property name="ObjectShortName">state[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/next_state" type="array">
+      <obj_property name="ElementShortName">next_state[2:0]</obj_property>
+      <obj_property name="ObjectShortName">next_state[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/data_cnt" type="array">
+      <obj_property name="ElementShortName">data_cnt[15:0]</obj_property>
+      <obj_property name="ObjectShortName">data_cnt[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/tile_cnt" type="array">
+      <obj_property name="ElementShortName">tile_cnt[15:0]</obj_property>
+      <obj_property name="ObjectShortName">tile_cnt[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/tile_cnt_for_xt" type="array">
+      <obj_property name="ElementShortName">tile_cnt_for_xt[15:0]</obj_property>
+      <obj_property name="ObjectShortName">tile_cnt_for_xt[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/valid_out" type="logic">
+      <obj_property name="ElementShortName">valid_out</obj_property>
+      <obj_property name="ObjectShortName">valid_out</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/valid_out_q" type="logic">
+      <obj_property name="ElementShortName">valid_out_q</obj_property>
+      <obj_property name="ObjectShortName">valid_out_q</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/wbuf_cnt" type="array">
+      <obj_property name="ElementShortName">wbuf_cnt[2:0]</obj_property>
+      <obj_property name="ObjectShortName">wbuf_cnt[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/wbuf_ready" type="logic">
+      <obj_property name="ElementShortName">wbuf_ready</obj_property>
+      <obj_property name="ObjectShortName">wbuf_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/drain_cnt" type="array">
+      <obj_property name="ElementShortName">drain_cnt[1:0]</obj_property>
+      <obj_property name="ObjectShortName">drain_cnt[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/bank_sel" type="array">
+      <obj_property name="ElementShortName">bank_sel[3:0][2:0]</obj_property>
+      <obj_property name="ObjectShortName">bank_sel[3:0][2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/addr_sel" type="array">
+      <obj_property name="ElementShortName">addr_sel[3:0][9:0]</obj_property>
+      <obj_property name="ObjectShortName">addr_sel[3:0][9:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/en_sel" type="array">
+      <obj_property name="ElementShortName">en_sel[3:0]</obj_property>
+      <obj_property name="ObjectShortName">en_sel[3:0]</obj_property>
+      <obj_property name="Radix">BINARYRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/port_sel" type="array">
+      <obj_property name="ElementShortName">port_sel[3:0]</obj_property>
+      <obj_property name="ObjectShortName">port_sel[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/w_data" type="array">
+      <obj_property name="ElementShortName">w_data[3:0][255:0]</obj_property>
+      <obj_property name="ObjectShortName">w_data[3:0][255:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/w_data_reg" type="array">
+      <obj_property name="ElementShortName">w_data_reg[3:0][255:0]</obj_property>
+      <obj_property name="ObjectShortName">w_data_reg[3:0][255:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/phase_reg" type="array">
+      <obj_property name="ElementShortName">phase_reg[1:0]</obj_property>
+      <obj_property name="ObjectShortName">phase_reg[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/addr_bank_cnt" type="array">
+      <obj_property name="ElementShortName">addr_bank_cnt[0:5][9:0]</obj_property>
+      <obj_property name="ObjectShortName">addr_bank_cnt[0:5][9:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/bank_hit_mask_comb" type="array">
+      <obj_property name="ElementShortName">bank_hit_mask_comb[5:0]</obj_property>
+      <obj_property name="ObjectShortName">bank_hit_mask_comb[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/bank_hit_mask_comb_next" type="array">
+      <obj_property name="ElementShortName">bank_hit_mask_comb_next[5:0]</obj_property>
+      <obj_property name="ObjectShortName">bank_hit_mask_comb_next[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/xt_addr" type="array">
+      <obj_property name="ElementShortName">xt_addr[5:0]</obj_property>
+      <obj_property name="ObjectShortName">xt_addr[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/xt_addr_reg" type="array">
+      <obj_property name="ElementShortName">xt_addr_reg[5:0]</obj_property>
+      <obj_property name="ObjectShortName">xt_addr_reg[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/xt_en_req" type="logic">
+      <obj_property name="ElementShortName">xt_en_req</obj_property>
+      <obj_property name="ObjectShortName">xt_en_req</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/xt_en_reg" type="logic">
+      <obj_property name="ElementShortName">xt_en_reg</obj_property>
+      <obj_property name="ObjectShortName">xt_en_reg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/xt_en_reg_d1" type="logic">
+      <obj_property name="ElementShortName">xt_en_reg_d1</obj_property>
+      <obj_property name="ObjectShortName">xt_en_reg_d1</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/xt_switch_req" type="logic">
+      <obj_property name="ElementShortName">xt_switch_req</obj_property>
+      <obj_property name="ObjectShortName">xt_switch_req</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/valid_in" type="logic">
+      <obj_property name="ElementShortName">valid_in</obj_property>
+      <obj_property name="ObjectShortName">valid_in</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/addr_sel_reg" type="array">
+      <obj_property name="ElementShortName">addr_sel_reg[3:0][9:0]</obj_property>
+      <obj_property name="ObjectShortName">addr_sel_reg[3:0][9:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/bank_sel_reg" type="array">
+      <obj_property name="ElementShortName">bank_sel_reg[3:0][2:0]</obj_property>
+      <obj_property name="ObjectShortName">bank_sel_reg[3:0][2:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/reduced_vec" type="array">
+      <obj_property name="ElementShortName">reduced_vec[3:0][31:0]</obj_property>
+      <obj_property name="ObjectShortName">reduced_vec[3:0][31:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="CustomSignalColor">#FF0000</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/port_sel_reg" type="array">
+      <obj_property name="ElementShortName">port_sel_reg[3:0]</obj_property>
+      <obj_property name="ObjectShortName">port_sel_reg[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/tile_cnt_d" type="array">
+      <obj_property name="ElementShortName">tile_cnt_d[15:0]</obj_property>
+      <obj_property name="ObjectShortName">tile_cnt_d[15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/en_sel_reg" type="array">
+      <obj_property name="ElementShortName">en_sel_reg[3:0]</obj_property>
+      <obj_property name="ObjectShortName">en_sel_reg[3:0]</obj_property>
+      <obj_property name="Radix">BINARYRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/B0_mat_reg" type="array">
+      <obj_property name="ElementShortName">B0_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">B0_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="CustomSignalColor">#FFA500</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/B1_mat_reg" type="array">
+      <obj_property name="ElementShortName">B1_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">B1_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="CustomSignalColor">#FFA500</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/B2_mat_reg" type="array">
+      <obj_property name="ElementShortName">B2_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">B2_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="CustomSignalColor">#FFA500</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/B3_mat_reg" type="array">
+      <obj_property name="ElementShortName">B3_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">B3_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="CustomSignalColor">#FFA500</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/A0_mat_reg" type="array">
+      <obj_property name="ElementShortName">A0_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">A0_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/A1_mat_reg" type="array">
+      <obj_property name="ElementShortName">A1_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">A1_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/A2_mat_reg" type="array">
+      <obj_property name="ElementShortName">A2_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">A2_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/A3_mat_reg" type="array">
+      <obj_property name="ElementShortName">A3_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">A3_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/xt_stage_cnt" type="array">
+      <obj_property name="ElementShortName">xt_stage_cnt[1:0]</obj_property>
+      <obj_property name="ObjectShortName">xt_stage_cnt[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/xt_stage_cnt_reg" type="array">
+      <obj_property name="ElementShortName">xt_stage_cnt_reg[1:0]</obj_property>
+      <obj_property name="ObjectShortName">xt_stage_cnt_reg[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/xt_vec" type="array">
+      <obj_property name="ElementShortName">xt_vec[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">xt_vec[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/xt_curr" type="array">
+      <obj_property name="ElementShortName">xt_curr[0:3][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">xt_curr[0:3][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/xt_next" type="array">
+      <obj_property name="ElementShortName">xt_next[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">xt_next[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/xt_init_done" type="logic">
+      <obj_property name="ElementShortName">xt_init_done</obj_property>
+      <obj_property name="ObjectShortName">xt_init_done</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/xt_fifo_in_valid" type="logic">
+      <obj_property name="ElementShortName">xt_fifo_in_valid</obj_property>
+      <obj_property name="ObjectShortName">xt_fifo_in_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/xt_fifo_in_ready" type="logic">
+      <obj_property name="ElementShortName">xt_fifo_in_ready</obj_property>
+      <obj_property name="ObjectShortName">xt_fifo_in_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/xt_fifo_in_vec" type="array">
+      <obj_property name="ElementShortName">xt_fifo_in_vec[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">xt_fifo_in_vec[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/B0_mat" type="array">
+      <obj_property name="ElementShortName">B0_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">B0_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="CustomSignalColor">#00FF7F</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/B1_mat" type="array">
+      <obj_property name="ElementShortName">B1_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">B1_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="CustomSignalColor">#00FF7F</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/B2_mat" type="array">
+      <obj_property name="ElementShortName">B2_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">B2_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="CustomSignalColor">#00FF7F</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/B3_mat" type="array">
+      <obj_property name="ElementShortName">B3_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">B3_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="CustomSignalColor">#00FF7F</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/A0_mat" type="array">
+      <obj_property name="ElementShortName">A0_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">A0_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="CustomSignalColor">#00FF7F</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/A1_mat" type="array">
+      <obj_property name="ElementShortName">A1_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">A1_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="CustomSignalColor">#00FF7F</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/A2_mat" type="array">
+      <obj_property name="ElementShortName">A2_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">A2_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="CustomSignalColor">#00FF7F</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/A3_mat" type="array">
+      <obj_property name="ElementShortName">A3_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">A3_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="CustomSignalColor">#00FF7F</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/dummy_mat0" type="array">
+      <obj_property name="ElementShortName">dummy_mat0[3:0][3:0][31:0]</obj_property>
+      <obj_property name="ObjectShortName">dummy_mat0[3:0][3:0][31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/dummy_mat1" type="array">
+      <obj_property name="ElementShortName">dummy_mat1[3:0][3:0][31:0]</obj_property>
+      <obj_property name="ObjectShortName">dummy_mat1[3:0][3:0][31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/dummy_mat2" type="array">
+      <obj_property name="ElementShortName">dummy_mat2[3:0][3:0][31:0]</obj_property>
+      <obj_property name="ObjectShortName">dummy_mat2[3:0][3:0][31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/dummy_mat3" type="array">
+      <obj_property name="ElementShortName">dummy_mat3[3:0][3:0][31:0]</obj_property>
+      <obj_property name="ObjectShortName">dummy_mat3[3:0][3:0][31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/valid_in_d1" type="logic">
+      <obj_property name="ElementShortName">valid_in_d1</obj_property>
+      <obj_property name="ObjectShortName">valid_in_d1</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/TILE_SIZE" type="array">
+      <obj_property name="ElementShortName">TILE_SIZE[31:0]</obj_property>
+      <obj_property name="ObjectShortName">TILE_SIZE[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/DATA_WIDTH" type="array">
+      <obj_property name="ElementShortName">DATA_WIDTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">DATA_WIDTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/ACC_WIDTH" type="array">
+      <obj_property name="ElementShortName">ACC_WIDTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ACC_WIDTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/FRAC_BITS" type="array">
+      <obj_property name="ElementShortName">FRAC_BITS[31:0]</obj_property>
+      <obj_property name="ObjectShortName">FRAC_BITS[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/N_BANK" type="array">
+      <obj_property name="ElementShortName">N_BANK[31:0]</obj_property>
+      <obj_property name="ObjectShortName">N_BANK[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/WDEPTH" type="array">
+      <obj_property name="ElementShortName">WDEPTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">WDEPTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/WADDR_W" type="array">
+      <obj_property name="ElementShortName">WADDR_W[31:0]</obj_property>
+      <obj_property name="ObjectShortName">WADDR_W[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/DATA_W" type="array">
+      <obj_property name="ElementShortName">DATA_W[31:0]</obj_property>
+      <obj_property name="ObjectShortName">DATA_W[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/XT_ADDR_W" type="array">
+      <obj_property name="ElementShortName">XT_ADDR_W[31:0]</obj_property>
+      <obj_property name="ObjectShortName">XT_ADDR_W[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo_sigmoid_ew/dut/u_mac/TILE_CYCLE" type="array">
+      <obj_property name="ElementShortName">TILE_CYCLE[31:0]</obj_property>
+      <obj_property name="ObjectShortName">TILE_CYCLE[31:0]</obj_property>
+   </wvobject>
+</wave_config>
