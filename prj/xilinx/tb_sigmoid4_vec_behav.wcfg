@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="tb_sigmoid4_vec_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="tb_sigmoid4_vec" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0.000 ns"></ZoomStartTime>
+      <ZoomEndTime time="64.651 ns"></ZoomEndTime>
+      <Cursor1Time time="12.000 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="165"></NameColumnWidth>
+      <ValueColumnWidth column_width="72"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="24" />
+   <wvobject fp_name="/tb_sigmoid4_vec/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_sigmoid4_vec/rst_n" type="logic">
+      <obj_property name="ElementShortName">rst_n</obj_property>
+      <obj_property name="ObjectShortName">rst_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_sigmoid4_vec/in_valid" type="logic">
+      <obj_property name="ElementShortName">in_valid</obj_property>
+      <obj_property name="ObjectShortName">in_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_sigmoid4_vec/in_ready" type="logic">
+      <obj_property name="ElementShortName">in_ready</obj_property>
+      <obj_property name="ObjectShortName">in_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_sigmoid4_vec/in_vec" type="array">
+      <obj_property name="ElementShortName">in_vec[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">in_vec[3:0][15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_sigmoid4_vec/out_valid" type="logic">
+      <obj_property name="ElementShortName">out_valid</obj_property>
+      <obj_property name="ObjectShortName">out_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_sigmoid4_vec/out_ready" type="logic">
+      <obj_property name="ElementShortName">out_ready</obj_property>
+      <obj_property name="ObjectShortName">out_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_sigmoid4_vec/dut/stage0_valid" type="logic">
+      <obj_property name="ElementShortName">stage0_valid</obj_property>
+      <obj_property name="ObjectShortName">stage0_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_sigmoid4_vec/dut/stage0_addr" type="array">
+      <obj_property name="ElementShortName">stage0_addr[3:0][10:0]</obj_property>
+      <obj_property name="ObjectShortName">stage0_addr[3:0][10:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_sigmoid4_vec/out_vec" type="array">
+      <obj_property name="ElementShortName">out_vec[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">out_vec[3:0][15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_sigmoid4_vec/tb_rom" type="array">
+      <obj_property name="ElementShortName">tb_rom[0:2047][15:0]</obj_property>
+      <obj_property name="ObjectShortName">tb_rom[0:2047][15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_sigmoid4_vec/in_fire" type="logic">
+      <obj_property name="ElementShortName">in_fire</obj_property>
+      <obj_property name="ObjectShortName">in_fire</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_sigmoid4_vec/out_fire" type="logic">
+      <obj_property name="ElementShortName">out_fire</obj_property>
+      <obj_property name="ObjectShortName">out_fire</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_sigmoid4_vec/hold_seen" type="logic">
+      <obj_property name="ElementShortName">hold_seen</obj_property>
+      <obj_property name="ObjectShortName">hold_seen</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_sigmoid4_vec/hold_vec" type="array">
+      <obj_property name="ElementShortName">hold_vec[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">hold_vec[3:0][15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_sigmoid4_vec/tv" type="array">
+      <obj_property name="ElementShortName">tv[0:11][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">tv[0:11][3:0][15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_sigmoid4_vec/got" type="array">
+      <obj_property name="ElementShortName">got[31:0]</obj_property>
+      <obj_property name="ObjectShortName">got[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_sigmoid4_vec/TILE_SIZE" type="array">
+      <obj_property name="ElementShortName">TILE_SIZE[31:0]</obj_property>
+      <obj_property name="ObjectShortName">TILE_SIZE[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_sigmoid4_vec/IN_W" type="array">
+      <obj_property name="ElementShortName">IN_W[31:0]</obj_property>
+      <obj_property name="ObjectShortName">IN_W[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_sigmoid4_vec/OUT_W" type="array">
+      <obj_property name="ElementShortName">OUT_W[31:0]</obj_property>
+      <obj_property name="ObjectShortName">OUT_W[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_sigmoid4_vec/ADDR_BITS" type="array">
+      <obj_property name="ElementShortName">ADDR_BITS[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ADDR_BITS[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_sigmoid4_vec/X_MIN" type="array">
+      <obj_property name="ElementShortName">X_MIN[15:0]</obj_property>
+      <obj_property name="ObjectShortName">X_MIN[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_sigmoid4_vec/X_MAX" type="array">
+      <obj_property name="ElementShortName">X_MAX[15:0]</obj_property>
+      <obj_property name="ObjectShortName">X_MAX[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_sigmoid4_vec/LUT_SIZE" type="array">
+      <obj_property name="ElementShortName">LUT_SIZE[31:0]</obj_property>
+      <obj_property name="ObjectShortName">LUT_SIZE[31:0]</obj_property>
+   </wvobject>
+</wave_config>

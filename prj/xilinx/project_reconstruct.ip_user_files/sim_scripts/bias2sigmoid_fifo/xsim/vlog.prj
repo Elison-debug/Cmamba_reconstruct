@@ -1,0 +1,7 @@
+verilog xil_defaultlib  \
+"../../../../project_reconstruct.gen/sources_1/ip/bias2sigmoid_fifo/sim/bias2sigmoid_fifo.v" \
+
+verilog xil_defaultlib "glbl.v"
+
+# Do not sort compile order
+nosort

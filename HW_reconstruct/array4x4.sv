@@ -1,0 +1,76 @@
+//---------------------------------------------------------------
+// Module: array4x4 (or arrayNxN)
+// Function: Parameterized PE Array (no mode mapping inside)
+// Author: Shengjie Chen
+//---------------------------------------------------------------
+module array4x4 #(
+    parameter int TILE_SIZE = 4,
+    parameter int DATA_WIDTH = 16,
+    parameter int ACC_WIDTH  = 32,
+    parameter int FRAC_BITS  = 8
+)(
+    input  logic                              clk,
+    input  logic                              rst_n,
+    
+    // 直接传入 PE 可识别的模式 (2-bit)
+    input  logic [1:0]                        pe_mode,    
+
+    input  logic signed [DATA_WIDTH-1:0] a_in [TILE_SIZE-1:0][TILE_SIZE-1:0],
+    input  logic signed [DATA_WIDTH-1:0] b_in [TILE_SIZE-1:0][TILE_SIZE-1:0],
+    input  logic signed [ACC_WIDTH-1:0] acc_in[TILE_SIZE-1:0][TILE_SIZE-1:0],
+    input  logic valid_in,
+    output logic valid_out,
+    output logic signed [ACC_WIDTH-1:0] result_out[TILE_SIZE-1:0][TILE_SIZE-1:0]
+);
+
+    // 内部信号：用于从所有 PE 捕获 valid_out
+    logic pe_valid_out [TILE_SIZE-1:0][TILE_SIZE-1:0];
+
+    genvar i, j;
+    generate
+        for (i = 0; i < TILE_SIZE; i++) begin : ROW
+            for (j = 0; j < TILE_SIZE; j++) begin : COL
+                
+                pe_unit_pipe #(
+                    .DATA_WIDTH (DATA_WIDTH),
+                    .ACC_WIDTH  (ACC_WIDTH),
+                    .FRAC_BITS  (FRAC_BITS)
+                ) u_pe (
+                    .clk        (clk),
+                    .rst_n      (rst_n),
+                    
+                    // --- valid 信号连接 ---
+                    .valid_in   (valid_in),             // 向下传递 valid_in
+                    .valid_out  (pe_valid_out[i][j]),   // 捕获 PE 的 valid_out
+                    
+                    .mode       (pe_mode),
+                    
+                    // --- [重要修正] ---
+                    // 之前为 a_in[i] 和 b_in[j]，已修正为元素级连接
+                    .a_in       (a_in[i][j]),
+                    .b_in       (b_in[i][j]),
+
+                    .acc_in     (acc_in[i][j]),
+                    .result_out (result_out[i][j])
+                );
+            end
+        end
+    endgenerate
+
+    // 防止未读 valid 位的 lint 告警：把所有 PE valid_out 归并到一个汇总信号
+    logic pe_valid_aggregate;
+    always_comb begin
+        pe_valid_aggregate = 1'b0;
+        for (int rr = 0; rr < TILE_SIZE; rr++) begin
+            for (int cc = 0; cc < TILE_SIZE; cc++) begin
+                pe_valid_aggregate |= pe_valid_out[rr][cc];
+            end
+        end
+    end
+
+    // --- 驱动模块的 valid_out ---
+    // 所有 PE 具有相同的 1 拍延迟，因此它们所有的 valid_out 信号都是同步的。
+    // 使用汇总后的 OR 作为 valid_out，不改变功能。
+    assign valid_out = pe_valid_aggregate;
+
+endmodule

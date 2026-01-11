@@ -1,0 +1,27 @@
+# compile verilog/system verilog design source files
+verilog xil_defaultlib  \
+"tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_time_synth.v" \
+
+sv xil_defaultlib  \
+"../../../../../../../user/src/array4x4.sv" \
+"../../../../../../../user/src/axis_vec_join2.sv" \
+"../../../../../../../user/src/bias_add_regslice_ip.sv" \
+"../../../../../../../user/src/ew_update_vec4.sv" \
+"../../../../../../../user/src/ewa_vec4.sv" \
+"../../../../../../../user/src/ewm_gate_sbuf_vec4.sv" \
+"../../../../../../../user/src/ewm_vec4.sv" \
+"../../../../../../../user/src/pe_unit_pipe.sv" \
+"../../../../../../../user/src/pipeline_4array_top.sv" \
+"../../../../../../../user/src/pipeline_4array_with_reduction.sv" \
+"../../../../../../../user/src/pulse_to_stream_adapter.sv" \
+"../../../../../../../user/src/reduction_accumulator.sv" \
+"../../../../../../../user/src/sigmoid4_vec.sv" \
+"../../../../../../../user/src/slim_mac_mem_controller_combined_dp.sv" \
+"../../../../../../../user/src/slim_multi_bank_wbuf_dp.sv" \
+"../../../../../../../user/src/top_mac_plus_bias_fifo_sigmoid_ew_gate.sv" \
+"../../../../../../../user/src/vec_fifo_axis_ip.sv" \
+"../../../../../../../user/src/xt_input_buf.sv" \
+"../../../../../../../user/sim/tb_top_mac_plus_bias_fifo_sigmoid_ew_gate_post_sysn.sv" \
+
+# Do not sort compile order
+nosort

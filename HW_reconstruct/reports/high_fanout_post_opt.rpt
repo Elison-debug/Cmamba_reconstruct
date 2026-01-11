@@ -1,0 +1,41 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2024.1 (win64) Build 5076996 Wed May 22 18:37:14 MDT 2024
+| Date         : Sun Nov  9 02:04:02 2025
+| Host         : DESKTOP-JL9PPGK running 64-bit major release  (build 9200)
+| Command      : report_high_fanout_nets -max_nets 20 -file D:/Mamba/CMamba/Verilog/reports/high_fanout_post_opt.rpt
+| Design       : mac_mem_controller_combined
+| Device       : xczu9eg
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+High Fan-out Nets Information
+
+1. Summary
+----------
+
++------------------------------------------+--------+-------------+
+| Net Name                                 | Fanout | Driver Type |
++------------------------------------------+--------+-------------+
+| FSM_onehot_state[2]_i_2_n_0              |   1613 | LUT1        |
+| w_data_reg[0][255]_i_1_n_0               |   1024 | LUT3        |
+| state_reg[0]                             |    334 | FDCE        |
+| u_pipeline/u_red3/acc_vec[3][31]_i_3_n_0 |    261 | LUT1        |
+| u_wbuf/bank_sel_q_reg[3][0]_rep__3_n_0   |    144 | FDCE        |
+| u_wbuf/bank_sel_q_reg[3][1]_rep__0_n_0   |    144 | FDCE        |
+| u_wbuf/bank_sel_q_reg[0][0]_rep__0_n_0   |    144 | FDCE        |
+| u_wbuf/bank_sel_q_reg[0][1]_rep__1_n_0   |    144 | FDCE        |
+| u_wbuf/bank_sel_q_reg[0][1]_rep__2_n_0   |    144 | FDCE        |
+| u_wbuf/bank_sel_q_reg[3][1]_rep__1_n_0   |    144 | FDCE        |
+| u_wbuf/bank_sel_q_reg[3][0]_rep__5_n_0   |    144 | FDCE        |
+| u_wbuf/bank_sel_q_reg[3][0]_rep__4_n_0   |    144 | FDCE        |
+| u_wbuf/bank_sel_q_reg[3][0]_rep__6_n_0   |    144 | FDCE        |
+| u_wbuf/bank_sel_q_reg[3][1]_rep__2_n_0   |    144 | FDCE        |
+| u_wbuf/bank_sel_q_reg[0][0]_rep__3_n_0   |    144 | FDCE        |
+| u_wbuf/bank_sel_q_reg[0][0]_rep__2_n_0   |    144 | FDCE        |
+| u_wbuf/bank_sel_q_reg[3][0]_rep__2_n_0   |    144 | FDCE        |
+| u_wbuf/bank_sel_q_reg[3][0]_rep__1_n_0   |    144 | FDCE        |
+| u_wbuf/bank_sel_q_reg[3][0]_rep__0_n_0   |    144 | FDCE        |
+| u_wbuf/bank_sel_q_reg[2][1]_rep__2_n_0   |    144 | FDCE        |
++------------------------------------------+--------+-------------+
+
+
