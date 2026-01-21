@@ -1,0 +1,105 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.3.0 Chrome/140.0.7339.249 Electron/38.7.2 Safari/537.36" version="29.3.0">
+  <diagram name="第 1 页" id="EtOYm6JU-aFP1vKkNCpL">
+    <mxGraphModel dx="1766" dy="984" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="SPMGEcCAfAq3bbbwlfo7-1" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Input tokens x_t" vertex="1">
+          <mxGeometry height="54" width="177" x="163" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="SPMGEcCAfAq3bbbwlfo7-2" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="RMSNorm + Linear proj&#xa;split x,z" vertex="1">
+          <mxGeometry height="78" width="224" x="140" y="124" as="geometry" />
+        </mxCell>
+        <mxCell id="SPMGEcCAfAq3bbbwlfo7-3" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="DW Conv on x + SiLU" vertex="1">
+          <mxGeometry height="54" width="207" x="29" y="252" as="geometry" />
+        </mxCell>
+        <mxCell id="SPMGEcCAfAq3bbbwlfo7-4" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Linear → A,B,C,D,&#xa;dt_rank factors" vertex="1">
+          <mxGeometry height="78" width="191" x="37" y="356" as="geometry" />
+        </mxCell>
+        <mxCell id="SPMGEcCAfAq3bbbwlfo7-5" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Discretization&#xa;continuous→discrete" vertex="1">
+          <mxGeometry height="78" width="211" x="27" y="484" as="geometry" />
+        </mxCell>
+        <mxCell id="SPMGEcCAfAq3bbbwlfo7-6" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Parallel selective scan&#xa;CUDA streaming state" vertex="1">
+          <mxGeometry height="78" width="219" x="23" y="612" as="geometry" />
+        </mxCell>
+        <mxCell id="SPMGEcCAfAq3bbbwlfo7-7" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="SiLU（z）" vertex="1">
+          <mxGeometry height="54" width="130" x="306" y="252" as="geometry" />
+        </mxCell>
+        <mxCell id="SPMGEcCAfAq3bbbwlfo7-8" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Sigmoid/Silu gate" vertex="1">
+          <mxGeometry height="54" width="186" x="278" y="368" as="geometry" />
+        </mxCell>
+        <mxCell id="SPMGEcCAfAq3bbbwlfo7-9" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Elementwise ⊙ gate" vertex="1">
+          <mxGeometry height="54" width="208" x="28" y="740" as="geometry" />
+        </mxCell>
+        <mxCell id="SPMGEcCAfAq3bbbwlfo7-10" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Linear out_proj" vertex="1">
+          <mxGeometry height="54" width="171" x="47" y="844" as="geometry" />
+        </mxCell>
+        <mxCell id="SPMGEcCAfAq3bbbwlfo7-11" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Residual add + reshape&#xa;→ （B,C,T）" vertex="1">
+          <mxGeometry height="78" width="225" x="20" y="948" as="geometry" />
+        </mxCell>
+        <mxCell id="SPMGEcCAfAq3bbbwlfo7-12" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Global pooling &#xa; + Linear head" vertex="1">
+          <mxGeometry height="78" width="163" x="51" y="1076" as="geometry" />
+        </mxCell>
+        <mxCell id="SPMGEcCAfAq3bbbwlfo7-13" edge="1" parent="1" source="SPMGEcCAfAq3bbbwlfo7-1" style="curved=1;startArrow=none;endArrow=block;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;" target="SPMGEcCAfAq3bbbwlfo7-2" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SPMGEcCAfAq3bbbwlfo7-14" edge="1" parent="1" source="SPMGEcCAfAq3bbbwlfo7-2" style="curved=1;startArrow=none;endArrow=block;exitX=0.17;exitY=1;entryX=0.5;entryY=0;rounded=0;" target="SPMGEcCAfAq3bbbwlfo7-3" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="132" y="227" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SPMGEcCAfAq3bbbwlfo7-15" edge="1" parent="1" source="SPMGEcCAfAq3bbbwlfo7-3" style="curved=1;startArrow=none;endArrow=block;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;" target="SPMGEcCAfAq3bbbwlfo7-4" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SPMGEcCAfAq3bbbwlfo7-16" edge="1" parent="1" source="SPMGEcCAfAq3bbbwlfo7-4" style="curved=1;startArrow=none;endArrow=block;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;" target="SPMGEcCAfAq3bbbwlfo7-5" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SPMGEcCAfAq3bbbwlfo7-17" edge="1" parent="1" source="SPMGEcCAfAq3bbbwlfo7-5" style="curved=1;startArrow=none;endArrow=block;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;" target="SPMGEcCAfAq3bbbwlfo7-6" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SPMGEcCAfAq3bbbwlfo7-18" edge="1" parent="1" source="SPMGEcCAfAq3bbbwlfo7-2" style="curved=1;startArrow=none;endArrow=block;exitX=0.82;exitY=1;entryX=0.5;entryY=0;rounded=0;" target="SPMGEcCAfAq3bbbwlfo7-7" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="371" y="227" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SPMGEcCAfAq3bbbwlfo7-19" edge="1" parent="1" source="SPMGEcCAfAq3bbbwlfo7-7" style="curved=1;startArrow=none;endArrow=block;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;" target="SPMGEcCAfAq3bbbwlfo7-8" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SPMGEcCAfAq3bbbwlfo7-20" edge="1" parent="1" source="SPMGEcCAfAq3bbbwlfo7-6" style="curved=1;startArrow=none;endArrow=block;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;" target="SPMGEcCAfAq3bbbwlfo7-9" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SPMGEcCAfAq3bbbwlfo7-21" edge="1" parent="1" source="SPMGEcCAfAq3bbbwlfo7-9" style="curved=1;startArrow=none;endArrow=block;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;" target="SPMGEcCAfAq3bbbwlfo7-10" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SPMGEcCAfAq3bbbwlfo7-22" edge="1" parent="1" source="SPMGEcCAfAq3bbbwlfo7-10" style="curved=1;startArrow=none;endArrow=block;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;" target="SPMGEcCAfAq3bbbwlfo7-11" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SPMGEcCAfAq3bbbwlfo7-23" edge="1" parent="1" source="SPMGEcCAfAq3bbbwlfo7-11" style="curved=1;startArrow=none;endArrow=block;exitX=0.5;exitY=1;entryX=0.5;entryY=0;rounded=0;" target="SPMGEcCAfAq3bbbwlfo7-12" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
