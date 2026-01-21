@@ -180,7 +180,6 @@ class SlimMambaBlock(nn.Module):
            -> [optional DWConv1d on u] -> SiLU(u) -> SelectiveScanIC(u)
            -> gate g = SiLU(z)
            -> y = out_proj( ssm(u) ⊙ g ) -> +res
-    No channel fusion/gating path, per your request.
     """
 
     def __init__(self, args: ModelArgs) -> None:

@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="tb_top_mac_plus_bias_fifo_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="tb_top_mac_plus_bias_fifo" />
+            <top_module name="vcomponents" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0.000 ns"></ZoomStartTime>
+      <ZoomEndTime time="190.478 ns"></ZoomEndTime>
+      <Cursor1Time time="251.000 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="170"></NameColumnWidth>
+      <ValueColumnWidth column_width="72"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="33" />
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo/rst_n" type="logic">
+      <obj_property name="ElementShortName">rst_n</obj_property>
+      <obj_property name="ObjectShortName">rst_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo/s_axis_TVALID" type="logic">
+      <obj_property name="ElementShortName">s_axis_TVALID</obj_property>
+      <obj_property name="ObjectShortName">s_axis_TVALID</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo/s_axis_TREADY" type="logic">
+      <obj_property name="ElementShortName">s_axis_TREADY</obj_property>
+      <obj_property name="ObjectShortName">s_axis_TREADY</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo/fifo_out_valid" type="logic">
+      <obj_property name="ElementShortName">fifo_out_valid</obj_property>
+      <obj_property name="ObjectShortName">fifo_out_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo/fifo_out_ready" type="logic">
+      <obj_property name="ElementShortName">fifo_out_ready</obj_property>
+      <obj_property name="ObjectShortName">fifo_out_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo/fifo_out_vec" type="array">
+      <obj_property name="ElementShortName">fifo_out_vec[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">fifo_out_vec[3:0][15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo/bias_raw_valid" type="logic">
+      <obj_property name="ElementShortName">bias_raw_valid</obj_property>
+      <obj_property name="ObjectShortName">bias_raw_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo/bias_raw_vec" type="array">
+      <obj_property name="ElementShortName">bias_raw_vec[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">bias_raw_vec[3:0][15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo/b" type="array">
+      <obj_property name="ElementShortName">b[31:0]</obj_property>
+      <obj_property name="ObjectShortName">b[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo/addr" type="array">
+      <obj_property name="ElementShortName">addr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">addr[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo/w" type="array">
+      <obj_property name="ElementShortName">w[31:0]</obj_property>
+      <obj_property name="ObjectShortName">w[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo/tile_id" type="array">
+      <obj_property name="ElementShortName">tile_id[31:0]</obj_property>
+      <obj_property name="ObjectShortName">tile_id[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo/element_id" type="array">
+      <obj_property name="ElementShortName">element_id[31:0]</obj_property>
+      <obj_property name="ObjectShortName">element_id[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo/value" type="array">
+      <obj_property name="ElementShortName">value[31:0]</obj_property>
+      <obj_property name="ObjectShortName">value[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo/line" type="array">
+      <obj_property name="ElementShortName">line[255:0]</obj_property>
+      <obj_property name="ObjectShortName">line[255:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo/fifo_in_fire" type="logic">
+      <obj_property name="ElementShortName">fifo_in_fire</obj_property>
+      <obj_property name="ObjectShortName">fifo_in_fire</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo/fifo_out_fire" type="logic">
+      <obj_property name="ElementShortName">fifo_out_fire</obj_property>
+      <obj_property name="ObjectShortName">fifo_out_fire</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo/cycle" type="array">
+      <obj_property name="ElementShortName">cycle[31:0]</obj_property>
+      <obj_property name="ObjectShortName">cycle[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo/hold_seen" type="logic">
+      <obj_property name="ElementShortName">hold_seen</obj_property>
+      <obj_property name="ObjectShortName">hold_seen</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo/hold_v" type="array">
+      <obj_property name="ElementShortName">hold_v[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">hold_v[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo/TILE_SIZE" type="array">
+      <obj_property name="ElementShortName">TILE_SIZE[31:0]</obj_property>
+      <obj_property name="ObjectShortName">TILE_SIZE[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo/DATA_WIDTH" type="array">
+      <obj_property name="ElementShortName">DATA_WIDTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">DATA_WIDTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo/ACC_WIDTH" type="array">
+      <obj_property name="ElementShortName">ACC_WIDTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ACC_WIDTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo/FRAC_BITS" type="array">
+      <obj_property name="ElementShortName">FRAC_BITS[31:0]</obj_property>
+      <obj_property name="ObjectShortName">FRAC_BITS[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo/N_BANK" type="array">
+      <obj_property name="ElementShortName">N_BANK[31:0]</obj_property>
+      <obj_property name="ObjectShortName">N_BANK[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo/WDEPTH" type="array">
+      <obj_property name="ElementShortName">WDEPTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">WDEPTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo/WADDR_W" type="array">
+      <obj_property name="ElementShortName">WADDR_W[31:0]</obj_property>
+      <obj_property name="ObjectShortName">WADDR_W[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo/DATA_W" type="array">
+      <obj_property name="ElementShortName">DATA_W[31:0]</obj_property>
+      <obj_property name="ObjectShortName">DATA_W[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo/XT_ADDR_W" type="array">
+      <obj_property name="ElementShortName">XT_ADDR_W[31:0]</obj_property>
+      <obj_property name="ObjectShortName">XT_ADDR_W[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo/D" type="array">
+      <obj_property name="ElementShortName">D[31:0]</obj_property>
+      <obj_property name="ObjectShortName">D[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo/PIPE_LAT" type="array">
+      <obj_property name="ElementShortName">PIPE_LAT[31:0]</obj_property>
+      <obj_property name="ObjectShortName">PIPE_LAT[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top_mac_plus_bias_fifo/FIFO_LAT" type="array">
+      <obj_property name="ElementShortName">FIFO_LAT[31:0]</obj_property>
+      <obj_property name="ObjectShortName">FIFO_LAT[31:0]</obj_property>
+   </wvobject>
+</wave_config>

@@ -1,0 +1,7 @@
+verilog xil_defaultlib  \
+"../../../../project_reconstruct.gen/sources_1/ip/slim_WBUF_bank_dp/sim/slim_WBUF_bank_dp.v" \
+
+verilog xil_defaultlib "glbl.v"
+
+# Do not sort compile order
+nosort

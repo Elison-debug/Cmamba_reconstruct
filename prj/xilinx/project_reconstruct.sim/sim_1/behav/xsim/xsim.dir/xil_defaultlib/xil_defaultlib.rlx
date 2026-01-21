@@ -1,0 +1,25 @@
+0.7
+2020.2
+May 22 2024
+19:03:11
+E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.gen/sources_1/ip/s_buffer/sim/s_buffer.v,1768142795,verilog,,E:/Master/2025/Mamba/project_reconstruct.gen/sources_1/ip/bias2sigmoid_fifo/sim/bias2sigmoid_fifo.v,,s_buffer,,uvm,,,,,,
+E:/Master/2025/Mamba/Cmamba_reconstruct/prj/xilinx/project_reconstruct.sim/sim_1/behav/xsim/glbl.v,1708598507,verilog,,,,glbl,,uvm,,,,,,
+E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/array4x4.sv,1768135074,systemVerilog,,E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/axis_vec_join2.sv,,array4x4,,uvm,,,,,,
+E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/axis_vec_join2.sv,1768135074,systemVerilog,,E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/bias_add_regslice_ip.sv,,axis_vec_join2,,uvm,,,,,,
+E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/bias_add_regslice_ip.sv,1768135074,systemVerilog,,E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/ew_update_vec4.sv,,bias_add_regslice_ip_A,,uvm,,,,,,
+E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/ew_update_vec4.sv,1768135074,systemVerilog,,E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/ewa_vec4.sv,,ew_update_vec4,,uvm,,,,,,
+E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/ewa_vec4.sv,1768135074,systemVerilog,,E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/ewm_gate_sbuf_vec4.sv,,ewa_vec4,,uvm,,,,,,
+E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/ewm_gate_sbuf_vec4.sv,1768135074,systemVerilog,,E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/ewm_vec4.sv,,ewm_gate_sbuf_vec4,,uvm,,,,,,
+E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/ewm_vec4.sv,1768135074,systemVerilog,,E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/pe_unit_pipe.sv,,ewm_vec4,,uvm,,,,,,
+E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/pe_unit_pipe.sv,1768135074,systemVerilog,,E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/pipeline_4array_top.sv,,pe_unit_pipe,,uvm,,,,,,
+E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/pipeline_4array_top.sv,1768135074,systemVerilog,,E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/pipeline_4array_with_reduction.sv,,pipeline_4array_top,,uvm,,,,,,
+E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/pipeline_4array_with_reduction.sv,1768135074,systemVerilog,,E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/pulse_to_stream_adapter.sv,,pipeline_4array_with_reduction,,uvm,,,,,,
+E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/pulse_to_stream_adapter.sv,1768135074,systemVerilog,,E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/reduction_accumulator.sv,,pulse_to_stream_adapter,,uvm,,,,,,
+E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/reduction_accumulator.sv,1768135074,systemVerilog,,E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/sigmoid4_vec.sv,,reduction_accumulator,,uvm,,,,,,
+E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/sigmoid4_vec.sv,1768135074,systemVerilog,,E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/slim_mac_mem_controller_combined_dp.sv,,sigmoid4_vec,,uvm,,,,,,
+E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/slim_mac_mem_controller_combined_dp.sv,1768135074,systemVerilog,,E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/slim_multi_bank_wbuf_dp.sv,,slim_mac_mem_controller_combined_dp,,uvm,,,,,,
+E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/slim_multi_bank_wbuf_dp.sv,1768135074,systemVerilog,,E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/vec_fifo_axis_ip.sv,,slim_multi_bank_wbuf_dp,,uvm,,,,,,
+E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/top_mac_plus_bias_fifo_sigmoid_ew_gate.sv,1768143212,systemVerilog,,,,top_mac_plus_bias_fifo_sigmoid_ew_gate,,uvm,,,,,,
+E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/vec_fifo_axis_ip.sv,1768135074,systemVerilog,,E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/xt_input_buf.sv,,vec_fifo_axis_ip,,uvm,,,,,,
+E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/xt_input_buf.sv,1768135074,systemVerilog,,E:/Master/2025/Mamba/Cmamba_reconstruct/user/src/top_mac_plus_bias_fifo_sigmoid_ew_gate.sv,,xt_input_buf,,uvm,,,,,,
+E:/Master/2025/Mamba/project_reconstruct.gen/sources_1/ip/bias2sigmoid_fifo/sim/bias2sigmoid_fifo.v,1768142556,verilog,,,,bias2sigmoid_fifo,,uvm,,,,,,
