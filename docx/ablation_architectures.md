@@ -72,7 +72,7 @@ The selective-scan block here is an EMA-style SSM with input-conditioned decay o
 ## 2. Mamba （Original）
 
 ```mermaid
-flowchart TD
+flowchart LR
   o0[Input tokens x_t] --> o1[RMSNorm + Linear proj<br/>split x,z]
   o1 --> o3[DW Conv on x + SiLU]
   o3 --> o4[Linear → A,B,C,D,<br/>dt_rank factors]
@@ -91,7 +91,7 @@ flowchart TD
 
 - **Normalization and projection**  
   `h_t = RMSNorm(x_t)`  
-  `[u_t, z_t] = W_in h_t` where `W_in` is a linear layer.  
+  `[u_t, z_t] = W_in(h_t)` where `W_in` is a linear layer.  
   `ũ_t = SiLU(DWConv(u_t))` mixes short-term temporal context.
 - **State-space parameter generation**  
   `[Δ_t, Â_t, B̂_t, Ĉ_t, D̂_t] = W_ssm(ũ_t)`  
@@ -110,7 +110,7 @@ The hallmark of the vanilla Mamba block is that the selective scan advances alon
 ## 3. SlimMamba Block
 
 ```mermaid
-flowchart TD
+flowchart LR
     s7[RMSNorm] --> s8[1x1 Conv → split u,z]
     s8 --> s9[Optional DWConv on u <br/> + SiLU]
     s9 --> s10[SelectiveScanIC<br/> s_t loop]
@@ -124,11 +124,10 @@ flowchart TD
 
 - **In-projection and modulation**  
   `h_t = RMSNorm(x_t)`  
-  `[u_t, z_t] = W_in h_t` (1x1 Conv over channels).  
-  `u_t = DWConv(u_t)` when enabled, otherwise `u_t` is unchanged.  
-  `u_t = SiLU(u_t)`.
+  `[u_t, z_t] = W_in(h_t)` (1x1 Conv over channels).  
+  `ũ_t = SiLU(DWConv(u_t))` mixes short-term temporal context.
 - **Selective scan on the sequence dimension**  
-  `λ_t = sigmoid(W_dt u_t)` with `W_dt` implemented as the Conv1d inside `SelectiveScanIC`.  
+  `λ_t = sigmoid(W_dt (ũ_t))` with `W_dt` implemented as the Conv1d.  
   `s_t = λ_t ⊙ s_{t-1} + (1 - λ_t) ⊙ u_t`.
 - **Gate and residual output**  
   `g_t = 1` if `gate_off`, else `g_t = SiLU(z_t)`.  
