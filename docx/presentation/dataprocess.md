@@ -1,27 +1,20 @@
 # Data Processing Pipeline （CSI ? CIR Features）
 
 ```mermaid
-flowchart LR
-    A[Raw CSI （.mat）] --> B[IFFT over frequency <br/>? CIR]
-    B --> C[Truncate taps <br/> Keep first K taps]
-    C --> D[Per-antenna normalization
-Scale by RMS]
-    D --> E[Feature concat
-Re（CIR） + Im（CIR）]
-    E --> F[Power features
-log1p（mean（\CIR\^2））]
+flowchart TD
+    A[Raw CSI] --> C[IFFT over frequency CIR <br/> Truncate taps <br/> Keep first K taps]
+    C --> E[Per-antenna normalization
+Scale by RMS <br/> &Feature concat <br/> Re（CIR） + Im（CIR）]
+    E --> F[Power features]
     F --> G{Optional}
-    G -->|--delta| H[Append first-order
+    G -->|with delta| H[Append first-order
  temporal difference]
     G -->|no delta| I[Keep base features]
     H --> J[Windowing
 K=16, stride]
     I --> J
-    J --> K[Train-only stats
-mean/std]
-    K --> L[Outputs
-feats.npy / xy.npy / ts.npy
-stats_train.npz]
+    J --> L[Output
+feats]
 ```
 
 - Notes for PPT

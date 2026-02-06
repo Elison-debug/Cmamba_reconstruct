@@ -187,12 +187,31 @@ All in Parity Strategy
 
 | **Data type**     | **Model**     | **first epoch loss** | **finnal loss(e-05)** | **eval mean err(m)** | **test mean err(m)** |
 | :----:            | :----:        | :-------: | :-------:   | :------: | :------: |
-| ori(2000)         | PE&DWconv off |   0.0578  |    5.04     | 0.09238  |          |
-| delta(2000)       | PE&DWconv off |           |             |          |          |
-| power(100)        | PE&DWconv off |   0.0717  |    7.65     | 0.14316  |          |
-| ori + power(2100) | PE&DWconv off |   0.0429  |    3.83     | 0.08701  |          |
+| ori(2000)         | PE&DWconv off |   0.0578  |    5.04     | 0.09238  | 0.2697   |
+| power(100)        | PE&DWconv off |   0.0717  |    7.65     | 0.14316  | 0.2785   |
+| ori + power(2100) | PE&DWconv off |   0.0429  |    3.83     | 0.08701  | 0.2474   |
 | ori + power(2100) | ori           |           |             |          |          |
 | ori + power(2100) | peoff         |           |             |          |          |
-| ori + power(2100) | DWconv off    |   0.0738  |    6.13     | 0.09970  |          |
+| ori + power(2100) | DWconv off    |   0.0738  |    6.13     | 0.09970  | 0.3302   |
 | ori + power(2100) | ori           |           |             |          |          |
 | ori + power(2100) | ori           |           |             |          |          |
+
+
+**Slim Mamba**
+All in Parity Strategy，ablation in K
+
+| **Data type**     | **Model**     | **first epoch loss** | **finnal loss(e-05)** | **eval mean err(m)** | **test mean err(m)** |
+| :----:            | :----:        | :-------:  | :-------:   | :------:  | :------: |
+| ori + power(2100) | K=1(pl=1 s1)  | 0.0366     | 6.47        | 0.10068   |  0.135   |
+| ori + power(2100) | K=2(pl=2 s2)  | 0.0353     | 6.11        | 0.09557   |  0.135   |
+| ori + power(2100) | K=4(pl=2 s2)  | 0.0360     | 5.35        | 0.09814   |  0.139   |
+| ori + power(2100) | K=8(pl=2 s2)  | 0.0387     | 4.25        | 0.09405   |  0.141   |
+| ori + power(2100) | K=4(pl=4)     | 0.0381     | 5.20        | 0.09983   |  0.137   |
+| ori + power(2100) | K=6(pl=4)     | 0.0379     | 5.42        | 0.09839   |  0.138   |
+| ori + power(2100) | K=8(pl=4)     | 0.0367     | 3.97        | 0.09749   |  0.144   |
+| ori + power(2100) | K=8           | 0.0378     | 4.79        | 0.09744   |  0.152   |
+| ori + power(2100) | K=12          | 0.0381     | 3.73        | 0.09286   |  0.156   |
+| ori + power(2100) | K=16          | 0.0393     | 3.20        | 0.09225   |  0.161   |
+| ori + power(2100) | K=24          | 0.0383     | 3.00        | 0.09432   |  0.159   |
+| ori + power(2100) | K=32          | 0.0406     | 3.27        | 0.09328   |  0.166   |
+
