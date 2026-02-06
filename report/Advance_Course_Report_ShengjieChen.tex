@@ -90,18 +90,19 @@ radio localization systems.
 
 In this project, we follow a software-to-hardware co-design path on the LuViRA
 dataset~\cite{yaman2024luvira} and evaluate three Mamba-family variants for radio 
-localization. We first adopted a Channel-Mamba-style design to support multi-domain 
+localization. We first adopted a Channel-Mamba-style design\cite{zeng2024cmamba} to support multi-domain 
 feature fusion (e.g., CIR real/imag, power, and optional differential features), 
 motivated by potential cross-channel interaction and extensibility to future multi-modal 
 inputs (e.g., audio). However, experiments show that, under the current setting, additional 
-channel-fusion branches bring only limited accuracy gain (typically around 3--4\%) while 
+channel-fusion branches bring only limited accuracy gain while 
 introducing substantial overhead in model complexity, training time, and hardware mapping cost.
+For clarity, we refer to the channel-fusion variant as \emph{channel mamba} and the simplified model as \emph{slim mamba} throughout the report.
 
-Based on this observation, we revisited vanilla Mamba and analyzed the temporal context length 
-for the target workload. We found that a short window (\(K=16\)) yields the best trade-off, 
-indicating that very strong long-range state modeling is not always necessary for this 
-short-horizon localization task and may introduce redundancy. We therefore proposed a 
-hardware-friendly simplification of Mamba v1 that preserves comparable inference accuracy 
+Based on this observation, we first examined the temporal context length within the
+Channel-Mamba prototype and found that a short window (\(K=16\), about 0.16\,s at 100\,Hz)
+already achieves strong accuracy. This indicates that very long-range memory is not necessary
+for this short-horizon localization task and may introduce redundancy. We therefore proposed a
+hardware-friendly simplification of Mamba v1 that preserves comparable inference accuracy
 while reducing model size and end-to-end runtime overhead.
 
 From a deployment perspective, acceleration should target real runtime hotspots.
@@ -208,6 +209,16 @@ choice and hardware-oriented redesign. We start from a Channel-Mamba-style archi
 for multi-domain feature fusion, then progressively simplify the model based on 
 empirical evidence under the LuViRA workload.
 
+% figure : data pipeline from raw CSI to model input features
+\begin{figure}[t]
+  \centering
+  \includesvg[width=0.8\linewidth]{dataProcessPipeline}
+  \caption{Data preprocessing pipeline from CSI to model-ready features.}
+  \label{fig:data_pipeline}
+\end{figure}
+
+
+
 \subsection{Task Setting and Data Pipeline}
 We target indoor localization on LuViRA, where each recording is a time--frequency--space 
 CSI tensor (\(T\!\approx\!4000\) at 100\,Hz, 100 antennas, 100 subcarriers). 
@@ -219,7 +230,7 @@ Raw CSI is converted into model-ready features through:
 (1) IFFT-based CIR extraction over subcarriers, 
 (2) tap truncation, and 
 (3) feature construction using CIR real/imaginary components, per-antenna log-power, 
-and optional first-order temporal difference. 
+and optional first-order temporal difference(see Fig.~\ref{fig:data_pipeline}). 
 For each trajectory/grid file, we store \texttt{base.feats.npy}, \texttt{base.xy.npy}, 
 and \texttt{base.ts.npy}, while \texttt{base.json} records role-aware window indices 
 (train/eval/test), window length, stride, and feature configuration. 
@@ -237,21 +248,35 @@ Finally, we compute train-only global normalization statistics (\texttt{stats\_t
 mean/std with std-floor) to ensure stable scaling across grids and avoid evaluation/test leakage.
 
 
-% figure : data pipeline from raw CSI to model input features
-\begin{figure}[t]
-  \centering
-  \includesvg[width=0.8\linewidth]{dataProcessPipeline}
-  \caption{Data preprocessing pipeline from CSI to model-ready features.}
-  \label{fig:data_pipeline}
-\end{figure}
 
-\subsection{Initial Design: Channel Mamba for Multi-domain Fusion}
-Our initial hypothesis was that Channel Mamba could better exploit heterogeneous input domains (e.g., CIR, power, and differential signals), while also providing a natural extension path to future multi-modal inputs such as audio. 
-Accordingly, we first implemented a multi-branch Channel-Mamba-style model with explicit channel fusion blocks.
+
+\subsection{Initial Design: Channel mamba for Multi-domain Fusion}
+Our initial hypothesis was that channel mamba could better exploit heterogeneous 
+input domains (e.g., CIR, power, and differential signals), while also providing 
+a natural extension path to future multi-modal inputs such as audio.
+Accordingly, we first implemented a multi-branch channel mamba model with 
+explicit channel fusion blocks.
+On LuViRA, this model achieved strong localization accuracy (test mean err \(=12.9\)~cm) 
+with a compact serialized size of 40.4~MB, which is substantially smaller than 
+the 440~MB FCNN model\cite{tian2023high} reported in prior work (Table~\ref{tab:model_compare}).
 
 \subsection{Empirical Reassessment}
-Despite the above motivation, experiments show that the additional fusion complexity yields only limited accuracy gains in the current setting (typically around 3--4\%), while significantly increasing parameter count, training cost, and hardware mapping overhead due to extra branches and block-level computation.
-In particular, differential features bring marginal improvement, which does not justify the induced structural complexity for deployment-oriented design.
+Despite the above motivation, experiments show that the additional fusion complexity 
+yields only limited accuracy gains in the current setting, while significantly increasing 
+parameter count, training cost, and hardware mapping overhead due to extra branches and 
+block-level computation.
+In particular, differential features bring marginal improvement, which does not justify 
+the induced structural complexity for deployment-oriented design.
+From a deployment perspective, channel mamba also poses practical challenges on FPGA:
+it relies on several complex nonlinear operators that complicate quantization, stacks
+multiple CMamba blocks that amplify hardware cost, and inherits GPU-oriented kernels
+that are not optimized for FPGA dataflow.
+Moreover, the original Mamba baseline shows a pronounced generalization gap (training
+improves while test accuracy lags), as reflected by the large eval/test discrepancy in
+Table~\ref{tab:model_compare}.
+Within the channel mamba baseline, a short context (\(K=16\)) already achieves strong
+performance, so we use it as a practical upper bound for temporal context before
+simplifying the model.
 
 % Channel Mamba vs Mamba v1
 % EPE/MAE, Params, Train Time, Inference Latency, HW Cost Proxy
@@ -259,57 +284,85 @@ In particular, differential features bring marginal improvement, which does not 
 % Table 1: Channel vs Mamba vs Simplified
 % =========================================
 \begin{table*}[!t]
-\caption{Comparison of model variants on LuViRA (to be filled with your measured results).}
+\caption{Comparison of model variants on LuViRA (measured results).}
 \label{tab:model_compare}
 \centering
 \scriptsize
-\setlength{\tabcolsep}{5pt}
-\renewcommand{\arraystretch}{1.15}
-\begin{tabular}{l|c c c c c c c}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.12}
+\begin{tabular}{l|c c c c c c}
 \hline
-\textbf{Model} & \textbf{Input Features} & \textbf{Params} & \textbf{Train Time / epoch (s)} & \textbf{iterations per second (it/s)} & \textbf{EPE Mean (cm)} & \textbf{HW Cost Proxy} \\
+\textbf{Model} & \textbf{Input Features} & \textbf{Model Size (MB)} & \textbf{Train Time / epoch (s)} & \textbf{it/s} & \textbf{Test mean err (cm)} & \textbf{HW Cost Proxy} \\
 \hline
-FCNN               & CIR          & 440  MB & N/A & N/A   & ~13  & HIGH \\
-Channel Mamba      & CIR + Power  & 40.4 MB & 73  & 13.18 & 12.9 & High \\
-Vanilla Mamba v1   & CIR + Power  & 3.38 MB & 33  & 32.62 & 24.7 & Medium \\
-Simplified Mamba   & CIR + Power  & 3.40 MB & 13  & 75.30 & 13.5 & Low \\
-
+FCNN (prior work)\cite{tian2023high}  & CIR          & 440  & N/A & N/A   & \(\sim 13\)    & High \\
+channel mamba      & CIR + Power  & 40.4 & 73  & 13.18 & 12.9   & High \\
+Vanilla Mamba v1   & CIR + Power  & 3.38 & 33  & 32.62 & 24.74  & Medium \\
+slim mamba         & CIR + Power  & 3.40 & 13  & 75.30 & 13.5   & Low \\
 \hline
 \end{tabular}
 \end{table*}
 
 
-
+\begin{figure}[t]
+  \centering
+  \includesvg[width=0.8\linewidth]{grid102_error_heatmap}
+  \caption{Error heatmap for grid 102.}
+  \label{fig:grid102_error}
+\end{figure}
 
 
 \subsection{Task-driven Simplification of Mamba}
-We then revisited vanilla Mamba and conducted multi-round comparisons across window lengths and architectural variants. 
-A consistent observation is that \(K=16\) provides the best trade-off for this task. This indicates a short-horizon localization regime where overly strong long-range memory can be redundant and may even hurt generalization.
-Based on this, we simplified Mamba v1 into a hardware-friendly form by removing non-essential complexity while preserving the key selective recurrent behavior required by the task.
+We then revisited vanilla Mamba and observed a clear overfitting pattern: the training 
+loss continues to decrease while generalization remains poor. The quantitative gap between 
+training and test performance is summarized in Table~\ref{tab:model_compare}. This motivates 
+a task-driven simplification that reduces model capacity and regularizes the temporal computation 
+while keeping the essential selective recurrence.
+Based on these findings, we simplify Mamba v1 into a hardware-friendly form by removing non-essential 
+complexity while preserving the core recurrent update behavior required by the task.
 
 \subsection{Final Model and Key Differences}
-Compared with the original Mamba, the final model keeps the core recurrent update path but adopts a more regular and deployment-friendly structure (fewer branches, reduced state/update complexity, and more hardware-compatible operators).
-This redesign preserves comparable localization accuracy while reducing model size and improving training/inference efficiency, making it better aligned with FPGA implementation constraints.
+Compared with channel mamba, the final model keeps the core recurrent update path but adopts
+a more regular and deployment-friendly structure (fewer branches, reduced state/update complexity,
+and more hardware-compatible operators).
+This redesign preserves localization accuracy comparable to channel mamba and the FCNN baseline
+reported in Table~\ref{tab:model_compare}, while substantially reducing training and inference
+time, hardware cost, and quantization difficulty.
+The slim mamba SSM follows an EMA-style input-conditioned recurrence, 
+followed by a SiLU gate and a 1x1 output projection. This removes the full \((A,B,C,D)\) parameterization 
+and low-rank discretization while retaining the temporal update structure (see Fig.~\ref{fig:ssm_algo}).
 
-% 建议插表：Original Mamba vs Simplified Mamba
-% 列：Module-level differences, Params, FLOPs/MACs, EPE/MAE, Runtime
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=\linewidth]{cdf_zoom.png}
+  \caption{CDF of localization error.}
+  \label{fig:cdf_zoom}
+\end{figure}
+
+
+\subsection{Window Length and Patch-Length Ablation}
+After fixing slim mamba, we ablated the temporal window length \(K\) together with patch 
+length/stride. Table~\ref{tab:k_ablation} shows that \(K=1\) and \(K=2\) achieve the best test accuracy 
+(0.135\,m). We attribute this to the dense sampling in LuViRA: short-term dynamics carry strong cues, 
+whereas longer windows add redundant context and can even hurt generalization in slim mamba.
+
+
 % =========================================
 % Table 2 (wrapped text): Original vs Simplified Mamba
 % =========================================
 \begin{table*}[!t]
-\caption{Module-level differences between original Mamba and the proposed simplified variant.}
-\label{tab:orig_vs_simplified}
+\caption{Module-level differences between channel mamba and slim mamba.}
+\label{tab:orig_vs_slim}
 \centering
 \footnotesize
 \setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.18}
 \begin{tabular}{p{0.16\textwidth}|p{0.27\textwidth}|p{0.27\textwidth}|p{0.18\textwidth}}
 \hline
-\textbf{Component} & \textbf{Original Mamba} & \textbf{Simplified Mamba (Ours)} & \textbf{Impact} \\
+\textbf{Component} & \textbf{Channel mamba} & \textbf{Slim mamba (Ours)} & \textbf{Impact} \\
 \hline
 Input fusion path 
-& Multi-branch / channel-fusion-friendly design with extra structural overhead. 
-& Reduced branches and regularized single-path backbone. 
+& Multi-branch, channel-fusion-oriented backbone with extra structural overhead. 
+& Single-path backbone with no explicit channel-fusion branches. 
 & Lower control complexity and easier hardware scheduling. \\
 \hline
 State update (SSM) 
@@ -318,12 +371,12 @@ State update (SSM)
 & Faster execution and easier FPGA mapping. \\
 \hline
 Temporal context usage 
-& Strong long-range modeling capacity designed for longer contexts. 
-& Tuned for short-window localization (\(K<16\)). 
+& Same short-context setting but more complex fusion paths. 
+& Same short-context setting with simplified recurrence. 
 & Better task fit; less redundancy and lower overfitting risk. \\
 \hline
 Operator pattern 
-& Mixed operators with heavier scheduling burden. 
+& Mixed operators across fusion branches with heavier scheduling burden. 
 & More regular Conv/element-wise-friendly computation flow. 
 & Better pipelining and implementation regularity. \\
 \hline
@@ -331,6 +384,11 @@ Model size / compute
 & Higher parameter and compute cost. 
 & Lower parameter and compute cost. 
 & Reduced memory footprint and MAC demand. \\
+\hline
+Quantization difficulty
+& Multiple nonlinear paths and branch interactions complicate calibration. 
+& Fewer branches with clearer activation flows. 
+& Easier calibration and hardware quantization. \\
 \hline
 
 \end{tabular}
@@ -382,7 +440,7 @@ When mapped to hardware, the SSM can be reduced to three key hardware primitives
 \begin{itemize}
   \item \textbf{MAC} (matrix--vector multiply--accumulate) for dt\_proj.
   \begin{equation}
-    \lambda_t = \sigma(W \Delta u_t + b)
+    \lambda_t = \sigma(W_{dt} \Delta u_t + b)
   \end{equation}
   \item \textbf{EWA} (element-wise add) for state update.
   \begin{equation}
@@ -759,16 +817,27 @@ FIFO-based AXI-stream control scheme.
 \end{figure}
 
 \section{Conclusion}
-This work targets the SSM state-update hotspot in Mamba for indoor localization
-(LuViRA) and presents a fully synthesizable FPGA accelerator subsystem with an
-SSM-centric streaming datapath. At 400\,MHz, the design closes timing with a
-compact footprint (76 DSPs, 6.2k LUTs; 3.0\% and 2.3\% of the device) and uses
-52 BRAM tiles (5.7\%) to support fully on-chip buffering for streaming MVM and
-recurrent state update. Post-synthesis power is estimated at 1.442\,W, where
-dynamic power is dominated by top-level I/O toggling, as the current deliverable
-implements the SSM module without a full-system wrapper. In the master’s thesis,
-we will integrate the module into a complete Mamba pipeline to keep data on-chip
-and re-estimate power using realistic switching activity.
+From the software perspective, we systematically evaluated Mamba-family variants on LuViRA and
+identified that short temporal contexts are sufficient for accurate localization. The channel mamba
+baseline delivers strong accuracy while significantly reducing the model size compared to the prior
+FCNN, but its multi-branch structure and nonlinear operators complicate quantization and deployment.
+Motivated by the observed generalization gap and hardware constraints, we proposed slim mamba, which
+preserves comparable accuracy to channel mamba and the FCNN baseline while substantially reducing
+training/inference cost and improving deployability. In particular, slim mamba reduces model size to
+3.40~MB, which is about 0.77\% of the FCNN size (440~MB), and completes training in 13~s per epoch
+(Table~\ref{tab:model_compare}). We further ablate window length and patch settings and show that a
+very short window (\(K=1/2\)) already yields the best test accuracy, indicating that dense short-term
+dynamics dominate this task (Table~\ref{tab:k_ablation}).
+
+From the hardware perspective, this work targets the SSM state-update hotspot in Mamba for indoor
+localization (LuViRA) and presents a fully synthesizable FPGA accelerator subsystem with an
+SSM-centric streaming datapath. At 400\,MHz, the design closes timing with a compact footprint
+(76 DSPs, 6.2k LUTs; 3.0\% and 2.3\% of the device) and uses 52 BRAM tiles (5.7\%) to support fully
+on-chip buffering for streaming MVM and recurrent state update. Post-synthesis power is estimated
+at 1.442\,W, where dynamic power is dominated by top-level I/O toggling, as the current deliverable
+implements the SSM module without a full-system wrapper. In the master’s thesis, we will integrate
+the module into a complete Mamba pipeline to keep data on-chip and re-estimate power using realistic
+switching activity.
 
 \begin{table}[t]
 \caption{Post-synthesis utilization and power summary for the integrated SSM module at 400\,MHz.}

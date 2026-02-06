@@ -39,7 +39,7 @@ if "%target%"=="logo" (
 
 if "%target%"=="parity" ( 
   set feat_root=parity_2100
-  set ckpt=parity_2100
+  set ckpt=parity_2100_K2_pl2
   goto run
 )
 
@@ -97,26 +97,39 @@ goto :eof
 
 @REM --ckpt=./ckpt_refactor/%ckpt%/%model% ^
 
+
 :run
 echo running eval for %ckpt% with model %model%
-python -m refactor.core.eval ^
-  --feat_root=./data/features/%feat_root% ^
-  --ckpt=./ckpt_origin/%ckpt%/%model% ^
-  --dont_save_calib_ckpt ^
-  --target=%data% --out_dir=./test_out_mambaOri/%target%_%data%%quant%^
-  --preload
-
-if "%data%"=="train_all" (
-  goto :eof
-)
 
 python -m refactor.core.test.test ^
 --feat_root=./data/features/%feat_root% ^
-  --ckpt ckpt_origin\%ckpt%\%model%  ^
-  --target=%data% --out_dir=test_out_mambaOri/%target%_%data%%quant% ^
+  --ckpt ckpt_refactor_ablation_K\%ckpt%\%model%  ^
+  --target=%data% --out_dir=test_out_ablation_K/%target%_%data%%quant% ^
   --preload 
 
 goto :eof
+
+
+@REM :run
+@REM echo running eval for %ckpt% with model %model%
+@REM python -m refactor.core.eval ^
+@REM   --feat_root=./data/features/%feat_root% ^
+@REM   --ckpt=././ckpt_refactor_ablation_K/%ckpt%/%model% ^
+@REM   --dont_save_calib_ckpt ^
+@REM   --target=%data% --out_dir=./test_out_mambaOri/%target%_%data%%quant%^
+@REM   --preload
+
+@REM if "%data%"=="train_all" (
+@REM   goto :eof
+@REM )
+
+@REM python -m refactor.core.test.test ^
+@REM --feat_root=./data/features/%feat_root% ^
+@REM   --ckpt ckpt_origin\%ckpt%\%model%  ^
+@REM   --target=%data% --out_dir=test_out_mambaOri/%target%_%data%%quant% ^
+@REM   --preload 
+
+@REM goto :eof
 
 python -m refactor.core.test.test ^
 --feat_root=./data/features/%feat_root% ^
