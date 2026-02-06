@@ -63,7 +63,32 @@ if "%target%"=="parity_ori_power_delta" (
 echo Unknown target: %target%
 goto :eof
 
+@REM :run
+@REM echo running training for %dataform%
+@REM python -m refactor.core.train ^
+@REM   --feat_root=./data/features/%dataform% ^
+@REM   --out_dir=ckpt_refactor_ablation_K/%dataform% ^
+@REM   --Din=%Din% --K=1 ^
+@REM   --proj_dim=64 --d_model=128 --n_layer=4 ^
+@REM   --patch_len=1 --stride=1 ^
+@REM   --batch_size=32 --epochs=20 --lr=3e-4 --lr_schedule=cosine ^
+@REM   --workers=4 --prefetch=4 --pe_off --amp --preload %args%
+@REM goto :eof
+
 :run
+echo running training for %dataform%
+python -m refactor.core.train ^
+  --feat_root=./data/features/%dataform% ^
+  --out_dir=ckpt_origin\%dataform% ^
+  --Din=%Din% --K=16 ^
+  --proj_dim=64 --d_model=128 --n_layer=4 ^
+  --patch_len=8 --stride=4 ^
+  --batch_size=32 --epochs=20 --lr=3e-4 --lr_schedule=cosine ^
+  --workers=4 --prefetch=4 --amp --pe_off  --preload %args%
+goto :eof
+
+
+:run_bak
 echo running training for %dataform%
 python -m refactor.core.train ^
   --feat_root=./data/features/%dataform% ^
@@ -74,6 +99,7 @@ python -m refactor.core.train ^
   --batch_size=32 --epochs=20 --lr=3e-4 --lr_schedule=cosine ^
   --workers=4 --prefetch=4 --pe_off --amp --preload %args%
 goto :eof
+
 
 :run_bak
 echo running training for %dataform%

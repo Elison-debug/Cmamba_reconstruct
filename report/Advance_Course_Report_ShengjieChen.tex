@@ -264,13 +264,15 @@ In particular, differential features bring marginal improvement, which does not 
 \scriptsize
 \setlength{\tabcolsep}{5pt}
 \renewcommand{\arraystretch}{1.15}
-\begin{tabular}{l|c c c c c c}
+\begin{tabular}{l|c c c c c c c}
 \hline
-\textbf{Model} & \textbf{Input Features} & \textbf{Params (M)} & \textbf{Train Time / epoch (s)} & \textbf{Latency / sample (ms)} & \textbf{EPE Mean (cm)} & \textbf{HW Cost Proxy} \\
+\textbf{Model} & \textbf{Input Features} & \textbf{Params} & \textbf{Train Time / epoch (s)} & \textbf{iterations per second (it/s)} & \textbf{EPE Mean (cm)} & \textbf{HW Cost Proxy} \\
 \hline
-Channel Mamba      & CIR + Power (+Delta) & -- & -- & -- & -- & High \\
-Vanilla Mamba v1   & CIR + Power          & -- & -- & -- & -- & Medium \\
-Simplified Mamba   & CIR + Power          & -- & -- & -- & -- & Low \\
+FCNN               & CIR          & 440  MB & N/A & N/A   & ~13  & HIGH \\
+Channel Mamba      & CIR + Power  & 40.4 MB & 73  & 13.18 & 12.9 & High \\
+Vanilla Mamba v1   & CIR + Power  & 3.38 MB & 33  & 32.62 & 24.7 & Medium \\
+Simplified Mamba   & CIR + Power  & 3.40 MB & 13  & 75.30 & 13.5 & Low \\
+
 \hline
 \end{tabular}
 \end{table*}
@@ -316,7 +318,7 @@ State update (SSM)
 \hline
 Temporal context usage 
 & Strong long-range modeling capacity designed for longer contexts. 
-& Tuned for short-window localization (\(K=16\)). 
+& Tuned for short-window localization (\(K<16\)). 
 & Better task fit; less redundancy and lower overfitting risk. \\
 \hline
 Operator pattern 
@@ -329,11 +331,7 @@ Model size / compute
 & Lower parameter and compute cost. 
 & Reduced memory footprint and MAC demand. \\
 \hline
-Accuracy on LuViRA 
-& Baseline. 
-& Comparable (fill with measured values). 
-& Improved accuracy efficiency trade-off. \\
-\hline
+
 \end{tabular}
 \end{table*}
 
@@ -347,32 +345,21 @@ Accuracy on LuViRA
 \footnotesize
 \setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.12}
-\begin{tabular}{|c|c|c|}
+\begin{tabular}{c c c}
 \hline
 \textbf{K (pl, s)} & \textbf{Eval mean err (m)} & \textbf{Test mean err (m)} \\
 \hline
 1  (1,1) & 0.10068 & \textbf{0.135}  \\
-\hline
 2  (2,2) & 0.09557 & \textbf{0.135}  \\
-\hline
 4  (2,2) & 0.09814 & 0.139   \\
-\hline
 8  (2,2) & 0.09405 & 0.141   \\
-\hline
 4  (4,4) & 0.09983 & 0.137   \\
-\hline
 6  (4,4) & 0.09839 & 0.138   \\
-\hline
 8  (4,4) & 0.09749 & 0.144   \\
-\hline
 8  (8,4) & 0.09744 & 0.152  \\
-\hline
 12 (8,4) & 0.09286 & 0.156  \\
-\hline
 16 (8,4) & 0.09225 & 0.161  \\
-\hline
 24 (8,4) & 0.09432 & 0.159  \\
-\hline
 32 (8,4) & 0.09328 & 0.166  \\
 \hline
 \end{tabular}
