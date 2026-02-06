@@ -90,16 +90,19 @@ radio localization systems.
 
 In this project, we follow a software-to-hardware co-design path on the LuViRA
 dataset~\cite{yaman2024luvira} and evaluate three Mamba-family variants for radio 
-localization. We first adopted a Channel-Mamba-style design\cite{zeng2024cmamba} to support multi-domain 
+localization. We first adopted a channel mamba design\cite{zeng2024cmamba} to support multi-domain 
 feature fusion (e.g., CIR real/imag, power, and optional differential features), 
 motivated by potential cross-channel interaction and extensibility to future multi-modal 
 inputs (e.g., audio). However, experiments show that, under the current setting, additional 
 channel-fusion branches bring only limited accuracy gain while 
 introducing substantial overhead in model complexity, training time, and hardware mapping cost.
 For clarity, we refer to the channel-fusion variant as \emph{channel mamba} and the simplified model as \emph{slim mamba} throughout the report.
+Overall, slim mamba achieves comparable test accuracy to channel mamba and the FCNN baseline while
+reducing the model size to 3.40~MB (0.77\% of FCNN) and the training time to 13~s per epoch
+(Table~\ref{tab:model_compare}).
 
 Based on this observation, we first examined the temporal context length within the
-Channel-Mamba prototype and found that a short window (\(K=16\), about 0.16\,s at 100\,Hz)
+channel mamba prototype and found that a short window (\(K=16\), about 0.16\,s at 100\,Hz)\cite{tian2023high}
 already achieves strong accuracy. This indicates that very long-range memory is not necessary
 for this short-horizon localization task and may introduce redundancy. We therefore proposed a
 hardware-friendly simplification of Mamba v1 that preserves comparable inference accuracy
@@ -123,7 +126,7 @@ banked access. Third, control granularity trade-offs between coarse scheduling a
 fine-grained streaming are rarely quantified under the same constraints.
 
 Motivated by these gaps, this work contributes: 1) an empirical software-side study 
-from Channel Mamba to simplified Mamba for short-window localization, 2) a 
+from channel mamba to slim mamba for short-window localization, 2) a 
 hotspot-driven FPGA mapping of the SSM datapath, and 3) a consistent evaluation of array, 
 memory, and control trade-offs. The rest of this report first presents SSM decomposition 
 and hardware mapping, then details the accelerator architecture and implementation results.
@@ -205,7 +208,7 @@ and hardware mapping, then details the accelerator architecture and implementati
 
 \section{Software Exploration and Task-Driven Simplification}
 This section presents the software-side exploration that guided our final model 
-choice and hardware-oriented redesign. We start from a Channel-Mamba-style architecture 
+choice and hardware-oriented redesign. We start from a channel mamba architecture 
 for multi-domain feature fusion, then progressively simplify the model based on 
 empirical evidence under the LuViRA workload.
 
@@ -274,6 +277,9 @@ that are not optimized for FPGA dataflow.
 Moreover, the original Mamba baseline shows a pronounced generalization gap (training
 improves while test accuracy lags), as reflected by the large eval/test discrepancy in
 Table~\ref{tab:model_compare}.
+Vanilla Mamba v1 also performs markedly worse than channel mamba on this dataset
+(Table~\ref{tab:model_compare}), suggesting that its long-context design is not a good fit
+for short-horizon localization.
 Within the channel mamba baseline, a short context (\(K=16\)) already achieves strong
 performance, so we use it as a practical upper bound for temporal context before
 simplifying the model.
@@ -344,10 +350,11 @@ After fixing slim mamba, we ablated the temporal window length \(K\) together wi
 length/stride. Table~\ref{tab:k_ablation} shows that \(K=1\) and \(K=2\) achieve the best test accuracy 
 (0.135\,m). We attribute this to the dense sampling in LuViRA: short-term dynamics carry strong cues, 
 whereas longer windows add redundant context and can even hurt generalization in slim mamba.
+We therefore adopt \(K\le 2\) as the default setting for slim mamba in the remainder of the software study.
 
 
 % =========================================
-% Table 2 (wrapped text): Original vs Simplified Mamba
+% Table 2 (wrapped text): Channel vs Slim mamba
 % =========================================
 \begin{table*}[!t]
 \caption{Module-level differences between channel mamba and slim mamba.}
