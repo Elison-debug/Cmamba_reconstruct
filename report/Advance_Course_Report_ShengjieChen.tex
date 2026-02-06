@@ -48,7 +48,8 @@ dataset and demonstrates the effectiveness of SSM-based architectures
 for indoor radio localization. Building on these findings, we propose 
 task-oriented simplifications that preserve comparable inference 
 accuracy while significantly reducing model size, hardware cost, 
-and end-to-end training/inference overhead. To further enable deployment, we implement a synthesizable FPGA accelerator for the state-space
+and end-to-end training/inference overhead. To further enable deployment, 
+we implement a synthesizable FPGA accelerator for the state-space
 model (SSM) hotspot in Mamba, targeting indoor radio localization (LuViRA).
 Software profiling identifies the SSM forward path as a dominant runtime
 contributor. We implement SSM as a streaming pipeline using three primitives
