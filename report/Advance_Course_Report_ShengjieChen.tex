@@ -1,0 +1,896 @@
+\documentclass[journal]{IEEEtran}
+\usepackage{amsmath,amsfonts}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{array}
+\usepackage[caption=false,font=normalsize,labelfont=sf,textfont=sf]{subfig}
+\usepackage{textcomp}
+\usepackage{stfloats}
+\usepackage[table]{xcolor}
+\usepackage{float}
+\usepackage{placeins}
+\usepackage{tabularx}
+\usepackage{url}
+\usepackage{verbatim}
+\usepackage{graphicx}
+\usepackage{svg}
+\usepackage{cite}
+\renewcommand{\IEEEkeywordsname}{Keywords}
+% Use SVG without LaTeX text overlay to reduce external file requirements.
+\setsvg{inkscapelatex=false}
+
+% Keep table text size consistent throughout the paper.
+% (Some tables use \scriptsize; map it to \footnotesize to avoid odd-looking tiny text.)
+\let\origScriptsize\scriptsize
+\renewcommand{\scriptsize}{\footnotesize}
+
+\hyphenation{op-tical net-works semi-conduc-tor IEEE-Xplore}
+% updated with editorial comments 8/9/2021
+
+\begin{document}
+
+\title{Efficient Implementation of Mamba Architecture for Radio-based Localisation Using LuViRA datasest}
+
+\author{Chenxi Zhang and Shengjie Chen}
+
+% The paper headers
+\markboth{Report for Advanced Course in Electrical and Information Technology - EITN35}%
+{Shell \MakeLowercase{\textit{et al.}}: A Sample Article Using IEEEtran.cls for IEEE Journals}
+
+% Remember, if you use this you must call \IEEEpubidadjcol in the second
+% column for its text to clear the IEEEpubid mark.
+
+\maketitle
+
+\begin{abstract}
+This paper investigates three Mamba-based models variant on the LuViRA\cite{yaman2024luvira} 
+dataset and demonstrates the effectiveness of SSM-based architectures 
+for indoor radio localization. Building on these findings, we propose 
+task-oriented simplifications that preserve comparable inference 
+accuracy while significantly reducing model size, hardware cost, 
+and end-to-end training/inference overhead. To further enable deployment, we implement a synthesizable FPGA accelerator for the state-space
+model (SSM) hotspot in Mamba, targeting indoor radio localization (LuViRA).
+Software profiling identifies the SSM forward path as a dominant runtime
+contributor. We implement SSM as a streaming pipeline using three primitives
+(MAC, EWA, EWM) and a LUT-based sigmoid, with a $4\times4\times4$ pipelined
+MVM array, interleaving memory access, and FIFO-based AXI-Stream control for
+backpressure-safe composition. The integrated module closes timing at
+400~MHz using 76 DSPs and 6{,}244 LUTs, with an estimated on-chip power of
+1.442~W, providing a baseline toward end-to-end Mamba inference.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Mamba, state-space model (SSM), indoor localization, massive MIMO, FPGA
+acceleration.
+\end{IEEEkeywords}
+
+\section{Introduction}
+%Chenxi: modified the first paragraph
+\IEEEPARstart{I}{ndoor} radio localization requires modeling 
+high-dimensional wireless signals with strong temporal dynamics and 
+multipath effects. As antenna/channel dimensions increase, conventional 
+FCNN-based regressors become inefficient: their parameter count and compute 
+cost grow rapidly with input width, making deployment and scaling difficult\cite{tian2023deep}. 
+This motivates architectures that can process long signal sequences
+with stronger parameter efficiency.
+
+Mamba, as a modern state-space-model (SSM) architecture, 
+offers a compelling alternative. Instead of relying on dense fully connected
+mappings over the full input history, Mamba uses recurrent state updates to 
+summarize historical information compactly, enabling effective memory of temporal 
+context with linear-time sequence processing. Its SSM-style recursive computation
+is naturally aligned with long-sequence modeling, where maintaining and updating 
+latent states is more efficient than repeatedly recomputing global interactions. 
+For indoor localization, this is particularly attractive: the model can capture 
+temporal patterns induced by motion and multipath evolution while avoiding the 
+parameter explosion common in FCNNs under increasing channel dimensions. Therefore, 
+Mamba provides a practical path toward accurate, scalable, and hardware-friendly 
+radio localization systems.
+
+In this project, we follow a software-to-hardware co-design path on the LuViRA
+dataset~\cite{yaman2024luvira} and evaluate three Mamba-family variants for radio 
+localization. We first adopted a Channel-Mamba-style design to support multi-domain 
+feature fusion (e.g., CIR real/imag, power, and optional differential features), 
+motivated by potential cross-channel interaction and extensibility to future multi-modal 
+inputs (e.g., audio). However, experiments show that, under the current setting, additional 
+channel-fusion branches bring only limited accuracy gain (typically around 3--4\%) while 
+introducing substantial overhead in model complexity, training time, and hardware mapping cost.
+
+Based on this observation, we revisited vanilla Mamba and analyzed the temporal context length 
+for the target workload. We found that a short window (\(K=16\)) yields the best trade-off, 
+indicating that very strong long-range state modeling is not always necessary for this 
+short-horizon localization task and may introduce redundancy. We therefore proposed a 
+hardware-friendly simplification of Mamba v1 that preserves comparable inference accuracy 
+while reducing model size and end-to-end runtime overhead.
+
+From a deployment perspective, acceleration should target real runtime hotspots.
+Profiling (Table~\ref{tab:ssm_profile}) shows that the SSM forward path dominates execution,
+so we implement it with a fully synthesizable FPGA design. The accelerator uses a streaming
+pipeline built from MAC, EWA, and EWM operators plus a LUT-based sigmoid, and scales via a
+$4\times4\times4$ pipelined MVM array, interleaving memory access, and FIFO-based AXI-Stream flow
+control for backpressure-safe composition.
+
+Although recent studies have explored Mamba acceleration from complementary angles, 
+including hardware--algorithm co-design~\cite{wang2025fastmamba}, reconfigurable 
+operator support~\cite{li2024marca}, and hybrid dataflows~\cite{jin2025hcsas}, 
+several trade-offs remain under-discussed for radio-localization-oriented FPGA deployment. 
+First, compute-array organization is often fixed without controlled comparison under 
+identical workload assumptions. Second, memory organization for mixed linear and 
+element-wise SSM pipelines is not sufficiently analyzed, especially for interleaved 
+banked access. Third, control granularity trade-offs between coarse scheduling and 
+fine-grained streaming are rarely quantified under the same constraints.
+
+Motivated by these gaps, this work contributes: 1) an empirical software-side study 
+from Channel Mamba to simplified Mamba for short-window localization, 2) a 
+hotspot-driven FPGA mapping of the SSM datapath, and 3) a consistent evaluation of array, 
+memory, and control trade-offs. The rest of this report first presents SSM decomposition 
+and hardware mapping, then details the accelerator architecture and implementation results.
+
+% In practical Mamba implementations, the computational bottleneck is frequently
+% concentrated in the SSM core operator. Our
+% function-level profiling of the current software stack as summarized in
+% Table~\ref{tab:ssm_profile} indicates that the SSM-related forward path
+% accounts for a substantial fraction of runtime, making SSM the most
+% promising target for hardware acceleration. Therefore, the core focus of this
+% course project is to design a synthesizable FPGA accelerator for the
+% SSM-centric dataflow and produce measurable trade-offs
+% across compute-array organization, memory accesses, and streaming
+% control. Prior work has advanced Mamba acceleration from complementary angles,
+% including hardware--algorithm co-design for FPGA deployment
+% \cite{wang2025fastmamba}, reconfigurable architectures to better handle the
+% mixed ratio of linear and element-wise operations \cite{li2024marca}, and
+% hybrid systolic-style organizations with unified state-space buffers and
+% energy-efficient dataflows \cite{jin2025hcsas}. Building on these insights,
+% our work puts the SSM hotspot as the primary optimization target under
+% the radio-localization workload and interface constraints, and develops a FPGA design.
+
+\begin{table}[H]
+\caption{Function profiling summary.}
+\label{tab:ssm_profile}
+\centering
+\setlength{\tabcolsep}{9pt}
+\renewcommand{\arraystretch}{1.05}
+\begin{tabular}{p{0.55\columnwidth}|r|r}
+\hline
+\textbf{Function} & \textbf{Time} & \textbf{Share} \\
+\hline
+\texttt{\_PointWise1X1.forward}     & 30  & 7.75 \\
+\texttt{\_QuantConv1d.forward}      & 57  & 14.73 \\
+\texttt{RMSNorm.forward}            & 140 & 36.18 \\
+\texttt{SelectiveScanIC.forward}    & 160 & 41.34 \\
+\hline
+\textbf{Total (listed)} & \textbf{387} & \textbf{100.00} \\
+\hline
+\end{tabular}
+\end{table}
+
+% Although recent hardware studies have proposed various architectures and
+% dataflows for accelerating SSM, three recurring bottlenecks are often
+% under-discussed when mapping a design to a radio
+% localization application workload under realistic FPGA constraints. 
+
+% First, at the compute-array
+% level, many works commit to a single array organization, often systolic-style
+% or a generic matrix engine and do not systematically compare, under the same
+% workload and interface assumptions, how a deeper fine-grained pipelined array
+% differs from a classical systolic array or a minimal single-column MVM
+% baseline in terms of utilization, control complexity, and throughput
+% stability. 
+
+% Second, at the memory level, SSM pipelines couple MVM with
+% state-update and element-wise operators, multiple blocks issue read and write operations on
+% on-chip buffers; Especially, our new pipelined arrays require a special interleaving memory access.
+% However, the impact of interleaving banking is rarely discussed in prior SSM-designs, 
+% leaving a gap in memory organization.
+
+% Third, at the system-control level, Some previous
+% designs \cite{li2024marca}, \cite{jin2025hcsas} rely on coarse-grained scheduling or state machines, while
+% making the hardware reconfigureable to support multiple operators. Some study\cite{wei2025lightmamba} adopts fine-grained 
+% streaming with AXI-Stream + FIFO interfaces, but add more hardware cost. The trade-offs between latency and resource cost 
+% under different control granularity is not well studied. 
+
+% Motivated by these gaps, our study places these three factors
+% into one consistent evaluation framework centered on the SSM hotspot, and
+% quantifies three key trade-offs:
+% \begin{itemize}
+% \item a 4$\times$4$\times$4 pipelined MVM array versus two practical baselines
+% \item interleaved banking with single-port versus dual-port memory
+% organizations
+% \item an AXI-Stream + FIFO fine-grained pipeline versus coarse-grained control
+% \end{itemize}
+
+\IEEEpubidadjcol
+
+\section{Software Exploration and Task-Driven Simplification}
+This section presents the software-side exploration that guided our final model 
+choice and hardware-oriented redesign. We start from a Channel-Mamba-style architecture 
+for multi-domain feature fusion, then progressively simplify the model based on 
+empirical evidence under the LuViRA workload.
+
+\subsection{Task Setting and Data Pipeline}
+We target indoor localization on LuViRA, where each recording is a time--frequency--space 
+CSI tensor (\(T\!\approx\!4000\) at 100\,Hz, 100 antennas, 100 subcarriers). 
+To align software processing with deployment-oriented constraints, we organize 
+the dataflow in a hardware-friendly manner with sequential window access and compact 
+per-frame storage.
+
+Raw CSI is converted into model-ready features through:
+(1) IFFT-based CIR extraction over subcarriers, 
+(2) tap truncation, and 
+(3) feature construction using CIR real/imaginary components, per-antenna log-power, 
+and optional first-order temporal difference. 
+For each trajectory/grid file, we store \texttt{base.feats.npy}, \texttt{base.xy.npy}, 
+and \texttt{base.ts.npy}, while \texttt{base.json} records role-aware window indices 
+(train/eval/test), window length, stride, and feature configuration. 
+This layout supports on-demand window generation without offline materialization 
+of all training samples.
+
+In our final experiments, we enable \texttt{--preload}, which significantly improves 
+training throughput by avoiding repeated data fetch/transfer overhead across iterations. 
+At the same time, the pipeline still supports lazy-loading mode for resource-constrained 
+platforms, and we verified stable operation on a low-end MX330 GPU setup. 
+Although preload increases memory usage, the overhead remains acceptable for our workload 
+(GPU memory usage rises from approximately 0.3\,GB to 1.4\,GB), while the training speedup 
+is substantial. 
+Finally, we compute train-only global normalization statistics (\texttt{stats\_train.npz}, 
+mean/std with std-floor) to ensure stable scaling across grids and avoid evaluation/test leakage.
+
+
+% figure : data pipeline from raw CSI to model input features
+\begin{figure}[t]
+  \centering
+  \includesvg[width=0.8\linewidth]{dataProcessPipeline}
+  \caption{Data preprocessing pipeline from CSI to model-ready features.}
+  \label{fig:data_pipeline}
+\end{figure}
+
+\subsection{Initial Design: Channel Mamba for Multi-domain Fusion}
+Our initial hypothesis was that Channel Mamba could better exploit heterogeneous input domains (e.g., CIR, power, and differential signals), while also providing a natural extension path to future multi-modal inputs such as audio. 
+Accordingly, we first implemented a multi-branch Channel-Mamba-style model with explicit channel fusion blocks.
+
+\subsection{Empirical Reassessment}
+Despite the above motivation, experiments show that the additional fusion complexity yields only limited accuracy gains in the current setting (typically around 3--4\%), while significantly increasing parameter count, training cost, and hardware mapping overhead due to extra branches and block-level computation.
+In particular, differential features bring marginal improvement, which does not justify the induced structural complexity for deployment-oriented design.
+
+% Channel Mamba vs Mamba v1
+% EPE/MAE, Params, Train Time, Inference Latency, HW Cost Proxy
+% =========================================
+% Table 1: Channel vs Mamba vs Simplified
+% =========================================
+\begin{table*}[!t]
+\caption{Comparison of model variants on LuViRA (to be filled with your measured results).}
+\label{tab:model_compare}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{l|c c c c c c}
+\hline
+\textbf{Model} & \textbf{Input Features} & \textbf{Params (M)} & \textbf{Train Time / epoch (s)} & \textbf{Latency / sample (ms)} & \textbf{EPE Mean (cm)} & \textbf{HW Cost Proxy} \\
+\hline
+Channel Mamba      & CIR + Power (+Delta) & -- & -- & -- & -- & High \\
+Vanilla Mamba v1   & CIR + Power          & -- & -- & -- & -- & Medium \\
+Simplified Mamba   & CIR + Power          & -- & -- & -- & -- & Low \\
+\hline
+\end{tabular}
+\end{table*}
+
+
+
+
+
+\subsection{Task-driven Simplification of Mamba}
+We then revisited vanilla Mamba and conducted multi-round comparisons across window lengths and architectural variants. 
+A consistent observation is that \(K=16\) provides the best trade-off for this task. This indicates a short-horizon localization regime where overly strong long-range memory can be redundant and may even hurt generalization.
+Based on this, we simplified Mamba v1 into a hardware-friendly form by removing non-essential complexity while preserving the key selective recurrent behavior required by the task.
+
+\subsection{Final Model and Key Differences}
+Compared with the original Mamba, the final model keeps the core recurrent update path but adopts a more regular and deployment-friendly structure (fewer branches, reduced state/update complexity, and more hardware-compatible operators).
+This redesign preserves comparable localization accuracy while reducing model size and improving training/inference efficiency, making it better aligned with FPGA implementation constraints.
+
+% 建议插表：Original Mamba vs Simplified Mamba
+% 列：Module-level differences, Params, FLOPs/MACs, EPE/MAE, Runtime
+% =========================================
+% Table 2 (wrapped text): Original vs Simplified Mamba
+% =========================================
+\begin{table*}[!t]
+\caption{Module-level differences between original Mamba and the proposed simplified variant.}
+\label{tab:orig_vs_simplified}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.18}
+\begin{tabular}{p{0.16\textwidth}|p{0.27\textwidth}|p{0.27\textwidth}|p{0.18\textwidth}}
+\hline
+\textbf{Component} & \textbf{Original Mamba} & \textbf{Simplified Mamba (Ours)} & \textbf{Impact} \\
+\hline
+Input fusion path 
+& Multi-branch / channel-fusion-friendly design with extra structural overhead. 
+& Reduced branches and regularized single-path backbone. 
+& Lower control complexity and easier hardware scheduling. \\
+\hline
+State update (SSM) 
+& Full selective scan parameterization with higher arithmetic and control complexity. 
+& Hardware-friendly selective recurrence with reduced state-update complexity. 
+& Faster execution and easier FPGA mapping. \\
+\hline
+Temporal context usage 
+& Strong long-range modeling capacity designed for longer contexts. 
+& Tuned for short-window localization (\(K=16\)). 
+& Better task fit; less redundancy and lower overfitting risk. \\
+\hline
+Operator pattern 
+& Mixed operators with heavier scheduling burden. 
+& More regular Conv/element-wise-friendly computation flow. 
+& Better pipelining and implementation regularity. \\
+\hline
+Model size / compute 
+& Higher parameter and compute cost. 
+& Lower parameter and compute cost. 
+& Reduced memory footprint and MAC demand. \\
+\hline
+Accuracy on LuViRA 
+& Baseline. 
+& Comparable (fill with measured values). 
+& Improved accuracy efficiency trade-off. \\
+\hline
+\end{tabular}
+\end{table*}
+
+% =========================================
+% Table 3: K ablation (window length)
+% =========================================
+\begin{table}[!t]
+\caption{Ablation on window length \(K\) with patch length/stride variants (LuViRA).}
+\label{tab:k_ablation}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.12}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{K (pl, s)} & \textbf{Eval mean err (m)} & \textbf{Test mean err (m)} \\
+\hline
+1  (1,1) & 0.10068 & \textbf{0.135}  \\
+\hline
+2  (2,2) & 0.09557 & \textbf{0.135}  \\
+\hline
+4  (2,2) & 0.09814 & 0.139   \\
+\hline
+8  (2,2) & 0.09405 & 0.141   \\
+\hline
+4  (4,4) & 0.09983 & 0.137   \\
+\hline
+6  (4,4) & 0.09839 & 0.138   \\
+\hline
+8  (4,4) & 0.09749 & 0.144   \\
+\hline
+8  (8,4) & 0.09744 & 0.152  \\
+\hline
+12 (8,4) & 0.09286 & 0.156  \\
+\hline
+16 (8,4) & 0.09225 & 0.161  \\
+\hline
+24 (8,4) & 0.09432 & 0.159  \\
+\hline
+32 (8,4) & 0.09328 & 0.166  \\
+\hline
+\end{tabular}
+\end{table}
+
+
+
+\section{SSM Decomposition and Hardware Mapping}
+From an algorithmic perspective, the SSM core can be decomposed into three major steps:
+(1) \emph{dt\_projection}, which derives step-size coefficients $\Delta_t$  from the current input;
+(2) \emph{state update}, the time-recursive selective scan (recurrent update) that fuses the current input with the previous state to produce a new state $s_t$;
+and (3) \emph{output gate}, which combines the updated state with the gating branch to form the output.
+This decomposition is consistent with Fig.~\ref{fig:ssm_algo}, where the input is split into a main 
+branch and a gate branch after the in\_proj layer; the main branch is locally modulated and then fed 
+into the SSM for state update, 
+while the output is produced via element-wise interaction with the gate.
+
+When mapped to hardware, the SSM can be reduced to three key hardware primitives:
+\begin{itemize}
+  \item \textbf{MAC} (matrix--vector multiply--accumulate) for dt\_proj.
+  \begin{equation}
+    \lambda_t = \sigma(W \Delta u_t + b)
+  \end{equation}
+  \item \textbf{EWA} (element-wise add) for state update.
+  \begin{equation}
+    s_t = \lambda_t \odot s_{t-1} + (1 - \lambda_t) \odot u_t
+  \end{equation}
+  \item \textbf{EWM} (element-wise multiply) for output gating.
+  \begin{equation}
+    y_t = s_t \odot g_t
+  \end{equation}
+\end{itemize}
+Therefore, our design builds a streaming accelerator using \textbf{MVM (MAC) + EWA + EWM} as the core building blocks, centered on the SSM state-update hotspot.
+
+%\subsection{Top-Level Hardware Architecture Overview}
+Fig.~\ref{fig:ssm_arch} illustrates the top-level data path of our accelerator, which can be summarized into four stages.
+\textbf{(i) Linear compute and reduction}: the input vector is streamed from \texttt{xt\_buf}, weights are supplied by \texttt{WBUF}, and a 4$\times$4$\times$4 MAC array produces partial sums that are reduced by a reduction tree, forming the linear-layer outputs.
+\textbf{(ii) Nonlinearity and gate preparation}: the linear outputs are bias-adjusted, decoupled by a FIFO, and passed through a Sigmoid LUT to generate gate-related coefficients, aligning with the gate path.
+\textbf{(iii) State update (Element-wise update + s\_buffer)}: a \texttt{Join} module aligns the required streams (e.g., $\lambda$ and $x_t$) and feeds the element-wise update unit that performs combined \textbf{EWM/EWA} operations to produce $s_{\text{new}}$, with \texttt{s\_buffer} closing the read-old/write-new loop for recurrent state updates.
+\textbf{(iv) Output gate}: the updated state and the gate stream are aligned by another \texttt{Join}, decoupled by a FIFO, and multiplied element-wise in the EWM gate to produce $y_{\text{out}}$.
+
+This organization keeps the SSM workload concentrated on the \textbf{MAC array (MVM)} and \textbf{element-wise (EWA/EWM)} modules, while FIFO and AXI-streaming boundaries enable fine-grained pipelining and robust backpressure propagation.
+
+% --- figure placeholders ---
+\begin{figure}[t]
+  \centering
+  \includesvg[width=0.8\linewidth]{MAMBAFlow}
+  \caption{Algorithmic view of the Mamba block~\cite{gu2024mamba}.}
+  \label{fig:ssm_algo}
+\end{figure}
+
+\begin{figure*}[t]
+  \centering
+  \includesvg[width=0.8\linewidth]{ssm_archi}
+  \caption{Top-level architecture of the proposed accelerator (based on the Mamba/SSM operator structure)~\cite{gu2024mamba}.}
+  \label{fig:ssm_arch}
+\end{figure*}
+
+\section{Method}
+\subsection{MAC Array Design and Architecture Selection}
+This chapter presents the hardware implementation methods of our SSM
+accelerator, starting from the compute backbone: the MAC array. For the SSM
+datapath, linear layers dominate the arithmetic
+cost and can be reduced to an MVM of size
+$(256\times256)\cdot(256\times1)$, i.e., $256\times256=65{,}536$ MAC
+operations. A useful throughput bound is
+\begin{equation}
+CC_{\min}=\left\lceil\frac{\text{Total MAC operations}}{\#\text{PEs}}\right\rceil,
+\end{equation}
+which makes explicit the fundamental trade-off between parallelism (DSP/PE
+count) and latency in cycles.
+
+We compare three candidate array organizations.
+\begin{enumerate}
+  \item \item A 16$\times$16 systolic array offers strong spatial reuse for GEMM 
+  (both operands reuse across the 2D array) and can theoretically complete a tile 
+  in 256 cycles. For GEMV, weights have little spatial reuse (each $W_{i,k}$ is 
+  typically consumed once per input), making the design weight-bandwidth dominated: 
+  full utilization would require streaming $\sim$256 weights/cycle, which also increases 
+  routing pressure and complicates timing closure in practice.
+  \item A 64$\times$1 single-column GEMV engine directly addresses the
+  bandwidth bottleneck and is well matched to GEMV-style computation,
+  achieving a 1024-cycle latency under a 64 weights/cycle budget. However,
+  a full Mamba pipeline also includes matrix--matrix operations beyond the
+  SSM core (e.g., input and output linear projection), so a one-column GEMV structure
+   is less reusable for those kernels
+  and is therefore suboptimal for long-term extensibility.
+  
+  \begin{table*}[!t]
+\caption{Weight input column scheduling for the 4$\times$4$\times$4 pipelined MAC array.}
+\label{tab:weight_sched}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{c|l|l|l|l|l}
+\hline
+\textbf{Cycle} & \textbf{Array1 Columns} & \textbf{Array2 Columns} & \textbf{Array3 Columns} & \textbf{Array4 Columns} & \textbf{Description} \\
+\hline
+1  & col0--3   & -- & -- & -- & ARRAY1 preloads first 4$\times$4 block (tile1). \\
+2  & col16--19 & col4--7 & -- & -- & ARRAY2 begins tile1. \\
+3  & col32--35 & col20--23 & col8--11 & -- & ARRAY3 begins tile1 (3-cycle stagger). \\
+4  & col48--51 & col36--39 & col24--27 & col12--15 & ARRAY4 joins; pipeline full. \\
+5--16 & continue +16 stride & same & same & same & Steady-state loading of tile1. \\
+17 & {\color{blue}\textbf{col256--259 $\rightarrow$ tile2}} & col244--247 & col232--235 & col220--223 & \textbf{ARRAY1 starts tile2 (row4--7).} \\
+18 & col272--275 & {\color{blue}\textbf{col260--263 $\rightarrow$ tile2}} & col248--251 & col236--239 & \textbf{ARRAY2 switches to tile2.} \\
+19 & col288--291 & col276--279 & {\color{blue}\textbf{col264--267 $\rightarrow$ tile2}} & col252--255 & \textbf{ARRAY3 switches to tile2.} \\
+20 & col304--307 & col292--295 & col280--283 & {\color{blue}\textbf{col268--271 $\rightarrow$ tile2}} & \textbf{ARRAY4 switches; tile1 finishes.} \\
+21--37 & continue +16 stride & same & same & same & Steady-state operation for tile2. \\
+38 & {\color{red}\textbf{tile3 preload}} & -- & -- & -- & ARRAY1 starts tile3. \\
+39 & -- & {\color{red}\textbf{tile3 preload}} & -- & -- & ARRAY2 starts tile3. \\
+40 & -- & -- & {\color{red}\textbf{tile3 preload}} & -- & ARRAY3 starts tile3. \\
+41 & -- & -- & -- & {\color{red}\textbf{tile3 preload}} & ARRAY4 starts tile3 (3-cycle stagger). \\
+42--58 & continue +16 stride & same & same & same & Steady tile3 operation. \\
+\hline
+\end{tabular}}
+\end{table*}
+
+  \item Our proposed 4$\times$4$\times$4 pipelined MAC array is a compromise:
+  it preserves the 64 weights/cycle bandwidth target and achieves a similar
+  1024-cycle-class latency as the 64$\times$1 baseline, while improving
+  routing scalability relative to a monolithic systolic array and enabling
+  higher reuse across multiple kernels.
+\end{enumerate}
+
+The compute engine instantiates four parallel $4\times4$ MAC sub-arrays
+(ARRAY1--ARRAY4), forming a 4$\times$4$\times$4 pipeline organization. Each $4\times4$ sub-array consumes a 4-element slice of the input vector $x_t$ together with a $4\times4$ weight block per cycle.
+Each array performs a local $4\times4$ MVM and accumulates the partial sums from the last cycle. After 4 cycles, 
+all four sub-arrays have be used and the pipeline is fully filled.
+Importantly, the sub-array does \textbf{not} directly output four independent column-wise partial sums.
+Instead, it maintains accumulation across the tile and produces an \textbf{already-accumulated $4\times4$ partial-result matrix} at its output interface.
+This $4\times4$ partial-result matrix is then forwarded to a dedicated \textbf{three-level reduction tree}, which hierarchically reduces the $4\times4$ block into the required vector-form output used by subsequent stages.
+
+With this organization, the MAC fabric focuses on dense local accumulation, while the reduction tree provides a structured and timing-friendly path to obtain the final MVM vector output. After a short fill phase, all four sub-arrays run concurrently in
+steady state, hiding control overhead while keeping the compute fabric small
+(64 MACs total), which is favorable for FPGA timing closure. 
+Table~\ref{tab:weight_sched} provides the full weight-column schedule;
+\vspace{1em}
+
+\begingroup
+\setlength{\intextsep}{2pt}
+\setlength{\abovecaptionskip}{0pt}
+\setlength{\belowcaptionskip}{0pt}
+\begin{table}[H]
+\caption{Column start progression per sub-array.}
+\label{tab:col_progress}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{c|l|c}
+\hline
+\textbf{Array} & \textbf{Column Start Points} & \textbf{$\Delta$} \\
+\hline
+Array1 & 0 $\rightarrow$ 16 $\rightarrow$ 32 $\rightarrow$ 48 $\rightarrow$ 64 & +16 \\
+Array2 & 4 $\rightarrow$ 20 $\rightarrow$ 36 $\rightarrow$ 52 & +16 \\
+Array3 & 8 $\rightarrow$ 24 $\rightarrow$ 40 & +16 \\
+Array4 & 12 $\rightarrow$ 28 & +16 \\
+\hline
+\end{tabular}
+\end{table}
+\endgroup
+
+\begin{table}[H]
+\caption{Constant 12-column spacing between adjacent arrays within the same cycle.}
+\label{tab:col_spacing}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{c|c|c|c}
+\hline
+\textbf{Cycle} & \textbf{A1$\rightarrow$A2 $\Delta$} & \textbf{A2$\rightarrow$A3 $\Delta$} & \textbf{A3$\rightarrow$A4 $\Delta$} \\
+\hline
+2 & 16--4 = \textbf{12} & -- & -- \\
+3 & 32--20 = \textbf{12} & 20--8 = \textbf{12} & -- \\
+4 & 48--36 = \textbf{12} & 36--24 = \textbf{12} & 24--12 = \textbf{12} \\
+5 & 64--52 = \textbf{12} & 52--40 = \textbf{12} & 40--28 = \textbf{12} \\
+\hline
+\end{tabular}
+\end{table}
+
+Weights are scheduled in 4-column blocks. For each sub-array, the column
+start index advances by a fixed stride of +16 every cycle. Within the same
+cycle, the four sub-arrays access distinct column blocks with fixed offsets
+$\{0,4,8,12\}$, resulting in a constant 12-column spacing between adjacent
+arrays.
+Table~\ref{tab:col_progress} summarizes the per-array progression; and
+Table~\ref{tab:col_spacing} validates the constant 12-column spacing.
+
+\subsubsection*{$x_t$ input scheduling and wavefront tile switch}
+The input vector $x_t$ is streamed from \texttt{xt\_buf} in 4-element blocks.
+During pipeline fill (cycles 1--4), ARRAY1 starts first and ARRAY2/3/4 join
+sequentially; in steady state, all arrays consume the same $x_t$ block for
+the active tile. When moving to the next tile, the $x_t$ block update is
+aligned with the weight schedule and propagates as a wavefront across the
+arrays, minimizing global bubbles. Table~\ref{tab:xt_sched} details the $x_t$
+schedule and matches the tile-switch cycles in Table~\ref{tab:weight_sched}.
+
+\begin{table*}[!t]
+\caption{$x_t$ input scheduling aligned with the wavefront tile switch across sub-arrays.}
+\label{tab:xt_sched}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{\textwidth}{>{\centering\arraybackslash}p{0.9cm}|>{\centering\arraybackslash}p{2.5cm}|>{\centering\arraybackslash}p{2.5cm}|>{\centering\arraybackslash}p{2.5cm}|>{\centering\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}X}
+\hline
+\textbf{Cycle} & \textbf{Array1} & \textbf{Array2} & \textbf{Array3} & \textbf{Array4} & \textbf{Description} \\
+\hline
+1  & xt[0:3] & -- & -- & -- & ARRAY1 begins tile1 (xt block0). \\
+2  & xt[0:3] & xt[0:3] & -- & -- & ARRAY2 joins tile1. \\
+3  & xt[0:3] & xt[0:3] & xt[0:3] & -- & ARRAY3 joins tile1. \\
+4  & xt[0:3] & xt[0:3] & xt[0:3] & xt[0:3] & ARRAY4 joins tile1; steady begins. \\
+5--16 & xt[0:3] & xt[0:3] & xt[0:3] & xt[0:3] & tile1 steady-state. \\
+17 & \textcolor{blue}{\textbf{xt[4:7]}} & xt[0:3] & xt[0:3] & xt[0:3] & \textbf{ARRAY1 starts tile2 (next row-block).} \\
+18 & xt[4:7] & \textcolor{blue}{\textbf{xt[4:7]}} & xt[0:3] & xt[0:3] & \textbf{ARRAY2 switches to tile2.} \\
+19 & xt[4:7] & xt[4:7] & \textcolor{blue}{\textbf{xt[4:7]}} & xt[0:3] & \textbf{ARRAY3 switches to tile2.} \\
+20 & xt[4:7] & xt[4:7] & xt[4:7] & \textcolor{blue}{\textbf{xt[4:7]}} & \textbf{ARRAY4 switches; tile1 finishes.} \\
+21--33 & xt[4:7] & xt[4:7] & xt[4:7] & xt[4:7] & tile2 steady-state. \\
+34 & \textcolor{red}{\textbf{xt[8:11]}} & xt[4:7] & xt[4:7] & xt[4:7] & ARRAY1 starts tile3. \\
+35 & xt[8:11] & \textcolor{red}{\textbf{xt[8:11]}} & xt[4:7] & xt[4:7] & ARRAY2 switches. \\
+36 & xt[8:11] & xt[8:11] & \textcolor{red}{\textbf{xt[8:11]}} & xt[4:7] & ARRAY3 switches. \\
+37 & xt[8:11] & xt[8:11] & xt[8:11] & \textcolor{red}{\textbf{xt[8:11]}} & ARRAY4 switches; tile2 ends. \\
+\hline
+\end{tabularx}
+\end{table*}
+
+Overall, the 4$\times$4$\times$4 pipelined array provides a favorable balance
+among DSP usage, bandwidth demand, latency, and reuse. However, the compromise
+shifts complexity to the memory subsystem. The next subsection therefore focuses on the
+memory-access design and compares single-port versus dual-port organizations
+in terms of power and resource cost.
+
+\subsection{Interleaved Memory Bank Design}
+Sustaining the 4$\times$4$\times$4 pipeline MVM array in steady state requires
+the weight buffer (WBUF) to deliver stall-free parallel bandwidth, where four
+sub-arrays fetch one $4\times4$ column block per cycle. This section formalizes two
+conflict types and derives single-port and dual-port realizations under a
+unified modulo-unrolling mapping \cite{barua1998memory}.
+
+\subsubsection*{Conflict model}
+Space-conflict captures same-cycle port contention when multiple arrays access
+the same bank. A single-port bank supports at most one read per cycle, hence
+all four arrays must hit distinct banks per cycle. A dual-port bank supports
+up to two reads per cycle, allowing two arrays to share one bank.
+
+Temporal-conflict captures cross-cycle reuse hazards under a finite read
+latency $L$. A sufficient safety condition is
+\begin{equation}
+\text{bank reuse distance} \ge L,
+\end{equation}
+which prevents issuing a new access to a bank before prior reads have been
+safely resolved in the pipeline.
+
+\subsubsection*{Modulo-unrolling mapping derived from the array dataflow}
+Weights are accessed in 4-column blocks, each corresponding to a $4\times4$
+weight block. Define
+\begin{equation}
+block\_id=\left\lfloor \frac{col}{4}\right\rfloor,\quad n\in\{0,1,2,3\}.
+\end{equation}
+The schedule enforces a 12-column spacing between adjacent arrays within the
+same cycle, yielding a block-domain offset
+\begin{equation}
+block\_offset=\frac{12}{4}=3.
+\end{equation}
+Therefore, the four arrays request
+\begin{equation}
+block\_id,\; block\_id+3,\; block\_id+6,\; block\_id+9
+\end{equation}
+\begingroup
+within a cycle. We adopt the modulo-unrolling mapping
+\begin{equation}
+\boxed{\;bank\_id=(block\_id+3n)\bmod N_{\text{bank}}\;}
+\end{equation}
+which provides periodic, hardware-friendly addressing while preserving the
+fixed inter-array spacing property for conflict analysis.
+
+\subsubsection*{Single-port design by increasing the bank count}
+For single-port banks, eliminating space-conflict requires pairwise distinct
+bank IDs in the same cycle, i.e.,
+\begin{equation}
+3(n_1-n_2)\not\equiv 0\pmod{N_{\text{bank}}},\quad \forall n_1\neq n_2.
+\end{equation}
+With four arrays and $block\_offset=3$, selecting $N_{\text{bank}}=12$
+satisfies this constraint robustly and yields a regular round-robin placement.
+Each bank stores every 12th 4-column block in a round-robin interleaving, and
+The runtime timeline is provided in Appendix~\ref{app:bank_timelines}
+(Table~\ref{tab:bank_timeline_12}), demonstrating that after warm-up four
+distinct banks are activated per cycle.
+\subsubsection*{Dual-port design by exploiting two reads per bank per cycle}
+Dual-port banks relax the same-cycle constraint to ``no more than two reads per
+bank per cycle,'' while still requiring temporal safety against the effective
+latency $L$. With $N_{\text{bank}}=6$, the per-cycle accesses collapse into two
+active banks per cycle, each serving exactly two reads through deterministic
+array pairing. Blocks are interleaved round-robin across six banks, and
+Table~\ref{tab:bank_timeline_6} in Appendix~\ref{app:bank_timelines} shows the
+bank-pair rotation $\{0,3\}\rightarrow\{1,4\}\rightarrow\{2,5\}$. The reuse
+distance in this rotation is two cycles; therefore, the schedule is temporally
+safe when $L\le 2$.
+
+\endgroup
+
+\subsubsection*{BRAM utilization and power implications}
+\ref{tab:sp_dp_resource_power} shows the single-port design uses 49 BRAM tiles at top level (48 in
+WBUF), while the dual-port design uses 46 (45 in WBUF) due to reduced bank
+replication. Power also favors dual-port: single-port consumes 1.597~W total
+(0.971~W dynamic, 0.626~W static) versus 1.306~W (0.682~W dynamic, 0.624~W
+static), consistent with lower memory/interconnect switching. Therefore, the
+dual-port WBUF offers a better BRAM--power trade-off without degrading
+throughput and is selected as the default.
+
+% \begin{figure*}[!t]
+% \centering
+% \subfloat[Single-port power breakdown]{\includegraphics[width=0.48\textwidth]{sp_power}}
+% \hfill
+% \subfloat[Dual-port power breakdown]{\includegraphics[width=0.48\textwidth]{dp_power}}
+% \captionsetup{justification=centering,singlelinecheck=false}
+% \caption{Power breakdown comparison between single-port and dual-port WBUF organizations~\cite{wei2025lightmamba}.}
+% \label{fig:power_sp_dp}
+% \end{figure*}
+
+\begin{table}[t]
+\caption{Post-synthesis resource and power comparison between single-port and dual-port WBUF organizations.}
+\label{tab:sp_dp_resource_power}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{l|c|c}
+\hline
+\textbf{Metric} & \textbf{Single-port} & \textbf{Dual-port} \\
+\hline
+Bank count & 12 & 6 \\
+Top-level BRAM tiles & 49 & 46 \\
+WBUF BRAM tiles & 48 & 45 \\
+DSP blocks & 64 & 64 \\
+Dynamic power (W) & 0.971 & 0.682 \\
+Static power (W) & 0.626 & 0.624 \\
+Total on-chip power (W) & 1.597 & 1.306 \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Nonlinear Layer Implementation}
+To realize the sigmoid nonlinearity $\sigma(x)=1/(1+e^{-x})$ with low FPGA
+overhead, we implement a lookup-table (LUT) approximation. The module consumes
+signed Q8.8 inputs (16-bit) and produces unsigned Q0.16 outputs (16-bit).
+Inputs are first clamped to $[-4, +4)$. Importantly, this interval is
+selected based on empirical workload statistics: sampled $dt\_proj$ values
+before the sigmoid are concentrated within this range, which avoids
+over-provisioning the LUT in saturation regions while keeping the table size
+compact.
+
+After clamping, the address is generated by a direct fixed-point shift. Since
+$[-4,+4)$ corresponds to $[-1024,1023]$ in Q8.8, we compute
+\begin{equation}
+addr = x_{\text{clamp}} + 1024,
+\end{equation}
+to obtain an index in $[0,2047]$, enabling a 2048-entry LUT that uniformly
+covers the effective domain. Fig.~\ref{fig:sigmoid} compares the 
+floating-point sigmoid against the hardware LUT outputs (converted from Q0.16), 
+showing close agreement at the sampled points, thereby validating the chosen 
+clamp range and table resolution.
+
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=\linewidth]{sigmoid.png}
+  \caption{Sigmoid approximation accuracy: floating-point sigmoid vs.\ HW LUT outputs.}
+  \label{fig:sigmoid}
+\end{figure}
+
+\subsection{SSM Control and Fine-grained Pipelining}
+To reduce inter-module coupling and improve scalability, we adopt an
+AXI-stream-like ready/valid interface and insert lightweight FIFOs between
+adjacent operators, following the modular streaming philosophy of
+LightMamba~\cite{wei2025lightmamba}. Under this semantics, a FIFO
+acts as a standardized boundary for rate matching and timing decoupling. Crucially,
+the unified interface also simplifies system evolution: extending from an SSM
+subgraph toward a full Mamba pipeline becomes a matter of composing compliant
+modules with similar AXI-Stream interfaces, which improves project maintainability and integration robustness.
+
+Within this control paradigm, we examine the trade-off between reconfigurable
+and fine-grained pipelines. Many Mamba/SSM accelerators favor reconfigurable
+datapaths to reduce resource usage \cite{wang2025fastmamba,li2024marca,jin2025hcsas},
+but increases end-to-end waiting time. In contrast, LightMamba advocates fine-grained streaming, where
+each MAC tile is immediately forwarded to the sigmoid and element-wise update
+(EWM/EWA) stages. In our throughput analysis with $N=64$ tiles, the fine-grained schedule reduces
+latency from $T_A=29N$ to $T_B=22N+7$, i.e., from 1856 to 1415 cycles (23.8\%
+reduction) while adds only about 12 DSPs per SSM compute path, making the latency gain well
+justified. Therefore, this project ultimately selects the fine-grained,
+FIFO-based AXI-stream control scheme.
+
+\begin{figure}[t]
+  \centering
+  \setlength{\textfloatsep}{6pt}
+  \includegraphics[width=\linewidth]{fine.png}
+  \caption{Fine-grained streaming schedule from LightMamba~\cite{wei2025lightmamba}.}
+  \label{fig:fine_stream}
+\end{figure}
+
+\section{Conclusion}
+This work targets the SSM state-update hotspot in Mamba for indoor localization
+(LuViRA) and presents a fully synthesizable FPGA accelerator subsystem with an
+SSM-centric streaming datapath. At 400\,MHz, the design closes timing with a
+compact footprint (76 DSPs, 6.2k LUTs; 3.0\% and 2.3\% of the device) and uses
+52 BRAM tiles (5.7\%) to support fully on-chip buffering for streaming MVM and
+recurrent state update. Post-synthesis power is estimated at 1.442\,W, where
+dynamic power is dominated by top-level I/O toggling, as the current deliverable
+implements the SSM module without a full-system wrapper. In the master’s thesis,
+we will integrate the module into a complete Mamba pipeline to keep data on-chip
+and re-estimate power using realistic switching activity.
+
+\begin{table}[t]
+\caption{Post-synthesis utilization and power summary for the integrated SSM module at 400\,MHz.}
+\label{tab:ssm_post_synth}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{l|c}
+\hline
+\textbf{Metric} & \textbf{Value} \\
+\hline
+LUTs & 6{,}244 (2.28\%) \\
+FFs & 4{,}928 (0.90\%) \\
+BRAM tiles & 52 (5.70\%) \\
+DSP blocks & 76 (3.02\%) \\
+Bonded I/Os & 136 (41.46\%) \\
+Total on-chip power & 1.442\,W \\
+Dynamic power & 0.817\,W \\
+Static power & 0.625\,W \\
+I/O power (dynamic) & 0.443\,W (54\%) \\
+BRAM power (dynamic) & 0.089\,W \\
+Signals power (dynamic) & 0.081\,W \\
+Clocks power (dynamic) & 0.078\,W \\
+Logic power (dynamic) & 0.073\,W \\
+DSP power (dynamic) & 0.053\,W \\
+\hline
+\end{tabular}
+\end{table}
+
+Overall, the results show that an SSM-centric accelerator can achieve high
+frequency on FPGA with modest resources. Key enablers include: (i) a
+primitive-based mapping (MAC/EWA/EWM) that simplifies control; (ii) a pipelined
+MVM backbone with structured reduction; (iii) bank-aware, deterministic BRAM
+access; and (iv) LUT-based sigmoid plus FIFO/ready--valid streaming for robust
+composition and backpressure handling.
+\newpage
+\section{Reflections on This Course}
+This course trained me in practical research methodology: surveying and
+critiquing related work, forming testable hypotheses, and iterating on design
+choices through evidence and discussion. We started from a defined plan with
+the baseline of implementing the Mamba SSM hardware module. Through literature
+review and continuous group feedback, we went beyond the initial target: we
+completed the SSM design and performed a comprehensive analysis of MVM
+computation, memory-access strategies, and system-architecture trade-offs. The
+resulting solution is tailored to the indoor-localization workload and is
+documented in both a public GitHub repository and this report for
+reproducibility. Finally, participating in the IES Group Meeting gave me a
+firsthand view of how research is conducted and communicated within the
+department, which was a valuable and motivating experience.
+
+
+% \section{ References}
+
+\appendices
+\section{Bank Access Timelines}
+\label{app:bank_timelines}
+
+\begin{table}[H]
+\caption{Timeline of bank accesses for $N_{\text{bank}}=12$ (single-port).}
+\label{tab:bank_timeline_12}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{c|c|c|c|c|l}
+\hline
+\textbf{Cycle} & \textbf{A1$\rightarrow$bank} & \textbf{A2$\rightarrow$bank} & \textbf{A3$\rightarrow$bank} & \textbf{A4$\rightarrow$bank} & \textbf{Banks Active} \\
+\hline
+1  & bank0 & --     & --     & --     & \{0\} \\
+2  & bank4 & bank1  & --     & --     & \{4,1\} \\
+3  & bank8 & bank5  & bank2  & --     & \{8,5,2\} \\
+4  & bank0 & bank9  & bank6  & bank3  & \{0,9,6,3\} \\
+5  & bank4 & bank10 & bank7  & bank1  & \{4,10,7,1\} \\
+6  & bank8 & bank11 & bank2  & bank5  & \{8,11,2,5\} \\
+7  & bank0 & bank3  & bank6  & bank9  & \{0,3,6,9\} \\
+8  & bank4 & bank7  & bank10 & bank1  & \{4,7,10,1\} \\
+9  & bank8 & bank11 & bank2  & bank5  & \{8,11,2,5\} \\
+10 & bank0 & bank3  & bank6  & bank9  & \{0,3,6,9\} \\
+11 & bank4 & bank7  & bank10 & bank1  & \{4,7,10,1\} \\
+12 & bank8 & bank11 & bank2  & bank5  & \{8,11,2,5\} \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\caption{Timeline of bank accesses for $N_{\text{bank}}=6$ (dual-port).}
+\label{tab:bank_timeline_6}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{c|c|c|c|c|l}
+\hline
+\textbf{Cycle} & \textbf{A1$\rightarrow$bank} & \textbf{A2$\rightarrow$bank} & \textbf{A3$\rightarrow$bank} & \textbf{A4$\rightarrow$bank} & \textbf{Banks Active} \\
+\hline
+1  & bank0 & --    & --    & --    & \{0\} \\
+2  & bank4 & bank1 & --    & --    & \{1,4\} \\
+3  & bank2 & bank5 & bank2 & --    & \{2,5\} \\
+4  & bank0 & bank3 & bank0 & bank3 & \{0,3\} \\
+5  & bank4 & bank1 & bank4 & bank1 & \{1,4\} \\
+6  & bank2 & bank5 & bank2 & bank5 & \{2,5\} \\
+7  & bank0 & bank3 & bank0 & bank3 & \{0,3\} \\
+8  & bank4 & bank1 & bank4 & bank1 & \{1,4\} \\
+9  & bank2 & bank5 & bank2 & bank5 & \{2,5\} \\
+10 & bank0 & bank3 & bank0 & bank3 & \{0,3\} \\
+11 & bank4 & bank1 & bank4 & bank1 & \{1,4\} \\
+12 & bank2 & bank5 & bank2 & bank5 & \{2,5\} \\
+\hline
+\end{tabular}
+\end{table}
+
+\bibliographystyle{IEEEtran}
+\bibliography{references} % references.bib file 
+
+\end{document}
