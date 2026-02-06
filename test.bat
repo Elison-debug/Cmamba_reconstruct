@@ -81,7 +81,7 @@ if "%target%"=="parity_power" (
 
 
 if "%target%"=="parity_ori_power_delta" ( 
-  set feat_root=parity_3200
+  set feat_root=parity_4200
   set ckpt=parity_4200
   goto run
 )
@@ -94,13 +94,16 @@ if "%target%"=="logo_delta" (
 echo Unknown target: %target%
 goto :eof
 
+
+@REM --ckpt=./ckpt_refactor/%ckpt%/%model% ^
+
 :run
 echo running eval for %ckpt% with model %model%
 python -m refactor.core.eval ^
   --feat_root=./data/features/%feat_root% ^
-  --ckpt=./ckpt_refactor/%ckpt%/%model% ^
+  --ckpt=./ckpt_origin/%ckpt%/%model% ^
   --dont_save_calib_ckpt ^
-  --target=%data% --out_dir=./test_out/%target%_%data%%quant%^
+  --target=%data% --out_dir=./test_out_mambaOri/%target%_%data%%quant%^
   --preload
 
 if "%data%"=="train_all" (
@@ -110,7 +113,7 @@ if "%data%"=="train_all" (
 python -m refactor.core.test.test ^
 --feat_root=./data/features/%feat_root% ^
   --ckpt ckpt_origin\%ckpt%\%model%  ^
-  --target=%data% --out_dir=test_out/%target%_%data%%quant% ^
+  --target=%data% --out_dir=test_out_mambaOri/%target%_%data%%quant% ^
   --preload 
 
 goto :eof

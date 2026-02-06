@@ -67,10 +67,10 @@ goto :eof
 echo running training for %dataform%
 python -m refactor.core.train ^
   --feat_root=./data/features/%dataform% ^
-  --out_dir=ckpt_origin\%dataform% ^
-  --Din=%Din% --K=16 ^
+  --out_dir=ckpt_refactor_ablation_K/%dataform% ^
+  --Din=%Din% --K=1 ^
   --proj_dim=64 --d_model=128 --n_layer=4 ^
-  --patch_len=8 --stride=4 ^
+  --patch_len=1 --stride=1 ^
   --batch_size=32 --epochs=20 --lr=3e-4 --lr_schedule=cosine ^
   --workers=4 --prefetch=4 --pe_off --amp --preload %args%
 goto :eof

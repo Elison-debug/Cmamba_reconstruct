@@ -27,7 +27,7 @@ if "%target%"=="logo" (
 
 if "%target%"=="parity" ( 
   set feat_root=parity_2100
-  set ckpt=parity_2100
+  set ckpt=parity_2100_K1_pl1
   goto run
 )
 
@@ -92,12 +92,34 @@ goto :eof
 @REM   --preload --quant_bits=16 %args%
 @REM goto :eof
 
+@REM :run
+@REM echo running eval and calibrate for %ckpt%
+@REM python -m refactor.core.eval ^
+@REM   --feat_root=./data/features/%feat_root% ^
+@REM   --ckpt=./ckpt_refactor/%ckpt%/best_epe_mean.pt  ^
+@REM   --save_calib_ckpt=./ckpt_refactor/%ckpt%/calibrate_cpp_best.pt ^
+@REM   --target=%data% --out_dir=./eval_out_abolation/%ckpt%_%data% ^
+@REM   --preload --quant_bits=16 %args%
+@REM goto :eof
+
+@REM original eval without calibration for mambaOri
+@REM :run
+@REM echo running eval and calibrate for %ckpt%
+@REM python -m refactor.core.eval ^
+@REM   --feat_root=./data/features/%feat_root% ^
+@REM   --ckpt=./ckpt_origin/%ckpt%/best_epe_mean.pt  ^
+@REM   --save_calib_ckpt=./ckpt_origin/%ckpt%/calibrate_cpp_best.pt ^
+@REM   --target=%data% --out_dir=./eval_out_mambaOri_abolation/%ckpt%_%data% ^
+@REM   --preload --quant_bits=16 %args%
+@REM goto :eof
+
+@REM Ablation eval for K in slim mamba
 :run
 echo running eval and calibrate for %ckpt%
 python -m refactor.core.eval ^
   --feat_root=./data/features/%feat_root% ^
-  --ckpt=./ckpt_refactor/%ckpt%/best_epe_mean.pt  ^
-  --save_calib_ckpt=./ckpt_refactor/%ckpt%/calibrate_cpp_best.pt ^
-  --target=%data% --out_dir=./eval_out_abolation/%ckpt%_%data% ^
+  --ckpt=./ckpt_refactor_ablation_K/%ckpt%/best_epe_mean.pt  ^
+  --save_calib_ckpt=./ckpt_refactor_ablation_K/%ckpt%/calibrate_cpp_best.pt ^
+  --target=%data% --out_dir=./eval_out_abolation_K/%ckpt%_%data% ^
   --preload --quant_bits=16 %args%
 goto :eof
