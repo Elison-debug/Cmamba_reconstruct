@@ -90,8 +90,8 @@ class MambaRegressor(nn.Module):
             quant_backend=quant_backend,
             quant_bits=quant_bits,
         )
-        self.backbone = MambaSlim(args)
-        # self.backbone = MambaOrigin(args)
+        # self.backbone = MambaSlim(args)
+        self.backbone = MambaOrigin(args)
         self.head = _Pointwise1x1(proj_dim, 2, bias=True, use_q=q_head_res, backend=quant_backend, quant_bits=quant_bits)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

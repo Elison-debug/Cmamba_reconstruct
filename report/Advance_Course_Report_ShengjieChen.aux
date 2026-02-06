@@ -26,53 +26,53 @@
 \newlabel{tab:orig_vs_simplified}{{III}{3}{}{table.3}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {IV}{\ignorespaces Ablation on window length \(K\) with patch length/stride variants (LuViRA).}}{3}{}\protected@file@percent }
 \newlabel{tab:k_ablation}{{IV}{3}{}{table.4}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {IV}Method}{3}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-A}}MAC Array Design and Architecture Selection}{3}{}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {V}{\ignorespaces Weight input column scheduling for the 4$\times $4$\times $4 pipelined MAC array.}}{4}{}\protected@file@percent }
-\newlabel{tab:weight_sched}{{V}{4}{}{table.5}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Algorithmic view of the Mamba block~\cite  {gu2024mamba}.}}{4}{}\protected@file@percent }
-\newlabel{fig:ssm_algo}{{2}{4}{}{figure.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Algorithmic view of the Mamba block~\cite  {gu2024mamba}.}}{3}{}\protected@file@percent }
+\newlabel{fig:ssm_algo}{{2}{3}{}{figure.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Top-level architecture of the proposed accelerator (based on the Mamba/SSM operator structure)~\cite  {gu2024mamba}.}}{4}{}\protected@file@percent }
+\newlabel{fig:ssm_arch}{{3}{4}{}{figure.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {IV}Method}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-A}}MAC Array Design and Architecture Selection}{4}{}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {VI}{\ignorespaces Column start progression per sub-array.}}{4}{}\protected@file@percent }
 \newlabel{tab:col_progress}{{VI}{4}{}{table.6}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {VII}{\ignorespaces Constant 12-column spacing between adjacent arrays within the same cycle.}}{4}{}\protected@file@percent }
+\newlabel{tab:col_spacing}{{VII}{4}{}{table.7}{}}
 \citation{barua1998memory}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Top-level architecture of the proposed accelerator (based on the Mamba/SSM operator structure)~\cite  {gu2024mamba}.}}{5}{}\protected@file@percent }
-\newlabel{fig:ssm_arch}{{3}{5}{}{figure.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {V}{\ignorespaces Weight input column scheduling for the 4$\times $4$\times $4 pipelined MAC array.}}{5}{}\protected@file@percent }
+\newlabel{tab:weight_sched}{{V}{5}{}{table.5}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {VIII}{\ignorespaces $x_t$ input scheduling aligned with the wavefront tile switch across sub-arrays.}}{5}{}\protected@file@percent }
 \newlabel{tab:xt_sched}{{VIII}{5}{}{table.8}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {VII}{\ignorespaces Constant 12-column spacing between adjacent arrays within the same cycle.}}{5}{}\protected@file@percent }
-\newlabel{tab:col_spacing}{{VII}{5}{}{table.7}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-B}}Interleaved Memory Bank Design}{5}{}\protected@file@percent }
 \citation{wei2025lightmamba}
 \citation{wang2025fastmamba,li2024marca,jin2025hcsas}
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-C}}Nonlinear Layer Implementation}{6}{}\protected@file@percent }
+\citation{wei2025lightmamba}
 \@writefile{lot}{\contentsline {table}{\numberline {IX}{\ignorespaces Post-synthesis resource and power comparison between single-port and dual-port WBUF organizations.}}{6}{}\protected@file@percent }
 \newlabel{tab:sp_dp_resource_power}{{IX}{6}{}{table.9}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-C}}Nonlinear Layer Implementation}{6}{}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Sigmoid approximation accuracy: floating-point sigmoid vs.\ HW LUT outputs.}}{6}{}\protected@file@percent }
 \newlabel{fig:sigmoid}{{4}{6}{}{figure.4}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-D}}SSM Control and Fine-grained Pipelining}{6}{}\protected@file@percent }
-\citation{wei2025lightmamba}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Fine-grained streaming schedule from LightMamba~\cite  {wei2025lightmamba}.}}{7}{}\protected@file@percent }
-\newlabel{fig:fine_stream}{{5}{7}{}{figure.5}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {X}{\ignorespaces Post-synthesis utilization and power summary for the integrated SSM module at 400\,MHz.}}{7}{}\protected@file@percent }
-\newlabel{tab:ssm_post_synth}{{X}{7}{}{table.10}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {V}Conclusion}{7}{}\protected@file@percent }
 \bibstyle{IEEEtran}
 \bibdata{references}
 \bibcite{yaman2024luvira}{1}
 \bibcite{tian2023deep}{2}
 \bibcite{wang2025fastmamba}{3}
 \bibcite{li2024marca}{4}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Fine-grained streaming schedule from LightMamba~\cite  {wei2025lightmamba}.}}{7}{}\protected@file@percent }
+\newlabel{fig:fine_stream}{{5}{7}{}{figure.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {X}{\ignorespaces Post-synthesis utilization and power summary for the integrated SSM module at 400\,MHz.}}{7}{}\protected@file@percent }
+\newlabel{tab:ssm_post_synth}{{X}{7}{}{table.10}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {V}Conclusion}{7}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {VI}Reflections on This Course}{7}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{Appendix\nobreakspace  A: Bank Access Timelines}{7}{}\protected@file@percent }
+\newlabel{app:bank_timelines}{{A}{7}{}{section.Appendix.A}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {XI}{\ignorespaces Timeline of bank accesses for $N_{\text  {bank}}=12$ (single-port).}}{7}{}\protected@file@percent }
+\newlabel{tab:bank_timeline_12}{{XI}{7}{}{table.11}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {XII}{\ignorespaces Timeline of bank accesses for $N_{\text  {bank}}=6$ (dual-port).}}{7}{}\protected@file@percent }
+\newlabel{tab:bank_timeline_6}{{XII}{7}{}{table.12}{}}
+\@writefile{toc}{\contentsline {section}{References}{7}{}\protected@file@percent }
 \bibcite{jin2025hcsas}{5}
 \bibcite{gu2024mamba}{6}
 \bibcite{barua1998memory}{7}
 \bibcite{wei2025lightmamba}{8}
-\@writefile{toc}{\contentsline {section}{\numberline {VI}Reflections on This Course}{8}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{Appendix\nobreakspace  A: Bank Access Timelines}{8}{}\protected@file@percent }
-\newlabel{app:bank_timelines}{{A}{8}{}{section.Appendix.A}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {XI}{\ignorespaces Timeline of bank accesses for $N_{\text  {bank}}=12$ (single-port).}}{8}{}\protected@file@percent }
-\newlabel{tab:bank_timeline_12}{{XI}{8}{}{table.11}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {XII}{\ignorespaces Timeline of bank accesses for $N_{\text  {bank}}=6$ (dual-port).}}{8}{}\protected@file@percent }
-\newlabel{tab:bank_timeline_6}{{XII}{8}{}{table.12}{}}
-\@writefile{toc}{\contentsline {section}{References}{8}{}\protected@file@percent }
 \gdef\svg@ink@ver@settings{{\m@ne }{inkscape}{\m@ne }}
 \gdef \@abspage@last{8}
