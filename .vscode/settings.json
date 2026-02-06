@@ -12,5 +12,30 @@
     "files.associations": {
         "*.py": "python",
         "iosfwd": "cpp"
+    },
+
+  "latex-workshop.latex.tools": [
+    {
+      "name": "latexmk-pdf",
+      "command": "latexmk",
+      "args": [
+        "-pdf",
+        "-interaction=nonstopmode",
+        "-synctex=1",
+        "-shell-escape",
+        "%DOC%"
+      ]
     }
+  ],
+  "latex-workshop.latex.recipes": [
+    {
+      "name": "latexmk (pdf)",
+      "tools": [
+        "latexmk-pdf"
+      ]
+    }
+  ],
+  "latex-workshop.latex.recipe.default": "lastUsed"
+  ,
+  "latex-workshop.latex.autoBuild.run": "onSave"
 }
