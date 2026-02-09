@@ -10,12 +10,14 @@
 \usepackage{float}
 \usepackage{placeins}
 \usepackage{tabularx}
-\usepackage{url}
 \usepackage{verbatim}
 \usepackage{graphicx}
 \usepackage{svg}
 \usepackage{cite}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
 \renewcommand{\IEEEkeywordsname}{Keywords}
+
 % Use SVG without LaTeX text overlay to reduce external file requirements.
 \setsvg{inkscapelatex=false}
 
@@ -26,6 +28,12 @@
 
 \hyphenation{op-tical net-works semi-conduc-tor IEEE-Xplore}
 % updated with editorial comments 8/9/2021
+
+% Author markup (toggle by redefining environments to empty if needed)
+\newenvironment{CZX}{\color{blue}}{}
+\newenvironment{SJC}{\color{red}}{}
+% \renewenvironment{CZX}{}{}
+% \renewenvironment{SJC}{}{}
 
 \begin{document}
 
@@ -41,23 +49,29 @@
 % column for its text to clear the IEEEpubid mark.
 
 \maketitle
+{\footnotesize
+Blue text in the Abstract, Introduction, Conclusion, and Section~II is by
+Chenxi; all remaining sections are by Shengjie.\par}
 
 \begin{abstract}
+\begin{CZX}
 This paper investigates three Mamba-based models variant on the LuViRA\cite{yaman2024luvira} 
 dataset and demonstrates the effectiveness of SSM-based architectures 
 for indoor radio localization. Building on these findings, we propose 
 task-oriented simplifications that preserve comparable inference 
 accuracy while significantly reducing model size, hardware cost, 
-and end-to-end training/inference overhead. To further enable deployment, 
+and end-to-end training/inference overhead.
+\end{CZX}
+To further enable deployment, 
 we implement a synthesizable FPGA accelerator for the state-space
 model (SSM) hotspot in Mamba, targeting indoor radio localization (LuViRA).
 Software profiling identifies the SSM forward path as a dominant runtime
 contributor. We implement SSM as a streaming pipeline using three primitives
-(MAC, EWA, EWM) and a LUT-based sigmoid, with a $4\times4\times4$ pipelined
-MVM array, interleaving memory access, and FIFO-based AXI-Stream control for
+(MAC, EWA, EWM) and a LUT-based sigmoid, with pipelined
+MVM arrays, interleaving memory access, and FIFO-based AXI-Stream control for
 backpressure-safe composition. The integrated module closes timing at
 400~MHz using 76 DSPs and 6{,}244 LUTs, with an estimated on-chip power of
-1.442~W, providing a baseline toward end-to-end Mamba inference.
+1.44~W, providing a baseline toward end-to-end Mamba inference. To support reproducibility, the accelerator implementation is open-sourced at \url{https://github.com/Elison-debug/Cmamba_reconstruct.git}.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -67,6 +81,7 @@ acceleration.
 
 \section{Introduction}
 %Chenxi: modified the first paragraph
+\begin{CZX}
 \IEEEPARstart{I}{ndoor} radio localization requires modeling 
 high-dimensional wireless signals with strong temporal dynamics and 
 multipath effects. As antenna/channel dimensions increase, conventional 
@@ -75,22 +90,14 @@ cost grow rapidly with input width, making deployment and scaling difficult\cite
 This motivates architectures that can process long signal sequences
 with stronger parameter efficiency.
 
-Mamba, as a modern state-space-model (SSM) architecture, 
-offers a compelling alternative. Instead of relying on dense fully connected
-mappings over the full input history, Mamba uses recurrent state updates to 
-summarize historical information compactly, enabling effective memory of temporal 
-context with linear-time sequence processing. Its SSM-style recursive computation
-is naturally aligned with long-sequence modeling, where maintaining and updating 
-latent states is more efficient than repeatedly recomputing global interactions. 
-For indoor localization, this is particularly attractive: the model can capture 
-temporal patterns induced by motion and multipath evolution while avoiding the 
-parameter explosion common in FCNNs under increasing channel dimensions. Therefore, 
-Mamba provides a practical path toward accurate, scalable, and hardware-friendly 
-radio localization systems.
+Mamba, as a modern state-space-model (SSM) architecture, offers a compact alternative
+to dense FCNNs by summarizing temporal context through recurrent state updates with
+linear-time sequence processing. For indoor localization, this enables efficient use
+of temporal dynamics without the parameter explosion of FCNNs.
 
 In this project, we follow a software-to-hardware co-design path on the LuViRA
 dataset~\cite{yaman2024luvira} and evaluate three Mamba-family variants for radio 
-localization. We first adopted a channel mamba design\cite{zeng2024cmamba} to support multi-domain 
+localization: vanilla Mamba v1\cite{gu2024mamba}, channel mamba\cite{zeng2024cmamba}, and slim mamba. We first adopted a channel mamba design\cite{zeng2024cmamba} to support multi-domain 
 feature fusion (e.g., CIR real/imag, power, and optional differential features), 
 motivated by potential cross-channel interaction and extensibility to future multi-modal 
 inputs (e.g., audio). However, experiments show that, under the current setting, additional 
@@ -101,12 +108,22 @@ Overall, slim mamba achieves comparable test accuracy to channel mamba and the F
 reducing the model size to 3.40~MB (0.77\% of FCNN) and the training time to 13~s per epoch
 (Table~\ref{tab:model_compare}).
 
-Based on this observation, we first examined the temporal context length within the
-channel mamba prototype and found that a short window (\(K=16\), about 0.16\,s at 100\,Hz)\cite{tian2023high}
-already achieves strong accuracy. This indicates that very long-range memory is not necessary
-for this short-horizon localization task and may introduce redundancy. We therefore proposed a
-hardware-friendly simplification of Mamba v1 that preserves comparable inference accuracy
-while reducing model size and end-to-end runtime overhead.
+\begin{figure}[H]
+  \centering
+  \includesvg[width=0.75\linewidth]{MAMBAFlow}
+  \caption{Algorithmic view of the slim mamba block~\cite{gu2024mamba}.}
+  \label{fig:ssm_algo}
+\end{figure}
+
+Unlike FCNN baselines that perform single-snapshot localization, Mamba processes a short sequence
+of observations jointly, enabling multi-snapshot localization and exploiting temporal dynamics in
+the wireless channel. Based on this observation, we first examined the temporal context length within the
+channel mamba prototype and found that a short window (\(K=16\)) already achieves strong accuracy.
+This indicates that very long-range memory is not necessary for this short-horizon localization task
+and may introduce redundancy. We therefore proposed a hardware-friendly simplification of Mamba v1
+that preserves comparable inference accuracy while reducing model size and end-to-end runtime overhead.
+The final slim mamba architecture is in Fig.~\ref{fig:ssm_algo}.
+\end{CZX}
 
 From a deployment perspective, acceleration should target real runtime hotspots.
 Profiling (Table~\ref{tab:ssm_profile}) shows that the SSM forward path dominates execution,
@@ -150,21 +167,20 @@ and hardware mapping, then details the accelerator architecture and implementati
 % the radio-localization workload and interface constraints, and develops a FPGA design.
 
 \begin{table}[H]
-\caption{Function profiling summary.}
+\caption{Function-level profiling summary.}
 \label{tab:ssm_profile}
 \centering
-\setlength{\tabcolsep}{9pt}
-\renewcommand{\arraystretch}{1.05}
-\begin{tabular}{p{0.55\columnwidth}|r|r}
+\scriptsize
+\begin{tabular}{l|c|c}
 \hline
-\textbf{Function} & \textbf{Time} & \textbf{Share} \\
+\textbf{Function} & \textbf{Time} & \textbf{Share (\%)} \\
 \hline
-\texttt{\_PointWise1X1.forward}     & 30  & 7.75 \\
-\texttt{\_QuantConv1d.forward}      & 57  & 14.73 \\
-\texttt{RMSNorm.forward}            & 140 & 36.18 \\
-\texttt{SelectiveScanIC.forward}    & 160 & 41.34 \\
+Linear projection (in/out)         & 30  & 7.75  \\
+Normalization (RMSNorm)            & 57  & 14.73 \\
+SSM dt projection (MVM + sigmoid)  & 140 & 36.18 \\
+SSM selective scan (state update)  & 160 & 41.34 \\
 \hline
-\textbf{Total (listed)} & \textbf{387} & \textbf{100.00} \\
+Total (listed)                     & 387 & 100.00 \\
 \hline
 \end{tabular}
 \end{table}
@@ -264,15 +280,13 @@ with a compact serialized size of 40.4~MB, which is substantially smaller than
 the 440~MB FCNN model\cite{tian2023high} reported in prior work (Table~\ref{tab:model_compare}).
 
 \subsection{Empirical Reassessment}
-Despite the above motivation, experiments show that the additional fusion complexity 
-yields only limited accuracy gains in the current setting, while significantly increasing 
-parameter count, training cost, and hardware mapping overhead due to extra branches and 
-block-level computation.
-In particular, differential features bring marginal improvement, which does not justify 
-the induced structural complexity for deployment-oriented design.
+Despite the above motivation, the extra fusion complexity yields only marginal gains
+while increasing parameter count, training cost, and hardware mapping overhead. In
+addition, differential features bring limited improvement relative to their added
+structural complexity, which weakens their deployment value.
 From a deployment perspective, channel mamba also poses practical challenges on FPGA:
 it relies on several complex nonlinear operators that complicate quantization, stacks
-multiple CMamba blocks that amplify hardware cost, and inherits GPU-oriented kernels
+multiple channel mamba blocks that amplify hardware cost, and inherits GPU-oriented kernels
 that are not optimized for FPGA dataflow.
 Moreover, the original Mamba baseline shows a pronounced generalization gap (training
 improves while test accuracy lags), as reflected by the large eval/test discrepancy in
@@ -308,6 +322,7 @@ slim mamba         & CIR + Power  & 3.40 & 13  & 75.30 & 13.5   & Low \\
 \end{tabular}
 \end{table*}
 
+Qualitatively, Fig.~\ref{fig:grid102_error} visualizes the spatial error distribution for a representative grid, highlighting regions with larger localization bias.
 
 \begin{figure}[t]
   \centering
@@ -336,10 +351,11 @@ time, hardware cost, and quantization difficulty.
 The slim mamba SSM follows an EMA-style input-conditioned recurrence, 
 followed by a SiLU gate and a 1x1 output projection. This removes the full \((A,B,C,D)\) parameterization 
 and low-rank discretization while retaining the temporal update structure (see Fig.~\ref{fig:ssm_algo}).
+The error distribution is summarized as a CDF in Fig.~\ref{fig:cdf_zoom}, showing the proportion of samples below a given error threshold.
 
 \begin{figure}[!t]
   \centering
-  \includegraphics[width=\linewidth]{cdf_zoom.png}
+  \includegraphics[width=0.8\linewidth]{cdf_zoom.png}
   \caption{CDF of localization error.}
   \label{fig:cdf_zoom}
 \end{figure}
@@ -432,7 +448,6 @@ Quantization difficulty
 \end{table}
 
 
-
 \section{SSM Decomposition and Hardware Mapping}
 From an algorithmic perspective, the SSM core can be decomposed into three major steps:
 (1) \emph{dt\_projection}, which derives step-size coefficients $\Delta_t$  from the current input;
@@ -470,13 +485,6 @@ Fig.~\ref{fig:ssm_arch} illustrates the top-level data path of our accelerator, 
 This organization keeps the SSM workload concentrated on the \textbf{MAC array (MVM)} and \textbf{element-wise (EWA/EWM)} modules, while FIFO and AXI-streaming boundaries enable fine-grained pipelining and robust backpressure propagation.
 
 % --- figure placeholders ---
-\begin{figure}[t]
-  \centering
-  \includesvg[width=0.8\linewidth]{MAMBAFlow}
-  \caption{Algorithmic view of the Mamba block~\cite{gu2024mamba}.}
-  \label{fig:ssm_algo}
-\end{figure}
-
 \begin{figure*}[t]
   \centering
   \includesvg[width=0.8\linewidth]{ssm_archi}
@@ -500,7 +508,7 @@ count) and latency in cycles.
 
 We compare three candidate array organizations.
 \begin{enumerate}
-  \item \item A 16$\times$16 systolic array offers strong spatial reuse for GEMM 
+  \item A 16$\times$16 systolic array offers strong spatial reuse for GEMM 
   (both operands reuse across the 2D array) and can theoretically complete a tile 
   in 256 cycles. For GEMV, weights have little spatial reuse (each $W_{i,k}$ is 
   typically consumed once per input), making the design weight-bandwidth dominated: 
@@ -727,13 +735,7 @@ safe when $L\le 2$.
 \endgroup
 
 \subsubsection*{BRAM utilization and power implications}
-\ref{tab:sp_dp_resource_power} shows the single-port design uses 49 BRAM tiles at top level (48 in
-WBUF), while the dual-port design uses 46 (45 in WBUF) due to reduced bank
-replication. Power also favors dual-port: single-port consumes 1.597~W total
-(0.971~W dynamic, 0.626~W static) versus 1.306~W (0.682~W dynamic, 0.624~W
-static), consistent with lower memory/interconnect switching. Therefore, the
-dual-port WBUF offers a better BRAM--power trade-off without degrading
-throughput and is selected as the default.
+Table \ref{tab:sp_dp_resource_power} shows the single-port design uses 49 BRAM tiles at top level (48 in WBUF), while the dual-port design uses 46 (45 in WBUF) due to reduced bank replication. Power also favors dual-port: single-port consumes 1.60 W total (0.97  W dynamic, 0.62 W static) versus 1.31 W (0.68 W dynamic, 0.62 W static), consistent with lower memory/interconnect switching. Therefore, the dual-port WBUF offers a better BRAM–power trade-off without degrading throughput and is selected as the default..
 
 % \begin{figure*}[!t]
 % \centering
@@ -789,7 +791,7 @@ clamp range and table resolution.
 
 \begin{figure}[!t]
   \centering
-  \includegraphics[width=\linewidth]{sigmoid.png}
+  \includegraphics[width=0.8\linewidth]{sigmoid.png}
   \caption{Sigmoid approximation accuracy: floating-point sigmoid vs.\ HW LUT outputs.}
   \label{fig:sigmoid}
 \end{figure}
@@ -805,7 +807,7 @@ subgraph toward a full Mamba pipeline becomes a matter of composing compliant
 modules with similar AXI-Stream interfaces, which improves project maintainability and integration robustness.
 
 Within this control paradigm, we examine the trade-off between reconfigurable
-and fine-grained pipelines. Many Mamba/SSM accelerators favor reconfigurable
+and fine-grained pipelines. Many SSM accelerators favor reconfigurable
 datapaths to reduce resource usage \cite{wang2025fastmamba,li2024marca,jin2025hcsas},
 but increases end-to-end waiting time. In contrast, LightMamba advocates fine-grained streaming, where
 each MAC tile is immediately forwarded to the sigmoid and element-wise update
@@ -824,6 +826,7 @@ FIFO-based AXI-stream control scheme.
 \end{figure}
 
 \section{Conclusion}
+\begin{CZX}
 From the software perspective, we systematically evaluated Mamba-family variants on LuViRA and
 identified that short temporal contexts are sufficient for accurate localization. The channel mamba
 baseline delivers strong accuracy while significantly reducing the model size compared to the prior
@@ -835,16 +838,16 @@ training/inference cost and improving deployability. In particular, slim mamba r
 (Table~\ref{tab:model_compare}). We further ablate window length and patch settings and show that a
 very short window (\(K=1/2\)) already yields the best test accuracy, indicating that dense short-term
 dynamics dominate this task (Table~\ref{tab:k_ablation}).
+\end{CZX}
 
-From the hardware perspective, this work targets the SSM state-update hotspot in Mamba for indoor
-localization (LuViRA) and presents a fully synthesizable FPGA accelerator subsystem with an
-SSM-centric streaming datapath. At 400\,MHz, the design closes timing with a compact footprint
-(76 DSPs, 6.2k LUTs; 3.0\% and 2.3\% of the device) and uses 52 BRAM tiles (5.7\%) to support fully
-on-chip buffering for streaming MVM and recurrent state update. Post-synthesis power is estimated
-at 1.442\,W, where dynamic power is dominated by top-level I/O toggling, as the current deliverable
-implements the SSM module without a full-system wrapper. In the master’s thesis, we will integrate
-the module into a complete Mamba pipeline to keep data on-chip and re-estimate power using realistic
-switching activity.
+From a hardware perspective, this work targets the SSM state-update hotspot in Mamba and presents a fully synthesizable FPGA accelerator with an SSM-centric
+streaming datapath. At 400\,MHz, the design closes timing with 76 DSPs and 6.2k LUTs (3.0\% and
+2.3\% of the device) and uses 52 BRAM tiles (5.7\%) for fully on-chip buffering of streaming MVM and
+recurrent state updates. Post-synthesis power is estimated at 1.44\,W; dynamic power is currently
+I/O-dominated because the deliverable implements the SSM module without a full-system wrapper.
+Future work will integrate the module into an end-to-end Mamba pipeline to keep data on-chip and
+re-estimate power with realistic switching activity.
+
 
 \begin{table}[t]
 \caption{Post-synthesis utilization and power summary for the integrated SSM module at 400\,MHz.}
@@ -875,34 +878,27 @@ DSP power (dynamic) & 0.053\,W \\
 \end{table}
 
 Overall, the results show that an SSM-centric accelerator can achieve high
-frequency on FPGA with modest resources. Key enablers include: (i) a
+frequency on FPGA with modest resources. Key contributions include: (i) a
 primitive-based mapping (MAC/EWA/EWM) that simplifies control; (ii) a pipelined
-MVM backbone with structured reduction; (iii) bank-aware, deterministic BRAM
-access; and (iv) LUT-based sigmoid plus FIFO/ready--valid streaming for robust
+MVM backbone with structured reduction; (iii) an interleaving memory access method; and (iv) LUT-based sigmoid plus FIFO/ready--valid streaming for robust
 composition and backpressure handling.
-\newpage
 \section{Reflections on This Course}
-This course trained me in practical research methodology: surveying and
+This course trained us in practical research methodology: surveying and
 critiquing related work, forming testable hypotheses, and iterating on design
-choices through evidence and discussion. We started from a defined plan with
-the baseline of implementing the Mamba SSM hardware module. Through literature
-review and continuous group feedback, we went beyond the initial target: we
-completed the SSM design and performed a comprehensive analysis of MVM
-computation, memory-access strategies, and system-architecture trade-offs. The
-resulting solution is tailored to the indoor-localization workload and is
-documented in both a public GitHub repository and this report for
-reproducibility. Finally, participating in the IES Group Meeting gave me a
-firsthand view of how research is conducted and communicated within the
-department, which was a valuable and motivating experience.
-
-
+choices through evidence and discussion. Starting from a baseline plan to
+implement the Mamba SSM hardware module, we went beyond the initial target by
+completing the SSM design and analyzing MVM computation, memory-access
+strategies, and system-architecture trade-offs. The resulting solution is
+tailored to indoor localization and documented in a public GitHub repository
+and this report for reproducibility. Participating in the IES Group Meeting
+also provided firsthand experience of how research is conducted and
+communicated within the department.
 % \section{ References}
-
 \appendices
 \section{Bank Access Timelines}
 \label{app:bank_timelines}
 
-\begin{table}[H]
+\begin{table}[!t]
 \caption{Timeline of bank accesses for $N_{\text{bank}}=12$ (single-port).}
 \label{tab:bank_timeline_12}
 \centering
@@ -928,7 +924,7 @@ department, which was a valuable and motivating experience.
 \end{tabular}
 \end{table}
 
-\begin{table}[H]
+\begin{table}[!t]
 \caption{Timeline of bank accesses for $N_{\text{bank}}=6$ (dual-port).}
 \label{tab:bank_timeline_6}
 \centering

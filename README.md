@@ -1,36 +1,43 @@
 # CMamba for Wireless Positioning on LuViRA Dataset
 
-This repo contains a PyTorch implementation of a **Mamba model** based on the [LuViRA Dataset](https://github.com/ilaydayaman/LuViRA_Dataset).
+This repo contains PyTorch implementations of **Mamba-family models** based on the [LuViRA Dataset](https://github.com/ilaydayaman/LuViRA_Dataset).
 
-Our goal is to explore **lightweight Mamba-style architectures** for radio-based positioning,and compare them with CNN baselines (e.g. FCNN).
+Our goal is to explore **lightweight Mamba-style architectures** for radio-based positioning and compare them with CNN baselines (e.g., FCNN), with an emphasis on hardware-friendly inference.
 
 This document summarizes the current training, evaluation, dataset layout, and quantization pipeline, with tips and examples.
+
+## Highlights (Software)
+- Models: `vanilla mamba v1`, `channel mamba`, and `slim mamba`.
+- Best test accuracy is achieved with very short context windows (K=1/2) on LuViRA.
+- `slim mamba` achieves comparable accuracy to `channel mamba` with much smaller model size and faster training (see the report for full numbers).
 
 ## 📁 Project Directory Structure
 
 ```txt
-project/
-├── data/
-│ ├── radio/ # raw CSI or CIR data per grid
-│ ├── truth/ # raw grid truth data per grid
-│ └── features/
-│   ├── logo/ # windowed feature samples (per grid)
-│     ├── json/ # json data for nxy (pergrid) 
-│     ├── npy / # feats/ts/xy.npy 
-│     └── stats.json # mean/std computed on train windows only
-├── test_out/
-│ ├── train/
-│ ├── test/
-│ └── eval/
-├── ckpt_refactor/
-└── refactor/
-  ├── core/ #core mamba scripts(python)
-    ├── preprocess.py # data splitting + windowing + feature gen
-    ├── dataset.py # unified dataset & normalization
-    ├── sampler.py # grid-pure batch sampler
-    ├── train.py   # training loop with grid-pure batches
-    ├── eval.py    # per-grid evaluation and reporting
-    └── utils_logging.py
+Cmamba_reconstruct/
+├── data/                     # LuViRA raw + processed features
+│  ├── radio/                 # raw CSI/CIR per grid
+│  ├── truth/                 # ground-truth labels per grid
+│  └── features/              # processed features (npy/json/stats)
+├── refactor/                 # main Python codebase
+│  ├── core/                  # training/eval/model
+│  ├── datasets/              # preprocessing scripts
+│  ├── export/                # export helpers
+│  ├── quant/                 # quantization (python + cpp extension)
+│  ├── runtime_cpp/           # C++ runtime experiments
+│  └── vectors/               # feature/vector utilities
+├── tools/                    # analysis utilities (quant, model size, etc.)
+├── report/                   # LaTeX report + figures
+├── docx/                     # ablation notes and tables
+├── HW_reconstruct/           # FPGA design and notes
+├── CPP/                      # legacy C++ experiments
+├── ckpt_refactor/            # main checkpoints
+├── ckpt_refactor_ablation_K/ # ablation checkpoints
+├── ckpt_origin/              # baseline checkpoints
+├── eval_out*/                # evaluation outputs
+├── test_out*/                # test outputs
+├── train.bat / eval.bat      # run scripts
+└── README.md
 ```
 
 ## ⚙️ Setup
@@ -92,13 +99,26 @@ Use `refactor/datasets/preprocess_logo.py` to convert raw `.mat` + `.csv` into t
 
 ## Model
 
-- `MambaRegressor`:
+- `MambaRegressor` (slim mamba):
   - Input: (B, K, Din)
   - 1x1 Conv projection (or quantized linear) to `proj_dim` channels per timestep.
   - Backbone: `CMambaSlim` (conv-patch-embedded, selective-scan block, optional DWConv, optional PE, residual blocks, RMSNorm, and either flat or pooled head).
   - Head: 1x1 Conv (or quantized linear) to 2D (x,y).
 
 Key knobs: `K`, `Din`, `proj_dim`, `d_model`, `n_layer`, `patch_len`, `stride`, `pe_off`, `pe_scale`, `gate_off`, `agg_pool`, `use_dwconv`.
+
+## Model Size (torch.save)
+To compare with works that report model size as a serialized PyTorch file (e.g., `torch.save(model.cpu(), path)`), use:
+
+```powershell
+python tools/measure_model_size.py --ckpt ckpt_refactor/logo/best_epe_mean.pt
+```
+
+To write the full model to disk and report size:
+
+```powershell
+python tools/measure_model_size.py --ckpt ckpt_refactor/logo/best_epe_mean.pt --out model_full.pt --save_full
+```
 
 ## Training
 
