@@ -190,9 +190,9 @@ All in Parity Strategy
 | ori(2000)         | PE&DWconv off |   0.0578  |    5.04     | 0.09238  | 0.2697   |
 | power(100)        | PE&DWconv off |   0.0717  |    7.65     | 0.14316  | 0.2785   |
 | ori + power(2100) | PE&DWconv off |   0.0429  |    3.83     | 0.08701  | 0.2474   |
+| ori + power(2100) | DWconv off    |   0.0738  |    6.13     | 0.09970  | 0.3302   |
 | ori + power(2100) | ori           |           |             |          |          |
 | ori + power(2100) | peoff         |           |             |          |          |
-| ori + power(2100) | DWconv off    |   0.0738  |    6.13     | 0.09970  | 0.3302   |
 | ori + power(2100) | ori           |           |             |          |          |
 | ori + power(2100) | ori           |           |             |          |          |
 
