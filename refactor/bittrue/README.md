@@ -88,5 +88,6 @@ Generated executables are placed under:
 ## Active Entry Points
 
 - Export: `python -m refactor.bittrue.run_export --out export_bittrue/case1`
-- Build: `build_bittrue.bat`
-- Eval: `python -m refactor.bittrue.eval_bittrue --export_dir export_bittrue/case1 --out_dir eval_bittrue_out/case1 --feat_root ./data/features/parity_2100`
+- Export: `./export.bat export_bittrue\case1`
+- Build: `./build_bittrue.bat`
+- Eval: `python -m refactor.bittrue.eval_bittrue --export_dir export_bittrue/case1 --out_dir eval_bittrue_out/case1 --feat_root ./data/features/parity_2100 --cpp_bin .\build\bittrue\main_full.exe`
