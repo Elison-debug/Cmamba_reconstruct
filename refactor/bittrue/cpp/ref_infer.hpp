@@ -1,6 +1,8 @@
 #pragma once
 
+#include <cstdint>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 struct QuantDesc {
@@ -18,6 +20,7 @@ struct QuantDesc {
 
 struct Conv1dDesc {
     std::string name;
+    std::string role;
     std::string type;
     std::string impl;
     int in_channels{0};
@@ -116,7 +119,25 @@ struct ModelIR {
     BackboneDesc backbone;
 };
 
+enum class ExecMode {
+    kFakeQdq = 0,
+    kInt8 = 1,
+    kInt16 = 2,
+};
+
+struct RuntimeOptions {
+    ExecMode default_mode{ExecMode::kFakeQdq};
+    std::unordered_map<std::string, ExecMode> role_overrides;
+    std::unordered_map<std::string, ExecMode> name_overrides;
+    bool verbose{false};
+};
+
 bool LoadExport(const std::string& json_path, ModelIR& ir);
 bool GetLayer(const ModelIR& ir, const std::string& name, Conv1dDesc& out);
 void Forward(const ModelIR& ir, const float* x_ck, float* y_out);
 bool ForwardFull(const std::string& export_json, const std::vector<float>& xKD, int Din, std::vector<float>& y_out);
+bool ForwardFull(const std::string& export_json, const std::vector<float>& xKD, int Din, const RuntimeOptions& opts, std::vector<float>& y_out);
+
+ExecMode ParseExecMode(const std::string& text);
+std::string ExecModeName(ExecMode mode);
+bool ParseRuntimeOverrides(const std::string& spec, RuntimeOptions& opts, std::string& err);

@@ -91,3 +91,36 @@ Generated executables are placed under:
 - Export: `./export.bat export_bittrue\case1`
 - Build: `./build_bittrue.bat`
 - Eval: `python -m refactor.bittrue.eval_bittrue --export_dir export_bittrue/case1 --out_dir eval_bittrue_out/case1 --feat_root ./data/features/parity_2100 --cpp_bin .\build\bittrue\main_full.exe`
+
+## C++ Runtime Modes
+
+`main_full.exe` supports both the legacy fake-quant reference and the new integer-MAC reference:
+
+- `--mode fake`
+- `--mode int8`
+- `--mode int16`
+
+Mixed-precision sweeps are supported through:
+
+- `--overrides role=mode,...`
+
+Supported roles:
+
+- `proj`
+- `patch_embedding`
+- `in_proj`
+- `dw_conv`
+- `dt_proj`
+- `ssm_state`
+- `gate`
+- `out_proj`
+- `output_flat`
+- `output_pool`
+- `head`
+
+Examples:
+
+- `build\\bittrue\\main_full.exe export_bittrue\\case1\\export.json sample.npy 2100 --mode fake`
+- `build\\bittrue\\main_full.exe export_bittrue\\case1\\export.json sample.npy 2100 --mode int16`
+- `build\\bittrue\\main_full.exe export_bittrue\\case1\\export.json sample.npy 2100 --mode int16 --overrides dt_proj=int8,dw_conv=fake`
+- `build\\bittrue\\main_full.exe export_bittrue\\case1\\export.json sample.npy 2100 --mode int16 --overrides name:backbone.blocks.0.in_proj=int8`

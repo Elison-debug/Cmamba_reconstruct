@@ -101,15 +101,21 @@
     ],
     "quant": {
       "activation": {
-        "enabled": false,
-        "scheme": "none",
-        "bits": 0
+        "enabled": true,
+        "scheme": "per_channel_sym",
+        "bits": 16,
+        "axis": 1,
+        "channels": 64,
+        "scale": "patch_embedding_A_SCALE.npy",
+        "zero_point": 0
       },
       "weight": {
-        "enabled": false,
-        "scheme": "none",
-        "bits": 0,
-        "axis": 0
+        "enabled": true,
+        "scheme": "per_channel_sym",
+        "bits": 16,
+        "axis": 0,
+        "channels": 128,
+        "scale": "patch_embedding_W_SCALE.npy"
       }
     }
   },
@@ -158,15 +164,21 @@
         "bias_shape": [],
         "quant": {
           "activation": {
-            "enabled": false,
-            "scheme": "none",
-            "bits": 0
+            "enabled": true,
+            "scheme": "per_channel_sym",
+            "bits": 16,
+            "axis": 1,
+            "channels": 128,
+            "scale": "block0_in_proj_A_SCALE.npy",
+            "zero_point": 0
           },
           "weight": {
-            "enabled": false,
-            "scheme": "none",
-            "bits": 0,
-            "axis": 0
+            "enabled": true,
+            "scheme": "per_channel_sym",
+            "bits": 16,
+            "axis": 0,
+            "channels": 512,
+            "scale": "block0_in_proj_W_SCALE.npy"
           }
         }
       },
@@ -230,15 +242,21 @@
         "bias_shape": [],
         "quant": {
           "activation": {
-            "enabled": false,
-            "scheme": "none",
-            "bits": 0
+            "enabled": true,
+            "scheme": "per_channel_sym",
+            "bits": 16,
+            "axis": 1,
+            "channels": 256,
+            "scale": "block0_out_proj_A_SCALE.npy",
+            "zero_point": 0
           },
           "weight": {
-            "enabled": false,
-            "scheme": "none",
-            "bits": 0,
-            "axis": 0
+            "enabled": true,
+            "scheme": "per_channel_sym",
+            "bits": 16,
+            "axis": 0,
+            "channels": 128,
+            "scale": "block0_out_proj_W_SCALE.npy"
           }
         }
       },
@@ -283,15 +301,21 @@
         "bias_shape": [],
         "quant": {
           "activation": {
-            "enabled": false,
-            "scheme": "none",
-            "bits": 0
+            "enabled": true,
+            "scheme": "per_channel_sym",
+            "bits": 16,
+            "axis": 1,
+            "channels": 128,
+            "scale": "block1_in_proj_A_SCALE.npy",
+            "zero_point": 0
           },
           "weight": {
-            "enabled": false,
-            "scheme": "none",
-            "bits": 0,
-            "axis": 0
+            "enabled": true,
+            "scheme": "per_channel_sym",
+            "bits": 16,
+            "axis": 0,
+            "channels": 512,
+            "scale": "block1_in_proj_W_SCALE.npy"
           }
         }
       },
@@ -355,15 +379,21 @@
         "bias_shape": [],
         "quant": {
           "activation": {
-            "enabled": false,
-            "scheme": "none",
-            "bits": 0
+            "enabled": true,
+            "scheme": "per_channel_sym",
+            "bits": 16,
+            "axis": 1,
+            "channels": 256,
+            "scale": "block1_out_proj_A_SCALE.npy",
+            "zero_point": 0
           },
           "weight": {
-            "enabled": false,
-            "scheme": "none",
-            "bits": 0,
-            "axis": 0
+            "enabled": true,
+            "scheme": "per_channel_sym",
+            "bits": 16,
+            "axis": 0,
+            "channels": 128,
+            "scale": "block1_out_proj_W_SCALE.npy"
           }
         }
       },
@@ -408,15 +438,21 @@
         "bias_shape": [],
         "quant": {
           "activation": {
-            "enabled": false,
-            "scheme": "none",
-            "bits": 0
+            "enabled": true,
+            "scheme": "per_channel_sym",
+            "bits": 16,
+            "axis": 1,
+            "channels": 128,
+            "scale": "block2_in_proj_A_SCALE.npy",
+            "zero_point": 0
           },
           "weight": {
-            "enabled": false,
-            "scheme": "none",
-            "bits": 0,
-            "axis": 0
+            "enabled": true,
+            "scheme": "per_channel_sym",
+            "bits": 16,
+            "axis": 0,
+            "channels": 512,
+            "scale": "block2_in_proj_W_SCALE.npy"
           }
         }
       },
@@ -480,15 +516,21 @@
         "bias_shape": [],
         "quant": {
           "activation": {
-            "enabled": false,
-            "scheme": "none",
-            "bits": 0
+            "enabled": true,
+            "scheme": "per_channel_sym",
+            "bits": 16,
+            "axis": 1,
+            "channels": 256,
+            "scale": "block2_out_proj_A_SCALE.npy",
+            "zero_point": 0
           },
           "weight": {
-            "enabled": false,
-            "scheme": "none",
-            "bits": 0,
-            "axis": 0
+            "enabled": true,
+            "scheme": "per_channel_sym",
+            "bits": 16,
+            "axis": 0,
+            "channels": 128,
+            "scale": "block2_out_proj_W_SCALE.npy"
           }
         }
       },
@@ -533,15 +575,21 @@
         "bias_shape": [],
         "quant": {
           "activation": {
-            "enabled": false,
-            "scheme": "none",
-            "bits": 0
+            "enabled": true,
+            "scheme": "per_channel_sym",
+            "bits": 16,
+            "axis": 1,
+            "channels": 128,
+            "scale": "block3_in_proj_A_SCALE.npy",
+            "zero_point": 0
           },
           "weight": {
-            "enabled": false,
-            "scheme": "none",
-            "bits": 0,
-            "axis": 0
+            "enabled": true,
+            "scheme": "per_channel_sym",
+            "bits": 16,
+            "axis": 0,
+            "channels": 512,
+            "scale": "block3_in_proj_W_SCALE.npy"
           }
         }
       },
@@ -605,15 +653,21 @@
         "bias_shape": [],
         "quant": {
           "activation": {
-            "enabled": false,
-            "scheme": "none",
-            "bits": 0
+            "enabled": true,
+            "scheme": "per_channel_sym",
+            "bits": 16,
+            "axis": 1,
+            "channels": 256,
+            "scale": "block3_out_proj_A_SCALE.npy",
+            "zero_point": 0
           },
           "weight": {
-            "enabled": false,
-            "scheme": "none",
-            "bits": 0,
-            "axis": 0
+            "enabled": true,
+            "scheme": "per_channel_sym",
+            "bits": 16,
+            "axis": 0,
+            "channels": 128,
+            "scale": "block3_out_proj_W_SCALE.npy"
           }
         }
       },
@@ -691,15 +745,21 @@
       ],
       "quant": {
         "activation": {
-          "enabled": false,
-          "scheme": "none",
-          "bits": 0
+          "enabled": true,
+          "scheme": "per_channel_sym",
+          "bits": 16,
+          "axis": 1,
+          "channels": 128,
+          "scale": "output_pool_A_SCALE.npy",
+          "zero_point": 0
         },
         "weight": {
-          "enabled": false,
-          "scheme": "none",
-          "bits": 0,
-          "axis": 0
+          "enabled": true,
+          "scheme": "per_channel_sym",
+          "bits": 16,
+          "axis": 0,
+          "channels": 64,
+          "scale": "output_pool_W_SCALE.npy"
         }
       }
     }

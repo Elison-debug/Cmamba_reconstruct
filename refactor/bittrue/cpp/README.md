@@ -18,3 +18,15 @@ Current key files:
   - end-to-end forward entry
 - `io_utils.hpp`
   - simple NPY / file IO helpers
+
+`main_full.exe` accepts:
+
+- `--mode fake|int8|int16`
+- `--overrides role=mode,...`
+- `--verbose`
+
+This is intended for sensitivity studies such as:
+
+- all layers in `fake`
+- all linear layers in `int16`
+- `int16` by default with selected roles such as `dt_proj`, `ssm_state`, `gate`, or `out_proj` forced to `fake` or `int8`

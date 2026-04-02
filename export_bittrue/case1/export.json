@@ -101,15 +101,21 @@
     ],
     "quant": {
       "activation": {
-        "enabled": false,
-        "scheme": "none",
-        "bits": 0
+        "enabled": true,
+        "scheme": "per_channel_sym",
+        "bits": 16,
+        "axis": 1,
+        "channels": 2100,
+        "scale": "proj_A_SCALE.npy",
+        "zero_point": 0
       },
       "weight": {
-        "enabled": false,
-        "scheme": "none",
-        "bits": 0,
-        "axis": 0
+        "enabled": true,
+        "scheme": "per_channel_sym",
+        "bits": 16,
+        "axis": 0,
+        "channels": 64,
+        "scale": "proj_W_SCALE.npy"
       }
     }
   },
@@ -140,15 +146,21 @@
     ],
     "quant": {
       "activation": {
-        "enabled": false,
-        "scheme": "none",
-        "bits": 0
+        "enabled": true,
+        "scheme": "per_channel_sym",
+        "bits": 16,
+        "axis": 1,
+        "channels": 64,
+        "scale": "head_A_SCALE.npy",
+        "zero_point": 0
       },
       "weight": {
-        "enabled": false,
-        "scheme": "none",
-        "bits": 0,
-        "axis": 0
+        "enabled": true,
+        "scheme": "per_channel_sym",
+        "bits": 16,
+        "axis": 0,
+        "channels": 2,
+        "scale": "head_W_SCALE.npy"
       }
     }
   }

@@ -69,13 +69,18 @@ def _parse_main_full_stdout(text: str) -> np.ndarray:
     return np.asarray(vals[:2], dtype=np.float32)
 
 
-def _run_cpp_sample(cpp_bin: str, export_json: str, x_kd: np.ndarray, din: int) -> np.ndarray:
+def _run_cpp_sample(cpp_bin: str, export_json: str, x_kd: np.ndarray, din: int, mode: str, overrides: str, verbose: bool = False) -> np.ndarray:
     with tempfile.NamedTemporaryFile(suffix=".npy", delete=False) as f:
         tmp = Path(f.name)
     try:
         np.save(tmp, x_kd.astype(np.float32))
+        cmd = [cpp_bin, export_json, str(tmp), str(din), "--mode", mode]
+        if overrides:
+            cmd.extend(["--overrides", overrides])
+        if verbose:
+            cmd.append("--verbose")
         proc = subprocess.run(
-            [cpp_bin, export_json, str(tmp), str(din)],
+            cmd,
             check=True,
             capture_output=True,
             text=True,
@@ -114,6 +119,22 @@ def _metric_dict(y_true: np.ndarray, y_pred: np.ndarray) -> dict:
     }
 
 
+def _parse_sweep_case(text: str) -> dict:
+    parts = text.split("|")
+    if len(parts) < 2 or len(parts) > 3:
+        raise ValueError(f"invalid sweep case '{text}', expected label|mode|overrides")
+    label = parts[0].strip()
+    mode = parts[1].strip()
+    overrides = parts[2].strip() if len(parts) == 3 else ""
+    if not label or not mode:
+        raise ValueError(f"invalid sweep case '{text}'")
+    return {"label": label, "mode": mode, "overrides": overrides}
+
+
+def _default_cases(cpp_mode: str, cpp_overrides: str) -> list[dict]:
+    return [{"label": f"cpp_{cpp_mode}", "mode": cpp_mode, "overrides": cpp_overrides.strip()}]
+
+
 def main():
     p = argparse.ArgumentParser(description="Evaluate exported bit-true reference against Python model.")
     p.add_argument("--feat_root", type=str, default="./data/features/logo")
@@ -126,6 +147,15 @@ def main():
     p.add_argument("--target", type=str, default="eval", choices=["auto", "train", "eval", "test"])
     p.add_argument("--preload", action="store_true")
     p.add_argument("--limit", type=int, default=0, help="limit number of samples for quick verification")
+    p.add_argument("--cpp_mode", type=str, default="fake", choices=["fake", "int8", "int16"])
+    p.add_argument("--cpp_overrides", type=str, default="", help="role=mode,name:layer=mode,...")
+    p.add_argument(
+        "--sweep_case",
+        action="append",
+        default=[],
+        help="batch case as label|mode|overrides, e.g. all_int16|int16| or dtproj_i8|int16|dt_proj=int8",
+    )
+    p.add_argument("--cpp_verbose", action="store_true")
     args = p.parse_args()
 
     set_seed(42)
@@ -189,11 +219,12 @@ def main():
 
     y_true_all: list[np.ndarray] = []
     y_float_all: list[np.ndarray] = []
-    y_bittrue_all: list[np.ndarray] = []
-    rows: list[list[float]] = []
 
     run_cpp = bool(args.cpp_bin)
+    sweep_cases = [_parse_sweep_case(s) for s in args.sweep_case] if args.sweep_case else _default_cases(args.cpp_mode, args.cpp_overrides)
     sample_count = 0
+    case_preds: dict[str, list[np.ndarray]] = {case["label"]: [] for case in sweep_cases} if run_cpp else {}
+    case_rows: dict[str, list[list[float]]] = {case["label"]: [] for case in sweep_cases} if run_cpp else {}
 
     for xb_np, yb_np, y_float_np in _iter_loader_numpy(dl, device, model):
         for i in range(xb_np.shape[0]):
@@ -205,16 +236,25 @@ def main():
             y_float_all.append(y_float[None, :])
 
             if run_cpp:
-                y_bittrue = _run_cpp_sample(args.cpp_bin, export_json, x_kd, int(ckpt_cfg["Din"]))
-                y_bittrue_all.append(y_bittrue[None, :])
-                rows.append([
-                    float(y_true[0]), float(y_true[1]),
-                    float(y_float[0]), float(y_float[1]),
-                    float(y_bittrue[0]), float(y_bittrue[1]),
-                    float(np.linalg.norm(y_float - y_true)),
-                    float(np.linalg.norm(y_bittrue - y_true)),
-                    float(np.linalg.norm(y_bittrue - y_float)),
-                ])
+                for case in sweep_cases:
+                    y_cpp = _run_cpp_sample(
+                        args.cpp_bin,
+                        export_json,
+                        x_kd,
+                        int(ckpt_cfg["Din"]),
+                        case["mode"],
+                        case["overrides"],
+                        verbose=bool(args.cpp_verbose),
+                    )
+                    case_preds[case["label"]].append(y_cpp[None, :])
+                    case_rows[case["label"]].append([
+                        float(y_true[0]), float(y_true[1]),
+                        float(y_float[0]), float(y_float[1]),
+                        float(y_cpp[0]), float(y_cpp[1]),
+                        float(np.linalg.norm(y_float - y_true)),
+                        float(np.linalg.norm(y_cpp - y_true)),
+                        float(np.linalg.norm(y_cpp - y_float)),
+                    ])
 
             sample_count += 1
             if args.limit > 0 and sample_count >= args.limit:
@@ -237,30 +277,69 @@ def main():
         "cpp_bin": args.cpp_bin if run_cpp else None,
     }
 
-    if run_cpp and y_bittrue_all:
-        y_bittrue_arr = np.concatenate(y_bittrue_all, axis=0)
-        np.savez(
-            out_dir / "bittrue_preds.npz",
-            y_true=y_true_arr,
-            y_float=y_float_arr,
-            y_bittrue=y_bittrue_arr,
-            float_err=np.sqrt(np.sum((y_float_arr - y_true_arr) ** 2, axis=1)),
-            bittrue_err=np.sqrt(np.sum((y_bittrue_arr - y_true_arr) ** 2, axis=1)),
-            diff_float_bittrue=np.sqrt(np.sum((y_bittrue_arr - y_float_arr) ** 2, axis=1)),
-        )
-        result["bittrue_metrics"] = _metric_dict(y_true_arr, y_bittrue_arr)
-        result["float_vs_bittrue_mae"] = float(np.mean(np.abs(y_bittrue_arr - y_float_arr)))
-        result["float_vs_bittrue_max_abs"] = float(np.max(np.abs(y_bittrue_arr - y_float_arr)))
+    if run_cpp and case_preds:
+        sweep_summary_rows: list[list[object]] = []
+        result["cases"] = {}
+        for case in sweep_cases:
+            label = case["label"]
+            y_cpp_arr = np.concatenate(case_preds[label], axis=0)
+            case_dir = out_dir / label
+            case_dir.mkdir(parents=True, exist_ok=True)
+            np.savez(
+                case_dir / "cpp_preds.npz",
+                y_true=y_true_arr,
+                y_float=y_float_arr,
+                y_cpp=y_cpp_arr,
+                float_err=np.sqrt(np.sum((y_float_arr - y_true_arr) ** 2, axis=1)),
+                cpp_err=np.sqrt(np.sum((y_cpp_arr - y_true_arr) ** 2, axis=1)),
+                diff_float_cpp=np.sqrt(np.sum((y_cpp_arr - y_float_arr) ** 2, axis=1)),
+            )
+            case_metrics = _metric_dict(y_true_arr, y_cpp_arr)
+            mae = float(np.mean(np.abs(y_cpp_arr - y_float_arr)))
+            max_abs = float(np.max(np.abs(y_cpp_arr - y_float_arr)))
+            result["cases"][label] = {
+                "mode": case["mode"],
+                "overrides": case["overrides"],
+                "metrics": case_metrics,
+                "float_vs_cpp_mae": mae,
+                "float_vs_cpp_max_abs": max_abs,
+            }
+            sweep_summary_rows.append([
+                label,
+                case["mode"],
+                case["overrides"],
+                case_metrics["mean_err"],
+                case_metrics["median_err"],
+                case_metrics["p80_err"],
+                case_metrics["p90_err"],
+                mae,
+                max_abs,
+            ])
 
-        with open(out_dir / "bittrue_compare.csv", "w", newline="", encoding="utf-8") as f:
+            with open(case_dir / "compare.csv", "w", newline="", encoding="utf-8") as f:
+                w = csv.writer(f)
+                w.writerow([
+                    "y_true_x", "y_true_y",
+                    "y_float_x", "y_float_y",
+                    "y_cpp_x", "y_cpp_y",
+                    "float_err", "cpp_err", "float_cpp_diff",
+                ])
+                w.writerows(case_rows[label])
+
+        with open(out_dir / "sweep_summary.csv", "w", newline="", encoding="utf-8") as f:
             w = csv.writer(f)
             w.writerow([
-                "y_true_x", "y_true_y",
-                "y_float_x", "y_float_y",
-                "y_bittrue_x", "y_bittrue_y",
-                "float_err", "bittrue_err", "float_bittrue_diff",
+                "label",
+                "mode",
+                "overrides",
+                "mean_err",
+                "median_err",
+                "p80_err",
+                "p90_err",
+                "float_vs_cpp_mae",
+                "float_vs_cpp_max_abs",
             ])
-            w.writerows(rows)
+            w.writerows(sweep_summary_rows)
 
     with open(out_dir / "summary.json", "w", encoding="utf-8") as f:
         json.dump(result, f, indent=2)

@@ -1,10 +1,13 @@
 #include "ref_infer.hpp"
 #include "io_utils.hpp"
+#include "reference_quant_int8.hpp"
 
 #include <algorithm>
+#include <cstdint>
 #include <cmath>
 #include <cctype>
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -167,8 +170,9 @@ void load_quant_desc(const std::string& text, const std::string& key, const std:
     json_get_int(obj, "qmax", q.qmax);
 }
 
-void load_conv_desc_from_object(const std::string& obj, const std::string& base_dir, Conv1dDesc& desc) {
+void load_conv_desc_from_object(const std::string& obj, const std::string& base_dir, const std::string& role, Conv1dDesc& desc) {
     json_get_string(obj, "name", desc.name);
+    desc.role = role;
     json_get_string(obj, "type", desc.type);
     json_get_string(obj, "impl", desc.impl);
     json_get_int(obj, "in_channels", desc.in_channels);
@@ -190,12 +194,12 @@ void load_conv_desc_from_object(const std::string& obj, const std::string& base_
     }
 }
 
-void load_conv_desc(const std::string& text, const std::string& key, const std::string& base_dir, Conv1dDesc& desc) {
+void load_conv_desc(const std::string& text, const std::string& key, const std::string& base_dir, const std::string& role, Conv1dDesc& desc) {
     std::string obj;
     if (!extract_object_after_key(text, key, obj)) {
         throw std::runtime_error("Missing conv object: " + key);
     }
-    load_conv_desc_from_object(obj, base_dir, desc);
+    load_conv_desc_from_object(obj, base_dir, role, desc);
 }
 
 void load_rmsnorm_desc(const std::string& text, const std::string& key, const std::string& base_dir, RMSNormDesc& desc) {
@@ -231,16 +235,16 @@ void load_block_desc_from_object(const std::string& obj, const std::string& base
     json_get_bool(obj, "use_gate", desc.use_gate);
     json_get_bool(obj, "use_dwconv", desc.use_dwconv);
     load_rmsnorm_desc(obj, "norm", base_dir, desc.norm);
-    load_conv_desc(obj, "in_proj", base_dir, desc.in_proj);
-    if (desc.use_dwconv) load_conv_desc(obj, "dw_conv", base_dir, desc.dw_conv);
+    load_conv_desc(obj, "in_proj", base_dir, "in_proj", desc.in_proj);
+    if (desc.use_dwconv) load_conv_desc(obj, "dw_conv", base_dir, "dw_conv", desc.dw_conv);
     std::string ssm_obj;
     if (!extract_object_after_key(obj, "ssm", ssm_obj)) {
         throw std::runtime_error("Missing ssm object in block");
     }
     json_get_string(ssm_obj, "type", desc.ssm.type);
     json_get_int(ssm_obj, "dim", desc.ssm.dim);
-    load_conv_desc(ssm_obj, "dt_proj", base_dir, desc.ssm.dt_proj);
-    load_conv_desc(obj, "out_proj", base_dir, desc.out_proj);
+    load_conv_desc(ssm_obj, "dt_proj", base_dir, "dt_proj", desc.ssm.dt_proj);
+    load_conv_desc(obj, "out_proj", base_dir, "out_proj", desc.out_proj);
 }
 
 void load_output_head(const std::string& text, const std::string& key, const std::string& base_dir, OutputHeadDesc& desc) {
@@ -250,8 +254,8 @@ void load_output_head(const std::string& text, const std::string& key, const std
     }
     json_get_string(obj, "kind", desc.kind);
     json_get_string(obj, "agg_pool", desc.agg_pool);
-    load_conv_desc(obj, "flat", base_dir, desc.flat);
-    load_conv_desc(obj, "pool", base_dir, desc.pool);
+    load_conv_desc(obj, "flat", base_dir, "output_flat", desc.flat);
+    load_conv_desc(obj, "pool", base_dir, "output_pool", desc.pool);
 }
 
 void load_backbone(const std::string& json_path, const std::string& base_dir, BackboneDesc& bb) {
@@ -277,7 +281,7 @@ void load_backbone(const std::string& json_path, const std::string& base_dir, Ba
     json_get_string(meta, "agg_pool", bb.agg_pool);
     json_get_bool(meta, "use_dwconv", bb.use_dwconv);
 
-    load_conv_desc(text, "patch_embedding", base_dir, bb.patch_embedding);
+    load_conv_desc(text, "patch_embedding", base_dir, "patch_embedding", bb.patch_embedding);
     load_positional_encoding(text, "positional_encoding", base_dir, bb.positional_encoding);
 
     std::string blocks_arr;
@@ -331,6 +335,189 @@ struct ActLUT {
     float sigmoid(float x) const { return interp(sig, x); }
     float silu_fn(float x) const { return interp(silu, x); }
 };
+
+std::string lower_copy(std::string s) {
+    std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c) {
+        return static_cast<char>(std::tolower(c));
+    });
+    return s;
+}
+
+std::vector<std::string> split_csv(const std::string& text, char delim) {
+    std::vector<std::string> parts;
+    std::stringstream ss(text);
+    std::string item;
+    while (std::getline(ss, item, delim)) {
+        item = trim(item);
+        if (!item.empty()) parts.push_back(item);
+    }
+    return parts;
+}
+
+int signed_qmax_for_bits(int bits) {
+    return (1 << (bits - 1)) - 1;
+}
+
+int signed_qmin_for_bits(int bits) {
+    return -(1 << (bits - 1));
+}
+
+void load_scale_vector(const QuantDesc& q, std::vector<float>& scales);
+
+std::vector<float> make_activation_scales(const QuantDesc& q, int channels, const std::vector<float>& x) {
+    std::vector<float> scales;
+    if (q.enabled && q.scheme == "per_channel_sym") {
+        load_scale_vector(q, scales);
+        if (static_cast<int>(scales.size()) == channels) return scales;
+    }
+    scales.assign(channels, 1.0f);
+    if (q.enabled && q.scheme == "per_tensor_asym" && q.scale_scalar > 0.0) {
+        std::fill(scales.begin(), scales.end(), static_cast<float>(q.scale_scalar));
+        return scales;
+    }
+    float mx = 0.0f;
+    for (float v : x) mx = std::max(mx, std::abs(v));
+    const float fallback = (mx > 0.0f) ? (mx / 127.0f) : (1.0f / 127.0f);
+    std::fill(scales.begin(), scales.end(), fallback);
+    return scales;
+}
+
+int quantize_centered_input(float x, float scale, int bits, int zero_point, int raw_qmin, int raw_qmax) {
+    if (scale == 0.0f) return 0;
+    const int qmin = (raw_qmin < raw_qmax) ? raw_qmin : signed_qmin_for_bits(bits);
+    const int qmax = (raw_qmax > raw_qmin) ? raw_qmax : signed_qmax_for_bits(bits);
+    int q = static_cast<int>(std::nearbyint(static_cast<double>(x) / static_cast<double>(scale))) + zero_point;
+    q = std::max(qmin, std::min(qmax, q));
+    return q - zero_point;
+}
+
+ExecMode resolve_mode(const Conv1dDesc& desc, const RuntimeOptions& opts) {
+    auto it_name = opts.name_overrides.find(desc.name);
+    if (it_name != opts.name_overrides.end()) return it_name->second;
+    auto it_role = opts.role_overrides.find(desc.role);
+    if (it_role != opts.role_overrides.end()) return it_role->second;
+    return opts.default_mode;
+}
+
+ExecMode resolve_mode_for_target(const std::string& name, const std::string& role, const RuntimeOptions& opts) {
+    auto it_name = opts.name_overrides.find(name);
+    if (it_name != opts.name_overrides.end()) return it_name->second;
+    auto it_role = opts.role_overrides.find(role);
+    if (it_role != opts.role_overrides.end()) return it_role->second;
+    return opts.default_mode;
+}
+
+int32_t rshift_rne_i64(int64_t x, int frac_bits) {
+    if (frac_bits <= 0) return static_cast<int32_t>(x);
+    const int64_t base = int64_t{1} << frac_bits;
+    int64_t q = x / base;
+    int64_t r = x % base;
+    if (r < 0) {
+        r += base;
+        q -= 1;
+    }
+    const int64_t half = base >> 1;
+    if (r > half || (r == half && (q & 1LL))) {
+        q += 1;
+    }
+    return static_cast<int32_t>(q);
+}
+
+void selective_scan_run(
+    const BlockDesc& blk,
+    const std::vector<float>& u,
+    const std::vector<float>& z,
+    const std::vector<float>& dt,
+    const RuntimeOptions& opts,
+    const ActLUT& lut,
+    std::vector<float>& ssm_out) {
+    const int T = static_cast<int>(u.size()) / blk.d_inner;
+    const ExecMode ssm_mode = resolve_mode_for_target("ssm_state", "ssm_state", opts);
+    if (ssm_mode == ExecMode::kFakeQdq) {
+        std::vector<float> s(blk.d_inner, 0.0f);
+        ssm_out.assign(T * blk.d_inner, 0.0f);
+        for (int t = 0; t < T; ++t) {
+            for (int c = 0; c < blk.d_inner; ++c) {
+                const float lam = lut.sigmoid(dt[t * blk.d_inner + c]);
+                const float in_u = u[t * blk.d_inner + c];
+                s[c] = lam * s[c] + (1.0f - lam) * in_u;
+                ssm_out[t * blk.d_inner + c] = s[c];
+            }
+        }
+        if (blk.use_gate) {
+            for (int i = 0; i < static_cast<int>(ssm_out.size()); ++i) {
+                ssm_out[i] *= lut.silu_fn(z[i]);
+            }
+        }
+        return;
+    }
+
+    const int bits = (ssm_mode == ExecMode::kInt16) ? 16 : 8;
+    const int frac_bits = (ssm_mode == ExecMode::kInt16) ? 15 : 7;
+    const int qmin = signed_qmin_for_bits(bits);
+    const int qmax = signed_qmax_for_bits(bits);
+
+    std::vector<float> state_scale(blk.d_inner, 1.0f / 127.0f);
+    for (int c = 0; c < blk.d_inner; ++c) {
+        float max_abs = 0.0f;
+        for (int t = 0; t < T; ++t) {
+            max_abs = std::max(max_abs, std::abs(u[t * blk.d_inner + c]));
+        }
+        state_scale[c] = (max_abs > 0.0f) ? (max_abs / static_cast<float>(qmax)) : (1.0f / static_cast<float>(qmax));
+    }
+
+    std::vector<int32_t> s_q(blk.d_inner, 0);
+    ssm_out.assign(T * blk.d_inner, 0.0f);
+    for (int t = 0; t < T; ++t) {
+        for (int c = 0; c < blk.d_inner; ++c) {
+            const float lam = lut.sigmoid(dt[t * blk.d_inner + c]);
+            int32_t lam_q = static_cast<int32_t>(rnd_ties_to_even(static_cast<double>(lam) * static_cast<double>(int64_t{1} << frac_bits)));
+            lam_q = std::max(0, std::min(static_cast<int32_t>(int64_t{1} << frac_bits), lam_q));
+            int32_t u_q = static_cast<int32_t>(rnd_ties_to_even(static_cast<double>(u[t * blk.d_inner + c]) / static_cast<double>(state_scale[c])));
+            u_q = std::max(qmin, std::min(qmax, u_q));
+            const int64_t acc =
+                static_cast<int64_t>(lam_q) * static_cast<int64_t>(s_q[c]) +
+                static_cast<int64_t>((int64_t{1} << frac_bits) - lam_q) * static_cast<int64_t>(u_q);
+            int32_t s_new = rshift_rne_i64(acc, frac_bits);
+            s_new = std::max(qmin, std::min(qmax, s_new));
+            s_q[c] = s_new;
+            ssm_out[t * blk.d_inner + c] = static_cast<float>(static_cast<double>(s_q[c]) * static_cast<double>(state_scale[c]));
+        }
+    }
+
+    const ExecMode gate_mode = resolve_mode_for_target("gate", "gate", opts);
+    if (blk.use_gate) {
+        if (gate_mode == ExecMode::kFakeQdq) {
+            for (int i = 0; i < static_cast<int>(ssm_out.size()); ++i) {
+                ssm_out[i] *= lut.silu_fn(z[i]);
+            }
+        } else {
+            const int gate_bits = (gate_mode == ExecMode::kInt16) ? 16 : 8;
+            const int gate_qmin = signed_qmin_for_bits(gate_bits);
+            const int gate_qmax = signed_qmax_for_bits(gate_bits);
+            std::vector<float> gate_scale(blk.d_inner, 1.0f / 127.0f);
+            for (int c = 0; c < blk.d_inner; ++c) {
+                float max_abs = 0.0f;
+                for (int t = 0; t < T; ++t) {
+                    max_abs = std::max(max_abs, std::abs(lut.silu_fn(z[t * blk.d_inner + c])));
+                }
+                gate_scale[c] = (max_abs > 0.0f) ? (max_abs / static_cast<float>(gate_qmax)) : (1.0f / static_cast<float>(gate_qmax));
+            }
+            for (int t = 0; t < T; ++t) {
+                for (int c = 0; c < blk.d_inner; ++c) {
+                    const float g = lut.silu_fn(z[t * blk.d_inner + c]);
+                    int32_t qg = static_cast<int32_t>(rnd_ties_to_even(static_cast<double>(g) / static_cast<double>(gate_scale[c])));
+                    qg = std::max(gate_qmin, std::min(gate_qmax, qg));
+                    const float y = static_cast<float>(
+                        static_cast<double>(ssm_out[t * blk.d_inner + c]) *
+                        static_cast<double>(qg) *
+                        static_cast<double>(gate_scale[c]));
+                    ssm_out[t * blk.d_inner + c] = y;
+                }
+            }
+        }
+    }
+}
 
 float quant_dequant_scalar_asym(float x, double scale, int zp, int bits, int qmin, int qmax) {
     if (scale == 0.0) return x;
@@ -409,20 +596,22 @@ int conv1d_out_len(int in_len, int kernel_size, int stride, int padding) {
     return (in_len + 2 * padding - kernel_size) / stride + 1;
 }
 
-void conv1d_run(const Conv1dDesc& desc, const std::vector<float>& x_tc, int T_in, std::vector<float>& y_tc) {
+void conv1d_run_fake(const Conv1dDesc& desc, const std::vector<float>& x_tc, int T_in, bool verbose, std::vector<float>& y_tc) {
     std::vector<int64_t> w_shape, b_shape;
     std::vector<float> w_raw, b_raw;
     load_npy_float32(desc.weight_path, w_shape, w_raw);
     if (desc.bias && !desc.bias_path.empty()) load_npy_float32(desc.bias_path, b_shape, b_raw);
-    std::cerr << "[bittrue] conv " << desc.name
-              << " x_size=" << x_tc.size()
-              << " T_in=" << T_in
-              << " Cin=" << desc.in_channels
-              << " Cout=" << desc.out_channels
-              << " K=" << desc.kernel_size
-              << " weight_shape=";
-    for (size_t i = 0; i < w_shape.size(); ++i) std::cerr << (i ? "x" : "") << w_shape[i];
-    std::cerr << " weight_size=" << w_raw.size() << "\n";
+    if (verbose) {
+        std::cerr << "[bittrue] fake conv " << desc.name
+                  << " x_size=" << x_tc.size()
+                  << " T_in=" << T_in
+                  << " Cin=" << desc.in_channels
+                  << " Cout=" << desc.out_channels
+                  << " K=" << desc.kernel_size
+                  << " weight_shape=";
+        for (size_t i = 0; i < w_shape.size(); ++i) std::cerr << (i ? "x" : "") << w_shape[i];
+        std::cerr << " weight_size=" << w_raw.size() << "\n";
+    }
 
     std::vector<float> x_hat;
     apply_input_quant(x_tc, desc.in_channels, desc.act_quant, x_hat);
@@ -454,6 +643,101 @@ void conv1d_run(const Conv1dDesc& desc, const std::vector<float>& x_tc, int T_in
             y_tc[t * desc.out_channels + oc] = static_cast<float>(acc);
         }
     }
+}
+
+void conv1d_run_integer(const Conv1dDesc& desc, const std::vector<float>& x_tc, int T_in, ExecMode mode, bool verbose, std::vector<float>& y_tc) {
+    std::vector<int64_t> w_shape, b_shape;
+    std::vector<float> w_raw, b_raw;
+    load_npy_float32(desc.weight_path, w_shape, w_raw);
+    if (desc.bias && !desc.bias_path.empty()) load_npy_float32(desc.bias_path, b_shape, b_raw);
+
+    const int T_out = conv1d_out_len(T_in, desc.kernel_size, desc.stride, desc.padding);
+    const int cin_per_group = desc.in_channels / desc.groups;
+    const int cout_per_group = desc.out_channels / desc.groups;
+    const int bits = (mode == ExecMode::kInt16) ? 16 : 8;
+    const int qmax = signed_qmax_for_bits(bits);
+    const int qmin = signed_qmin_for_bits(bits);
+    const bool act_asym = desc.act_quant.enabled && desc.act_quant.scheme == "per_tensor_asym";
+    const int act_zp = act_asym ? desc.act_quant.zero_point : 0;
+    const int act_raw_qmin = act_asym ? desc.act_quant.qmin : qmin;
+    const int act_raw_qmax = act_asym ? desc.act_quant.qmax : qmax;
+
+    std::vector<float> a_scales = make_activation_scales(desc.act_quant, desc.in_channels, x_tc);
+    std::vector<int32_t> xq(x_tc.size(), 0);
+    for (int t = 0; t < T_in; ++t) {
+        for (int c = 0; c < desc.in_channels; ++c) {
+            xq[t * desc.in_channels + c] = quantize_centered_input(x_tc[t * desc.in_channels + c], a_scales[c], bits, act_zp, act_raw_qmin, act_raw_qmax);
+        }
+    }
+
+    y_tc.assign(T_out * desc.out_channels, 0.0f);
+    std::vector<float> out_scales(desc.out_channels, 1.0f);
+    std::vector<int32_t> w_eff;
+    w_eff.resize(w_raw.size(), 0);
+
+    for (int oc = 0; oc < desc.out_channels; ++oc) {
+        float max_abs = 0.0f;
+        const int g = oc / cout_per_group;
+        for (int icg = 0; icg < cin_per_group; ++icg) {
+            const int ic = g * cin_per_group + icg;
+            for (int k = 0; k < desc.kernel_size; ++k) {
+                const int w_idx = ((oc * cin_per_group) + icg) * desc.kernel_size + k;
+                max_abs = std::max(max_abs, std::abs(w_raw[w_idx] * a_scales[ic]));
+            }
+        }
+        const float sy = (max_abs > 0.0f) ? (max_abs / static_cast<float>(qmax)) : (1.0f / static_cast<float>(qmax));
+        out_scales[oc] = sy;
+        for (int icg = 0; icg < cin_per_group; ++icg) {
+            const int ic = g * cin_per_group + icg;
+            for (int k = 0; k < desc.kernel_size; ++k) {
+                const int w_idx = ((oc * cin_per_group) + icg) * desc.kernel_size + k;
+                const double folded = static_cast<double>(w_raw[w_idx]) * static_cast<double>(a_scales[ic]) / static_cast<double>(sy);
+                int64_t q = rnd_ties_to_even(folded);
+                q = sat<int64_t>(q, qmin, qmax);
+                w_eff[w_idx] = static_cast<int32_t>(q);
+            }
+        }
+    }
+
+    if (verbose) {
+        std::cerr << "[bittrue] int" << bits << " conv " << desc.name
+                  << " role=" << desc.role
+                  << " T_in=" << T_in
+                  << " T_out=" << T_out
+                  << " Cin=" << desc.in_channels
+                  << " Cout=" << desc.out_channels
+                  << " groups=" << desc.groups << "\n";
+    }
+
+    for (int t = 0; t < T_out; ++t) {
+        for (int oc = 0; oc < desc.out_channels; ++oc) {
+            const int g = oc / cout_per_group;
+            int64_t acc = 0;
+            if (!b_raw.empty()) {
+                acc += rnd_ties_to_even(static_cast<double>(b_raw[oc]) / static_cast<double>(out_scales[oc]));
+            }
+            for (int icg = 0; icg < cin_per_group; ++icg) {
+                const int ic = g * cin_per_group + icg;
+                for (int k = 0; k < desc.kernel_size; ++k) {
+                    const int ti = t * desc.stride - desc.padding + k;
+                    if (ti < 0 || ti >= T_in) continue;
+                    const int x_idx = ti * desc.in_channels + ic;
+                    const int w_idx = ((oc * cin_per_group) + icg) * desc.kernel_size + k;
+                    acc += static_cast<int64_t>(xq[x_idx]) * static_cast<int64_t>(w_eff[w_idx]);
+                }
+            }
+            y_tc[t * desc.out_channels + oc] = static_cast<float>(static_cast<double>(acc) * static_cast<double>(out_scales[oc]));
+        }
+    }
+}
+
+void conv1d_run(const Conv1dDesc& desc, const std::vector<float>& x_tc, int T_in, const RuntimeOptions& opts, std::vector<float>& y_tc) {
+    const ExecMode mode = resolve_mode(desc, opts);
+    if (mode == ExecMode::kFakeQdq) {
+        conv1d_run_fake(desc, x_tc, T_in, opts.verbose, y_tc);
+        return;
+    }
+    conv1d_run_integer(desc, x_tc, T_in, mode, opts.verbose, y_tc);
 }
 
 void rmsnorm_inplace(std::vector<float>& x_tc, int T, int C, const RMSNormDesc& norm) {
@@ -503,8 +787,8 @@ bool LoadExport(const std::string& json_path, ModelIR& ir) {
     json_get_int(model_obj, "forecast_len", ir.forecast_len);
     json_get_int(model_obj, "output_dim", ir.output_dim);
 
-    load_conv_desc(text, "proj", ir.base_dir, ir.proj);
-    load_conv_desc(text, "head", ir.base_dir, ir.head);
+    load_conv_desc(text, "proj", ir.base_dir, "proj", ir.proj);
+    load_conv_desc(text, "head", ir.base_dir, "head", ir.head);
 
     std::string backbone_obj;
     if (!extract_object_after_key(text, "backbone", backbone_obj)) return false;
@@ -548,13 +832,19 @@ void Forward(const ModelIR& ir, const float* x_ck, float* y_out) {
     std::vector<float> x(ir.seq_len * ir.input_dim, 0.0f);
     for (size_t i = 0; i < x.size(); ++i) x[i] = x_ck[i];
     std::vector<float> y;
-    if (!ForwardFull(join_path(ir.base_dir, "export.json"), x, ir.input_dim, y)) {
+    RuntimeOptions opts;
+    if (!ForwardFull(join_path(ir.base_dir, "export.json"), x, ir.input_dim, opts, y)) {
         throw std::runtime_error("ForwardFull failed");
     }
     for (size_t i = 0; i < y.size(); ++i) y_out[i] = y[i];
 }
 
 bool ForwardFull(const std::string& export_json, const std::vector<float>& xKD, int Din, std::vector<float>& y_out) {
+    RuntimeOptions opts;
+    return ForwardFull(export_json, xKD, Din, opts, y_out);
+}
+
+bool ForwardFull(const std::string& export_json, const std::vector<float>& xKD, int Din, const RuntimeOptions& opts, std::vector<float>& y_out) {
     ModelIR ir;
     if (!LoadExport(export_json, ir)) return false;
     if (Din != 0 && ir.input_dim != 0 && Din != ir.input_dim) {
@@ -564,20 +854,23 @@ bool ForwardFull(const std::string& export_json, const std::vector<float>& xKD, 
     const BackboneDesc& bb = ir.backbone;
     ActLUT lut;
     lut.build();
-    std::cerr << "[bittrue] loaded export: K=" << ir.seq_len << " Din=" << ir.input_dim
-              << " proj=" << ir.proj_dim << " d_model=" << bb.d_model
-              << " layers=" << bb.n_layer << "\n";
+    if (opts.verbose) {
+        std::cerr << "[bittrue] loaded export: K=" << ir.seq_len << " Din=" << ir.input_dim
+                  << " proj=" << ir.proj_dim << " d_model=" << bb.d_model
+                  << " layers=" << bb.n_layer
+                  << " default_mode=" << ExecModeName(opts.default_mode) << "\n";
+    }
 
     // 1) top-level proj: (K, Din) -> (K, proj_dim)
     std::vector<float> proj_out;
-    std::cerr << "[bittrue] stage proj\n";
-    conv1d_run(ir.proj, xKD, ir.seq_len, proj_out);
+    if (opts.verbose) std::cerr << "[bittrue] stage proj\n";
+    conv1d_run(ir.proj, xKD, ir.seq_len, opts, proj_out);
 
     // 2) patch embedding: input is already (K, C)
     std::vector<float> x_seq = proj_out;
     std::vector<float> x_patches;
-    std::cerr << "[bittrue] stage patch_embedding\n";
-    conv1d_run(bb.patch_embedding, x_seq, ir.seq_len, x_patches);
+    if (opts.verbose) std::cerr << "[bittrue] stage patch_embedding\n";
+    conv1d_run(bb.patch_embedding, x_seq, ir.seq_len, opts, x_patches);
     const int T_patch = conv1d_out_len(ir.seq_len, bb.patch_embedding.kernel_size, bb.patch_embedding.stride, bb.patch_embedding.padding);
     if (bb.positional_encoding.enabled && !bb.positional_encoding.value_path.empty()) {
         std::vector<int64_t> pe_shape;
@@ -593,15 +886,15 @@ bool ForwardFull(const std::string& export_json, const std::vector<float>& xKD, 
 
     // 3) stacked SlimMambaBlock
     for (const auto& blk : bb.blocks) {
-        std::cerr << "[bittrue] block " << blk.index << "\n";
+        if (opts.verbose) std::cerr << "[bittrue] block " << blk.index << "\n";
         const int T = static_cast<int>(x_seq.size()) / blk.d_model;
         std::vector<float> residual = x_seq;
 
         rmsnorm_inplace(x_seq, T, blk.d_model, blk.norm);
 
         std::vector<float> uv;
-        std::cerr << "[bittrue] block " << blk.index << " in_proj\n";
-        conv1d_run(blk.in_proj, x_seq, T, uv);  // (T, 2*d_inner)
+        if (opts.verbose) std::cerr << "[bittrue] block " << blk.index << " in_proj\n";
+        conv1d_run(blk.in_proj, x_seq, T, opts, uv);  // (T, 2*d_inner)
         std::vector<float> u(T * blk.d_inner, 0.0f);
         std::vector<float> z(T * blk.d_inner, 0.0f);
         for (int t = 0; t < T; ++t) {
@@ -612,37 +905,23 @@ bool ForwardFull(const std::string& export_json, const std::vector<float>& xKD, 
         }
 
         if (blk.use_dwconv) {
-            std::cerr << "[bittrue] block " << blk.index << " dw_conv\n";
+            if (opts.verbose) std::cerr << "[bittrue] block " << blk.index << " dw_conv\n";
             std::vector<float> u_dw;
-            conv1d_run(blk.dw_conv, u, T, u_dw);
+            conv1d_run(blk.dw_conv, u, T, opts, u_dw);
             u.swap(u_dw);
         }
 
         for (float& v : u) v = lut.silu_fn(v);
 
         std::vector<float> dt;
-        std::cerr << "[bittrue] block " << blk.index << " dt_proj\n";
-        conv1d_run(blk.ssm.dt_proj, u, T, dt);  // (T, d_inner)
-        std::vector<float> s(blk.d_inner, 0.0f);
-        std::vector<float> ssm_out(T * blk.d_inner, 0.0f);
-        for (int t = 0; t < T; ++t) {
-            for (int c = 0; c < blk.d_inner; ++c) {
-                const float lam = lut.sigmoid(dt[t * blk.d_inner + c]);
-                const float in_u = u[t * blk.d_inner + c];
-                s[c] = lam * s[c] + (1.0f - lam) * in_u;
-                ssm_out[t * blk.d_inner + c] = s[c];
-            }
-        }
-
-        if (blk.use_gate) {
-            for (int i = 0; i < static_cast<int>(ssm_out.size()); ++i) {
-                ssm_out[i] *= lut.silu_fn(z[i]);
-            }
-        }
+        if (opts.verbose) std::cerr << "[bittrue] block " << blk.index << " dt_proj\n";
+        conv1d_run(blk.ssm.dt_proj, u, T, opts, dt);  // (T, d_inner)
+        std::vector<float> ssm_out;
+        selective_scan_run(blk, u, z, dt, opts, lut, ssm_out);
 
         std::vector<float> y_blk;
-        std::cerr << "[bittrue] block " << blk.index << " out_proj\n";
-        conv1d_run(blk.out_proj, ssm_out, T, y_blk);  // (T, d_model)
+        if (opts.verbose) std::cerr << "[bittrue] block " << blk.index << " out_proj\n";
+        conv1d_run(blk.out_proj, ssm_out, T, opts, y_blk);  // (T, d_model)
         x_seq.assign(T * blk.d_model, 0.0f);
         for (int i = 0; i < T * blk.d_model; ++i) {
             x_seq[i] = residual[i] + y_blk[i];
@@ -651,13 +930,13 @@ bool ForwardFull(const std::string& export_json, const std::vector<float>& xKD, 
 
     // 4) final norm
     const int T_final = static_cast<int>(x_seq.size()) / bb.d_model;
-    std::cerr << "[bittrue] stage final_norm\n";
+    if (opts.verbose) std::cerr << "[bittrue] stage final_norm\n";
     rmsnorm_inplace(x_seq, T_final, bb.d_model, bb.final_norm);
 
     // 5) backbone output head
     std::vector<float> backbone_out;
     if (bb.output_head.kind == "pool") {
-        std::cerr << "[bittrue] stage output_pool\n";
+        if (opts.verbose) std::cerr << "[bittrue] stage output_pool\n";
         std::vector<float> pooled(bb.d_model, 0.0f);
         if (bb.output_head.agg_pool == "max") {
             std::fill(pooled.begin(), pooled.end(), -1e30f);
@@ -674,10 +953,10 @@ bool ForwardFull(const std::string& export_json, const std::vector<float>& xKD, 
             }
             for (int c = 0; c < bb.d_model; ++c) pooled[c] /= static_cast<float>(std::max(1, T_final));
         }
-        conv1d_run(bb.output_head.pool, pooled, 1, backbone_out);  // (1, C*F)
+        conv1d_run(bb.output_head.pool, pooled, 1, opts, backbone_out);  // (1, C*F)
     } else {
-        std::cerr << "[bittrue] stage output_flat\n";
-        conv1d_run(bb.output_head.flat, x_seq, T_final, backbone_out);  // (1, C*F)
+        if (opts.verbose) std::cerr << "[bittrue] stage output_flat\n";
+        conv1d_run(bb.output_head.flat, x_seq, T_final, opts, backbone_out);  // (1, C*F)
     }
 
     if (static_cast<int>(backbone_out.size()) != bb.num_channels * bb.forecast_len) {
@@ -689,9 +968,57 @@ bool ForwardFull(const std::string& export_json, const std::vector<float>& xKD, 
 
     // 6) top-level head
     std::vector<float> head_out;
-    std::cerr << "[bittrue] stage head\n";
-    conv1d_run(ir.head, head_in, bb.forecast_len, head_out);  // (F, 2)
-    std::cerr << "[bittrue] done\n";
+    if (opts.verbose) std::cerr << "[bittrue] stage head\n";
+    conv1d_run(ir.head, head_in, bb.forecast_len, opts, head_out);  // (F, 2)
+    if (opts.verbose) std::cerr << "[bittrue] done\n";
     y_out = head_out;
+    return true;
+}
+
+ExecMode ParseExecMode(const std::string& text) {
+    const std::string mode = lower_copy(trim(text));
+    if (mode == "fake" || mode == "fakeqdq" || mode == "qdq") return ExecMode::kFakeQdq;
+    if (mode == "int8" || mode == "i8") return ExecMode::kInt8;
+    if (mode == "int16" || mode == "i16") return ExecMode::kInt16;
+    throw std::runtime_error("Unknown execution mode: " + text);
+}
+
+std::string ExecModeName(ExecMode mode) {
+    switch (mode) {
+        case ExecMode::kFakeQdq: return "fake";
+        case ExecMode::kInt8: return "int8";
+        case ExecMode::kInt16: return "int16";
+    }
+    return "fake";
+}
+
+bool ParseRuntimeOverrides(const std::string& spec, RuntimeOptions& opts, std::string& err) {
+    err.clear();
+    if (trim(spec).empty()) return true;
+    for (const auto& item : split_csv(spec, ',')) {
+        const size_t eq = item.find('=');
+        if (eq == std::string::npos) {
+            err = "Invalid override entry (expected target=mode): " + item;
+            return false;
+        }
+        const std::string target = trim(item.substr(0, eq));
+        const std::string mode_txt = trim(item.substr(eq + 1));
+        if (target.empty() || mode_txt.empty()) {
+            err = "Invalid override entry: " + item;
+            return false;
+        }
+        ExecMode mode;
+        try {
+            mode = ParseExecMode(mode_txt);
+        } catch (const std::exception& ex) {
+            err = ex.what();
+            return false;
+        }
+        if (target.rfind("name:", 0) == 0) {
+            opts.name_overrides[target.substr(5)] = mode;
+        } else {
+            opts.role_overrides[target] = mode;
+        }
+    }
     return true;
 }
