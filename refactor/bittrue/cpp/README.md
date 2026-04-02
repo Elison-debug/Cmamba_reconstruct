@@ -16,9 +16,5 @@ Current key files:
   - exported-model loading and forward execution
 - `main_full.cpp`
   - end-to-end forward entry
-- `main_compare.cpp`
-  - per-layer comparison entry
 - `io_utils.hpp`
   - simple NPY / file IO helpers
-
-The older `refactor/runtime_cpp/` directory is deprecated and should not be extended further.

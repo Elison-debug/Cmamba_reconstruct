@@ -22,7 +22,7 @@ INT16 Q8.8 路径：作为“bit‑true”原型（整数乘加 + RNE 舍入 + �
 1x1 Conv：已具备（QConv1x1INT）。
 Kx1 Conv（Patch Embedding/DWConv）：补齐 QConv1dINT 的 cpp 后端（现有 python 版 + INT16 Q88 版）。
 dt_proj（SelectiveScanIC 内部 1x1）：换成 QConv1x1INT。
-SiLU/Sigmoid：bit‑true 用 LUT（refactor/quant/int16/backend.py 已有），LSQ 路径用浮点激活后量化（可先简化）。
+SiLU/Sigmoid：bit‑true 用 LUT（当前主实现放在 refactor/bittrue/cpp），LSQ 路径用浮点激活后量化（可先简化）。
 RMSNorm：阶段性策略
 V1：float 执行 + 量化回整数（混合精度，保证正确性）。
 V2：定点 RMSNorm（近似/查表/牛顿迭代），确保位真。
@@ -32,15 +32,15 @@ refactor/core/cmamba_slim.py:_QuantConv1d 中去掉“无 QConv1dINT 时降级�
 为 block/proj/head/patch_embedding 明确：quantize=True 时若后端不可用则报错；quantize=False 时走浮点。
 Bit‑true 路径（INT16 Q8.8）
 
-利用 refactor/quant/int16/backend.py 的 Int16Conv1x1Q88/Int16Conv1dKxQ88/Int16SiLULUT/Int16SigmoidLUT，逐层替换：
+利用 refactor/bittrue/cpp 的整数参考实现逐层替换：
 proj/head/patch_embedding/dwconv/dt_proj 用 INT16 conv。
 递推（SelectiveScan）在整数域实现：s_t = lam ⊙ s_{t-1} + (1−lam) ⊙ u_t。lam = sigmoid(dt_proj(u_t))，sigmoid 用 LUT；乘法为 Q8.8 定点；保持 RNE 舍入与饱和策略一致。
 统一 scale 管理：定义模块级 scale 分配与校准顺序；支持统计尝试（maxabs/p99）并保存到 ckpt。
 测试：构建小输入向量，对比 float 基线与 INT16 输出误差（MSE/MaxAE），计数饱和次数。
 C++ Runtime 打通
 
-导出：在 export/pack.py 输出所有层的 W/B 与量化参数（act_scale/zp、w_scale），以及非线性 LUT（如需要）。
-runtime_cpp/*：按 JSON 加载，调用 C++ INT 卷积/LUT/递推，实现完整前向。与 PyTorch+C++ extension bit‑true 路径对比输出。
+导出：在 refactor/bittrue/pack.py 输出所有层的 W/B 与量化参数（act_scale/zp、w_scale），以及非线性 LUT（如需要）。
+refactor/bittrue/cpp/*：按 JSON 加载，调用 C++ INT 卷积/LUT/递推，实现完整前向。与 PyTorch+C++ extension bit‑true 路径对比输出。
 工具：提供 compare_ref.py，用同一输入/权重在两种路径跑，输出差值直方图+统计。
 Eval/Test 集成
 
