@@ -118,7 +118,7 @@ def main():
     except Exception:
         pass
 
-    from refactor.export.pack import export_minimal
+    from refactor.bittrue.pack import export_minimal
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     export_json = export_minimal(model, str(out_dir))

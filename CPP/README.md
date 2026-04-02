@@ -22,12 +22,12 @@ This produces `cmamba_demo` and a static library `cmamba_fixed88`.
 Use the existing Python exporter to create `export.json` + `backbone.json` + `.npy` weights:
 
 ```powershell
-python -m refactor.export.pack --help
+python -m refactor.bittrue.cli --help
 # or via eval/train saving calib ckpt, then:
 python - <<'PY'
 import torch
 from refactor.core.mamba_regressor import MambaRegressor
-from refactor.export.pack import export_minimal
+from refactor.bittrue.pack import export_minimal
 m = MambaRegressor(...)
 ckpt = torch.load('ckpt_refactor/logo/calibrate_int8_best.pt', map_location='cpu')
 m.load_state_dict(ckpt.get('state_dict', ckpt), strict=False)

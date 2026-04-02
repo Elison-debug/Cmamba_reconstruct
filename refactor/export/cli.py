@@ -3,7 +3,7 @@ import os
 import torch
 
 from refactor.core.mamba_regressor import MambaRegressor
-from .pack import export_minimal
+from refactor.bittrue.pack import export_minimal
 
 
 def main():
@@ -33,9 +33,8 @@ def main():
         sd = ckpt.get("state_dict", ckpt)
         m.load_state_dict(sd, strict=False)
     path = export_minimal(m, args.out)
-    print({"export": path})
+    print({"export": path, "deprecated_wrapper": "refactor.export.cli", "canonical": "refactor.bittrue.cli"})
 
 
 if __name__ == "__main__":
     main()
-
