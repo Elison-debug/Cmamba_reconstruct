@@ -1,0 +1,20 @@
+# compile verilog/system verilog design source files
+sv xil_defaultlib  \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/reuse_array4x4.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/reuse_ht_sram.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/reuse_in_proj_scheduler.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/reuse_inproj_weight_sram.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/reuse_pipeline_4array_top.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/reuse_pipeline_4array_with_reduction.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/reuse_reduction_accumulator.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/reuse_shared_mac_fabric.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/reuse_vec_out_sram.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/slim_multi_bank_wbuf_dp.sv" \
+"../../../../../hardware_reconstruct/tb/tb_reuse_in_proj_scheduler.sv" \
+
+# compile glbl module
+verilog xil_defaultlib "glbl.v"
+
+# Do not sort compile order
+nosort

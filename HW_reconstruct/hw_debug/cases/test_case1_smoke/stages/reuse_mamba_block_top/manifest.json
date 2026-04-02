@@ -1,0 +1,21 @@
+{
+  "name": "reuse_mamba_block_top",
+  "rtl_top": "reuse_mamba_block_top",
+  "status": "planned",
+  "description": "Block-level top around shared MAC fabric.",
+  "golden_inputs": [
+    "h_t.mem",
+    "weights/*.mem",
+    "control.json"
+  ],
+  "golden_outputs": [
+    "u_t.mem",
+    "z_t.mem",
+    "p_t.mem",
+    "y.mem"
+  ],
+  "notes": [
+    "Use only after in_proj and SSM subpaths are individually validated.",
+    "Current hardware out_proj is still stub, so final y compare may be partial."
+  ]
+}

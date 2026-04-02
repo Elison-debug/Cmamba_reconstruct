@@ -1,0 +1,1295 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="tb_reuse_mamba_block_top_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="tb_reuse_mamba_block_top" />
+            <top_module name="vcomponents" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="114.260 ns"></ZoomStartTime>
+      <ZoomEndTime time="238.861 ns"></ZoomEndTime>
+      <Cursor1Time time="961.000 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="204"></NameColumnWidth>
+      <ValueColumnWidth column_width="80"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="308" />
+   <wvobject fp_name="/tb_reuse_mamba_block_top/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/rst_n" type="logic">
+      <obj_property name="ElementShortName">rst_n</obj_property>
+      <obj_property name="ObjectShortName">rst_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/s_axis_TVALID" type="logic">
+      <obj_property name="ElementShortName">s_axis_TVALID</obj_property>
+      <obj_property name="ObjectShortName">s_axis_TVALID</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/s_axis_TREADY" type="logic">
+      <obj_property name="ElementShortName">s_axis_TREADY</obj_property>
+      <obj_property name="ObjectShortName">s_axis_TREADY</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/block_auto_mode" type="logic">
+      <obj_property name="ElementShortName">block_auto_mode</obj_property>
+      <obj_property name="ObjectShortName">block_auto_mode</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/block_start" type="logic">
+      <obj_property name="ElementShortName">block_start</obj_property>
+      <obj_property name="ObjectShortName">block_start</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/block_busy" type="logic">
+      <obj_property name="ElementShortName">block_busy</obj_property>
+      <obj_property name="ObjectShortName">block_busy</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/block_done" type="logic">
+      <obj_property name="ElementShortName">block_done</obj_property>
+      <obj_property name="ObjectShortName">block_done</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/g_axis_TVALID" type="logic">
+      <obj_property name="ElementShortName">g_axis_TVALID</obj_property>
+      <obj_property name="ObjectShortName">g_axis_TVALID</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/g_axis_TREADY" type="logic">
+      <obj_property name="ElementShortName">g_axis_TREADY</obj_property>
+      <obj_property name="ObjectShortName">g_axis_TREADY</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/g_axis_TDATA" type="array">
+      <obj_property name="ElementShortName">g_axis_TDATA[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">g_axis_TDATA[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/y_axis_TVALID" type="logic">
+      <obj_property name="ElementShortName">y_axis_TVALID</obj_property>
+      <obj_property name="ObjectShortName">y_axis_TVALID</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/y_axis_TREADY" type="logic">
+      <obj_property name="ElementShortName">y_axis_TREADY</obj_property>
+      <obj_property name="ObjectShortName">y_axis_TREADY</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/y_axis_TDATA" type="array">
+      <obj_property name="ElementShortName">y_axis_TDATA[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">y_axis_TDATA[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/inproj_enable" type="logic">
+      <obj_property name="ElementShortName">inproj_enable</obj_property>
+      <obj_property name="ObjectShortName">inproj_enable</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/inproj_start" type="logic">
+      <obj_property name="ElementShortName">inproj_start</obj_property>
+      <obj_property name="ObjectShortName">inproj_start</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/inproj_busy" type="logic">
+      <obj_property name="ElementShortName">inproj_busy</obj_property>
+      <obj_property name="ObjectShortName">inproj_busy</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/inproj_done" type="logic">
+      <obj_property name="ElementShortName">inproj_done</obj_property>
+      <obj_property name="ObjectShortName">inproj_done</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/h_wr_en" type="logic">
+      <obj_property name="ElementShortName">h_wr_en</obj_property>
+      <obj_property name="ObjectShortName">h_wr_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/h_wr_addr" type="array">
+      <obj_property name="ElementShortName">h_wr_addr[4:0]</obj_property>
+      <obj_property name="ObjectShortName">h_wr_addr[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/h_wr_data" type="array">
+      <obj_property name="ElementShortName">h_wr_data[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">h_wr_data[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/u_rd_en" type="logic">
+      <obj_property name="ElementShortName">u_rd_en</obj_property>
+      <obj_property name="ObjectShortName">u_rd_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/u_rd_addr" type="array">
+      <obj_property name="ElementShortName">u_rd_addr[5:0]</obj_property>
+      <obj_property name="ObjectShortName">u_rd_addr[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/u_rd_data" type="array">
+      <obj_property name="ElementShortName">u_rd_data[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">u_rd_data[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/z_rd_en" type="logic">
+      <obj_property name="ElementShortName">z_rd_en</obj_property>
+      <obj_property name="ObjectShortName">z_rd_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/z_rd_addr" type="array">
+      <obj_property name="ElementShortName">z_rd_addr[5:0]</obj_property>
+      <obj_property name="ObjectShortName">z_rd_addr[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/z_rd_data" type="array">
+      <obj_property name="ElementShortName">z_rd_data[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">z_rd_data[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/outproj_enable" type="logic">
+      <obj_property name="ElementShortName">outproj_enable</obj_property>
+      <obj_property name="ObjectShortName">outproj_enable</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/outproj_busy" type="logic">
+      <obj_property name="ElementShortName">outproj_busy</obj_property>
+      <obj_property name="ObjectShortName">outproj_busy</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dbg_dt_u_rd_data" type="array">
+      <obj_property name="ElementShortName">dbg_dt_u_rd_data[63:0]</obj_property>
+      <obj_property name="ObjectShortName">dbg_dt_u_rd_data[63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dbg_xt_axis_tdata" type="array">
+      <obj_property name="ElementShortName">dbg_xt_axis_tdata[63:0]</obj_property>
+      <obj_property name="ObjectShortName">dbg_xt_axis_tdata[63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dbg_xt_fifo_in_vec" type="array">
+      <obj_property name="ElementShortName">dbg_xt_fifo_in_vec[63:0]</obj_property>
+      <obj_property name="ObjectShortName">dbg_xt_fifo_in_vec[63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/rd_checks" type="array">
+      <obj_property name="ElementShortName">rd_checks[31:0]</obj_property>
+      <obj_property name="ObjectShortName">rd_checks[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/rd_errors" type="array">
+      <obj_property name="ElementShortName">rd_errors[31:0]</obj_property>
+      <obj_property name="ObjectShortName">rd_errors[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/req_count" type="array">
+      <obj_property name="ElementShortName">req_count[31:0]</obj_property>
+      <obj_property name="ObjectShortName">req_count[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/xt_cmp_checks" type="array">
+      <obj_property name="ElementShortName">xt_cmp_checks[31:0]</obj_property>
+      <obj_property name="ObjectShortName">xt_cmp_checks[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/xt_cmp_errors" type="array">
+      <obj_property name="ElementShortName">xt_cmp_errors[31:0]</obj_property>
+      <obj_property name="ObjectShortName">xt_cmp_errors[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/nonzero_u_tiles" type="array">
+      <obj_property name="ElementShortName">nonzero_u_tiles[31:0]</obj_property>
+      <obj_property name="ObjectShortName">nonzero_u_tiles[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/TILE_SIZE" type="array">
+      <obj_property name="ElementShortName">TILE_SIZE[31:0]</obj_property>
+      <obj_property name="ObjectShortName">TILE_SIZE[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/DATA_WIDTH" type="array">
+      <obj_property name="ElementShortName">DATA_WIDTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">DATA_WIDTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/ACC_WIDTH" type="array">
+      <obj_property name="ElementShortName">ACC_WIDTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ACC_WIDTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/FRAC_BITS" type="array">
+      <obj_property name="ElementShortName">FRAC_BITS[31:0]</obj_property>
+      <obj_property name="ObjectShortName">FRAC_BITS[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/N_BANK" type="array">
+      <obj_property name="ElementShortName">N_BANK[31:0]</obj_property>
+      <obj_property name="ObjectShortName">N_BANK[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/WDEPTH" type="array">
+      <obj_property name="ElementShortName">WDEPTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">WDEPTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/WADDR_W" type="array">
+      <obj_property name="ElementShortName">WADDR_W[31:0]</obj_property>
+      <obj_property name="ObjectShortName">WADDR_W[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/DATA_W" type="array">
+      <obj_property name="ElementShortName">DATA_W[31:0]</obj_property>
+      <obj_property name="ObjectShortName">DATA_W[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/XT_ADDR_W" type="array">
+      <obj_property name="ElementShortName">XT_ADDR_W[31:0]</obj_property>
+      <obj_property name="ObjectShortName">XT_ADDR_W[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/D" type="array">
+      <obj_property name="ElementShortName">D[31:0]</obj_property>
+      <obj_property name="ObjectShortName">D[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/PIPE_LAT" type="array">
+      <obj_property name="ElementShortName">PIPE_LAT[31:0]</obj_property>
+      <obj_property name="ObjectShortName">PIPE_LAT[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/ADDR_BITS" type="array">
+      <obj_property name="ElementShortName">ADDR_BITS[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ADDR_BITS[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/S_ADDR_W" type="array">
+      <obj_property name="ElementShortName">S_ADDR_W[31:0]</obj_property>
+      <obj_property name="ObjectShortName">S_ADDR_W[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/G_FRAC_BITS" type="array">
+      <obj_property name="ElementShortName">G_FRAC_BITS[31:0]</obj_property>
+      <obj_property name="ObjectShortName">G_FRAC_BITS[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/H_DEPTH" type="array">
+      <obj_property name="ElementShortName">H_DEPTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">H_DEPTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/U_DEPTH" type="array">
+      <obj_property name="ElementShortName">U_DEPTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">U_DEPTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/H_SUM" type="array">
+      <obj_property name="ElementShortName">H_SUM[31:0]</obj_property>
+      <obj_property name="ObjectShortName">H_SUM[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/rst_n" type="logic">
+      <obj_property name="ElementShortName">rst_n</obj_property>
+      <obj_property name="ObjectShortName">rst_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/enable" type="logic">
+      <obj_property name="ElementShortName">enable</obj_property>
+      <obj_property name="ObjectShortName">enable</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/start" type="logic">
+      <obj_property name="ElementShortName">start</obj_property>
+      <obj_property name="ObjectShortName">start</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/busy" type="logic">
+      <obj_property name="ElementShortName">busy</obj_property>
+      <obj_property name="ObjectShortName">busy</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/done" type="logic">
+      <obj_property name="ElementShortName">done</obj_property>
+      <obj_property name="ObjectShortName">done</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/h_wr_en" type="logic">
+      <obj_property name="ElementShortName">h_wr_en</obj_property>
+      <obj_property name="ObjectShortName">h_wr_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/h_wr_addr" type="array">
+      <obj_property name="ElementShortName">h_wr_addr[4:0]</obj_property>
+      <obj_property name="ObjectShortName">h_wr_addr[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/h_wr_data" type="array">
+      <obj_property name="ElementShortName">h_wr_data[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">h_wr_data[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_rd_en" type="logic">
+      <obj_property name="ElementShortName">u_rd_en</obj_property>
+      <obj_property name="ObjectShortName">u_rd_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_rd_addr" type="array">
+      <obj_property name="ElementShortName">u_rd_addr[5:0]</obj_property>
+      <obj_property name="ObjectShortName">u_rd_addr[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_rd_data" type="array">
+      <obj_property name="ElementShortName">u_rd_data[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">u_rd_data[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_ssm_rd_en" type="logic">
+      <obj_property name="ElementShortName">u_ssm_rd_en</obj_property>
+      <obj_property name="ObjectShortName">u_ssm_rd_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_ssm_rd_addr" type="array">
+      <obj_property name="ElementShortName">u_ssm_rd_addr[5:0]</obj_property>
+      <obj_property name="ObjectShortName">u_ssm_rd_addr[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_ssm_rd_data" type="array">
+      <obj_property name="ElementShortName">u_ssm_rd_data[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">u_ssm_rd_data[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/z_rd_en" type="logic">
+      <obj_property name="ElementShortName">z_rd_en</obj_property>
+      <obj_property name="ObjectShortName">z_rd_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/z_rd_addr" type="array">
+      <obj_property name="ElementShortName">z_rd_addr[5:0]</obj_property>
+      <obj_property name="ObjectShortName">z_rd_addr[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/z_rd_data" type="array">
+      <obj_property name="ElementShortName">z_rd_data[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">z_rd_data[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/fabric_mode" type="array">
+      <obj_property name="ElementShortName">fabric_mode[1:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_mode[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/fabric_col_blocks" type="array">
+      <obj_property name="ElementShortName">fabric_col_blocks[6:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_col_blocks[6:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/fabric_A0_mat" type="array">
+      <obj_property name="ElementShortName">fabric_A0_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_A0_mat[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/fabric_A1_mat" type="array">
+      <obj_property name="ElementShortName">fabric_A1_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_A1_mat[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/fabric_A2_mat" type="array">
+      <obj_property name="ElementShortName">fabric_A2_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_A2_mat[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/fabric_A3_mat" type="array">
+      <obj_property name="ElementShortName">fabric_A3_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_A3_mat[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/state" type="array">
+      <obj_property name="ElementShortName">state[2:0]</obj_property>
+      <obj_property name="ObjectShortName">state[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/fabric_valid_in" type="logic">
+      <obj_property name="ElementShortName">fabric_valid_in</obj_property>
+      <obj_property name="ObjectShortName">fabric_valid_in</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/fabric_B0_mat" type="array">
+      <obj_property name="ElementShortName">fabric_B0_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_B0_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/fabric_B1_mat" type="array">
+      <obj_property name="ElementShortName">fabric_B1_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_B1_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/fabric_B2_mat" type="array">
+      <obj_property name="ElementShortName">fabric_B2_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_B2_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/fabric_B3_mat" type="array">
+      <obj_property name="ElementShortName">fabric_B3_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_B3_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/cur_B0" type="array">
+      <obj_property name="ElementShortName">cur_B0[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">cur_B0[3:0][3:0][15:0]</obj_property>
+      <obj_property name="CustomSignalColor">#F0E68C</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/cur_B1" type="array">
+      <obj_property name="ElementShortName">cur_B1[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">cur_B1[3:0][3:0][15:0]</obj_property>
+      <obj_property name="CustomSignalColor">#F0E68C</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/cur_B2" type="array">
+      <obj_property name="ElementShortName">cur_B2[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">cur_B2[3:0][3:0][15:0]</obj_property>
+      <obj_property name="CustomSignalColor">#F0E68C</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/cur_B3" type="array">
+      <obj_property name="ElementShortName">cur_B3[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">cur_B3[3:0][3:0][15:0]</obj_property>
+      <obj_property name="CustomSignalColor">#F0E68C</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/B0_curr" type="array">
+      <obj_property name="ElementShortName">B0_curr[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">B0_curr[3:0][3:0][15:0]</obj_property>
+      <obj_property name="CustomSignalColor">#800080</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/B1_curr" type="array">
+      <obj_property name="ElementShortName">B1_curr[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">B1_curr[3:0][3:0][15:0]</obj_property>
+      <obj_property name="CustomSignalColor">#800080</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/B2_curr" type="array">
+      <obj_property name="ElementShortName">B2_curr[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">B2_curr[3:0][3:0][15:0]</obj_property>
+      <obj_property name="CustomSignalColor">#800080</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/B3_curr" type="array">
+      <obj_property name="ElementShortName">B3_curr[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">B3_curr[3:0][3:0][15:0]</obj_property>
+      <obj_property name="CustomSignalColor">#800080</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/B0_mat_reg" type="array">
+      <obj_property name="ElementShortName">B0_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">B0_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="CustomSignalColor">#FFD700</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/B1_mat_reg" type="array">
+      <obj_property name="ElementShortName">B1_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">B1_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="CustomSignalColor">#FFD700</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/B2_mat_reg" type="array">
+      <obj_property name="ElementShortName">B2_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">B2_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="CustomSignalColor">#FFD700</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/B3_mat_reg" type="array">
+      <obj_property name="ElementShortName">B3_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">B3_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="CustomSignalColor">#FFD700</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/B0_next" type="array">
+      <obj_property name="ElementShortName">B0_next[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">B0_next[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/B1_next" type="array">
+      <obj_property name="ElementShortName">B1_next[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">B1_next[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/B2_next" type="array">
+      <obj_property name="ElementShortName">B2_next[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">B2_next[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/B3_next" type="array">
+      <obj_property name="ElementShortName">B3_next[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">B3_next[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/fabric_reduced_vec" type="array">
+      <obj_property name="ElementShortName">fabric_reduced_vec[3:0][31:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_reduced_vec[3:0][31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/fabric_valid_out" type="logic">
+      <obj_property name="ElementShortName">fabric_valid_out</obj_property>
+      <obj_property name="ObjectShortName">fabric_valid_out</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/fabric_reduced_mat_0" type="array">
+      <obj_property name="ElementShortName">fabric_reduced_mat_0[3:0][3:0][31:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_reduced_mat_0[3:0][3:0][31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/fabric_reduced_mat_1" type="array">
+      <obj_property name="ElementShortName">fabric_reduced_mat_1[3:0][3:0][31:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_reduced_mat_1[3:0][3:0][31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/fabric_reduced_mat_2" type="array">
+      <obj_property name="ElementShortName">fabric_reduced_mat_2[3:0][3:0][31:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_reduced_mat_2[3:0][3:0][31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/fabric_reduced_mat_3" type="array">
+      <obj_property name="ElementShortName">fabric_reduced_mat_3[3:0][3:0][31:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_reduced_mat_3[3:0][3:0][31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/next_state" type="array">
+      <obj_property name="ElementShortName">next_state[2:0]</obj_property>
+      <obj_property name="ObjectShortName">next_state[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/row_group_idx" type="array">
+      <obj_property name="ElementShortName">row_group_idx[4:0]</obj_property>
+      <obj_property name="ObjectShortName">row_group_idx[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/row_subtile_idx" type="array">
+      <obj_property name="ElementShortName">row_subtile_idx[1:0]</obj_property>
+      <obj_property name="ObjectShortName">row_subtile_idx[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/row_tile_linear" type="array">
+      <obj_property name="ElementShortName">row_tile_linear[6:0]</obj_property>
+      <obj_property name="ObjectShortName">row_tile_linear[6:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/data_cnt" type="array">
+      <obj_property name="ElementShortName">data_cnt[3:0]</obj_property>
+      <obj_property name="ObjectShortName">data_cnt[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/tile_cnt" type="array">
+      <obj_property name="ElementShortName">tile_cnt[3:0]</obj_property>
+      <obj_property name="ObjectShortName">tile_cnt[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/tile_cnt_d" type="array">
+      <obj_property name="ElementShortName">tile_cnt_d[3:0]</obj_property>
+      <obj_property name="ObjectShortName">tile_cnt_d[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/drain_cnt" type="array">
+      <obj_property name="ElementShortName">drain_cnt[1:0]</obj_property>
+      <obj_property name="ObjectShortName">drain_cnt[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/h_rd_en" type="logic">
+      <obj_property name="ElementShortName">h_rd_en</obj_property>
+      <obj_property name="ObjectShortName">h_rd_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/fetch_fire_d1" type="logic">
+      <obj_property name="ElementShortName">fetch_fire_d1</obj_property>
+      <obj_property name="ObjectShortName">fetch_fire_d1</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/fetch_fire_d2" type="logic">
+      <obj_property name="ElementShortName">fetch_fire_d2</obj_property>
+      <obj_property name="ObjectShortName">fetch_fire_d2</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/fetch_fire_d3" type="logic">
+      <obj_property name="ElementShortName">fetch_fire_d3</obj_property>
+      <obj_property name="ObjectShortName">fetch_fire_d3</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/w_bank_sel" type="array">
+      <obj_property name="ElementShortName">w_bank_sel[3:0][2:0]</obj_property>
+      <obj_property name="ObjectShortName">w_bank_sel[3:0][2:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/w_addr_sel" type="array">
+      <obj_property name="ElementShortName">w_addr_sel[3:0][9:0]</obj_property>
+      <obj_property name="ObjectShortName">w_addr_sel[3:0][9:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/w_en_sel" type="array">
+      <obj_property name="ElementShortName">w_en_sel[3:0]</obj_property>
+      <obj_property name="ObjectShortName">w_en_sel[3:0]</obj_property>
+      <obj_property name="Radix">BINARYRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/w_port_sel" type="array">
+      <obj_property name="ElementShortName">w_port_sel[3:0]</obj_property>
+      <obj_property name="ObjectShortName">w_port_sel[3:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/w_dout_sel" type="array">
+      <obj_property name="ElementShortName">w_dout_sel[3:0][255:0]</obj_property>
+      <obj_property name="ObjectShortName">w_dout_sel[3:0][255:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/en_sel" type="array">
+      <obj_property name="ElementShortName">en_sel[3:0]</obj_property>
+      <obj_property name="ObjectShortName">en_sel[3:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/en_sel_reg" type="array">
+      <obj_property name="ElementShortName">en_sel_reg[3:0]</obj_property>
+      <obj_property name="ObjectShortName">en_sel_reg[3:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/out_sel" type="array">
+      <obj_property name="ElementShortName">out_sel[3:0]</obj_property>
+      <obj_property name="ObjectShortName">out_sel[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/out_phase_cnt" type="array">
+      <obj_property name="ElementShortName">out_phase_cnt[3:0]</obj_property>
+      <obj_property name="ObjectShortName">out_phase_cnt[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/out_phase_active" type="logic">
+      <obj_property name="ElementShortName">out_phase_active</obj_property>
+      <obj_property name="ObjectShortName">out_phase_active</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/phase_reg" type="array">
+      <obj_property name="ElementShortName">phase_reg[1:0]</obj_property>
+      <obj_property name="ObjectShortName">phase_reg[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/cur_A0" type="array">
+      <obj_property name="ElementShortName">cur_A0[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">cur_A0[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/cur_A1" type="array">
+      <obj_property name="ElementShortName">cur_A1[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">cur_A1[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/cur_A2" type="array">
+      <obj_property name="ElementShortName">cur_A2[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">cur_A2[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/cur_A3" type="array">
+      <obj_property name="ElementShortName">cur_A3[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">cur_A3[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/A0_hold" type="array">
+      <obj_property name="ElementShortName">A0_hold[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">A0_hold[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/A1_hold" type="array">
+      <obj_property name="ElementShortName">A1_hold[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">A1_hold[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/A2_hold" type="array">
+      <obj_property name="ElementShortName">A2_hold[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">A2_hold[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/A3_hold" type="array">
+      <obj_property name="ElementShortName">A3_hold[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">A3_hold[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/A2_hold1" type="array">
+      <obj_property name="ElementShortName">A2_hold1[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">A2_hold1[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/A3_hold1" type="array">
+      <obj_property name="ElementShortName">A3_hold1[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">A3_hold1[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/A3_hold2" type="array">
+      <obj_property name="ElementShortName">A3_hold2[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">A3_hold2[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/A0_mat_reg" type="array">
+      <obj_property name="ElementShortName">A0_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">A0_mat_reg[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/A1_mat_reg" type="array">
+      <obj_property name="ElementShortName">A1_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">A1_mat_reg[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/A2_mat_reg" type="array">
+      <obj_property name="ElementShortName">A2_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">A2_mat_reg[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/A3_mat_reg" type="array">
+      <obj_property name="ElementShortName">A3_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">A3_mat_reg[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/valid_in_d1" type="logic">
+      <obj_property name="ElementShortName">valid_in_d1</obj_property>
+      <obj_property name="ObjectShortName">valid_in_d1</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/seen_valid" type="logic">
+      <obj_property name="ElementShortName">seen_valid</obj_property>
+      <obj_property name="ObjectShortName">seen_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/final_vec" type="array">
+      <obj_property name="ElementShortName">final_vec[3:0][31:0]</obj_property>
+      <obj_property name="ObjectShortName">final_vec[3:0][31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_wr_en" type="logic">
+      <obj_property name="ElementShortName">u_wr_en</obj_property>
+      <obj_property name="ObjectShortName">u_wr_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/out_wr_addr" type="array">
+      <obj_property name="ElementShortName">out_wr_addr[5:0]</obj_property>
+      <obj_property name="ObjectShortName">out_wr_addr[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/out_wr_data" type="array">
+      <obj_property name="ElementShortName">out_wr_data[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">out_wr_data[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/z_wr_en" type="logic">
+      <obj_property name="ElementShortName">z_wr_en</obj_property>
+      <obj_property name="ObjectShortName">z_wr_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/valid_in" type="logic">
+      <obj_property name="ElementShortName">valid_in</obj_property>
+      <obj_property name="ObjectShortName">valid_in</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/group_start" type="logic">
+      <obj_property name="ElementShortName">group_start</obj_property>
+      <obj_property name="ObjectShortName">group_start</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/TILE_SIZE" type="array">
+      <obj_property name="ElementShortName">TILE_SIZE[31:0]</obj_property>
+      <obj_property name="ObjectShortName">TILE_SIZE[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/DATA_WIDTH" type="array">
+      <obj_property name="ElementShortName">DATA_WIDTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">DATA_WIDTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/ACC_WIDTH" type="array">
+      <obj_property name="ElementShortName">ACC_WIDTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ACC_WIDTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/N_BANK" type="array">
+      <obj_property name="ElementShortName">N_BANK[31:0]</obj_property>
+      <obj_property name="ObjectShortName">N_BANK[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/WDEPTH" type="array">
+      <obj_property name="ElementShortName">WDEPTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">WDEPTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/WADDR_W" type="array">
+      <obj_property name="ElementShortName">WADDR_W[31:0]</obj_property>
+      <obj_property name="ObjectShortName">WADDR_W[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/DATA_W" type="array">
+      <obj_property name="ElementShortName">DATA_W[31:0]</obj_property>
+      <obj_property name="ObjectShortName">DATA_W[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/IN_DIM" type="array">
+      <obj_property name="ElementShortName">IN_DIM[31:0]</obj_property>
+      <obj_property name="ObjectShortName">IN_DIM[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/OUT_DIM" type="array">
+      <obj_property name="ElementShortName">OUT_DIM[31:0]</obj_property>
+      <obj_property name="ObjectShortName">OUT_DIM[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/H_DEPTH" type="array">
+      <obj_property name="ElementShortName">H_DEPTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">H_DEPTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/H_ADDR_W" type="array">
+      <obj_property name="ElementShortName">H_ADDR_W[31:0]</obj_property>
+      <obj_property name="ObjectShortName">H_ADDR_W[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/U_DEPTH" type="array">
+      <obj_property name="ElementShortName">U_DEPTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">U_DEPTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/U_ADDR_W" type="array">
+      <obj_property name="ElementShortName">U_ADDR_W[31:0]</obj_property>
+      <obj_property name="ObjectShortName">U_ADDR_W[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/ROW_GROUPS" type="array">
+      <obj_property name="ElementShortName">ROW_GROUPS[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ROW_GROUPS[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/ROWS_PER_GRP" type="array">
+      <obj_property name="ElementShortName">ROWS_PER_GRP[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ROWS_PER_GRP[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/ROW_TILES" type="array">
+      <obj_property name="ElementShortName">ROW_TILES[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ROW_TILES[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/K_GROUPS" type="array">
+      <obj_property name="ElementShortName">K_GROUPS[31:0]</obj_property>
+      <obj_property name="ObjectShortName">K_GROUPS[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/PHYS_K_BLOCKS" type="array">
+      <obj_property name="ElementShortName">PHYS_K_BLOCKS[31:0]</obj_property>
+      <obj_property name="ObjectShortName">PHYS_K_BLOCKS[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/TILE_CYCLE" type="array">
+      <obj_property name="ElementShortName">TILE_CYCLE[31:0]</obj_property>
+      <obj_property name="ObjectShortName">TILE_CYCLE[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/OUT_PHASE_LAST" type="array">
+      <obj_property name="ElementShortName">OUT_PHASE_LAST[31:0]</obj_property>
+      <obj_property name="ObjectShortName">OUT_PHASE_LAST[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/rst_n" type="logic">
+      <obj_property name="ElementShortName">rst_n</obj_property>
+      <obj_property name="ObjectShortName">rst_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/sched_busy" type="logic">
+      <obj_property name="ElementShortName">sched_busy</obj_property>
+      <obj_property name="ObjectShortName">sched_busy</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/u_vec_rd_en" type="logic">
+      <obj_property name="ElementShortName">u_vec_rd_en</obj_property>
+      <obj_property name="ObjectShortName">u_vec_rd_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/u_vec_rd_addr" type="array">
+      <obj_property name="ElementShortName">u_vec_rd_addr[5:0]</obj_property>
+      <obj_property name="ObjectShortName">u_vec_rd_addr[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/u_vec_rd_data" type="array">
+      <obj_property name="ElementShortName">u_vec_rd_data[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">u_vec_rd_data[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/s_axis_TVALID" type="logic">
+      <obj_property name="ElementShortName">s_axis_TVALID</obj_property>
+      <obj_property name="ObjectShortName">s_axis_TVALID</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/s_axis_TREADY" type="logic">
+      <obj_property name="ElementShortName">s_axis_TREADY</obj_property>
+      <obj_property name="ObjectShortName">s_axis_TREADY</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/m_axis_TVALID" type="logic">
+      <obj_property name="ElementShortName">m_axis_TVALID</obj_property>
+      <obj_property name="ObjectShortName">m_axis_TVALID</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/m_axis_TREADY" type="logic">
+      <obj_property name="ElementShortName">m_axis_TREADY</obj_property>
+      <obj_property name="ObjectShortName">m_axis_TREADY</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/reduced_trunc" type="array">
+      <obj_property name="ElementShortName">reduced_trunc[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">reduced_trunc[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/xt_axis_TVALID" type="logic">
+      <obj_property name="ElementShortName">xt_axis_TVALID</obj_property>
+      <obj_property name="ObjectShortName">xt_axis_TVALID</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/xt_axis_TREADY" type="logic">
+      <obj_property name="ElementShortName">xt_axis_TREADY</obj_property>
+      <obj_property name="ObjectShortName">xt_axis_TREADY</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/xt_axis_TDATA" type="array">
+      <obj_property name="ElementShortName">xt_axis_TDATA[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">xt_axis_TDATA[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/fabric_mode" type="array">
+      <obj_property name="ElementShortName">fabric_mode[1:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_mode[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/fabric_col_blocks" type="array">
+      <obj_property name="ElementShortName">fabric_col_blocks[6:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_col_blocks[6:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/fabric_valid_in" type="logic">
+      <obj_property name="ElementShortName">fabric_valid_in</obj_property>
+      <obj_property name="ObjectShortName">fabric_valid_in</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/fabric_A0_mat" type="array">
+      <obj_property name="ElementShortName">fabric_A0_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_A0_mat[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/fabric_A1_mat" type="array">
+      <obj_property name="ElementShortName">fabric_A1_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_A1_mat[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/fabric_A2_mat" type="array">
+      <obj_property name="ElementShortName">fabric_A2_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_A2_mat[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/fabric_A3_mat" type="array">
+      <obj_property name="ElementShortName">fabric_A3_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_A3_mat[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/fabric_B0_mat" type="array">
+      <obj_property name="ElementShortName">fabric_B0_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_B0_mat[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/fabric_B1_mat" type="array">
+      <obj_property name="ElementShortName">fabric_B1_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_B1_mat[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/fabric_B2_mat" type="array">
+      <obj_property name="ElementShortName">fabric_B2_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_B2_mat[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/fabric_B3_mat" type="array">
+      <obj_property name="ElementShortName">fabric_B3_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_B3_mat[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/fabric_reduced_vec" type="array">
+      <obj_property name="ElementShortName">fabric_reduced_vec[3:0][31:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_reduced_vec[3:0][31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/fabric_reduced_mat_0" type="array">
+      <obj_property name="ElementShortName">fabric_reduced_mat_0[3:0][3:0][31:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_reduced_mat_0[3:0][3:0][31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/fabric_reduced_mat_1" type="array">
+      <obj_property name="ElementShortName">fabric_reduced_mat_1[3:0][3:0][31:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_reduced_mat_1[3:0][3:0][31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/fabric_reduced_mat_2" type="array">
+      <obj_property name="ElementShortName">fabric_reduced_mat_2[3:0][3:0][31:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_reduced_mat_2[3:0][3:0][31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/fabric_reduced_mat_3" type="array">
+      <obj_property name="ElementShortName">fabric_reduced_mat_3[3:0][3:0][31:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_reduced_mat_3[3:0][3:0][31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/fabric_valid_out" type="logic">
+      <obj_property name="ElementShortName">fabric_valid_out</obj_property>
+      <obj_property name="ObjectShortName">fabric_valid_out</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/state" type="array">
+      <obj_property name="ElementShortName">state[2:0]</obj_property>
+      <obj_property name="ObjectShortName">state[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/next_state" type="array">
+      <obj_property name="ElementShortName">next_state[2:0]</obj_property>
+      <obj_property name="ObjectShortName">next_state[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/data_cnt" type="array">
+      <obj_property name="ElementShortName">data_cnt[15:0]</obj_property>
+      <obj_property name="ObjectShortName">data_cnt[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/tile_cnt" type="array">
+      <obj_property name="ElementShortName">tile_cnt[15:0]</obj_property>
+      <obj_property name="ObjectShortName">tile_cnt[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/tile_cnt_for_xt" type="array">
+      <obj_property name="ElementShortName">tile_cnt_for_xt[15:0]</obj_property>
+      <obj_property name="ObjectShortName">tile_cnt_for_xt[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/valid_in" type="logic">
+      <obj_property name="ElementShortName">valid_in</obj_property>
+      <obj_property name="ObjectShortName">valid_in</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/valid_out" type="logic">
+      <obj_property name="ElementShortName">valid_out</obj_property>
+      <obj_property name="ObjectShortName">valid_out</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/valid_out_q" type="logic">
+      <obj_property name="ElementShortName">valid_out_q</obj_property>
+      <obj_property name="ObjectShortName">valid_out_q</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/wbuf_cnt" type="array">
+      <obj_property name="ElementShortName">wbuf_cnt[2:0]</obj_property>
+      <obj_property name="ObjectShortName">wbuf_cnt[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/wbuf_ready" type="logic">
+      <obj_property name="ElementShortName">wbuf_ready</obj_property>
+      <obj_property name="ObjectShortName">wbuf_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/drain_cnt" type="array">
+      <obj_property name="ElementShortName">drain_cnt[1:0]</obj_property>
+      <obj_property name="ObjectShortName">drain_cnt[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/reduced_vec" type="array">
+      <obj_property name="ElementShortName">reduced_vec[3:0][31:0]</obj_property>
+      <obj_property name="ObjectShortName">reduced_vec[3:0][31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/bank_sel" type="array">
+      <obj_property name="ElementShortName">bank_sel[3:0][2:0]</obj_property>
+      <obj_property name="ObjectShortName">bank_sel[3:0][2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/bank_sel_reg" type="array">
+      <obj_property name="ElementShortName">bank_sel_reg[3:0][2:0]</obj_property>
+      <obj_property name="ObjectShortName">bank_sel_reg[3:0][2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/addr_sel" type="array">
+      <obj_property name="ElementShortName">addr_sel[3:0][9:0]</obj_property>
+      <obj_property name="ObjectShortName">addr_sel[3:0][9:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/addr_sel_reg" type="array">
+      <obj_property name="ElementShortName">addr_sel_reg[3:0][9:0]</obj_property>
+      <obj_property name="ObjectShortName">addr_sel_reg[3:0][9:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/en_sel" type="array">
+      <obj_property name="ElementShortName">en_sel[3:0]</obj_property>
+      <obj_property name="ObjectShortName">en_sel[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/en_sel_reg" type="array">
+      <obj_property name="ElementShortName">en_sel_reg[3:0]</obj_property>
+      <obj_property name="ObjectShortName">en_sel_reg[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/port_sel" type="array">
+      <obj_property name="ElementShortName">port_sel[3:0]</obj_property>
+      <obj_property name="ObjectShortName">port_sel[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/port_sel_reg" type="array">
+      <obj_property name="ElementShortName">port_sel_reg[3:0]</obj_property>
+      <obj_property name="ObjectShortName">port_sel_reg[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/w_data" type="array">
+      <obj_property name="ElementShortName">w_data[3:0][255:0]</obj_property>
+      <obj_property name="ObjectShortName">w_data[3:0][255:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/w_data_reg" type="array">
+      <obj_property name="ElementShortName">w_data_reg[3:0][255:0]</obj_property>
+      <obj_property name="ObjectShortName">w_data_reg[3:0][255:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/tile_cnt_d" type="array">
+      <obj_property name="ElementShortName">tile_cnt_d[15:0]</obj_property>
+      <obj_property name="ObjectShortName">tile_cnt_d[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/phase_reg" type="array">
+      <obj_property name="ElementShortName">phase_reg[1:0]</obj_property>
+      <obj_property name="ObjectShortName">phase_reg[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/addr_bank_cnt" type="array">
+      <obj_property name="ElementShortName">addr_bank_cnt[0:5][9:0]</obj_property>
+      <obj_property name="ObjectShortName">addr_bank_cnt[0:5][9:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/bank_hit_mask_comb" type="array">
+      <obj_property name="ElementShortName">bank_hit_mask_comb[5:0]</obj_property>
+      <obj_property name="ObjectShortName">bank_hit_mask_comb[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/bank_hit_mask_comb_next" type="array">
+      <obj_property name="ElementShortName">bank_hit_mask_comb_next[5:0]</obj_property>
+      <obj_property name="ObjectShortName">bank_hit_mask_comb_next[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/xt_addr" type="array">
+      <obj_property name="ElementShortName">xt_addr[5:0]</obj_property>
+      <obj_property name="ObjectShortName">xt_addr[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/xt_en_req" type="logic">
+      <obj_property name="ElementShortName">xt_en_req</obj_property>
+      <obj_property name="ObjectShortName">xt_en_req</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/xt_en_reg" type="logic">
+      <obj_property name="ElementShortName">xt_en_reg</obj_property>
+      <obj_property name="ObjectShortName">xt_en_reg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/xt_en_reg_d1" type="logic">
+      <obj_property name="ElementShortName">xt_en_reg_d1</obj_property>
+      <obj_property name="ObjectShortName">xt_en_reg_d1</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/xt_switch_req" type="logic">
+      <obj_property name="ElementShortName">xt_switch_req</obj_property>
+      <obj_property name="ObjectShortName">xt_switch_req</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/xt_stage_cnt" type="array">
+      <obj_property name="ElementShortName">xt_stage_cnt[1:0]</obj_property>
+      <obj_property name="ObjectShortName">xt_stage_cnt[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/xt_stage_cnt_reg" type="array">
+      <obj_property name="ElementShortName">xt_stage_cnt_reg[1:0]</obj_property>
+      <obj_property name="ObjectShortName">xt_stage_cnt_reg[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/xt_curr" type="array">
+      <obj_property name="ElementShortName">xt_curr[0:3][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">xt_curr[0:3][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/xt_next" type="array">
+      <obj_property name="ElementShortName">xt_next[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">xt_next[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/xt_init_done" type="logic">
+      <obj_property name="ElementShortName">xt_init_done</obj_property>
+      <obj_property name="ObjectShortName">xt_init_done</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/xt_fifo_in_valid" type="logic">
+      <obj_property name="ElementShortName">xt_fifo_in_valid</obj_property>
+      <obj_property name="ObjectShortName">xt_fifo_in_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/xt_fifo_in_ready" type="logic">
+      <obj_property name="ElementShortName">xt_fifo_in_ready</obj_property>
+      <obj_property name="ObjectShortName">xt_fifo_in_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/xt_fifo_in_vec" type="array">
+      <obj_property name="ElementShortName">xt_fifo_in_vec[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">xt_fifo_in_vec[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/B0_mat" type="array">
+      <obj_property name="ElementShortName">B0_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">B0_mat[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/B1_mat" type="array">
+      <obj_property name="ElementShortName">B1_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">B1_mat[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/B2_mat" type="array">
+      <obj_property name="ElementShortName">B2_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">B2_mat[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/B3_mat" type="array">
+      <obj_property name="ElementShortName">B3_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">B3_mat[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/B0_mat_reg" type="array">
+      <obj_property name="ElementShortName">B0_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">B0_mat_reg[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/B1_mat_reg" type="array">
+      <obj_property name="ElementShortName">B1_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">B1_mat_reg[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/B2_mat_reg" type="array">
+      <obj_property name="ElementShortName">B2_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">B2_mat_reg[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/B3_mat_reg" type="array">
+      <obj_property name="ElementShortName">B3_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">B3_mat_reg[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/A0_mat" type="array">
+      <obj_property name="ElementShortName">A0_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">A0_mat[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/A1_mat" type="array">
+      <obj_property name="ElementShortName">A1_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">A1_mat[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/A2_mat" type="array">
+      <obj_property name="ElementShortName">A2_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">A2_mat[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/A3_mat" type="array">
+      <obj_property name="ElementShortName">A3_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">A3_mat[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/A0_mat_reg" type="array">
+      <obj_property name="ElementShortName">A0_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">A0_mat_reg[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/A1_mat_reg" type="array">
+      <obj_property name="ElementShortName">A1_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">A1_mat_reg[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/A2_mat_reg" type="array">
+      <obj_property name="ElementShortName">A2_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">A2_mat_reg[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/A3_mat_reg" type="array">
+      <obj_property name="ElementShortName">A3_mat_reg[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">A3_mat_reg[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/dummy_mat0" type="array">
+      <obj_property name="ElementShortName">dummy_mat0[3:0][3:0][31:0]</obj_property>
+      <obj_property name="ObjectShortName">dummy_mat0[3:0][3:0][31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/dummy_mat1" type="array">
+      <obj_property name="ElementShortName">dummy_mat1[3:0][3:0][31:0]</obj_property>
+      <obj_property name="ObjectShortName">dummy_mat1[3:0][3:0][31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/dummy_mat2" type="array">
+      <obj_property name="ElementShortName">dummy_mat2[3:0][3:0][31:0]</obj_property>
+      <obj_property name="ObjectShortName">dummy_mat2[3:0][3:0][31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/dummy_mat3" type="array">
+      <obj_property name="ElementShortName">dummy_mat3[3:0][3:0][31:0]</obj_property>
+      <obj_property name="ObjectShortName">dummy_mat3[3:0][3:0][31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/valid_in_d1" type="logic">
+      <obj_property name="ElementShortName">valid_in_d1</obj_property>
+      <obj_property name="ObjectShortName">valid_in_d1</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/TILE_SIZE" type="array">
+      <obj_property name="ElementShortName">TILE_SIZE[31:0]</obj_property>
+      <obj_property name="ObjectShortName">TILE_SIZE[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/DATA_WIDTH" type="array">
+      <obj_property name="ElementShortName">DATA_WIDTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">DATA_WIDTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/ACC_WIDTH" type="array">
+      <obj_property name="ElementShortName">ACC_WIDTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ACC_WIDTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/FRAC_BITS" type="array">
+      <obj_property name="ElementShortName">FRAC_BITS[31:0]</obj_property>
+      <obj_property name="ObjectShortName">FRAC_BITS[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/N_BANK" type="array">
+      <obj_property name="ElementShortName">N_BANK[31:0]</obj_property>
+      <obj_property name="ObjectShortName">N_BANK[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/WDEPTH" type="array">
+      <obj_property name="ElementShortName">WDEPTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">WDEPTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/WADDR_W" type="array">
+      <obj_property name="ElementShortName">WADDR_W[31:0]</obj_property>
+      <obj_property name="ObjectShortName">WADDR_W[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/DATA_W" type="array">
+      <obj_property name="ElementShortName">DATA_W[31:0]</obj_property>
+      <obj_property name="ObjectShortName">DATA_W[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/XT_ADDR_W" type="array">
+      <obj_property name="ElementShortName">XT_ADDR_W[31:0]</obj_property>
+      <obj_property name="ObjectShortName">XT_ADDR_W[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_dt_sched/TILE_CYCLE" type="array">
+      <obj_property name="ElementShortName">TILE_CYCLE[31:0]</obj_property>
+      <obj_property name="ObjectShortName">TILE_CYCLE[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_h_sram/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_h_sram/rst_n" type="logic">
+      <obj_property name="ElementShortName">rst_n</obj_property>
+      <obj_property name="ObjectShortName">rst_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_h_sram/wr_en" type="logic">
+      <obj_property name="ElementShortName">wr_en</obj_property>
+      <obj_property name="ObjectShortName">wr_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_h_sram/wr_addr" type="array">
+      <obj_property name="ElementShortName">wr_addr[4:0]</obj_property>
+      <obj_property name="ObjectShortName">wr_addr[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_h_sram/wr_data" type="array">
+      <obj_property name="ElementShortName">wr_data[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">wr_data[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_h_sram/rd_en" type="logic">
+      <obj_property name="ElementShortName">rd_en</obj_property>
+      <obj_property name="ObjectShortName">rd_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_h_sram/rd_addr" type="array">
+      <obj_property name="ElementShortName">rd_addr[4:0]</obj_property>
+      <obj_property name="ObjectShortName">rd_addr[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_h_sram/rd_data" type="array">
+      <obj_property name="ElementShortName">rd_data[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">rd_data[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_h_sram/mem_sim" type="array">
+      <obj_property name="ElementShortName">mem_sim[0:31][63:0]</obj_property>
+      <obj_property name="ObjectShortName">mem_sim[0:31][63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_h_sram/q" type="array">
+      <obj_property name="ElementShortName">q[63:0]</obj_property>
+      <obj_property name="ObjectShortName">q[63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_h_sram/TILE_SIZE" type="array">
+      <obj_property name="ElementShortName">TILE_SIZE[31:0]</obj_property>
+      <obj_property name="ObjectShortName">TILE_SIZE[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_h_sram/DATA_WIDTH" type="array">
+      <obj_property name="ElementShortName">DATA_WIDTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">DATA_WIDTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_h_sram/DEPTH" type="array">
+      <obj_property name="ElementShortName">DEPTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">DEPTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_h_sram/ADDR_W" type="array">
+      <obj_property name="ElementShortName">ADDR_W[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ADDR_W[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_u_sram/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_u_sram/rst_n" type="logic">
+      <obj_property name="ElementShortName">rst_n</obj_property>
+      <obj_property name="ObjectShortName">rst_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_u_sram/wr_en" type="logic">
+      <obj_property name="ElementShortName">wr_en</obj_property>
+      <obj_property name="ObjectShortName">wr_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_u_sram/wr_addr" type="array">
+      <obj_property name="ElementShortName">wr_addr[5:0]</obj_property>
+      <obj_property name="ObjectShortName">wr_addr[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_u_sram/wr_data" type="array">
+      <obj_property name="ElementShortName">wr_data[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">wr_data[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_u_sram/rd_en" type="logic">
+      <obj_property name="ElementShortName">rd_en</obj_property>
+      <obj_property name="ObjectShortName">rd_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_u_sram/rd_addr" type="array">
+      <obj_property name="ElementShortName">rd_addr[5:0]</obj_property>
+      <obj_property name="ObjectShortName">rd_addr[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_u_sram/rd_data" type="array">
+      <obj_property name="ElementShortName">rd_data[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">rd_data[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_u_sram/rd2_en" type="logic">
+      <obj_property name="ElementShortName">rd2_en</obj_property>
+      <obj_property name="ObjectShortName">rd2_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_u_sram/rd2_addr" type="array">
+      <obj_property name="ElementShortName">rd2_addr[5:0]</obj_property>
+      <obj_property name="ObjectShortName">rd2_addr[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_u_sram/rd2_data" type="array">
+      <obj_property name="ElementShortName">rd2_data[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">rd2_data[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_u_sram/mem_sim" type="array">
+      <obj_property name="ElementShortName">mem_sim[0:63][63:0]</obj_property>
+      <obj_property name="ObjectShortName">mem_sim[0:63][63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_u_sram/q" type="array">
+      <obj_property name="ElementShortName">q[63:0]</obj_property>
+      <obj_property name="ObjectShortName">q[63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_u_sram/q2" type="array">
+      <obj_property name="ElementShortName">q2[63:0]</obj_property>
+      <obj_property name="ObjectShortName">q2[63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_u_sram/TILE_SIZE" type="array">
+      <obj_property name="ElementShortName">TILE_SIZE[31:0]</obj_property>
+      <obj_property name="ObjectShortName">TILE_SIZE[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_u_sram/DATA_WIDTH" type="array">
+      <obj_property name="ElementShortName">DATA_WIDTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">DATA_WIDTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_u_sram/DEPTH" type="array">
+      <obj_property name="ElementShortName">DEPTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">DEPTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_mamba_block_top/dut/u_in_proj/u_u_sram/ADDR_W" type="array">
+      <obj_property name="ElementShortName">ADDR_W[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ADDR_W[31:0]</obj_property>
+   </wvobject>
+</wave_config>

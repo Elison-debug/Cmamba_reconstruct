@@ -1,0 +1,12 @@
+{
+  "block_auto_mode": 1,
+  "block_start_pulse_cycles": 1,
+  "h_depth": 32,
+  "u_depth": 64,
+  "notes": [
+    "Current top-level golden is partial.",
+    "Compare h->in_proj->u/z SRAM first.",
+    "Final y is not a valid top-level golden yet because out_proj is still stub in RTL.",
+    "Software path uses u_act before dt_proj, while current RTL top still reads raw u from SRAM for dt scheduling."
+  ]
+}

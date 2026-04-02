@@ -47,6 +47,7 @@ echo [bittrue] starting...
   --feat_root "%FEAT_ROOT%" ^
   --target "%TARGET%" ^
   --preload ^
+  --case_parallel 2 ^
   --export_dir "%EXPORT_DIR%" ^
   --out_dir "%OUT_DIR%" ^
   --cpp_bin "%CPP_BIN%" ^

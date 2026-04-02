@@ -1,0 +1,1 @@
+--relax --timescale "1ns/1ps" --debug "typical" "tb_reuse_mamba_block_top_hw_debug" -s "tb_reuse_mamba_block_top_hw_debug" -log "xelab.log" 

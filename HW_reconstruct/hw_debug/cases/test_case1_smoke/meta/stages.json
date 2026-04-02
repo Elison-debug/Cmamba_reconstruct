@@ -1,0 +1,79 @@
+{
+  "stages": [
+    {
+      "name": "sigmoid4_vec",
+      "rtl_top": "sigmoid4_vec",
+      "status": "ready_to_hook",
+      "description": "Q8.8 -> clamp[-4,4) -> addr=x+1024 -> Q0.16 ROM output.",
+      "golden_inputs": [
+        "in_q88.mem"
+      ],
+      "golden_outputs": [
+        "out_q016.mem"
+      ],
+      "notes": [
+        "Best first stage for cocotb bit-exact verification.",
+        "Should match RTL clamp, ROM address, and Q0.16 output exactly."
+      ]
+    },
+    {
+      "name": "ew_update_vec4",
+      "rtl_top": "ew_update_vec4",
+      "status": "ready_to_hook",
+      "description": "State update s_new = lam*s_prev + (1-lam)*u with SRAM timing.",
+      "golden_inputs": [
+        "lam_q016.mem",
+        "u_q88.mem",
+        "s_prev_q88.mem",
+        "s_addr.mem"
+      ],
+      "golden_outputs": [
+        "s_new_q88.mem",
+        "state_write.mem"
+      ],
+      "notes": [
+        "Must align lam Q0.16 -> Q8.8 truncation, one_minus, SRAM read latency, and write-back address."
+      ]
+    },
+    {
+      "name": "top_mac_plus_bias_fifo_sigmoid_ew_gate",
+      "rtl_top": "top_mac_plus_bias_fifo_sigmoid_ew_gate",
+      "status": "planned",
+      "description": "SSM post-dt path including bias, sigmoid, EW update, and gate.",
+      "golden_inputs": [
+        "mac_vec_q88.mem",
+        "xt_q88.mem",
+        "gate_q88.mem"
+      ],
+      "golden_outputs": [
+        "y_q88.mem",
+        "lam_q016.mem",
+        "s_new_q88.mem"
+      ],
+      "notes": [
+        "Good integration target after sigmoid4_vec and ew_update_vec4 pass."
+      ]
+    },
+    {
+      "name": "reuse_mamba_block_top",
+      "rtl_top": "reuse_mamba_block_top",
+      "status": "planned",
+      "description": "Block-level top around shared MAC fabric.",
+      "golden_inputs": [
+        "h_t.mem",
+        "weights/*.mem",
+        "control.json"
+      ],
+      "golden_outputs": [
+        "u_t.mem",
+        "z_t.mem",
+        "p_t.mem",
+        "y.mem"
+      ],
+      "notes": [
+        "Use only after in_proj and SSM subpaths are individually validated.",
+        "Current hardware out_proj is still stub, so final y compare may be partial."
+      ]
+    }
+  ]
+}

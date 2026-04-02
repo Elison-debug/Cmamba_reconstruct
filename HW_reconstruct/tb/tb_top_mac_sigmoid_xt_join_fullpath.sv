@@ -45,7 +45,7 @@ module tb_top_mac_sigmoid_xt_join_fullpath;
 
   localparam int ADDR_BITS  = 11;
   localparam int LUT_SIZE   = (1<<ADDR_BITS);
-  localparam string LUT_FILE = "D:/Mamba/Cmamba_reconstruct/sigmoid_lut_q016_2048.hex";
+  localparam string LUT_FILE = "sigmoid_lut_q016_2048.hex";
 
   // Q8.8 clamp range for LUT [-4,+4) -> [-1024, +1023]
   localparam logic signed [DATA_WIDTH-1:0] X_MIN = -16'sd1024;

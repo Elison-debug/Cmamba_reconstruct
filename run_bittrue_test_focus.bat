@@ -6,7 +6,7 @@ set CKPT=refactor/bittrue/reference.pt
 set FEAT_ROOT=./data/features/parity_2100
 set TARGET=test
 set EXPORT_DIR=export_bittrue/case1
-set OUT_DIR=eval_bittrue_out/test_focus
+set OUT_DIR=eval_bittrue_out/test_focus_2
 set CPP_BIN=.\build\bittrue\main_full.exe
 set CPP_BATCH_BIN=.\build\bittrue\main_batch.exe
 
@@ -43,6 +43,7 @@ echo [bittrue-test] starting...
   --feat_root "%FEAT_ROOT%" ^
   --target "%TARGET%" ^
   --preload ^
+  --case_parallel 2 ^
   --export_dir "%EXPORT_DIR%" ^
   --out_dir "%OUT_DIR%" ^
   --cpp_bin "%CPP_BIN%" ^

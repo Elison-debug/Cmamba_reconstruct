@@ -1,0 +1,26 @@
+{
+  "name": "sigmoid4_vec",
+  "rtl_top": "sigmoid4_vec",
+  "status": "ready_to_hook",
+  "description": "Q8.8 -> clamp[-4,4) -> addr=x+1024 -> Q0.16 ROM output.",
+  "golden_inputs": [
+    "in_q88.mem"
+  ],
+  "golden_outputs": [
+    "out_q016.mem"
+  ],
+  "notes": [
+    "Best first stage for cocotb bit-exact verification.",
+    "Should match RTL clamp, ROM address, and Q0.16 output exactly."
+  ],
+  "generated_artifacts": {
+    "generated": true,
+    "vector_count": 512,
+    "files": [
+      "in_q88.mem",
+      "out_q016.mem",
+      "lut_q016_2048.hex",
+      "vectors.json"
+    ]
+  }
+}

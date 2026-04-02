@@ -1,0 +1,24 @@
+#-----------------------------------------------------------
+# Vivado v2024.1 (64-bit)
+# SW Build 5076996 on Wed May 22 18:37:14 MDT 2024
+# IP Build 5075265 on Wed May 22 21:45:21 MDT 2024
+# SharedData Build 5076995 on Wed May 22 18:29:18 MDT 2024
+# Start of session at: Mon Mar 16 13:37:00 2026
+# Process ID: 25852
+# Current directory: D:/Mamba/project_mamba_all1/project_mamba_all1.runs/slim_WBUF_bank_dp_synth_1
+# Command line: vivado.exe -log slim_WBUF_bank_dp.vds -product Vivado -mode batch -messageDb vivado.pb -notrace -source slim_WBUF_bank_dp.tcl
+# Log file: D:/Mamba/project_mamba_all1/project_mamba_all1.runs/slim_WBUF_bank_dp_synth_1/slim_WBUF_bank_dp.vds
+# Journal file: D:/Mamba/project_mamba_all1/project_mamba_all1.runs/slim_WBUF_bank_dp_synth_1\vivado.jou
+# Running On        :DESKTOP-JL9PPGK
+# Platform          :Windows Server 2016 or Windows 10
+# Operating System  :26200
+# Processor Detail  :Intel(R) Core(TM) i7-10510U CPU @ 1.80GHz
+# CPU Frequency     :2304 MHz
+# CPU Physical cores:4
+# CPU Logical cores :8
+# Host memory       :16918 MB
+# Swap memory       :7541 MB
+# Total Virtual     :24459 MB
+# Available Virtual :566 MB
+#-----------------------------------------------------------
+source slim_WBUF_bank_dp.tcl -notrace

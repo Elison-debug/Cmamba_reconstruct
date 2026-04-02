@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import csv
 import json
 import os
@@ -97,17 +98,13 @@ def _run_cpp_sample(cpp_bin: str, export_json: str, x_kd: np.ndarray, din: int, 
 def _run_cpp_batch(
     cpp_batch_bin: str,
     export_json: str,
-    x_nkd: np.ndarray,
+    x_path: Path,
+    y_path: Path,
     din: int,
     mode: str,
     overrides: str,
-    tmp_dir: Path,
     verbose: bool = False,
 ) -> np.ndarray:
-    tmp_dir.mkdir(parents=True, exist_ok=True)
-    x_path = tmp_dir / f"x_{mode}_{abs(hash(overrides)) & 0xffffffff:08x}.npy"
-    y_path = tmp_dir / f"y_{mode}_{abs(hash(overrides)) & 0xffffffff:08x}.npy"
-    np.save(x_path, x_nkd.astype(np.float32))
     cmd = [cpp_batch_bin, export_json, str(x_path), str(y_path), str(din), "--mode", mode]
     if overrides:
         cmd.extend(["--overrides", overrides])
@@ -115,11 +112,6 @@ def _run_cpp_batch(
         cmd.append("--verbose")
     subprocess.run(cmd, check=True)
     y_pred = np.load(y_path)
-    try:
-        x_path.unlink(missing_ok=True)
-        y_path.unlink(missing_ok=True)
-    except Exception:
-        pass
     return y_pred.astype(np.float32, copy=False)
 
 
@@ -165,6 +157,161 @@ def _default_cases(cpp_mode: str, cpp_overrides: str) -> list[dict]:
     return [{"label": f"cpp_{cpp_mode}", "mode": cpp_mode, "overrides": cpp_overrides.strip()}]
 
 
+def _cache_meta(args: argparse.Namespace, ckpt_cfg: dict, ckpt_arch: dict) -> dict:
+    return {
+        "ckpt": str(Path(args.ckpt).resolve()),
+        "feat_root": str(Path(args.feat_root).resolve()),
+        "target": args.target,
+        "limit": int(args.limit),
+        "batch_size": int(args.batch_size),
+        "Din": int(ckpt_cfg["Din"]),
+        "K": int(ckpt_cfg["K"]),
+        "proj_dim": int(ckpt_cfg["proj_dim"]),
+        "d_model": int(ckpt_cfg["d_model"]),
+        "n_layer": int(ckpt_cfg["n_layer"]),
+        "patch_len": int(ckpt_cfg["patch_len"]),
+        "stride": int(ckpt_cfg["stride"]),
+        "quantize_all": bool(ckpt_arch.get("quantize_all", False)),
+        "quant_backend": str(ckpt_arch.get("quant_backend", "python")),
+        "quant_bits": int(ckpt_arch.get("quant_bits", 8)),
+    }
+
+
+def _load_or_prepare_float_cache(
+    args: argparse.Namespace,
+    ckpt_cfg: dict,
+    ckpt_arch: dict,
+    dl: DataLoader,
+    device: torch.device,
+    model: torch.nn.Module,
+    out_dir: Path,
+):
+    float_dir = out_dir / "float"
+    float_dir.mkdir(parents=True, exist_ok=True)
+    samples_path = float_dir / "samples.npy"
+    y_true_path = float_dir / "y_true.npy"
+    y_float_path = float_dir / "y_float.npy"
+    meta_path = float_dir / "cache_meta.json"
+
+    wanted_meta = _cache_meta(args, ckpt_cfg, ckpt_arch)
+    if samples_path.exists() and y_true_path.exists() and y_float_path.exists() and meta_path.exists():
+        try:
+            cached_meta = json.loads(meta_path.read_text(encoding="utf-8"))
+            if cached_meta == wanted_meta:
+                x_arr = np.load(samples_path)
+                y_true_arr = np.load(y_true_path)
+                y_float_arr = np.load(y_float_path)
+                print(
+                    f"[cache] reuse float cache from {float_dir} with {x_arr.shape[0]} samples",
+                    flush=True,
+                )
+                return x_arr, y_true_arr, y_float_arr
+        except Exception:
+            pass
+
+    y_true_all: list[np.ndarray] = []
+    y_float_all: list[np.ndarray] = []
+    x_all: list[np.ndarray] = []
+    sample_count = 0
+    t_collect0 = time.time()
+    collect_report_next = 500
+
+    for xb_np, yb_np, y_float_np in _iter_loader_numpy(dl, device, model):
+        for i in range(xb_np.shape[0]):
+            x_all.append(xb_np[i][None, ...])
+            y_true_all.append(yb_np[i][None, :])
+            y_float_all.append(y_float_np[i][None, :])
+            sample_count += 1
+            if sample_count >= collect_report_next:
+                elapsed = time.time() - t_collect0
+                print(f"[collect] {sample_count} samples prepared in {elapsed:.1f}s", flush=True)
+                collect_report_next += 500
+            if args.limit > 0 and sample_count >= args.limit:
+                break
+        if args.limit > 0 and sample_count >= args.limit:
+            break
+
+    x_arr = np.concatenate(x_all, axis=0)
+    y_true_arr = np.concatenate(y_true_all, axis=0)
+    y_float_arr = np.concatenate(y_float_all, axis=0)
+    np.save(samples_path, x_arr.astype(np.float32))
+    np.save(y_true_path, y_true_arr.astype(np.float32))
+    np.save(y_float_path, y_float_arr.astype(np.float32))
+    meta_path.write_text(json.dumps(wanted_meta, indent=2), encoding="utf-8")
+    print(f"[cache] wrote float cache to {float_dir}", flush=True)
+    return x_arr, y_true_arr, y_float_arr
+
+
+def _run_one_batch_case(
+    case: dict,
+    cpp_batch_bin: str,
+    export_json: str,
+    x_path: Path,
+    din: int,
+    out_dir: Path,
+    y_true_arr: np.ndarray,
+    y_float_arr: np.ndarray,
+    write_compare_csv: bool,
+    cpp_verbose: bool,
+):
+    label = case["label"]
+    case_dir = out_dir / label
+    case_dir.mkdir(parents=True, exist_ok=True)
+    y_path = case_dir / "y_cpp.npy"
+    case_t0 = time.time()
+    y_cpp_arr = _run_cpp_batch(
+        cpp_batch_bin,
+        export_json,
+        x_path,
+        y_path,
+        din,
+        case["mode"],
+        case["overrides"],
+        verbose=cpp_verbose,
+    )
+    case_elapsed = time.time() - case_t0
+    np.savez(
+        case_dir / "cpp_preds.npz",
+        y_true=y_true_arr,
+        y_float=y_float_arr,
+        y_cpp=y_cpp_arr,
+        float_err=np.sqrt(np.sum((y_float_arr - y_true_arr) ** 2, axis=1)),
+        cpp_err=np.sqrt(np.sum((y_cpp_arr - y_true_arr) ** 2, axis=1)),
+        diff_float_cpp=np.sqrt(np.sum((y_cpp_arr - y_float_arr) ** 2, axis=1)),
+    )
+    if write_compare_csv:
+        rows = np.column_stack([
+            y_true_arr[:, 0], y_true_arr[:, 1],
+            y_float_arr[:, 0], y_float_arr[:, 1],
+            y_cpp_arr[:, 0], y_cpp_arr[:, 1],
+            np.sqrt(np.sum((y_float_arr - y_true_arr) ** 2, axis=1)),
+            np.sqrt(np.sum((y_cpp_arr - y_true_arr) ** 2, axis=1)),
+            np.sqrt(np.sum((y_cpp_arr - y_float_arr) ** 2, axis=1)),
+        ])
+        with open(case_dir / "compare.csv", "w", newline="", encoding="utf-8") as f:
+            w = csv.writer(f)
+            w.writerow([
+                "y_true_x", "y_true_y",
+                "y_float_x", "y_float_y",
+                "y_cpp_x", "y_cpp_y",
+                "float_err", "cpp_err", "float_cpp_diff",
+            ])
+            w.writerows(rows.tolist())
+
+    case_metrics = _metric_dict(y_true_arr, y_cpp_arr)
+    mae = float(np.mean(np.abs(y_cpp_arr - y_float_arr)))
+    max_abs = float(np.max(np.abs(y_cpp_arr - y_float_arr)))
+    return {
+        "label": label,
+        "mode": case["mode"],
+        "overrides": case["overrides"],
+        "metrics": case_metrics,
+        "float_vs_cpp_mae": mae,
+        "float_vs_cpp_max_abs": max_abs,
+        "elapsed_sec": case_elapsed,
+    }
+
+
 def main():
     p = argparse.ArgumentParser(description="Evaluate exported bit-true reference against Python model.")
     p.add_argument("--feat_root", type=str, default="./data/features/logo")
@@ -178,6 +325,8 @@ def main():
     p.add_argument("--target", type=str, default="eval", choices=["auto", "train", "eval", "test"])
     p.add_argument("--preload", action="store_true")
     p.add_argument("--limit", type=int, default=0, help="limit number of samples for quick verification")
+    p.add_argument("--write_compare_csv", action="store_true", help="write per-sample compare.csv for each case")
+    p.add_argument("--case_parallel", type=int, default=1, help="number of C++ batch cases to run in parallel")
     p.add_argument("--cpp_mode", type=str, default="fake", choices=["fake", "int8", "int16"])
     p.add_argument("--cpp_overrides", type=str, default="", help="role=mode,name:layer=mode,...")
     p.add_argument(
@@ -247,70 +396,16 @@ def main():
 
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    tmp_dir = out_dir / "_tmp"
-
-    y_true_all: list[np.ndarray] = []
-    y_float_all: list[np.ndarray] = []
-    x_all: list[np.ndarray] = []
 
     run_cpp = bool(args.cpp_bin) or bool(args.cpp_batch_bin)
     run_cpp_batch = bool(args.cpp_batch_bin)
     sweep_cases = [_parse_sweep_case(s) for s in args.sweep_case] if args.sweep_case else _default_cases(args.cpp_mode, args.cpp_overrides)
-    sample_count = 0
     case_preds: dict[str, list[np.ndarray]] = {case["label"]: [] for case in sweep_cases} if run_cpp else {}
     case_rows: dict[str, list[list[float]]] = {case["label"]: [] for case in sweep_cases} if run_cpp else {}
-    t_collect0 = time.time()
-    collect_report_next = 500
-
-    for xb_np, yb_np, y_float_np in _iter_loader_numpy(dl, device, model):
-        for i in range(xb_np.shape[0]):
-            x_kd = xb_np[i]
-            y_true = yb_np[i]
-            y_float = y_float_np[i]
-
-            x_all.append(x_kd[None, ...])
-            y_true_all.append(y_true[None, :])
-            y_float_all.append(y_float[None, :])
-
-            if run_cpp and not run_cpp_batch:
-                for case in sweep_cases:
-                    y_cpp = _run_cpp_sample(
-                        args.cpp_bin,
-                        export_json,
-                        x_kd,
-                        int(ckpt_cfg["Din"]),
-                        case["mode"],
-                        case["overrides"],
-                        verbose=bool(args.cpp_verbose),
-                    )
-                    case_preds[case["label"]].append(y_cpp[None, :])
-                    case_rows[case["label"]].append([
-                        float(y_true[0]), float(y_true[1]),
-                        float(y_float[0]), float(y_float[1]),
-                        float(y_cpp[0]), float(y_cpp[1]),
-                        float(np.linalg.norm(y_float - y_true)),
-                        float(np.linalg.norm(y_cpp - y_true)),
-                        float(np.linalg.norm(y_cpp - y_float)),
-                    ])
-
-            sample_count += 1
-            if sample_count >= collect_report_next:
-                elapsed = time.time() - t_collect0
-                print(f"[collect] {sample_count} samples prepared in {elapsed:.1f}s", flush=True)
-                collect_report_next += 500
-            if args.limit > 0 and sample_count >= args.limit:
-                break
-        if args.limit > 0 and sample_count >= args.limit:
-            break
-
-    x_arr = np.concatenate(x_all, axis=0)
-    y_true_arr = np.concatenate(y_true_all, axis=0)
-    y_float_arr = np.concatenate(y_float_all, axis=0)
-    np.savez(
-        out_dir / "float_preds.npz",
-        y_true=y_true_arr,
-        y_pred=y_float_arr,
+    x_arr, y_true_arr, y_float_arr = _load_or_prepare_float_cache(
+        args, ckpt_cfg, ckpt_arch, dl, device, model, out_dir
     )
+    np.savez(out_dir / "float_preds.npz", y_true=y_true_arr, y_pred=y_float_arr)
 
     result = {
         "export_json": str(Path(export_json).resolve()),
@@ -388,86 +483,66 @@ def main():
         sweep_summary_rows: list[list[object]] = []
         result["cases"] = {}
         t_cases0 = time.time()
+        float_dir = out_dir / "float"
+        x_path = float_dir / "samples.npy"
         for idx, case in enumerate(sweep_cases, start=1):
-            label = case["label"]
             print(
-                f"[case {idx}/{len(sweep_cases)}] start label={label} mode={case['mode']} overrides={case['overrides']}",
+                f"[case {idx}/{len(sweep_cases)}] queued label={case['label']} mode={case['mode']} overrides={case['overrides']}",
                 flush=True,
             )
-            case_t0 = time.time()
-            y_cpp_arr = _run_cpp_batch(
-                args.cpp_batch_bin,
-                export_json,
-                x_arr,
-                int(ckpt_cfg["Din"]),
-                case["mode"],
-                case["overrides"],
-                tmp_dir,
-                verbose=bool(args.cpp_verbose),
-            )
-            case_elapsed = time.time() - case_t0
-            case_dir = out_dir / label
-            case_dir.mkdir(parents=True, exist_ok=True)
-            np.savez(
-                case_dir / "cpp_preds.npz",
-                y_true=y_true_arr,
-                y_float=y_float_arr,
-                y_cpp=y_cpp_arr,
-                float_err=np.sqrt(np.sum((y_float_arr - y_true_arr) ** 2, axis=1)),
-                cpp_err=np.sqrt(np.sum((y_cpp_arr - y_true_arr) ** 2, axis=1)),
-                diff_float_cpp=np.sqrt(np.sum((y_cpp_arr - y_float_arr) ** 2, axis=1)),
-            )
-            rows = np.column_stack([
-                y_true_arr[:, 0], y_true_arr[:, 1],
-                y_float_arr[:, 0], y_float_arr[:, 1],
-                y_cpp_arr[:, 0], y_cpp_arr[:, 1],
-                np.sqrt(np.sum((y_float_arr - y_true_arr) ** 2, axis=1)),
-                np.sqrt(np.sum((y_cpp_arr - y_true_arr) ** 2, axis=1)),
-                np.sqrt(np.sum((y_cpp_arr - y_float_arr) ** 2, axis=1)),
-            ])
-            with open(case_dir / "compare.csv", "w", newline="", encoding="utf-8") as f:
-                w = csv.writer(f)
-                w.writerow([
-                    "y_true_x", "y_true_y",
-                    "y_float_x", "y_float_y",
-                    "y_cpp_x", "y_cpp_y",
-                    "float_err", "cpp_err", "float_cpp_diff",
-                ])
-                w.writerows(rows.tolist())
 
-            case_metrics = _metric_dict(y_true_arr, y_cpp_arr)
-            mae = float(np.mean(np.abs(y_cpp_arr - y_float_arr)))
-            max_abs = float(np.max(np.abs(y_cpp_arr - y_float_arr)))
-            result["cases"][label] = {
-                "mode": case["mode"],
-                "overrides": case["overrides"],
-                "metrics": case_metrics,
-                "float_vs_cpp_mae": mae,
-                "float_vs_cpp_max_abs": max_abs,
-                "elapsed_sec": case_elapsed,
+        max_workers = max(1, int(args.case_parallel))
+        with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as ex:
+            future_map = {
+                ex.submit(
+                    _run_one_batch_case,
+                    case,
+                    args.cpp_batch_bin,
+                    export_json,
+                    x_path,
+                    int(ckpt_cfg["Din"]),
+                    out_dir,
+                    y_true_arr,
+                    y_float_arr,
+                    bool(args.write_compare_csv),
+                    bool(args.cpp_verbose),
+                ): case
+                for case in sweep_cases
             }
-            sweep_summary_rows.append([
-                label,
-                case["mode"],
-                case["overrides"],
-                case_metrics["mean_err"],
-                case_metrics["median_err"],
-                case_metrics["p80_err"],
-                case_metrics["p90_err"],
-                mae,
-                max_abs,
-                case_elapsed,
-            ])
-
-            done = idx
-            total_elapsed = time.time() - t_cases0
-            avg_case = total_elapsed / done
-            eta = avg_case * (len(sweep_cases) - done)
-            print(
-                f"[case {idx}/{len(sweep_cases)}] done label={label} "
-                f"elapsed={case_elapsed:.1f}s total_elapsed={total_elapsed:.1f}s eta={eta:.1f}s",
-                flush=True,
-            )
+            done = 0
+            for fut in concurrent.futures.as_completed(future_map):
+                case = future_map[fut]
+                label = case["label"]
+                case_info = fut.result()
+                done += 1
+                result["cases"][label] = {
+                    "mode": case_info["mode"],
+                    "overrides": case_info["overrides"],
+                    "metrics": case_info["metrics"],
+                    "float_vs_cpp_mae": case_info["float_vs_cpp_mae"],
+                    "float_vs_cpp_max_abs": case_info["float_vs_cpp_max_abs"],
+                    "elapsed_sec": case_info["elapsed_sec"],
+                }
+                sweep_summary_rows.append([
+                    label,
+                    case_info["mode"],
+                    case_info["overrides"],
+                    case_info["metrics"]["mean_err"],
+                    case_info["metrics"]["median_err"],
+                    case_info["metrics"]["p80_err"],
+                    case_info["metrics"]["p90_err"],
+                    case_info["float_vs_cpp_mae"],
+                    case_info["float_vs_cpp_max_abs"],
+                    case_info["elapsed_sec"],
+                ])
+                total_elapsed = time.time() - t_cases0
+                avg_case = total_elapsed / done
+                eta = avg_case * (len(sweep_cases) - done)
+                print(
+                    f"[case {done}/{len(sweep_cases)}] done label={label} "
+                    f"elapsed={case_info['elapsed_sec']:.1f}s total_elapsed={total_elapsed:.1f}s eta={eta:.1f}s",
+                    flush=True,
+                )
 
         with open(out_dir / "sweep_summary.csv", "w", newline="", encoding="utf-8") as f:
             w = csv.writer(f)

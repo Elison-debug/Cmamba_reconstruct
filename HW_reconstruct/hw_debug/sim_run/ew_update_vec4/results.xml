@@ -1,0 +1,8 @@
+<testsuites name="results">
+  <testsuite name="all" package="all">
+    <property name="random_seed" value="1775164409" />
+    <testcase name="test_ew_update_vec4_vectors" classname="test_ew_update_vec4" file="E:\course\master\mamba\Cmamba_reconstruct\HW_reconstruct\hw_debug\cocotb\test_ew_update_vec4.py" lineno="15" time="0.05820751190185547" sim_time_ns="5160.0" ratio_time="88648.35192922094">
+      <failure error_type="ValueError" error_msg="Can't convert LogicArray to int: it contains non-0/1 values" />
+    </testcase>
+  </testsuite>
+</testsuites>

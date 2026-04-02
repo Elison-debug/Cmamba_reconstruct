@@ -1,0 +1,469 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="tb_reuse_in_proj_scheduler_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="tb_reuse_in_proj_scheduler" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="10,765.166 ns"></ZoomStartTime>
+      <ZoomEndTime time="10,870.567 ns"></ZoomEndTime>
+      <Cursor1Time time="10,853.000 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="204"></NameColumnWidth>
+      <ValueColumnWidth column_width="90"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="107" />
+   <wave_markers>
+      <marker time="115000" label="" />
+   </wave_markers>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/rst_n" type="logic">
+      <obj_property name="ElementShortName">rst_n</obj_property>
+      <obj_property name="ObjectShortName">rst_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/enable" type="logic">
+      <obj_property name="ElementShortName">enable</obj_property>
+      <obj_property name="ObjectShortName">enable</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/start" type="logic">
+      <obj_property name="ElementShortName">start</obj_property>
+      <obj_property name="ObjectShortName">start</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/busy" type="logic">
+      <obj_property name="ElementShortName">busy</obj_property>
+      <obj_property name="ObjectShortName">busy</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/done" type="logic">
+      <obj_property name="ElementShortName">done</obj_property>
+      <obj_property name="ObjectShortName">done</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/h_wr_en" type="logic">
+      <obj_property name="ElementShortName">h_wr_en</obj_property>
+      <obj_property name="ObjectShortName">h_wr_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/h_wr_addr" type="array">
+      <obj_property name="ElementShortName">h_wr_addr[4:0]</obj_property>
+      <obj_property name="ObjectShortName">h_wr_addr[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/h_wr_data" type="array">
+      <obj_property name="ElementShortName">h_wr_data[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">h_wr_data[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/u_rd_en" type="logic">
+      <obj_property name="ElementShortName">u_rd_en</obj_property>
+      <obj_property name="ObjectShortName">u_rd_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/u_rd_addr" type="array">
+      <obj_property name="ElementShortName">u_rd_addr[5:0]</obj_property>
+      <obj_property name="ObjectShortName">u_rd_addr[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/u_rd_data" type="array">
+      <obj_property name="ElementShortName">u_rd_data[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">u_rd_data[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/z_rd_en" type="logic">
+      <obj_property name="ElementShortName">z_rd_en</obj_property>
+      <obj_property name="ObjectShortName">z_rd_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/z_rd_addr" type="array">
+      <obj_property name="ElementShortName">z_rd_addr[5:0]</obj_property>
+      <obj_property name="ObjectShortName">z_rd_addr[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/z_rd_data" type="array">
+      <obj_property name="ElementShortName">z_rd_data[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">z_rd_data[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/fabric_mode" type="array">
+      <obj_property name="ElementShortName">fabric_mode[1:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_mode[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/fabric_col_blocks" type="array">
+      <obj_property name="ElementShortName">fabric_col_blocks[6:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_col_blocks[6:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/fabric_valid_in" type="logic">
+      <obj_property name="ElementShortName">fabric_valid_in</obj_property>
+      <obj_property name="ObjectShortName">fabric_valid_in</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/st" type="array">
+      <obj_property name="ElementShortName">st[2:0]</obj_property>
+      <obj_property name="ObjectShortName">st[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/fabric_A0_mat" type="array">
+      <obj_property name="ElementShortName">fabric_A0_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_A0_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/fabric_A1_mat" type="array">
+      <obj_property name="ElementShortName">fabric_A1_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_A1_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/fabric_A2_mat" type="array">
+      <obj_property name="ElementShortName">fabric_A2_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_A2_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/fabric_A3_mat" type="array">
+      <obj_property name="ElementShortName">fabric_A3_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_A3_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/fabric_B0_mat" type="array">
+      <obj_property name="ElementShortName">fabric_B0_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_B0_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/fabric_B1_mat" type="array">
+      <obj_property name="ElementShortName">fabric_B1_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_B1_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/fabric_B2_mat" type="array">
+      <obj_property name="ElementShortName">fabric_B2_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_B2_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/fabric_B3_mat" type="array">
+      <obj_property name="ElementShortName">fabric_B3_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_B3_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/fabric_reduced_vec" type="array">
+      <obj_property name="ElementShortName">fabric_reduced_vec[3:0][31:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_reduced_vec[3:0][31:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/fabric_reduced_mat_0" type="array">
+      <obj_property name="ElementShortName">fabric_reduced_mat_0[3:0][3:0][31:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_reduced_mat_0[3:0][3:0][31:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/fabric_reduced_mat_1" type="array">
+      <obj_property name="ElementShortName">fabric_reduced_mat_1[3:0][3:0][31:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_reduced_mat_1[3:0][3:0][31:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/fabric_reduced_mat_2" type="array">
+      <obj_property name="ElementShortName">fabric_reduced_mat_2[3:0][3:0][31:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_reduced_mat_2[3:0][3:0][31:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/fabric_reduced_mat_3" type="array">
+      <obj_property name="ElementShortName">fabric_reduced_mat_3[3:0][3:0][31:0]</obj_property>
+      <obj_property name="ObjectShortName">fabric_reduced_mat_3[3:0][3:0][31:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/fabric_valid_out" type="logic">
+      <obj_property name="ElementShortName">fabric_valid_out</obj_property>
+      <obj_property name="ObjectShortName">fabric_valid_out</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/row_group_idx" type="array">
+      <obj_property name="ElementShortName">row_group_idx[4:0]</obj_property>
+      <obj_property name="ObjectShortName">row_group_idx[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/row_subtile_idx" type="array">
+      <obj_property name="ElementShortName">row_subtile_idx[1:0]</obj_property>
+      <obj_property name="ObjectShortName">row_subtile_idx[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/k_block_idx" type="array">
+      <obj_property name="ElementShortName">k_block_idx[5:0]</obj_property>
+      <obj_property name="ObjectShortName">k_block_idx[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/row_tile_linear" type="array">
+      <obj_property name="ElementShortName">row_tile_linear[6:0]</obj_property>
+      <obj_property name="ObjectShortName">row_tile_linear[6:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/h_rd_en" type="logic">
+      <obj_property name="ElementShortName">h_rd_en</obj_property>
+      <obj_property name="ObjectShortName">h_rd_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/w_addr_sel" type="array">
+      <obj_property name="ElementShortName">w_addr_sel[3:0][9:0]</obj_property>
+      <obj_property name="ObjectShortName">w_addr_sel[3:0][9:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/fabric_valid_in" type="logic">
+      <obj_property name="ElementShortName">fabric_valid_in</obj_property>
+      <obj_property name="ObjectShortName">fabric_valid_in</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/fabric_valid_out" type="logic">
+      <obj_property name="ElementShortName">fabric_valid_out</obj_property>
+      <obj_property name="ObjectShortName">fabric_valid_out</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/final_vec" type="array">
+      <obj_property name="ElementShortName">final_vec[3:0][31:0]</obj_property>
+      <obj_property name="ObjectShortName">final_vec[3:0][31:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_wr_en" type="logic">
+      <obj_property name="ElementShortName">u_wr_en</obj_property>
+      <obj_property name="ObjectShortName">u_wr_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/out_wr_addr" type="array">
+      <obj_property name="ElementShortName">out_wr_addr[5:0]</obj_property>
+      <obj_property name="ObjectShortName">out_wr_addr[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/out_wr_data" type="array">
+      <obj_property name="ElementShortName">out_wr_data[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">out_wr_data[3:0][15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/TILE_SIZE" type="array">
+      <obj_property name="ElementShortName">TILE_SIZE[31:0]</obj_property>
+      <obj_property name="ObjectShortName">TILE_SIZE[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/DATA_WIDTH" type="array">
+      <obj_property name="ElementShortName">DATA_WIDTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">DATA_WIDTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/ACC_WIDTH" type="array">
+      <obj_property name="ElementShortName">ACC_WIDTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ACC_WIDTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/N_BANK" type="array">
+      <obj_property name="ElementShortName">N_BANK[31:0]</obj_property>
+      <obj_property name="ObjectShortName">N_BANK[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/WDEPTH" type="array">
+      <obj_property name="ElementShortName">WDEPTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">WDEPTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/WADDR_W" type="array">
+      <obj_property name="ElementShortName">WADDR_W[31:0]</obj_property>
+      <obj_property name="ObjectShortName">WADDR_W[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/DATA_W" type="array">
+      <obj_property name="ElementShortName">DATA_W[31:0]</obj_property>
+      <obj_property name="ObjectShortName">DATA_W[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/IN_DIM" type="array">
+      <obj_property name="ElementShortName">IN_DIM[31:0]</obj_property>
+      <obj_property name="ObjectShortName">IN_DIM[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/OUT_DIM" type="array">
+      <obj_property name="ElementShortName">OUT_DIM[31:0]</obj_property>
+      <obj_property name="ObjectShortName">OUT_DIM[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/H_DEPTH" type="array">
+      <obj_property name="ElementShortName">H_DEPTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">H_DEPTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/H_ADDR_W" type="array">
+      <obj_property name="ElementShortName">H_ADDR_W[31:0]</obj_property>
+      <obj_property name="ObjectShortName">H_ADDR_W[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/U_DEPTH" type="array">
+      <obj_property name="ElementShortName">U_DEPTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">U_DEPTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/U_ADDR_W" type="array">
+      <obj_property name="ElementShortName">U_ADDR_W[31:0]</obj_property>
+      <obj_property name="ObjectShortName">U_ADDR_W[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_u_sram/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_u_sram/rst_n" type="logic">
+      <obj_property name="ElementShortName">rst_n</obj_property>
+      <obj_property name="ObjectShortName">rst_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_u_sram/wr_en" type="logic">
+      <obj_property name="ElementShortName">wr_en</obj_property>
+      <obj_property name="ObjectShortName">wr_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_u_sram/wr_addr" type="array">
+      <obj_property name="ElementShortName">wr_addr[5:0]</obj_property>
+      <obj_property name="ObjectShortName">wr_addr[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_u_sram/wr_data" type="array">
+      <obj_property name="ElementShortName">wr_data[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">wr_data[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_u_sram/rd_en" type="logic">
+      <obj_property name="ElementShortName">rd_en</obj_property>
+      <obj_property name="ObjectShortName">rd_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_u_sram/rd_addr" type="array">
+      <obj_property name="ElementShortName">rd_addr[5:0]</obj_property>
+      <obj_property name="ObjectShortName">rd_addr[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_u_sram/rd_data" type="array">
+      <obj_property name="ElementShortName">rd_data[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">rd_data[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_u_sram/rd2_en" type="logic">
+      <obj_property name="ElementShortName">rd2_en</obj_property>
+      <obj_property name="ObjectShortName">rd2_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_u_sram/rd2_addr" type="array">
+      <obj_property name="ElementShortName">rd2_addr[5:0]</obj_property>
+      <obj_property name="ObjectShortName">rd2_addr[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_u_sram/rd2_data" type="array">
+      <obj_property name="ElementShortName">rd2_data[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">rd2_data[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_u_sram/mem_sim" type="array">
+      <obj_property name="ElementShortName">mem_sim[0:63][63:0]</obj_property>
+      <obj_property name="ObjectShortName">mem_sim[0:63][63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_u_sram/q" type="array">
+      <obj_property name="ElementShortName">q[63:0]</obj_property>
+      <obj_property name="ObjectShortName">q[63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_u_sram/q2" type="array">
+      <obj_property name="ElementShortName">q2[63:0]</obj_property>
+      <obj_property name="ObjectShortName">q2[63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_u_sram/TILE_SIZE" type="array">
+      <obj_property name="ElementShortName">TILE_SIZE[31:0]</obj_property>
+      <obj_property name="ObjectShortName">TILE_SIZE[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_u_sram/DATA_WIDTH" type="array">
+      <obj_property name="ElementShortName">DATA_WIDTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">DATA_WIDTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_u_sram/DEPTH" type="array">
+      <obj_property name="ElementShortName">DEPTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">DEPTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_u_sram/ADDR_W" type="array">
+      <obj_property name="ElementShortName">ADDR_W[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ADDR_W[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_z_sram/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_z_sram/rst_n" type="logic">
+      <obj_property name="ElementShortName">rst_n</obj_property>
+      <obj_property name="ObjectShortName">rst_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_z_sram/wr_en" type="logic">
+      <obj_property name="ElementShortName">wr_en</obj_property>
+      <obj_property name="ObjectShortName">wr_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_z_sram/wr_addr" type="array">
+      <obj_property name="ElementShortName">wr_addr[5:0]</obj_property>
+      <obj_property name="ObjectShortName">wr_addr[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_z_sram/wr_data" type="array">
+      <obj_property name="ElementShortName">wr_data[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">wr_data[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_z_sram/rd_en" type="logic">
+      <obj_property name="ElementShortName">rd_en</obj_property>
+      <obj_property name="ObjectShortName">rd_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_z_sram/rd_addr" type="array">
+      <obj_property name="ElementShortName">rd_addr[5:0]</obj_property>
+      <obj_property name="ObjectShortName">rd_addr[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_z_sram/rd_data" type="array">
+      <obj_property name="ElementShortName">rd_data[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">rd_data[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_z_sram/rd2_en" type="logic">
+      <obj_property name="ElementShortName">rd2_en</obj_property>
+      <obj_property name="ObjectShortName">rd2_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_z_sram/rd2_addr" type="array">
+      <obj_property name="ElementShortName">rd2_addr[5:0]</obj_property>
+      <obj_property name="ObjectShortName">rd2_addr[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_z_sram/rd2_data" type="array">
+      <obj_property name="ElementShortName">rd2_data[3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">rd2_data[3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_z_sram/mem_sim" type="array">
+      <obj_property name="ElementShortName">mem_sim[0:63][63:0]</obj_property>
+      <obj_property name="ObjectShortName">mem_sim[0:63][63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_z_sram/q" type="array">
+      <obj_property name="ElementShortName">q[63:0]</obj_property>
+      <obj_property name="ObjectShortName">q[63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_z_sram/q2" type="array">
+      <obj_property name="ElementShortName">q2[63:0]</obj_property>
+      <obj_property name="ObjectShortName">q2[63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_z_sram/TILE_SIZE" type="array">
+      <obj_property name="ElementShortName">TILE_SIZE[31:0]</obj_property>
+      <obj_property name="ObjectShortName">TILE_SIZE[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_z_sram/DATA_WIDTH" type="array">
+      <obj_property name="ElementShortName">DATA_WIDTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">DATA_WIDTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_z_sram/DEPTH" type="array">
+      <obj_property name="ElementShortName">DEPTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">DEPTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_z_sram/ADDR_W" type="array">
+      <obj_property name="ElementShortName">ADDR_W[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ADDR_W[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/u_fabric/u_shared_pipeline/valid_in" type="logic">
+      <obj_property name="ElementShortName">valid_in</obj_property>
+      <obj_property name="ObjectShortName">valid_in</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/u_fabric/u_shared_pipeline/A0_mat" type="array">
+      <obj_property name="ElementShortName">A0_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">A0_mat[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/u_fabric/u_shared_pipeline/A1_mat" type="array">
+      <obj_property name="ElementShortName">A1_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">A1_mat[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/u_fabric/u_shared_pipeline/A2_mat" type="array">
+      <obj_property name="ElementShortName">A2_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">A2_mat[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/u_fabric/u_shared_pipeline/A3_mat" type="array">
+      <obj_property name="ElementShortName">A3_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">A3_mat[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/u_fabric/u_shared_pipeline/B0_mat" type="array">
+      <obj_property name="ElementShortName">B0_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">B0_mat[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/u_fabric/u_shared_pipeline/B1_mat" type="array">
+      <obj_property name="ElementShortName">B1_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">B1_mat[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/u_fabric/u_shared_pipeline/B2_mat" type="array">
+      <obj_property name="ElementShortName">B2_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">B2_mat[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/u_fabric/u_shared_pipeline/B3_mat" type="array">
+      <obj_property name="ElementShortName">B3_mat[3:0][3:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">B3_mat[3:0][3:0][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/u_fabric/u_shared_pipeline/reduced_vec" type="array">
+      <obj_property name="ElementShortName">reduced_vec[3:0][31:0]</obj_property>
+      <obj_property name="ObjectShortName">reduced_vec[3:0][31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/u_fabric/u_shared_pipeline/valid_reduced" type="logic">
+      <obj_property name="ElementShortName">valid_reduced</obj_property>
+      <obj_property name="ObjectShortName">valid_reduced</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/u_fabric/u_shared_pipeline/done_tile" type="logic">
+      <obj_property name="ElementShortName">done_tile</obj_property>
+      <obj_property name="ObjectShortName">done_tile</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_reuse_in_proj_scheduler/dut/u_u_sram/wr_en" type="logic">
+      <obj_property name="ElementShortName">wr_en</obj_property>
+      <obj_property name="ObjectShortName">wr_en</obj_property>
+   </wvobject>
+</wave_config>

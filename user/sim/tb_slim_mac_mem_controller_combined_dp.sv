@@ -230,7 +230,7 @@ module tb_slim_mac_mem_controller_combined_dp;
         // ==========================================================
         // XT ROM initialization
         // ==========================================================
-        $display("[%0t] 🔧 Initializing XT ROM (64 entries)...", $time);
+        $display("[%0t]  Initializing XT ROM (64 entries)...", $time);
 
         for (int addr = 0; addr < 64; addr++) begin
             u_dut.u_xt.mem_sim[addr] = {
@@ -256,7 +256,7 @@ module tb_slim_mac_mem_controller_combined_dp;
         wait (s_axis_TREADY);
         @(posedge clk);
         s_axis_TVALID = 0;
-        $display("[%0t] 🚀 Tile started", $time);
+        $display("[%0t]  Tile started", $time);
     end
     endtask
 
@@ -276,7 +276,7 @@ module tb_slim_mac_mem_controller_combined_dp;
         end
 
         repeat (20) @(posedge clk);
-        $display("[%0t] ✅ Simulation Finished", $time);
+        $display("[%0t] Simulation Finished", $time);
         $finish;
     end
 
@@ -285,7 +285,7 @@ module tb_slim_mac_mem_controller_combined_dp;
     // ==========================================================
     always_ff @(posedge clk) begin
         if (m_axis_TVALID && m_axis_TREADY) begin
-            $display("[%0t] 📤 Output ready:", $time);
+            $display("[%0t]  Output ready:", $time);
             for (int i = 0; i < TILE_SIZE; i++)
                 $display("  reduced_vec[%0d] = %0d", i, reduced_vec[i]);
         end
