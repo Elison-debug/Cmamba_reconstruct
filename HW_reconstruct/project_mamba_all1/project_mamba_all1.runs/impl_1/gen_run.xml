@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenRun Id="impl_1" LaunchPart="xczu9eg-ffvb1156-2-e" LaunchTime="1775194826">
+  <File Type="OPT-HWDEF" Name="reuse_mamba_block_top.hwdef"/>
+  <File Type="ROUTE-BUS-SKEW" Name="reuse_mamba_block_top_bus_skew_routed.rpt"/>
+  <File Type="PA-DCP" Name="reuse_mamba_block_top.dcp"/>
+  <File Type="ROUTE-PWR" Name="reuse_mamba_block_top_power_routed.rpt"/>
+  <File Type="PA-TCL" Name="reuse_mamba_block_top.tcl"/>
+  <File Type="OPT-METHODOLOGY-DRC" Name="reuse_mamba_block_top_methodology_drc_opted.rpt"/>
+  <File Type="INIT-TIMING" Name="reuse_mamba_block_top_timing_summary_init.rpt"/>
+  <File Type="ROUTE-PWR-SUM" Name="reuse_mamba_block_top_power_summary_routed.pb"/>
+  <File Type="OPT-RQA-PB" Name="reuse_mamba_block_top_rqa_opted.pb"/>
+  <File Type="REPORTS-TCL" Name="reuse_mamba_block_top_reports.tcl"/>
+  <File Type="OPT-TIMING" Name="reuse_mamba_block_top_timing_summary_opted.rpt"/>
+  <File Type="OPT-DCP" Name="reuse_mamba_block_top_opt.dcp"/>
+  <File Type="OPT-DRC" Name="reuse_mamba_block_top_drc_opted.rpt"/>
+  <File Type="PWROPT-DCP" Name="reuse_mamba_block_top_pwropt.dcp"/>
+  <File Type="PWROPT-DRC" Name="reuse_mamba_block_top_drc_pwropted.rpt"/>
+  <File Type="PWROPT-TIMING" Name="reuse_mamba_block_top_timing_summary_pwropted.rpt"/>
+  <File Type="PLACE-DCP" Name="reuse_mamba_block_top_placed.dcp"/>
+  <File Type="PLACE-IO" Name="reuse_mamba_block_top_io_placed.rpt"/>
+  <File Type="PLACE-CLK" Name="reuse_mamba_block_top_clock_utilization_placed.rpt"/>
+  <File Type="PLACE-UTIL" Name="reuse_mamba_block_top_utilization_placed.rpt"/>
+  <File Type="PLACE-UTIL-PB" Name="reuse_mamba_block_top_utilization_placed.pb"/>
+  <File Type="PLACE-CTRL" Name="reuse_mamba_block_top_control_sets_placed.rpt"/>
+  <File Type="PLACE-SIMILARITY" Name="reuse_mamba_block_top_incremental_reuse_placed.rpt"/>
+  <File Type="PLACE-PRE-SIMILARITY" Name="reuse_mamba_block_top_incremental_reuse_pre_placed.rpt"/>
+  <File Type="BG-BIN" Name="reuse_mamba_block_top.bin"/>
+  <File Type="PLACE-TIMING" Name="reuse_mamba_block_top_timing_summary_placed.rpt"/>
+  <File Type="ROUTE-PWR-RPX" Name="reuse_mamba_block_top_power_routed.rpx"/>
+  <File Type="PLACE-RQA-PB" Name="reuse_mamba_block_top_rqa_placed.pb"/>
+  <File Type="POSTPLACE-PWROPT-DCP" Name="reuse_mamba_block_top_postplace_pwropt.dcp"/>
+  <File Type="BITSTR-MSK" Name="reuse_mamba_block_top.msk"/>
+  <File Type="POSTPLACE-PWROPT-TIMING" Name="reuse_mamba_block_top_timing_summary_postplace_pwropted.rpt"/>
+  <File Type="PHYSOPT-DCP" Name="reuse_mamba_block_top_physopt.dcp"/>
+  <File Type="PHYSOPT-DRC" Name="reuse_mamba_block_top_drc_physopted.rpt"/>
+  <File Type="BITSTR-RBT" Name="reuse_mamba_block_top.rbt"/>
+  <File Type="PHYSOPT-TIMING" Name="reuse_mamba_block_top_timing_summary_physopted.rpt"/>
+  <File Type="ROUTE-ERROR-DCP" Name="reuse_mamba_block_top_routed_error.dcp"/>
+  <File Type="ROUTE-DCP" Name="reuse_mamba_block_top_routed.dcp"/>
+  <File Type="ROUTE-BLACKBOX-DCP" Name="reuse_mamba_block_top_routed_bb.dcp"/>
+  <File Type="ROUTE-DRC" Name="reuse_mamba_block_top_drc_routed.rpt"/>
+  <File Type="ROUTE-DRC-PB" Name="reuse_mamba_block_top_drc_routed.pb"/>
+  <File Type="ROUTE-DRC-RPX" Name="reuse_mamba_block_top_drc_routed.rpx"/>
+  <File Type="ROUTE-METHODOLOGY-DRC" Name="reuse_mamba_block_top_methodology_drc_routed.rpt"/>
+  <File Type="ROUTE-METHODOLOGY-DRC-RPX" Name="reuse_mamba_block_top_methodology_drc_routed.rpx"/>
+  <File Type="ROUTE-METHODOLOGY-DRC-PB" Name="reuse_mamba_block_top_methodology_drc_routed.pb"/>
+  <File Type="ROUTE-RQS-PB" Name="reuse_mamba_block_top_rqs_routed.pb"/>
+  <File Type="ROUTE-STATUS" Name="reuse_mamba_block_top_route_status.rpt"/>
+  <File Type="ROUTE-STATUS-PB" Name="reuse_mamba_block_top_route_status.pb"/>
+  <File Type="ROUTE-TIMINGSUMMARY" Name="reuse_mamba_block_top_timing_summary_routed.rpt"/>
+  <File Type="ROUTE-TIMING-PB" Name="reuse_mamba_block_top_timing_summary_routed.pb"/>
+  <File Type="ROUTE-TIMING-RPX" Name="reuse_mamba_block_top_timing_summary_routed.rpx"/>
+  <File Type="ROUTE-SIMILARITY" Name="reuse_mamba_block_top_incremental_reuse_routed.rpt"/>
+  <File Type="ROUTE-CLK" Name="reuse_mamba_block_top_clock_utilization_routed.rpt"/>
+  <File Type="ROUTE-BUS-SKEW-PB" Name="reuse_mamba_block_top_bus_skew_routed.pb"/>
+  <File Type="ROUTE-BUS-SKEW-RPX" Name="reuse_mamba_block_top_bus_skew_routed.rpx"/>
+  <File Type="POSTROUTE-PHYSOPT-DCP" Name="reuse_mamba_block_top_postroute_physopt.dcp"/>
+  <File Type="POSTROUTE-PHYSOPT-BLACKBOX-DCP" Name="reuse_mamba_block_top_postroute_physopt_bb.dcp"/>
+  <File Type="POSTROUTE-PHYSOPT-TIMING" Name="reuse_mamba_block_top_timing_summary_postroute_physopted.rpt"/>
+  <File Type="POSTROUTE-PHYSOPT-TIMING-PB" Name="reuse_mamba_block_top_timing_summary_postroute_physopted.pb"/>
+  <File Type="POSTROUTE-PHYSOPT-TIMING-RPX" Name="reuse_mamba_block_top_timing_summary_postroute_physopted.rpx"/>
+  <File Type="POSTROUTE-PHYSOPT-BUS-SKEW" Name="reuse_mamba_block_top_bus_skew_postroute_physopted.rpt"/>
+  <File Type="BG-BIT" Name="reuse_mamba_block_top.bit"/>
+  <File Type="POSTROUTE-PHYSOPT-BUS-SKEW-PB" Name="reuse_mamba_block_top_bus_skew_postroute_physopted.pb"/>
+  <File Type="POSTROUTE-PHYSOPT-BUS-SKEW-RPX" Name="reuse_mamba_block_top_bus_skew_postroute_physopted.rpx"/>
+  <File Type="BITSTR-NKY" Name="reuse_mamba_block_top.nky"/>
+  <File Type="BITSTR-BMM" Name="reuse_mamba_block_top_bd.bmm"/>
+  <File Type="BITSTR-MMI" Name="reuse_mamba_block_top.mmi"/>
+  <File Type="PDI-FILE" Name="reuse_mamba_block_top.pdi"/>
+  <File Type="BOOT-PDI-FILE" Name="reuse_mamba_block_top_boot.pdi"/>
+  <File Type="PL-PDI-FILE" Name="reuse_mamba_block_top_pld.pdi"/>
+  <File Type="RCFI_FILE" Name="reuse_mamba_block_top.rcfi"/>
+  <File Type="CFI_FILE" Name="reuse_mamba_block_top.cfi"/>
+  <File Type="RNPI_FILE" Name="reuse_mamba_block_top.rnpi"/>
+  <File Type="NPI_FILE" Name="reuse_mamba_block_top.npi"/>
+  <File Type="RBD_FILE" Name="reuse_mamba_block_top.rbd"/>
+  <File Type="BITSTR-LTX" Name="debug_nets.ltx"/>
+  <File Type="BITSTR-LTX" Name="reuse_mamba_block_top.ltx"/>
+  <File Type="BITSTR-SYSDEF" Name="reuse_mamba_block_top.sysdef"/>
+  <File Type="BG-BGN" Name="reuse_mamba_block_top.bgn"/>
+  <File Type="BG-DRC" Name="reuse_mamba_block_top.drc"/>
+  <File Type="RDI-RDI" Name="reuse_mamba_block_top.vdi"/>
+  <File Type="WBT-USG" Name="usage_statistics_webtalk.html"/>
+  <File Type="ROUTE-RQS" Name="reuse_mamba_block_top_routed.rqs"/>
+  <File Type="POSTROUTE-PHYSOPT-RQS" Name="reuse_mamba_block_top_postroute_physopted.rqs"/>
+  <File Type="ROUTE-RQS-RPT" Name="route_report_qor_suggestions_0.rpt"/>
+  <File Type="POSTROUTE-PHYSOPT-RQS-RPT" Name="postroute_physopt_report_qor_suggestions_0.rpt"/>
+  <FileSet Name="sources" Type="DesignSrcs" RelSrcDir="$PSRCDIR/sources_1" RelGenDir="$PGENDIR/sources_1">
+    <Filter Type="Srcs"/>
+    <File Path="$PPRDIR/../rtl_reuse_shared/axis_vec_join2.sv">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/bias_add_regslice_ip.sv">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/ew_update_vec4.sv">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/ewa_vec4.sv">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/ewm_gate_sbuf_vec4.sv">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/ewm_vec4.sv">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/pe_unit_pipe.sv">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/pulse_to_stream_adapter.sv">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/reuse_array4x4.sv">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/reuse_ht_multi_copy_ip.sv">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/reuse_ht_sram.sv">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/reuse_ht_sram_sp.sv">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/reuse_in_proj_scheduler.sv">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/reuse_inproj_weight_sram.sv">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/reuse_mac_fabric_manager.sv">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/reuse_out_proj_scheduler_stub.sv">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/reuse_outproj_multi_bank_wbuf_dp.sv">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/reuse_outproj_weight_sram.sv">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/reuse_pipeline_4array_top.sv">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/reuse_pipeline_4array_with_reduction.sv">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/reuse_pt_capture.sv">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/reuse_reduction_accumulator.sv">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/reuse_shared_mac_fabric.sv">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/reuse_silu_vec4.sv">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/reuse_ssm_core.sv">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/reuse_ssm_dt_scheduler.sv">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/reuse_vec_out_sram.sv">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/reuse_vec_out_sram_ip.sv">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/reuse_z_stream_reader.sv">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/sigmoid4_vec.sv">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/slim_multi_bank_wbuf_dp.sv">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/vec_fifo_axis_ip.sv">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/reuse_mamba_block_top.sv">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/reuse_ip_blackboxes.sv">
+      <FileInfo>
+        <Attr Name="AutoDisabled" Val="1"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/reuse_top_mac_plus_bias_fifo_sigmoid_ew_gate.sv">
+      <FileInfo>
+        <Attr Name="AutoDisabled" Val="1"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/xt_input_buf.sv">
+      <FileInfo>
+        <Attr Name="AutoDisabled" Val="1"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../rtl_reuse_shared/reuse_slim_mac_mem_controller_combined_dp.sv">
+      <FileInfo>
+        <Attr Name="AutoDisabled" Val="1"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/ip/u_xt_rom/u_xt_rom.xci">
+      <FileInfo>
+        <Attr Name="AutoDisabled" Val="1"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/bd/design_1/design_1.bd">
+      <FileInfo>
+        <Attr Name="AutoDisabled" Val="1"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../hw_debug/vivado_runs/reuse_mamba_block_top_hw_debug/sigmoid_lut_q016_2048.hex">
+      <FileInfo SFType="DATA">
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <Config>
+      <Option Name="DesignMode" Val="RTL"/>
+      <Option Name="TopModule" Val="reuse_mamba_block_top"/>
+    </Config>
+  </FileSet>
+  <FileSet Name="constrs_in" Type="Constrs" RelSrcDir="$PSRCDIR/constrs_1" RelGenDir="$PGENDIR/constrs_1">
+    <Filter Type="Constrs"/>
+    <File Path="$PPRDIR/../minimal_timing.xdc">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+      </FileInfo>
+    </File>
+    <Config>
+      <Option Name="ConstrsType" Val="XDC"/>
+    </Config>
+  </FileSet>
+  <FileSet Name="utils" Type="Utils" RelSrcDir="$PSRCDIR/utils_1" RelGenDir="$PGENDIR/utils_1">
+    <Filter Type="Utils"/>
+    <Config>
+      <Option Name="TopAutoSet" Val="TRUE"/>
+    </Config>
+  </FileSet>
+  <Strategy Version="1" Minor="2">
+    <StratHandle Name="Vivado Implementation Defaults" Flow="Vivado Implementation 2024"/>
+    <Step Id="init_design"/>
+    <Step Id="opt_design"/>
+    <Step Id="power_opt_design"/>
+    <Step Id="place_design"/>
+    <Step Id="post_place_power_opt_design"/>
+    <Step Id="phys_opt_design"/>
+    <Step Id="route_design"/>
+    <Step Id="post_route_phys_opt_design"/>
+    <Step Id="write_bitstream"/>
+  </Strategy>
+  <BlockFileSet Type="BlockSrcs" Name="bias2sigmoid_fifo"/>
+  <BlockFileSet Type="BlockSrcs" Name="slim_WBUF_bank_dp"/>
+  <BlockFileSet Type="BlockSrcs" Name="inproj_vec_out_sram_ip"/>
+  <BlockFileSet Type="BlockSrcs" Name="bias_ROM"/>
+  <BlockFileSet Type="BlockSrcs" Name="s_buffer"/>
+  <BlockFileSet Type="BlockSrcs" Name="inproj_ht_sram_ip"/>
+  <BlockFileSet Type="BlockSrcs" Name="outproj_WBUF_bank_dp"/>
+</GenRun>

@@ -821,3 +821,1305 @@ BRAMs: 1824 (col length: RAMB18 168 RAMB36 84)
 ---------------------------------------------------------------------------------
 Finished Part Resource Summary
 ---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Cross Boundary and Area Optimization
+---------------------------------------------------------------------------------
+INFO: [Synth 8-4471] merging register 'ROW[0].COL[1].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[0].COL[2].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[0].COL[3].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[1].COL[0].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[1].COL[1].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[1].COL[2].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[1].COL[3].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[2].COL[0].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[2].COL[1].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[2].COL[2].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[2].COL[3].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[3].COL[0].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[3].COL[1].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[3].COL[2].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[3].COL[3].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+DSP Report: Generating DSP ROW[0].COL[0].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[0].COL[0].u_pe/mult_full is absorbed into DSP ROW[0].COL[0].u_pe/mult_full.
+DSP Report: Generating DSP ROW[0].COL[0].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[0].COL[0].u_pe/dsp_accum0 is absorbed into DSP ROW[0].COL[0].u_pe/dsp_accum0.
+DSP Report: operator ROW[0].COL[0].u_pe/mult_full is absorbed into DSP ROW[0].COL[0].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[0].COL[1].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[0].COL[1].u_pe/mult_full is absorbed into DSP ROW[0].COL[1].u_pe/mult_full.
+DSP Report: Generating DSP ROW[0].COL[1].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[0].COL[1].u_pe/dsp_accum0 is absorbed into DSP ROW[0].COL[1].u_pe/dsp_accum0.
+DSP Report: operator ROW[0].COL[1].u_pe/mult_full is absorbed into DSP ROW[0].COL[1].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[0].COL[2].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[0].COL[2].u_pe/mult_full is absorbed into DSP ROW[0].COL[2].u_pe/mult_full.
+DSP Report: Generating DSP ROW[0].COL[2].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[0].COL[2].u_pe/dsp_accum0 is absorbed into DSP ROW[0].COL[2].u_pe/dsp_accum0.
+DSP Report: operator ROW[0].COL[2].u_pe/mult_full is absorbed into DSP ROW[0].COL[2].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[0].COL[3].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[0].COL[3].u_pe/mult_full is absorbed into DSP ROW[0].COL[3].u_pe/mult_full.
+DSP Report: Generating DSP ROW[0].COL[3].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[0].COL[3].u_pe/dsp_accum0 is absorbed into DSP ROW[0].COL[3].u_pe/dsp_accum0.
+DSP Report: operator ROW[0].COL[3].u_pe/mult_full is absorbed into DSP ROW[0].COL[3].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[1].COL[0].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[1].COL[0].u_pe/mult_full is absorbed into DSP ROW[1].COL[0].u_pe/mult_full.
+DSP Report: Generating DSP ROW[1].COL[0].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[1].COL[0].u_pe/dsp_accum0 is absorbed into DSP ROW[1].COL[0].u_pe/dsp_accum0.
+DSP Report: operator ROW[1].COL[0].u_pe/mult_full is absorbed into DSP ROW[1].COL[0].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[1].COL[1].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[1].COL[1].u_pe/mult_full is absorbed into DSP ROW[1].COL[1].u_pe/mult_full.
+DSP Report: Generating DSP ROW[1].COL[1].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[1].COL[1].u_pe/dsp_accum0 is absorbed into DSP ROW[1].COL[1].u_pe/dsp_accum0.
+DSP Report: operator ROW[1].COL[1].u_pe/mult_full is absorbed into DSP ROW[1].COL[1].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[1].COL[2].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[1].COL[2].u_pe/mult_full is absorbed into DSP ROW[1].COL[2].u_pe/mult_full.
+DSP Report: Generating DSP ROW[1].COL[2].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[1].COL[2].u_pe/dsp_accum0 is absorbed into DSP ROW[1].COL[2].u_pe/dsp_accum0.
+DSP Report: operator ROW[1].COL[2].u_pe/mult_full is absorbed into DSP ROW[1].COL[2].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[1].COL[3].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[1].COL[3].u_pe/mult_full is absorbed into DSP ROW[1].COL[3].u_pe/mult_full.
+DSP Report: Generating DSP ROW[1].COL[3].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[1].COL[3].u_pe/dsp_accum0 is absorbed into DSP ROW[1].COL[3].u_pe/dsp_accum0.
+DSP Report: operator ROW[1].COL[3].u_pe/mult_full is absorbed into DSP ROW[1].COL[3].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[2].COL[0].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[2].COL[0].u_pe/mult_full is absorbed into DSP ROW[2].COL[0].u_pe/mult_full.
+DSP Report: Generating DSP ROW[2].COL[0].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[2].COL[0].u_pe/dsp_accum0 is absorbed into DSP ROW[2].COL[0].u_pe/dsp_accum0.
+DSP Report: operator ROW[2].COL[0].u_pe/mult_full is absorbed into DSP ROW[2].COL[0].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[2].COL[1].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[2].COL[1].u_pe/mult_full is absorbed into DSP ROW[2].COL[1].u_pe/mult_full.
+DSP Report: Generating DSP ROW[2].COL[1].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[2].COL[1].u_pe/dsp_accum0 is absorbed into DSP ROW[2].COL[1].u_pe/dsp_accum0.
+DSP Report: operator ROW[2].COL[1].u_pe/mult_full is absorbed into DSP ROW[2].COL[1].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[2].COL[2].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[2].COL[2].u_pe/mult_full is absorbed into DSP ROW[2].COL[2].u_pe/mult_full.
+DSP Report: Generating DSP ROW[2].COL[2].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[2].COL[2].u_pe/dsp_accum0 is absorbed into DSP ROW[2].COL[2].u_pe/dsp_accum0.
+DSP Report: operator ROW[2].COL[2].u_pe/mult_full is absorbed into DSP ROW[2].COL[2].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[2].COL[3].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[2].COL[3].u_pe/mult_full is absorbed into DSP ROW[2].COL[3].u_pe/mult_full.
+DSP Report: Generating DSP ROW[2].COL[3].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[2].COL[3].u_pe/dsp_accum0 is absorbed into DSP ROW[2].COL[3].u_pe/dsp_accum0.
+DSP Report: operator ROW[2].COL[3].u_pe/mult_full is absorbed into DSP ROW[2].COL[3].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[3].COL[0].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[3].COL[0].u_pe/mult_full is absorbed into DSP ROW[3].COL[0].u_pe/mult_full.
+DSP Report: Generating DSP ROW[3].COL[0].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[3].COL[0].u_pe/dsp_accum0 is absorbed into DSP ROW[3].COL[0].u_pe/dsp_accum0.
+DSP Report: operator ROW[3].COL[0].u_pe/mult_full is absorbed into DSP ROW[3].COL[0].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[3].COL[1].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[3].COL[1].u_pe/mult_full is absorbed into DSP ROW[3].COL[1].u_pe/mult_full.
+DSP Report: Generating DSP ROW[3].COL[1].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[3].COL[1].u_pe/dsp_accum0 is absorbed into DSP ROW[3].COL[1].u_pe/dsp_accum0.
+DSP Report: operator ROW[3].COL[1].u_pe/mult_full is absorbed into DSP ROW[3].COL[1].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[3].COL[2].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[3].COL[2].u_pe/mult_full is absorbed into DSP ROW[3].COL[2].u_pe/mult_full.
+DSP Report: Generating DSP ROW[3].COL[2].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[3].COL[2].u_pe/dsp_accum0 is absorbed into DSP ROW[3].COL[2].u_pe/dsp_accum0.
+DSP Report: operator ROW[3].COL[2].u_pe/mult_full is absorbed into DSP ROW[3].COL[2].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[3].COL[3].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[3].COL[3].u_pe/mult_full is absorbed into DSP ROW[3].COL[3].u_pe/mult_full.
+DSP Report: Generating DSP ROW[3].COL[3].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[3].COL[3].u_pe/dsp_accum0 is absorbed into DSP ROW[3].COL[3].u_pe/dsp_accum0.
+DSP Report: operator ROW[3].COL[3].u_pe/mult_full is absorbed into DSP ROW[3].COL[3].u_pe/dsp_accum0.
+INFO: [Synth 8-4471] merging register 'ROW[0].COL[1].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[0].COL[2].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[0].COL[3].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[1].COL[0].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[1].COL[1].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[1].COL[2].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[1].COL[3].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[2].COL[0].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[2].COL[1].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[2].COL[2].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[2].COL[3].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[3].COL[0].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[3].COL[1].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[3].COL[2].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[3].COL[3].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+DSP Report: Generating DSP ROW[0].COL[0].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[0].COL[0].u_pe/mult_full is absorbed into DSP ROW[0].COL[0].u_pe/mult_full.
+DSP Report: Generating DSP ROW[0].COL[0].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[0].COL[0].u_pe/dsp_accum0 is absorbed into DSP ROW[0].COL[0].u_pe/dsp_accum0.
+DSP Report: operator ROW[0].COL[0].u_pe/mult_full is absorbed into DSP ROW[0].COL[0].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[0].COL[1].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[0].COL[1].u_pe/mult_full is absorbed into DSP ROW[0].COL[1].u_pe/mult_full.
+DSP Report: Generating DSP ROW[0].COL[1].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[0].COL[1].u_pe/dsp_accum0 is absorbed into DSP ROW[0].COL[1].u_pe/dsp_accum0.
+DSP Report: operator ROW[0].COL[1].u_pe/mult_full is absorbed into DSP ROW[0].COL[1].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[0].COL[2].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[0].COL[2].u_pe/mult_full is absorbed into DSP ROW[0].COL[2].u_pe/mult_full.
+DSP Report: Generating DSP ROW[0].COL[2].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[0].COL[2].u_pe/dsp_accum0 is absorbed into DSP ROW[0].COL[2].u_pe/dsp_accum0.
+DSP Report: operator ROW[0].COL[2].u_pe/mult_full is absorbed into DSP ROW[0].COL[2].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[0].COL[3].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[0].COL[3].u_pe/mult_full is absorbed into DSP ROW[0].COL[3].u_pe/mult_full.
+DSP Report: Generating DSP ROW[0].COL[3].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[0].COL[3].u_pe/dsp_accum0 is absorbed into DSP ROW[0].COL[3].u_pe/dsp_accum0.
+DSP Report: operator ROW[0].COL[3].u_pe/mult_full is absorbed into DSP ROW[0].COL[3].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[1].COL[0].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[1].COL[0].u_pe/mult_full is absorbed into DSP ROW[1].COL[0].u_pe/mult_full.
+DSP Report: Generating DSP ROW[1].COL[0].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[1].COL[0].u_pe/dsp_accum0 is absorbed into DSP ROW[1].COL[0].u_pe/dsp_accum0.
+DSP Report: operator ROW[1].COL[0].u_pe/mult_full is absorbed into DSP ROW[1].COL[0].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[1].COL[1].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[1].COL[1].u_pe/mult_full is absorbed into DSP ROW[1].COL[1].u_pe/mult_full.
+DSP Report: Generating DSP ROW[1].COL[1].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[1].COL[1].u_pe/dsp_accum0 is absorbed into DSP ROW[1].COL[1].u_pe/dsp_accum0.
+DSP Report: operator ROW[1].COL[1].u_pe/mult_full is absorbed into DSP ROW[1].COL[1].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[1].COL[2].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[1].COL[2].u_pe/mult_full is absorbed into DSP ROW[1].COL[2].u_pe/mult_full.
+DSP Report: Generating DSP ROW[1].COL[2].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[1].COL[2].u_pe/dsp_accum0 is absorbed into DSP ROW[1].COL[2].u_pe/dsp_accum0.
+DSP Report: operator ROW[1].COL[2].u_pe/mult_full is absorbed into DSP ROW[1].COL[2].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[1].COL[3].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[1].COL[3].u_pe/mult_full is absorbed into DSP ROW[1].COL[3].u_pe/mult_full.
+DSP Report: Generating DSP ROW[1].COL[3].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[1].COL[3].u_pe/dsp_accum0 is absorbed into DSP ROW[1].COL[3].u_pe/dsp_accum0.
+DSP Report: operator ROW[1].COL[3].u_pe/mult_full is absorbed into DSP ROW[1].COL[3].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[2].COL[0].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[2].COL[0].u_pe/mult_full is absorbed into DSP ROW[2].COL[0].u_pe/mult_full.
+DSP Report: Generating DSP ROW[2].COL[0].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[2].COL[0].u_pe/dsp_accum0 is absorbed into DSP ROW[2].COL[0].u_pe/dsp_accum0.
+DSP Report: operator ROW[2].COL[0].u_pe/mult_full is absorbed into DSP ROW[2].COL[0].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[2].COL[1].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[2].COL[1].u_pe/mult_full is absorbed into DSP ROW[2].COL[1].u_pe/mult_full.
+DSP Report: Generating DSP ROW[2].COL[1].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[2].COL[1].u_pe/dsp_accum0 is absorbed into DSP ROW[2].COL[1].u_pe/dsp_accum0.
+DSP Report: operator ROW[2].COL[1].u_pe/mult_full is absorbed into DSP ROW[2].COL[1].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[2].COL[2].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[2].COL[2].u_pe/mult_full is absorbed into DSP ROW[2].COL[2].u_pe/mult_full.
+DSP Report: Generating DSP ROW[2].COL[2].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[2].COL[2].u_pe/dsp_accum0 is absorbed into DSP ROW[2].COL[2].u_pe/dsp_accum0.
+DSP Report: operator ROW[2].COL[2].u_pe/mult_full is absorbed into DSP ROW[2].COL[2].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[2].COL[3].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[2].COL[3].u_pe/mult_full is absorbed into DSP ROW[2].COL[3].u_pe/mult_full.
+DSP Report: Generating DSP ROW[2].COL[3].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[2].COL[3].u_pe/dsp_accum0 is absorbed into DSP ROW[2].COL[3].u_pe/dsp_accum0.
+DSP Report: operator ROW[2].COL[3].u_pe/mult_full is absorbed into DSP ROW[2].COL[3].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[3].COL[0].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[3].COL[0].u_pe/mult_full is absorbed into DSP ROW[3].COL[0].u_pe/mult_full.
+DSP Report: Generating DSP ROW[3].COL[0].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[3].COL[0].u_pe/dsp_accum0 is absorbed into DSP ROW[3].COL[0].u_pe/dsp_accum0.
+DSP Report: operator ROW[3].COL[0].u_pe/mult_full is absorbed into DSP ROW[3].COL[0].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[3].COL[1].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[3].COL[1].u_pe/mult_full is absorbed into DSP ROW[3].COL[1].u_pe/mult_full.
+DSP Report: Generating DSP ROW[3].COL[1].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[3].COL[1].u_pe/dsp_accum0 is absorbed into DSP ROW[3].COL[1].u_pe/dsp_accum0.
+DSP Report: operator ROW[3].COL[1].u_pe/mult_full is absorbed into DSP ROW[3].COL[1].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[3].COL[2].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[3].COL[2].u_pe/mult_full is absorbed into DSP ROW[3].COL[2].u_pe/mult_full.
+DSP Report: Generating DSP ROW[3].COL[2].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[3].COL[2].u_pe/dsp_accum0 is absorbed into DSP ROW[3].COL[2].u_pe/dsp_accum0.
+DSP Report: operator ROW[3].COL[2].u_pe/mult_full is absorbed into DSP ROW[3].COL[2].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[3].COL[3].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[3].COL[3].u_pe/mult_full is absorbed into DSP ROW[3].COL[3].u_pe/mult_full.
+DSP Report: Generating DSP ROW[3].COL[3].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[3].COL[3].u_pe/dsp_accum0 is absorbed into DSP ROW[3].COL[3].u_pe/dsp_accum0.
+DSP Report: operator ROW[3].COL[3].u_pe/mult_full is absorbed into DSP ROW[3].COL[3].u_pe/dsp_accum0.
+INFO: [Synth 8-4471] merging register 'ROW[0].COL[1].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[0].COL[2].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[0].COL[3].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[1].COL[0].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[1].COL[1].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[1].COL[2].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[1].COL[3].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[2].COL[0].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[2].COL[1].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[2].COL[2].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[2].COL[3].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[3].COL[0].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[3].COL[1].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[3].COL[2].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[3].COL[3].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+DSP Report: Generating DSP ROW[0].COL[0].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[0].COL[0].u_pe/mult_full is absorbed into DSP ROW[0].COL[0].u_pe/mult_full.
+DSP Report: Generating DSP ROW[0].COL[0].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[0].COL[0].u_pe/dsp_accum0 is absorbed into DSP ROW[0].COL[0].u_pe/dsp_accum0.
+DSP Report: operator ROW[0].COL[0].u_pe/mult_full is absorbed into DSP ROW[0].COL[0].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[0].COL[1].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[0].COL[1].u_pe/mult_full is absorbed into DSP ROW[0].COL[1].u_pe/mult_full.
+DSP Report: Generating DSP ROW[0].COL[1].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[0].COL[1].u_pe/dsp_accum0 is absorbed into DSP ROW[0].COL[1].u_pe/dsp_accum0.
+DSP Report: operator ROW[0].COL[1].u_pe/mult_full is absorbed into DSP ROW[0].COL[1].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[0].COL[2].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[0].COL[2].u_pe/mult_full is absorbed into DSP ROW[0].COL[2].u_pe/mult_full.
+DSP Report: Generating DSP ROW[0].COL[2].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[0].COL[2].u_pe/dsp_accum0 is absorbed into DSP ROW[0].COL[2].u_pe/dsp_accum0.
+DSP Report: operator ROW[0].COL[2].u_pe/mult_full is absorbed into DSP ROW[0].COL[2].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[0].COL[3].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[0].COL[3].u_pe/mult_full is absorbed into DSP ROW[0].COL[3].u_pe/mult_full.
+DSP Report: Generating DSP ROW[0].COL[3].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[0].COL[3].u_pe/dsp_accum0 is absorbed into DSP ROW[0].COL[3].u_pe/dsp_accum0.
+DSP Report: operator ROW[0].COL[3].u_pe/mult_full is absorbed into DSP ROW[0].COL[3].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[1].COL[0].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[1].COL[0].u_pe/mult_full is absorbed into DSP ROW[1].COL[0].u_pe/mult_full.
+DSP Report: Generating DSP ROW[1].COL[0].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[1].COL[0].u_pe/dsp_accum0 is absorbed into DSP ROW[1].COL[0].u_pe/dsp_accum0.
+DSP Report: operator ROW[1].COL[0].u_pe/mult_full is absorbed into DSP ROW[1].COL[0].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[1].COL[1].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[1].COL[1].u_pe/mult_full is absorbed into DSP ROW[1].COL[1].u_pe/mult_full.
+DSP Report: Generating DSP ROW[1].COL[1].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[1].COL[1].u_pe/dsp_accum0 is absorbed into DSP ROW[1].COL[1].u_pe/dsp_accum0.
+DSP Report: operator ROW[1].COL[1].u_pe/mult_full is absorbed into DSP ROW[1].COL[1].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[1].COL[2].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[1].COL[2].u_pe/mult_full is absorbed into DSP ROW[1].COL[2].u_pe/mult_full.
+DSP Report: Generating DSP ROW[1].COL[2].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[1].COL[2].u_pe/dsp_accum0 is absorbed into DSP ROW[1].COL[2].u_pe/dsp_accum0.
+DSP Report: operator ROW[1].COL[2].u_pe/mult_full is absorbed into DSP ROW[1].COL[2].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[1].COL[3].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[1].COL[3].u_pe/mult_full is absorbed into DSP ROW[1].COL[3].u_pe/mult_full.
+DSP Report: Generating DSP ROW[1].COL[3].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[1].COL[3].u_pe/dsp_accum0 is absorbed into DSP ROW[1].COL[3].u_pe/dsp_accum0.
+DSP Report: operator ROW[1].COL[3].u_pe/mult_full is absorbed into DSP ROW[1].COL[3].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[2].COL[0].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[2].COL[0].u_pe/mult_full is absorbed into DSP ROW[2].COL[0].u_pe/mult_full.
+DSP Report: Generating DSP ROW[2].COL[0].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[2].COL[0].u_pe/dsp_accum0 is absorbed into DSP ROW[2].COL[0].u_pe/dsp_accum0.
+DSP Report: operator ROW[2].COL[0].u_pe/mult_full is absorbed into DSP ROW[2].COL[0].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[2].COL[1].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[2].COL[1].u_pe/mult_full is absorbed into DSP ROW[2].COL[1].u_pe/mult_full.
+DSP Report: Generating DSP ROW[2].COL[1].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[2].COL[1].u_pe/dsp_accum0 is absorbed into DSP ROW[2].COL[1].u_pe/dsp_accum0.
+DSP Report: operator ROW[2].COL[1].u_pe/mult_full is absorbed into DSP ROW[2].COL[1].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[2].COL[2].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[2].COL[2].u_pe/mult_full is absorbed into DSP ROW[2].COL[2].u_pe/mult_full.
+DSP Report: Generating DSP ROW[2].COL[2].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[2].COL[2].u_pe/dsp_accum0 is absorbed into DSP ROW[2].COL[2].u_pe/dsp_accum0.
+DSP Report: operator ROW[2].COL[2].u_pe/mult_full is absorbed into DSP ROW[2].COL[2].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[2].COL[3].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[2].COL[3].u_pe/mult_full is absorbed into DSP ROW[2].COL[3].u_pe/mult_full.
+DSP Report: Generating DSP ROW[2].COL[3].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[2].COL[3].u_pe/dsp_accum0 is absorbed into DSP ROW[2].COL[3].u_pe/dsp_accum0.
+DSP Report: operator ROW[2].COL[3].u_pe/mult_full is absorbed into DSP ROW[2].COL[3].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[3].COL[0].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[3].COL[0].u_pe/mult_full is absorbed into DSP ROW[3].COL[0].u_pe/mult_full.
+DSP Report: Generating DSP ROW[3].COL[0].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[3].COL[0].u_pe/dsp_accum0 is absorbed into DSP ROW[3].COL[0].u_pe/dsp_accum0.
+DSP Report: operator ROW[3].COL[0].u_pe/mult_full is absorbed into DSP ROW[3].COL[0].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[3].COL[1].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[3].COL[1].u_pe/mult_full is absorbed into DSP ROW[3].COL[1].u_pe/mult_full.
+DSP Report: Generating DSP ROW[3].COL[1].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[3].COL[1].u_pe/dsp_accum0 is absorbed into DSP ROW[3].COL[1].u_pe/dsp_accum0.
+DSP Report: operator ROW[3].COL[1].u_pe/mult_full is absorbed into DSP ROW[3].COL[1].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[3].COL[2].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[3].COL[2].u_pe/mult_full is absorbed into DSP ROW[3].COL[2].u_pe/mult_full.
+DSP Report: Generating DSP ROW[3].COL[2].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[3].COL[2].u_pe/dsp_accum0 is absorbed into DSP ROW[3].COL[2].u_pe/dsp_accum0.
+DSP Report: operator ROW[3].COL[2].u_pe/mult_full is absorbed into DSP ROW[3].COL[2].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[3].COL[3].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[3].COL[3].u_pe/mult_full is absorbed into DSP ROW[3].COL[3].u_pe/mult_full.
+DSP Report: Generating DSP ROW[3].COL[3].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[3].COL[3].u_pe/dsp_accum0 is absorbed into DSP ROW[3].COL[3].u_pe/dsp_accum0.
+DSP Report: operator ROW[3].COL[3].u_pe/mult_full is absorbed into DSP ROW[3].COL[3].u_pe/dsp_accum0.
+INFO: [Synth 8-4471] merging register 'ROW[0].COL[1].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[0].COL[2].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[0].COL[3].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[1].COL[0].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[1].COL[1].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[1].COL[2].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[1].COL[3].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[2].COL[0].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[2].COL[1].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[2].COL[2].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[2].COL[3].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[3].COL[0].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[3].COL[1].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[3].COL[2].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+INFO: [Synth 8-4471] merging register 'ROW[3].COL[3].u_pe/valid_reg_reg' into 'ROW[0].COL[0].u_pe/valid_reg_reg' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:87]
+DSP Report: Generating DSP ROW[0].COL[0].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[0].COL[0].u_pe/mult_full is absorbed into DSP ROW[0].COL[0].u_pe/mult_full.
+DSP Report: Generating DSP ROW[0].COL[0].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[0].COL[0].u_pe/dsp_accum0 is absorbed into DSP ROW[0].COL[0].u_pe/dsp_accum0.
+DSP Report: operator ROW[0].COL[0].u_pe/mult_full is absorbed into DSP ROW[0].COL[0].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[0].COL[1].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[0].COL[1].u_pe/mult_full is absorbed into DSP ROW[0].COL[1].u_pe/mult_full.
+DSP Report: Generating DSP ROW[0].COL[1].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[0].COL[1].u_pe/dsp_accum0 is absorbed into DSP ROW[0].COL[1].u_pe/dsp_accum0.
+DSP Report: operator ROW[0].COL[1].u_pe/mult_full is absorbed into DSP ROW[0].COL[1].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[0].COL[2].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[0].COL[2].u_pe/mult_full is absorbed into DSP ROW[0].COL[2].u_pe/mult_full.
+DSP Report: Generating DSP ROW[0].COL[2].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[0].COL[2].u_pe/dsp_accum0 is absorbed into DSP ROW[0].COL[2].u_pe/dsp_accum0.
+DSP Report: operator ROW[0].COL[2].u_pe/mult_full is absorbed into DSP ROW[0].COL[2].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[0].COL[3].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[0].COL[3].u_pe/mult_full is absorbed into DSP ROW[0].COL[3].u_pe/mult_full.
+DSP Report: Generating DSP ROW[0].COL[3].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[0].COL[3].u_pe/dsp_accum0 is absorbed into DSP ROW[0].COL[3].u_pe/dsp_accum0.
+DSP Report: operator ROW[0].COL[3].u_pe/mult_full is absorbed into DSP ROW[0].COL[3].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[1].COL[0].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[1].COL[0].u_pe/mult_full is absorbed into DSP ROW[1].COL[0].u_pe/mult_full.
+DSP Report: Generating DSP ROW[1].COL[0].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[1].COL[0].u_pe/dsp_accum0 is absorbed into DSP ROW[1].COL[0].u_pe/dsp_accum0.
+DSP Report: operator ROW[1].COL[0].u_pe/mult_full is absorbed into DSP ROW[1].COL[0].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[1].COL[1].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[1].COL[1].u_pe/mult_full is absorbed into DSP ROW[1].COL[1].u_pe/mult_full.
+DSP Report: Generating DSP ROW[1].COL[1].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[1].COL[1].u_pe/dsp_accum0 is absorbed into DSP ROW[1].COL[1].u_pe/dsp_accum0.
+DSP Report: operator ROW[1].COL[1].u_pe/mult_full is absorbed into DSP ROW[1].COL[1].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[1].COL[2].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[1].COL[2].u_pe/mult_full is absorbed into DSP ROW[1].COL[2].u_pe/mult_full.
+DSP Report: Generating DSP ROW[1].COL[2].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[1].COL[2].u_pe/dsp_accum0 is absorbed into DSP ROW[1].COL[2].u_pe/dsp_accum0.
+DSP Report: operator ROW[1].COL[2].u_pe/mult_full is absorbed into DSP ROW[1].COL[2].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[1].COL[3].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[1].COL[3].u_pe/mult_full is absorbed into DSP ROW[1].COL[3].u_pe/mult_full.
+DSP Report: Generating DSP ROW[1].COL[3].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[1].COL[3].u_pe/dsp_accum0 is absorbed into DSP ROW[1].COL[3].u_pe/dsp_accum0.
+DSP Report: operator ROW[1].COL[3].u_pe/mult_full is absorbed into DSP ROW[1].COL[3].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[2].COL[0].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[2].COL[0].u_pe/mult_full is absorbed into DSP ROW[2].COL[0].u_pe/mult_full.
+DSP Report: Generating DSP ROW[2].COL[0].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[2].COL[0].u_pe/dsp_accum0 is absorbed into DSP ROW[2].COL[0].u_pe/dsp_accum0.
+DSP Report: operator ROW[2].COL[0].u_pe/mult_full is absorbed into DSP ROW[2].COL[0].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[2].COL[1].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[2].COL[1].u_pe/mult_full is absorbed into DSP ROW[2].COL[1].u_pe/mult_full.
+DSP Report: Generating DSP ROW[2].COL[1].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[2].COL[1].u_pe/dsp_accum0 is absorbed into DSP ROW[2].COL[1].u_pe/dsp_accum0.
+DSP Report: operator ROW[2].COL[1].u_pe/mult_full is absorbed into DSP ROW[2].COL[1].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[2].COL[2].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[2].COL[2].u_pe/mult_full is absorbed into DSP ROW[2].COL[2].u_pe/mult_full.
+DSP Report: Generating DSP ROW[2].COL[2].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[2].COL[2].u_pe/dsp_accum0 is absorbed into DSP ROW[2].COL[2].u_pe/dsp_accum0.
+DSP Report: operator ROW[2].COL[2].u_pe/mult_full is absorbed into DSP ROW[2].COL[2].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[2].COL[3].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[2].COL[3].u_pe/mult_full is absorbed into DSP ROW[2].COL[3].u_pe/mult_full.
+DSP Report: Generating DSP ROW[2].COL[3].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[2].COL[3].u_pe/dsp_accum0 is absorbed into DSP ROW[2].COL[3].u_pe/dsp_accum0.
+DSP Report: operator ROW[2].COL[3].u_pe/mult_full is absorbed into DSP ROW[2].COL[3].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[3].COL[0].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[3].COL[0].u_pe/mult_full is absorbed into DSP ROW[3].COL[0].u_pe/mult_full.
+DSP Report: Generating DSP ROW[3].COL[0].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[3].COL[0].u_pe/dsp_accum0 is absorbed into DSP ROW[3].COL[0].u_pe/dsp_accum0.
+DSP Report: operator ROW[3].COL[0].u_pe/mult_full is absorbed into DSP ROW[3].COL[0].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[3].COL[1].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[3].COL[1].u_pe/mult_full is absorbed into DSP ROW[3].COL[1].u_pe/mult_full.
+DSP Report: Generating DSP ROW[3].COL[1].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[3].COL[1].u_pe/dsp_accum0 is absorbed into DSP ROW[3].COL[1].u_pe/dsp_accum0.
+DSP Report: operator ROW[3].COL[1].u_pe/mult_full is absorbed into DSP ROW[3].COL[1].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[3].COL[2].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[3].COL[2].u_pe/mult_full is absorbed into DSP ROW[3].COL[2].u_pe/mult_full.
+DSP Report: Generating DSP ROW[3].COL[2].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[3].COL[2].u_pe/dsp_accum0 is absorbed into DSP ROW[3].COL[2].u_pe/dsp_accum0.
+DSP Report: operator ROW[3].COL[2].u_pe/mult_full is absorbed into DSP ROW[3].COL[2].u_pe/dsp_accum0.
+DSP Report: Generating DSP ROW[3].COL[3].u_pe/mult_full, operation Mode is: A*B.
+DSP Report: operator ROW[3].COL[3].u_pe/mult_full is absorbed into DSP ROW[3].COL[3].u_pe/mult_full.
+DSP Report: Generating DSP ROW[3].COL[3].u_pe/dsp_accum0, operation Mode is: C+A*B.
+DSP Report: operator ROW[3].COL[3].u_pe/dsp_accum0 is absorbed into DSP ROW[3].COL[3].u_pe/dsp_accum0.
+DSP Report: operator ROW[3].COL[3].u_pe/mult_full is absorbed into DSP ROW[3].COL[3].u_pe/dsp_accum0.
+INFO: [Synth 8-3886] merging instance 'u_out_proj/u_w_sram/u_weight/en_sel_q_reg[3]' (FDC) to 'u_out_proj/u_w_sram/u_weight/bank_sel_q_reg[3][0]'
+INFO: [Synth 8-3886] merging instance 'u_out_proj/u_w_sram/u_weight/bank_sel_q_reg[3][0]' (FDC) to 'u_out_proj/u_w_sram/u_weight/en_sel_q_reg[2]'
+INFO: [Synth 8-3886] merging instance 'u_out_proj/u_w_sram/u_weight/port_sel_q_reg[3]' (FDC) to 'u_out_proj/u_w_sram/u_weight/bank_sel_q_reg[0][0]'
+INFO: [Synth 8-3886] merging instance 'u_out_proj/u_w_sram/u_weight/en_sel_q_reg[2]' (FDC) to 'u_out_proj/u_w_sram/u_weight/en_sel_q_reg[1]'
+INFO: [Synth 8-3886] merging instance 'u_out_proj/u_w_sram/u_weight/bank_sel_q_reg[2][0]' (FDC) to 'u_out_proj/u_w_sram/u_weight/bank_sel_q_reg[0][0]'
+INFO: [Synth 8-3886] merging instance 'u_out_proj/u_w_sram/u_weight/port_sel_q_reg[2]' (FDC) to 'u_out_proj/u_w_sram/u_weight/bank_sel_q_reg[0][0]'
+INFO: [Synth 8-3886] merging instance 'u_out_proj/u_w_sram/u_weight/en_sel_q_reg[1]' (FDC) to 'u_out_proj/u_w_sram/u_weight/en_sel_q_reg[0]'
+INFO: [Synth 8-3886] merging instance 'u_out_proj/u_w_sram/u_weight/bank_sel_q_reg[1][0]' (FDC) to 'u_out_proj/u_w_sram/u_weight/en_sel_q_reg[0]'
+INFO: [Synth 8-3886] merging instance 'u_out_proj/u_w_sram/u_weight/port_sel_q_reg[1]' (FDC) to 'u_out_proj/u_w_sram/u_weight/bank_sel_q_reg[0][0]'
+INFO: [Synth 8-3886] merging instance 'u_out_proj/u_w_sram/u_weight/bank_sel_q_reg[0][0]' (FDC) to 'u_out_proj/u_w_sram/u_weight/port_sel_q_reg[0]'
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_out_proj/\u_w_sram/u_weight /\port_sel_q_reg[0] )
+INFO: [Synth 8-3886] merging instance 'u_out_proj/u_w_sram/u_weight/bank_sel_q_reg[3][1]' (FDC) to 'u_out_proj/u_w_sram/u_weight/bank_sel_q_reg[2][1]'
+INFO: [Synth 8-3886] merging instance 'u_out_proj/u_w_sram/u_weight/bank_sel_q_reg[3][2]' (FDC) to 'u_out_proj/u_w_sram/u_weight/bank_sel_q_reg[2][2]'
+INFO: [Synth 8-3886] merging instance 'u_out_proj/u_w_sram/u_weight/bank_sel_q_reg[1][1]' (FDC) to 'u_out_proj/u_w_sram/u_weight/bank_sel_q_reg[0][1]'
+INFO: [Synth 8-3886] merging instance 'u_out_proj/u_w_sram/u_weight/bank_sel_q_reg[1][2]' (FDC) to 'u_out_proj/u_w_sram/u_weight/bank_sel_q_reg[0][2]'
+INFO: [Synth 8-3886] merging instance 'u_out_proj/u_w_sram/u_weight/bank_sel_q_reg[2][2]' (FDC) to 'u_out_proj/u_w_sram/u_weight/bank_sel_q_reg[0][1]'
+DSP Report: Generating DSP p_0_out, operation Mode is: A*B.
+DSP Report: operator p_0_out is absorbed into DSP p_0_out.
+DSP Report: Generating DSP p_0_out, operation Mode is: A*B.
+DSP Report: operator p_0_out is absorbed into DSP p_0_out.
+DSP Report: Generating DSP p_0_out, operation Mode is: A*B2.
+DSP Report: register s_prev_vec_reg[0] is absorbed into DSP p_0_out.
+DSP Report: operator p_0_out is absorbed into DSP p_0_out.
+DSP Report: Generating DSP p_0_out, operation Mode is: A*B.
+DSP Report: operator p_0_out is absorbed into DSP p_0_out.
+DSP Report: Generating DSP p_0_out, operation Mode is: A*B2.
+DSP Report: register s_prev_vec_reg[1] is absorbed into DSP p_0_out.
+DSP Report: operator p_0_out is absorbed into DSP p_0_out.
+DSP Report: Generating DSP p_0_out, operation Mode is: A*B.
+DSP Report: operator p_0_out is absorbed into DSP p_0_out.
+DSP Report: Generating DSP p_0_out, operation Mode is: A*B2.
+DSP Report: register s_prev_vec_reg[2] is absorbed into DSP p_0_out.
+DSP Report: operator p_0_out is absorbed into DSP p_0_out.
+DSP Report: Generating DSP p_0_out, operation Mode is: A*B2.
+DSP Report: register s_prev_vec_reg[3] is absorbed into DSP p_0_out.
+DSP Report: operator p_0_out is absorbed into DSP p_0_out.
+DSP Report: Generating DSP p_0_out, operation Mode is: A*B.
+DSP Report: operator p_0_out is absorbed into DSP p_0_out.
+DSP Report: Generating DSP p_0_out, operation Mode is: A*B.
+DSP Report: operator p_0_out is absorbed into DSP p_0_out.
+DSP Report: Generating DSP p_0_out, operation Mode is: A*B.
+DSP Report: operator p_0_out is absorbed into DSP p_0_out.
+DSP Report: Generating DSP p_0_out, operation Mode is: A*B.
+DSP Report: operator p_0_out is absorbed into DSP p_0_out.
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_bias_add/vpipe_reg[0]' (FDC) to 'u_ssm_core/u_bias_add/bias_en_reg'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/lam_r_reg[0][14]' (FDCE) to 'u_ssm_core/u_ew/lam_r_reg[2][8]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/lam_r_reg[0][13]' (FDCE) to 'u_ssm_core/u_ew/lam_r_reg[2][8]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/lam_r_reg[0][12]' (FDCE) to 'u_ssm_core/u_ew/lam_r_reg[2][8]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/lam_r_reg[0][11]' (FDCE) to 'u_ssm_core/u_ew/lam_r_reg[2][8]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/lam_r_reg[0][10]' (FDCE) to 'u_ssm_core/u_ew/lam_r_reg[2][8]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/lam_r_reg[0][9]' (FDCE) to 'u_ssm_core/u_ew/lam_r_reg[2][8]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/lam_r_reg[0][8]' (FDCE) to 'u_ssm_core/u_ew/lam_r_reg[2][8]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/lam_r_reg[0][15]' (FDCE) to 'u_ssm_core/u_ew/lam_r_reg[2][8]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/lam_r_reg[1][14]' (FDCE) to 'u_ssm_core/u_ew/lam_r_reg[2][8]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/lam_r_reg[1][13]' (FDCE) to 'u_ssm_core/u_ew/lam_r_reg[2][8]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/lam_r_reg[1][12]' (FDCE) to 'u_ssm_core/u_ew/lam_r_reg[2][8]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/lam_r_reg[1][11]' (FDCE) to 'u_ssm_core/u_ew/lam_r_reg[2][8]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/lam_r_reg[1][10]' (FDCE) to 'u_ssm_core/u_ew/lam_r_reg[2][8]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/lam_r_reg[1][9]' (FDCE) to 'u_ssm_core/u_ew/lam_r_reg[2][8]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/lam_r_reg[1][8]' (FDCE) to 'u_ssm_core/u_ew/lam_r_reg[2][8]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/lam_r_reg[1][15]' (FDCE) to 'u_ssm_core/u_ew/lam_r_reg[2][8]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/lam_r_reg[2][14]' (FDCE) to 'u_ssm_core/u_ew/lam_r_reg[2][8]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/lam_r_reg[2][13]' (FDCE) to 'u_ssm_core/u_ew/lam_r_reg[2][8]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/lam_r_reg[2][12]' (FDCE) to 'u_ssm_core/u_ew/lam_r_reg[2][8]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/lam_r_reg[2][11]' (FDCE) to 'u_ssm_core/u_ew/lam_r_reg[2][8]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/lam_r_reg[2][10]' (FDCE) to 'u_ssm_core/u_ew/lam_r_reg[2][8]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/lam_r_reg[2][9]' (FDCE) to 'u_ssm_core/u_ew/lam_r_reg[2][8]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/lam_r_reg[2][8]' (FDCE) to 'u_ssm_core/u_ew/lam_r_reg[2][15]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/lam_r_reg[2][15]' (FDCE) to 'u_ssm_core/u_ew/lam_r_reg[3][8]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/lam_r_reg[3][14]' (FDCE) to 'u_ssm_core/u_ew/lam_r_reg[3][8]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/lam_r_reg[3][13]' (FDCE) to 'u_ssm_core/u_ew/lam_r_reg[3][8]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/lam_r_reg[3][12]' (FDCE) to 'u_ssm_core/u_ew/lam_r_reg[3][8]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/lam_r_reg[3][11]' (FDCE) to 'u_ssm_core/u_ew/lam_r_reg[3][8]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/lam_r_reg[3][10]' (FDCE) to 'u_ssm_core/u_ew/lam_r_reg[3][8]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/lam_r_reg[3][9]' (FDCE) to 'u_ssm_core/u_ew/lam_r_reg[3][8]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/lam_r_reg[3][8]' (FDCE) to 'u_ssm_core/u_ew/lam_r_reg[3][15]'
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_ssm_core/\u_ew/lam_r_reg[3][15] )
+INFO: [Synth 8-3886] merging instance 'u_dt_sched/port_sel_reg_reg[3]' (FDCE) to 'u_dt_sched/port_sel_reg_reg[2]'
+INFO: [Synth 8-3886] merging instance 'u_dt_sched/port_sel_reg_reg[1]' (FDCE) to 'u_dt_sched/port_sel_reg_reg[0]'
+INFO: [Synth 8-3886] merging instance 'u_dt_sched/bank_sel_reg_reg[2][2]' (FDCE) to 'u_dt_sched/port_sel_reg_reg[0]'
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_dt_sched/\port_sel_reg_reg[0] )
+INFO: [Synth 8-3886] merging instance 'u_dt_sched/u_wbuf/bank_sel_q_reg[3][0]' (FDC) to 'u_dt_sched/u_wbuf/bank_sel_q_reg[1][0]'
+INFO: [Synth 8-3886] merging instance 'u_dt_sched/u_wbuf/bank_sel_q_reg[3][1]' (FDC) to 'u_dt_sched/u_wbuf/bank_sel_q_reg[1][1]'
+INFO: [Synth 8-3886] merging instance 'u_dt_sched/u_wbuf/bank_sel_q_reg[3][2]' (FDC) to 'u_dt_sched/u_wbuf/bank_sel_q_reg[1][2]'
+INFO: [Synth 8-3886] merging instance 'u_dt_sched/u_wbuf/bank_sel_q_reg[2][0]' (FDC) to 'u_dt_sched/u_wbuf/bank_sel_q_reg[0][0]'
+INFO: [Synth 8-3886] merging instance 'u_dt_sched/u_wbuf/bank_sel_q_reg[2][1]' (FDC) to 'u_dt_sched/u_wbuf/bank_sel_q_reg[0][1]'
+INFO: [Synth 8-3886] merging instance 'u_dt_sched/u_wbuf/bank_sel_q_reg[2][2]' (FDC) to 'u_dt_sched/u_wbuf/bank_sel_q_reg[0][2]'
+INFO: [Synth 8-3886] merging instance 'u_dt_sched/u_wbuf/port_sel_q_reg[3]' (FDC) to 'u_dt_sched/u_wbuf/port_sel_q_reg[2]'
+INFO: [Synth 8-3886] merging instance 'u_dt_sched/u_wbuf/port_sel_q_reg[1]' (FDC) to 'u_dt_sched/u_wbuf/bank_sel_q_reg[0][2]'
+INFO: [Synth 8-3886] merging instance 'u_dt_sched/u_wbuf/bank_sel_q_reg[0][2]' (FDC) to 'u_dt_sched/u_wbuf/port_sel_q_reg[0]'
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_dt_sched/u_wbuf/\port_sel_q_reg[0] )
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm2/y_vec_reg[3]__15) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm2/y_vec_reg[3]__16) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm2/y_vec_reg[3]__17) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm2/y_vec_reg[3]__18) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm2/y_vec_reg[3]__19) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm2/y_vec_reg[3]__20) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm2/y_vec_reg[3]__21) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm2/y_vec_reg[3]__22) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm2/y_vec_reg[0]__15) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm2/y_vec_reg[0]__16) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm2/y_vec_reg[0]__17) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm2/y_vec_reg[0]__18) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm2/y_vec_reg[0]__19) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm2/y_vec_reg[0]__20) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm2/y_vec_reg[0]__21) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm2/y_vec_reg[0]__22) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm1/y_vec_reg[0]__15) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm1/y_vec_reg[0]__16) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm1/y_vec_reg[0]__17) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm1/y_vec_reg[0]__18) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm1/y_vec_reg[0]__19) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm1/y_vec_reg[0]__20) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm1/y_vec_reg[0]__21) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm1/y_vec_reg[0]__22) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm2/y_vec_reg[1]__15) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm2/y_vec_reg[1]__16) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm2/y_vec_reg[1]__17) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm2/y_vec_reg[1]__18) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm2/y_vec_reg[1]__19) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm2/y_vec_reg[1]__20) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm2/y_vec_reg[1]__21) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm2/y_vec_reg[1]__22) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm1/y_vec_reg[1]__15) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm1/y_vec_reg[1]__16) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm1/y_vec_reg[1]__17) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm1/y_vec_reg[1]__18) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm1/y_vec_reg[1]__19) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm1/y_vec_reg[1]__20) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm1/y_vec_reg[1]__21) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm1/y_vec_reg[1]__22) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm2/y_vec_reg[2]__15) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm2/y_vec_reg[2]__16) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm2/y_vec_reg[2]__17) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm2/y_vec_reg[2]__18) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm2/y_vec_reg[2]__19) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm2/y_vec_reg[2]__20) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm2/y_vec_reg[2]__21) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm2/y_vec_reg[2]__22) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm1/y_vec_reg[2]__15) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm1/y_vec_reg[2]__16) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm1/y_vec_reg[2]__17) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm1/y_vec_reg[2]__18) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm1/y_vec_reg[2]__19) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm1/y_vec_reg[2]__20) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm1/y_vec_reg[2]__21) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm1/y_vec_reg[2]__22) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm1/y_vec_reg[3]__15) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm1/y_vec_reg[3]__16) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm1/y_vec_reg[3]__17) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm1/y_vec_reg[3]__18) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm1/y_vec_reg[3]__19) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm1/y_vec_reg[3]__20) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm1/y_vec_reg[3]__21) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_ew/u_ewm1/y_vec_reg[3]__22) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_gate/u_ewm_gate/y_vec_reg[3]__15) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_gate/u_ewm_gate/y_vec_reg[3]__16) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_gate/u_ewm_gate/y_vec_reg[3]__17) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_gate/u_ewm_gate/y_vec_reg[3]__18) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_gate/u_ewm_gate/y_vec_reg[3]__19) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_gate/u_ewm_gate/y_vec_reg[3]__20) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_gate/u_ewm_gate/y_vec_reg[3]__21) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_gate/u_ewm_gate/y_vec_reg[3]__22) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_gate/u_ewm_gate/y_vec_reg[2]__15) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_gate/u_ewm_gate/y_vec_reg[2]__16) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_gate/u_ewm_gate/y_vec_reg[2]__17) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_gate/u_ewm_gate/y_vec_reg[2]__18) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_gate/u_ewm_gate/y_vec_reg[2]__19) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_gate/u_ewm_gate/y_vec_reg[2]__20) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_gate/u_ewm_gate/y_vec_reg[2]__21) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_gate/u_ewm_gate/y_vec_reg[2]__22) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_gate/u_ewm_gate/y_vec_reg[1]__15) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_gate/u_ewm_gate/y_vec_reg[1]__16) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_gate/u_ewm_gate/y_vec_reg[1]__17) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_gate/u_ewm_gate/y_vec_reg[1]__18) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_gate/u_ewm_gate/y_vec_reg[1]__19) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_gate/u_ewm_gate/y_vec_reg[1]__20) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_gate/u_ewm_gate/y_vec_reg[1]__21) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_gate/u_ewm_gate/y_vec_reg[1]__22) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_gate/u_ewm_gate/y_vec_reg[0]__15) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_gate/u_ewm_gate/y_vec_reg[0]__16) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_gate/u_ewm_gate/y_vec_reg[0]__17) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_gate/u_ewm_gate/y_vec_reg[0]__18) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_gate/u_ewm_gate/y_vec_reg[0]__19) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_gate/u_ewm_gate/y_vec_reg[0]__20) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_gate/u_ewm_gate/y_vec_reg[0]__21) is unused and will be removed from module reuse_ssm_core.
+WARNING: [Synth 8-3332] Sequential element (u_gate/u_ewm_gate/y_vec_reg[0]__22) is unused and will be removed from module reuse_ssm_core.
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[0]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[0][0]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[1]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[0][1]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[2]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[0][2]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[3]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[0][3]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[4]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[0][4]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[5]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[0][5]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[6]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[0][6]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[7]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[0][7]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[8]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[0][8]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[9]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[0][9]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[10]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[0][10]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[11]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[0][11]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[12]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[0][12]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[13]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[0][13]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[14]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[0][14]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[15]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[0][15]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[16]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[1][0]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[17]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[1][1]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[18]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[1][2]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[19]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[1][3]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[20]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[1][4]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[21]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[1][5]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[22]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[1][6]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[23]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[1][7]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[24]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[1][8]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[25]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[1][9]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[26]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[1][10]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[27]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[1][11]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[28]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[1][12]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[29]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[1][13]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[30]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[1][14]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[31]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[1][15]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[32]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[2][0]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[33]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[2][1]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[34]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[2][2]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[35]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[2][3]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[36]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[2][4]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[37]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[2][5]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[38]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[2][6]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[39]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[2][7]'
+INFO: [Synth 8-3886] merging instance 'u_ssm_core/u_ew/s_new_packed_reg[40]' (FDCE) to 'u_ssm_core/u_ew/s_new_vec_reg[2][8]'
+INFO: [Common 17-14] Message 'Synth 8-3886' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Common 17-14] Message 'Synth 8-3886' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+DSP Report: Generating DSP p_0_out, operation Mode is: A*B.
+DSP Report: operator p_0_out is absorbed into DSP p_0_out.
+DSP Report: Generating DSP p_0_out, operation Mode is: A*B.
+DSP Report: operator p_0_out is absorbed into DSP p_0_out.
+DSP Report: Generating DSP p_0_out, operation Mode is: A*B.
+DSP Report: operator p_0_out is absorbed into DSP p_0_out.
+DSP Report: Generating DSP p_0_out, operation Mode is: A*B.
+DSP Report: operator p_0_out is absorbed into DSP p_0_out.
+DSP Report: Generating DSP p_0_out, operation Mode is: A*B.
+DSP Report: operator p_0_out is absorbed into DSP p_0_out.
+DSP Report: Generating DSP p_0_out, operation Mode is: A*B.
+DSP Report: operator p_0_out is absorbed into DSP p_0_out.
+DSP Report: Generating DSP p_0_out, operation Mode is: A*B.
+DSP Report: operator p_0_out is absorbed into DSP p_0_out.
+DSP Report: Generating DSP p_0_out, operation Mode is: A*B.
+DSP Report: operator p_0_out is absorbed into DSP p_0_out.
+WARNING: [Synth 8-3917] design reuse_in_proj_scheduler has port fabric_mode[1] driven by constant 0
+WARNING: [Synth 8-3917] design reuse_in_proj_scheduler has port fabric_mode[0] driven by constant 0
+WARNING: [Synth 8-3917] design reuse_in_proj_scheduler has port fabric_col_blocks[6] driven by constant 0
+WARNING: [Synth 8-3917] design reuse_in_proj_scheduler has port fabric_col_blocks[5] driven by constant 0
+WARNING: [Synth 8-3917] design reuse_in_proj_scheduler has port fabric_col_blocks[4] driven by constant 0
+WARNING: [Synth 8-3917] design reuse_in_proj_scheduler has port fabric_col_blocks[3] driven by constant 1
+WARNING: [Synth 8-3917] design reuse_in_proj_scheduler has port fabric_col_blocks[2] driven by constant 0
+WARNING: [Synth 8-3917] design reuse_in_proj_scheduler has port fabric_col_blocks[1] driven by constant 0
+WARNING: [Synth 8-3917] design reuse_in_proj_scheduler has port fabric_col_blocks[0] driven by constant 0
+INFO: [Common 17-14] Message 'Synth 8-7129' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\u_w_sram/u_weight /\port_sel_q_reg[0] )
+---------------------------------------------------------------------------------
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:01:33 ; elapsed = 00:02:06 . Memory (MB): peak = 2317.020 ; gain = 840.219
+---------------------------------------------------------------------------------
+ Sort Area is reuse_mamba_block_top__GB2 p_0_out_0 : 0 0 : 2050 2050 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB2 p_0_out_4 : 0 0 : 2050 2050 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB2 p_0_out_6 : 0 0 : 2050 2050 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB2 p_0_out_8 : 0 0 : 2050 2050 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB3 p_0_out_0 : 0 0 : 2034 2034 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB2 p_0_out_2 : 0 0 : 2034 2034 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB3 p_0_out_2 : 0 0 : 2034 2034 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB3 p_0_out_3 : 0 0 : 2034 2034 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB3 p_0_out_4 : 0 0 : 2034 2034 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB2 p_0_out_5 : 0 0 : 2034 2034 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB3 p_0_out_5 : 0 0 : 2034 2034 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB3 p_0_out_6 : 0 0 : 2034 2034 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB2 p_0_out_7 : 0 0 : 2034 2034 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB3 p_0_out_7 : 0 0 : 2034 2034 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB3 p_0_out_8 : 0 0 : 2034 2034 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB2 p_0_out_9 : 0 0 : 2034 2034 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[0].COL[0].u_pe/dsp_accum0_0 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[0].COL[0].u_pe/dsp_accum0_22 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[0].COL[0].u_pe/dsp_accum0_42 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[0].COL[0].u_pe/dsp_accum0_62 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[0].COL[1].u_pe/dsp_accum0_24 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[0].COL[1].u_pe/dsp_accum0_4 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[0].COL[1].u_pe/dsp_accum0_44 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[0].COL[1].u_pe/dsp_accum0_64 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[0].COL[2].u_pe/dsp_accum0_26 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[0].COL[2].u_pe/dsp_accum0_46 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[0].COL[2].u_pe/dsp_accum0_6 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[0].COL[2].u_pe/dsp_accum0_66 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[0].COL[3].u_pe/dsp_accum0_28 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[0].COL[3].u_pe/dsp_accum0_48 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[0].COL[3].u_pe/dsp_accum0_68 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[0].COL[3].u_pe/dsp_accum0_8 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[1].COL[0].u_pe/dsp_accum0_2a : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[1].COL[0].u_pe/dsp_accum0_4a : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[1].COL[0].u_pe/dsp_accum0_6a : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[1].COL[0].u_pe/dsp_accum0_a : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[1].COL[1].u_pe/dsp_accum0_2c : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[1].COL[1].u_pe/dsp_accum0_4c : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[1].COL[1].u_pe/dsp_accum0_6c : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[1].COL[1].u_pe/dsp_accum0_c : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[1].COL[2].u_pe/dsp_accum0_2e : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[1].COL[2].u_pe/dsp_accum0_4e : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[1].COL[2].u_pe/dsp_accum0_6e : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[1].COL[2].u_pe/dsp_accum0_e : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[1].COL[3].u_pe/dsp_accum0_10 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[1].COL[3].u_pe/dsp_accum0_30 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[1].COL[3].u_pe/dsp_accum0_50 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[1].COL[3].u_pe/dsp_accum0_70 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[2].COL[0].u_pe/dsp_accum0_12 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[2].COL[0].u_pe/dsp_accum0_32 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[2].COL[0].u_pe/dsp_accum0_52 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[2].COL[0].u_pe/dsp_accum0_72 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[2].COL[1].u_pe/dsp_accum0_14 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[2].COL[1].u_pe/dsp_accum0_34 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[2].COL[1].u_pe/dsp_accum0_54 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[2].COL[1].u_pe/dsp_accum0_74 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[2].COL[2].u_pe/dsp_accum0_16 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[2].COL[2].u_pe/dsp_accum0_36 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[2].COL[2].u_pe/dsp_accum0_56 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[2].COL[2].u_pe/dsp_accum0_76 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[2].COL[3].u_pe/dsp_accum0_18 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[2].COL[3].u_pe/dsp_accum0_38 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[2].COL[3].u_pe/dsp_accum0_58 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[2].COL[3].u_pe/dsp_accum0_78 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[3].COL[0].u_pe/dsp_accum0_1a : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[3].COL[0].u_pe/dsp_accum0_3a : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[3].COL[0].u_pe/dsp_accum0_5a : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[3].COL[0].u_pe/dsp_accum0_7a : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[3].COL[1].u_pe/dsp_accum0_1c : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[3].COL[1].u_pe/dsp_accum0_3c : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[3].COL[1].u_pe/dsp_accum0_5c : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[3].COL[1].u_pe/dsp_accum0_7c : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[3].COL[2].u_pe/dsp_accum0_1e : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[3].COL[2].u_pe/dsp_accum0_3e : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[3].COL[2].u_pe/dsp_accum0_5e : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[3].COL[2].u_pe/dsp_accum0_7e : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[3].COL[3].u_pe/dsp_accum0_20 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[3].COL[3].u_pe/dsp_accum0_40 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[3].COL[3].u_pe/dsp_accum0_60 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[3].COL[3].u_pe/dsp_accum0_80 : 0 0 : 2032 2032 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[0].COL[0].u_pe/mult_full_2 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[0].COL[0].u_pe/mult_full_23 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[0].COL[0].u_pe/mult_full_43 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[0].COL[0].u_pe/mult_full_63 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[0].COL[1].u_pe/mult_full_25 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[0].COL[1].u_pe/mult_full_45 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[0].COL[1].u_pe/mult_full_5 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[0].COL[1].u_pe/mult_full_65 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[0].COL[2].u_pe/mult_full_27 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[0].COL[2].u_pe/mult_full_47 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[0].COL[2].u_pe/mult_full_67 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[0].COL[2].u_pe/mult_full_7 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[0].COL[3].u_pe/mult_full_29 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[0].COL[3].u_pe/mult_full_49 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[0].COL[3].u_pe/mult_full_69 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[0].COL[3].u_pe/mult_full_9 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[1].COL[0].u_pe/mult_full_2b : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[1].COL[0].u_pe/mult_full_4b : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[1].COL[0].u_pe/mult_full_6b : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[1].COL[0].u_pe/mult_full_b : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[1].COL[1].u_pe/mult_full_2d : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[1].COL[1].u_pe/mult_full_4d : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[1].COL[1].u_pe/mult_full_6d : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[1].COL[1].u_pe/mult_full_d : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[1].COL[2].u_pe/mult_full_2f : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[1].COL[2].u_pe/mult_full_4f : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[1].COL[2].u_pe/mult_full_6f : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[1].COL[2].u_pe/mult_full_f : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[1].COL[3].u_pe/mult_full_11 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[1].COL[3].u_pe/mult_full_31 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[1].COL[3].u_pe/mult_full_51 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[1].COL[3].u_pe/mult_full_71 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[2].COL[0].u_pe/mult_full_13 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[2].COL[0].u_pe/mult_full_33 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[2].COL[0].u_pe/mult_full_53 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[2].COL[0].u_pe/mult_full_73 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[2].COL[1].u_pe/mult_full_15 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[2].COL[1].u_pe/mult_full_35 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[2].COL[1].u_pe/mult_full_55 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[2].COL[1].u_pe/mult_full_75 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[2].COL[2].u_pe/mult_full_17 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[2].COL[2].u_pe/mult_full_37 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[2].COL[2].u_pe/mult_full_57 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[2].COL[2].u_pe/mult_full_77 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[2].COL[3].u_pe/mult_full_19 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[2].COL[3].u_pe/mult_full_39 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[2].COL[3].u_pe/mult_full_59 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[2].COL[3].u_pe/mult_full_79 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[3].COL[0].u_pe/mult_full_1b : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[3].COL[0].u_pe/mult_full_3b : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[3].COL[0].u_pe/mult_full_5b : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[3].COL[0].u_pe/mult_full_7b : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[3].COL[1].u_pe/mult_full_1d : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[3].COL[1].u_pe/mult_full_3d : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[3].COL[1].u_pe/mult_full_5d : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[3].COL[1].u_pe/mult_full_7d : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[3].COL[2].u_pe/mult_full_1f : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[3].COL[2].u_pe/mult_full_3f : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[3].COL[2].u_pe/mult_full_5f : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[3].COL[2].u_pe/mult_full_7f : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[3].COL[3].u_pe/mult_full_21 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[3].COL[3].u_pe/mult_full_41 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[3].COL[3].u_pe/mult_full_61 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB0 ROW[3].COL[3].u_pe/mult_full_81 : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB2 p_0_out_a : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB2 p_0_out_c : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB2 p_0_out_d : 0 0 : 1937 1937 : Used 1 time 0
+ Sort Area is reuse_mamba_block_top__GB2 p_0_out_e : 0 0 : 1937 1937 : Used 1 time 0
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+ROM: Preliminary Mapping Report
++-------------+------------+---------------+----------------+
+|Module Name  | RTL Object | Depth x Width | Implemented As | 
++-------------+------------+---------------+----------------+
+|sigmoid4_vec | rom        | 2048x16       | LUT            | 
+|sigmoid4_vec | rom        | 2048x16       | LUT            | 
+|sigmoid4_vec | rom        | 2048x16       | LUT            | 
+|sigmoid4_vec | rom        | 2048x16       | LUT            | 
++-------------+------------+---------------+----------------+
+
+
+DSP: Preliminary Mapping Report (see note below. The ' indicates corresponding REG is set)
++---------------+-------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|Module Name    | DSP Mapping | A Size | B Size | C Size | D Size | P Size | AREG | BREG | CREG | DREG | ADREG | MREG | PREG | 
++---------------+-------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|pe_unit_pipe   | C+A*B       | 16     | 16     | 32     | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|ewm_vec4       | A*B         | 17     | 16     | -      | -      | 33     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|ewm_vec4       | A*B         | 17     | 16     | -      | -      | 33     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|ew_update_vec4 | A*B2        | 17     | 16     | -      | -      | 33     | 0    | 1    | -    | -    | -     | 0    | 0    | 
+|ewm_vec4       | A*B         | 17     | 16     | -      | -      | 33     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|ew_update_vec4 | A*B2        | 17     | 16     | -      | -      | 33     | 0    | 1    | -    | -    | -     | 0    | 0    | 
+|ewm_vec4       | A*B         | 17     | 16     | -      | -      | 33     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|ew_update_vec4 | A*B2        | 17     | 16     | -      | -      | 33     | 0    | 1    | -    | -    | -     | 0    | 0    | 
+|ew_update_vec4 | A*B2        | 17     | 16     | -      | -      | 33     | 0    | 1    | -    | -    | -     | 0    | 0    | 
+|ewm_vec4       | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|ewm_vec4       | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|ewm_vec4       | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|ewm_vec4       | A*B         | 16     | 16     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|ewm_vec4       | A*B         | 17     | 16     | -      | -      | 33     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|ewm_vec4       | A*B         | 17     | 16     | -      | -      | 33     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|ewm_vec4       | A*B         | 17     | 16     | -      | -      | 33     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|ewm_vec4       | A*B         | 17     | 16     | -      | -      | 33     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|ewm_vec4       | A*B         | 17     | 16     | -      | -      | 33     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|ewm_vec4       | A*B         | 17     | 16     | -      | -      | 33     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|ewm_vec4       | A*B         | 17     | 16     | -      | -      | 33     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|ewm_vec4       | A*B         | 17     | 16     | -      | -      | 33     | 0    | 0    | -    | -    | -     | 0    | 0    | 
++---------------+-------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+
+Note: The table above is a preliminary report that shows the DSPs inferred at the current stage of the synthesis flow. Some DSP may be reimplemented as non DSP primitives later in the synthesis flow. Multiple instantiated DSPs are reported only once.
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying XDC Timing Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Applying XDC Timing Constraints : Time (s): cpu = 00:01:42 ; elapsed = 00:02:16 . Memory (MB): peak = 2695.184 ; gain = 1218.383
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Timing Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Timing Optimization : Time (s): cpu = 00:01:52 ; elapsed = 00:02:26 . Memory (MB): peak = 3631.953 ; gain = 2155.152
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Technology Mapping
+---------------------------------------------------------------------------------
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv:86]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_block_top.sv:217]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_block_top.sv:217]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_block_top.sv:217]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_block_top.sv:217]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_block_top.sv:217]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_block_top.sv:217]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_block_top.sv:217]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_block_top.sv:217]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_block_top.sv:217]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_block_top.sv:217]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_block_top.sv:217]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_block_top.sv:217]
+INFO: [Common 17-14] Message 'Synth 8-5844' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ewm_vec4.sv:60]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ewm_vec4.sv:60]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ewm_vec4.sv:60]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ewm_vec4.sv:60]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ewm_vec4.sv:60]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ewm_vec4.sv:60]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ewm_vec4.sv:60]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ewm_vec4.sv:60]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ewm_vec4.sv:60]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ewm_vec4.sv:60]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ewm_vec4.sv:60]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ewm_vec4.sv:60]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ew_update_vec4.sv:102]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ew_update_vec4.sv:103]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ew_update_vec4.sv:102]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ew_update_vec4.sv:103]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ew_update_vec4.sv:102]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ew_update_vec4.sv:102]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ew_update_vec4.sv:103]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ew_update_vec4.sv:102]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ew_update_vec4.sv:102]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ew_update_vec4.sv:103]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ew_update_vec4.sv:102]
+INFO: [Synth 8-5844] Detected registers with asynchronous reset at DSP/BRAM block boundary. Consider using synchronous reset for optimal packing [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ew_update_vec4.sv:102]
+INFO: [Common 17-14] Message 'Synth 8-5844' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+---------------------------------------------------------------------------------
+Finished Technology Mapping : Time (s): cpu = 00:02:09 ; elapsed = 00:02:55 . Memory (MB): peak = 3631.953 ; gain = 2155.152
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:02:15 ; elapsed = 00:03:00 . Memory (MB): peak = 3631.953 ; gain = 2155.152
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:02:15 ; elapsed = 00:03:00 . Memory (MB): peak = 3631.953 ; gain = 2155.152
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:02:19 ; elapsed = 00:03:04 . Memory (MB): peak = 3631.953 ; gain = 2155.152
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Ports
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Ports : Time (s): cpu = 00:02:19 ; elapsed = 00:03:04 . Memory (MB): peak = 3631.953 ; gain = 2155.152
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:02:20 ; elapsed = 00:03:06 . Memory (MB): peak = 3631.953 ; gain = 2155.152
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Nets
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Nets : Time (s): cpu = 00:02:20 ; elapsed = 00:03:06 . Memory (MB): peak = 3631.953 ; gain = 2155.152
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
+
+DSP Final Report (the ' indicates corresponding REG is set)
++---------------+-------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|Module Name    | DSP Mapping | A Size | B Size | C Size | D Size | P Size | AREG | BREG | CREG | DREG | ADREG | MREG | PREG | 
++---------------+-------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|pe_unit_pipe   | (C+A*B)'    | 30     | 18     | 0      | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | (C+A*B)'    | 30     | 18     | 0      | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | (C+A*B)'    | 30     | 18     | 0      | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | (C+A*B)'    | 30     | 18     | 0      | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | (C+A*B)'    | 30     | 18     | 0      | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | (C+A*B)'    | 30     | 18     | 0      | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | (C+A*B)'    | 30     | 18     | 0      | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | (C+A*B)'    | 30     | 18     | 0      | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | (C+A*B)'    | 30     | 18     | 0      | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | (C+A*B)'    | 30     | 18     | 0      | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | (C+A*B)'    | 30     | 18     | 0      | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | (C+A*B)'    | 30     | 18     | 0      | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | (C+A*B)'    | 30     | 18     | 0      | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | (C+A*B)'    | 30     | 18     | 0      | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | (C+A*B)'    | 30     | 18     | 0      | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | (C+A*B)'    | 30     | 18     | 0      | -      | 32     | 0    | 0    | 0    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|pe_unit_pipe   | Dynamic     | -      | -      | -      | -      | 32     | -    | -    | -    | -    | -     | 0    | 1    | 
+|ewm_vec4       | (A*B)'      | 16     | 18     | -      | -      | 33     | 0    | 0    | -    | -    | -     | 0    | 1    | 
+|ewm_vec4       | (A*B)'      | 16     | 18     | -      | -      | 33     | 0    | 0    | -    | -    | -     | 0    | 1    | 
+|ewm_vec4       | (A*B)'      | 16     | 18     | -      | -      | 33     | 0    | 0    | -    | -    | -     | 0    | 1    | 
+|ewm_vec4       | (A*B)'      | 16     | 18     | -      | -      | 33     | 0    | 0    | -    | -    | -     | 0    | 1    | 
+|ewm_vec4       | (A*B)'      | 9      | 18     | -      | -      | 33     | 0    | 0    | -    | -    | -     | 0    | 1    | 
+|ewm_vec4       | (A*B)'      | 9      | 18     | -      | -      | 33     | 0    | 0    | -    | -    | -     | 0    | 1    | 
+|ew_update_vec4 | (A*B')'     | 8      | 18     | -      | -      | 33     | 0    | 1    | -    | -    | -     | 0    | 1    | 
+|ewm_vec4       | (A*B)'      | 9      | 18     | -      | -      | 33     | 0    | 0    | -    | -    | -     | 0    | 1    | 
+|ew_update_vec4 | (A*B')'     | 8      | 18     | -      | -      | 33     | 0    | 1    | -    | -    | -     | 0    | 1    | 
+|ewm_vec4       | (A*B)'      | 9      | 18     | -      | -      | 33     | 0    | 0    | -    | -    | -     | 0    | 1    | 
+|ew_update_vec4 | (A*B')'     | 8      | 18     | -      | -      | 33     | 0    | 1    | -    | -    | -     | 0    | 1    | 
+|ew_update_vec4 | (A*B')'     | 8      | 18     | -      | -      | 33     | 0    | 1    | -    | -    | -     | 0    | 1    | 
+|ewm_vec4       | (A*B)'      | 30     | 18     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 1    | 
+|ewm_vec4       | (A*B)'      | 30     | 18     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 1    | 
+|ewm_vec4       | (A*B)'      | 30     | 18     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 1    | 
+|ewm_vec4       | (A*B)'      | 30     | 18     | -      | -      | 32     | 0    | 0    | -    | -    | -     | 0    | 1    | 
+|ewm_vec4       | (A*B)'      | 16     | 18     | -      | -      | 33     | 0    | 0    | -    | -    | -     | 0    | 1    | 
+|ewm_vec4       | (A*B)'      | 16     | 18     | -      | -      | 33     | 0    | 0    | -    | -    | -     | 0    | 1    | 
+|ewm_vec4       | (A*B)'      | 16     | 18     | -      | -      | 33     | 0    | 0    | -    | -    | -     | 0    | 1    | 
+|ewm_vec4       | (A*B)'      | 16     | 18     | -      | -      | 33     | 0    | 0    | -    | -    | -     | 0    | 1    | 
++---------------+-------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+
+
+Report BlackBoxes: 
++------+-----------------------+----------+
+|      |BlackBox name          |Instances |
++------+-----------------------+----------+
+|1     |slim_WBUF_bank_dp      |        12|
+|2     |bias2sigmoid_fifo      |         5|
+|3     |inproj_ht_sram_ip      |         9|
+|4     |inproj_vec_out_sram_ip |         6|
+|5     |outproj_WBUF_bank_dp   |         6|
+|6     |bias_ROM               |         1|
+|7     |s_buffer               |         1|
++------+-----------------------+----------+
+
+Report Cell Usage: 
++------+-----------------------+------+
+|      |Cell                   |Count |
++------+-----------------------+------+
+|1     |bias2sigmoid_fifo      |     5|
+|6     |bias_ROM               |     1|
+|7     |inproj_ht_sram_ip      |     9|
+|16    |inproj_vec_out_sram_ip |     6|
+|22    |outproj_WBUF_bank_dp   |     6|
+|28    |s_buffer               |     1|
+|29    |slim_WBUF_bank_dp      |    12|
+|41    |BUFG                   |     1|
+|42    |CARRY8                 |   278|
+|43    |DSP_ALU                |    84|
+|44    |DSP_A_B_DATA           |    84|
+|46    |DSP_C_DATA             |    84|
+|48    |DSP_MULTIPLIER         |    84|
+|49    |DSP_M_DATA             |    84|
+|50    |DSP_OUTPUT             |    84|
+|51    |DSP_PREADD             |    84|
+|52    |DSP_PREADD_DATA        |    84|
+|53    |LUT1                   |  2172|
+|54    |LUT2                   |  4845|
+|55    |LUT3                   |  3729|
+|56    |LUT4                   |  1814|
+|57    |LUT5                   |  2608|
+|58    |LUT6                   | 10849|
+|59    |MUXF7                  |  2136|
+|60    |MUXF8                  |   852|
+|61    |FDCE                   | 13605|
+|62    |FDPE                   |     6|
+|63    |IBUF                   |   158|
+|64    |OBUF                   |   200|
++------+-----------------------+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:02:20 ; elapsed = 00:03:06 . Memory (MB): peak = 3631.953 ; gain = 2155.152
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 0 critical warnings and 301 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:02:04 ; elapsed = 00:02:59 . Memory (MB): peak = 3631.953 ; gain = 2029.316
+Synthesis Optimization Complete : Time (s): cpu = 00:02:20 ; elapsed = 00:03:08 . Memory (MB): peak = 3631.953 ; gain = 2155.152
+INFO: [Project 1-571] Translating synthesized netlist
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.286 . Memory (MB): peak = 3631.953 ; gain = 0.000
+INFO: [Netlist 29-17] Analyzing 3509 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 1 CPU seconds
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.005 . Memory (MB): peak = 3631.953 ; gain = 0.000
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 243 instances were transformed.
+  BUFG => BUFGCE: 1 instance 
+  DSP48E2 => DSP48E2 (DSP_ALU, DSP_A_B_DATA, DSP_C_DATA, DSP_MULTIPLIER, DSP_M_DATA, DSP_OUTPUT, DSP_PREADD, DSP_PREADD_DATA): 84 instances
+  IBUF => IBUF (IBUFCTRL, INBUF): 158 instances
+
+Synth Design complete | Checksum: b4b7cb12
+INFO: [Common 17-83] Releasing license: Synthesis
+391 Infos, 344 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:02:31 ; elapsed = 00:03:19 . Memory (MB): peak = 3631.953 ; gain = 3129.855
+Write ShapeDB Complete: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.041 . Memory (MB): peak = 3631.953 ; gain = 0.000
+INFO: [Common 17-1381] The checkpoint 'E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1/reuse_mamba_block_top.dcp' has been generated.
+INFO: [Vivado 12-24828] Executing command : report_utilization -file reuse_mamba_block_top_utilization_synth.rpt -pb reuse_mamba_block_top_utilization_synth.pb
+INFO: [Common 17-206] Exiting Vivado at Fri Apr  3 07:32:22 2026...
