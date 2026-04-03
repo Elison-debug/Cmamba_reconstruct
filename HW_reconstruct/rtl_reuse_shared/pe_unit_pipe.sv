@@ -81,7 +81,7 @@ module pe_unit_pipe #(
     // ===========================================================
     // 3. 一拍pipeline寄存器 (已修改)
     // ===========================================================
-    always_ff @(posedge clk or negedge rst_n) begin
+    always_ff @(posedge clk) begin
         if (!rst_n) begin
             result_reg <= '0;
             valid_reg  <= 1'b0;

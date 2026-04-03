@@ -27,7 +27,7 @@ module tb_reuse_mamba_block_top_hw_debug;
   localparam int ACC_WIDTH   = 32;
   localparam int FRAC_BITS   = 8;
   localparam int N_BANK      = 6;
-  localparam int WDEPTH      = 683;
+  localparam int WDEPTH      = 1024;
   localparam int WADDR_W     = $clog2(WDEPTH);
   localparam int DATA_W      = 256;
   localparam int XT_ADDR_W   = 6;
@@ -198,8 +198,6 @@ module tb_reuse_mamba_block_top_hw_debug;
   logic [63:0]  y_golden_mem [0:Y_DEPTH-1];
   int dt_rd_checks;
   int dt_rd_errors;
-  int xt_fifo_checks;
-  int xt_fifo_errors;
   int xt_checks;
   int xt_errors;
   int stream_errors;
@@ -306,17 +304,15 @@ module tb_reuse_mamba_block_top_hw_debug;
         dut.u_in_proj.u_w_sram.u_weight.mem_sim[4][addr] = inproj_bank4_mem[addr];
         dut.u_in_proj.u_w_sram.u_weight.mem_sim[5][addr] = inproj_bank5_mem[addr];
 
-        dut.u_dt_sched.u_wbuf.mem_sim[0][addr] = dt_bank0_mem[addr];
-        dut.u_dt_sched.u_wbuf.mem_sim[1][addr] = dt_bank1_mem[addr];
-        dut.u_dt_sched.u_wbuf.mem_sim[2][addr] = dt_bank2_mem[addr];
-        dut.u_dt_sched.u_wbuf.mem_sim[3][addr] = dt_bank3_mem[addr];
-        dut.u_dt_sched.u_wbuf.mem_sim[4][addr] = dt_bank4_mem[addr];
-        dut.u_dt_sched.u_wbuf.mem_sim[5][addr] = dt_bank5_mem[addr];
+        dut.u_dt_sched.dt_wbuf_mem_sim[0][addr] = dt_bank0_mem[addr];
+        dut.u_dt_sched.dt_wbuf_mem_sim[1][addr] = dt_bank1_mem[addr];
+        dut.u_dt_sched.dt_wbuf_mem_sim[2][addr] = dt_bank2_mem[addr];
+        dut.u_dt_sched.dt_wbuf_mem_sim[3][addr] = dt_bank3_mem[addr];
       end
       $display("[%0t] FILE  inproj bank0 addr0 = %h", $time, inproj_bank0_mem[0]);
       $display("[%0t] SRAM  inproj bank0 addr0 = %h", $time, dut.u_in_proj.u_w_sram.u_weight.mem_sim[0][0]);
       $display("[%0t] FILE  dt     bank0 addr0 = %h", $time, dt_bank0_mem[0]);
-      $display("[%0t] SRAM  dt     bank0 addr0 = %h", $time, dut.u_dt_sched.u_wbuf.mem_sim[0][0]);
+      $display("[%0t] SRAM  dt     bank0 addr0 = %h", $time, dut.u_dt_sched.dt_wbuf_mem_sim[0][0]);
       for (int addr = 0; addr < OUT_WDEPTH; addr++) begin
         dut.u_out_proj.u_w_sram.u_weight.mem_sim[0][addr] = outproj_bank0_mem[addr];
         dut.u_out_proj.u_w_sram.u_weight.mem_sim[1][addr] = outproj_bank1_mem[addr];
@@ -614,14 +610,12 @@ module tb_reuse_mamba_block_top_hw_debug;
   endtask
 
   int dt_req_addr_q[$];
-  logic [63:0] xt_expected_q[$];
-  logic [63:0] xt_fifo_cmp_q[$];
   bit dt_first_rd_mismatch_seen;
-  bit xt_fifo_first_mismatch_seen;
   bit xt_first_mismatch_seen;
-  int xt_fifo_dbg_count;
   int xt_fire_dbg_count;
-  int xt_en_dbg_count;
+  logic dt_u_rd_en_d1;
+  logic [XT_ADDR_W-1:0] dt_u_rd_addr_d1;
+  int xt_stream_idx;
 
   task automatic check_dt_read_lane_match(input int exp_addr);
     logic [63:0] exp_pack;
@@ -665,26 +659,6 @@ module tb_reuse_mamba_block_top_hw_debug;
     end
   endtask
 
-  task automatic check_xt_fifo_in_match(input logic [63:0] exp_pack);
-    logic signed [DATA_WIDTH-1:0] got_v;
-    logic signed [DATA_WIDTH-1:0] exp_v;
-    begin
-      xt_fifo_checks++;
-      for (int lane = 0; lane < TILE_SIZE; lane++) begin
-        got_v = dut.u_dt_sched.xt_fifo_in_vec[lane];
-        exp_v = unpack_lane64(exp_pack, lane);
-        if (got_v !== exp_v) begin
-          xt_fifo_errors++;
-          if (!xt_fifo_first_mismatch_seen) begin
-            $error("[%0t] FIRST xt fifo-in mismatch lane=%0d got=%0d exp=%0d",
-                   $time, lane, got_v, exp_v);
-            xt_fifo_first_mismatch_seen = 1'b1;
-          end
-        end
-      end
-    end
-  endtask
-
   task automatic start_block_once();
     begin
       @(posedge clk);
@@ -699,12 +673,8 @@ module tb_reuse_mamba_block_top_hw_debug;
       debug_arm    <= 1'b0;
       debug_cycles <= 0;
       dt_req_addr_q.delete();
-      xt_expected_q.delete();
-      xt_fifo_cmp_q.delete();
       dt_rd_checks <= 0;
       dt_rd_errors <= 0;
-      xt_fifo_checks <= 0;
-      xt_fifo_errors <= 0;
       xt_checks <= 0;
       xt_errors <= 0;
       stream_errors <= 0;
@@ -740,15 +710,17 @@ module tb_reuse_mamba_block_top_hw_debug;
       y_mem_errors <= 0;
       outproj_dbg_count <= 0;
       dt_first_rd_mismatch_seen <= 1'b0;
-      xt_fifo_first_mismatch_seen <= 1'b0;
       xt_first_mismatch_seen <= 1'b0;
-      xt_fifo_dbg_count <= 0;
       xt_fire_dbg_count <= 0;
-      xt_en_dbg_count <= 0;
+      dt_u_rd_en_d1 <= 1'b0;
+      dt_u_rd_addr_d1 <= '0;
+      xt_stream_idx <= 0;
     end else begin
       if (dut.dt_u_rd_en) begin
         dt_req_addr_q.push_back(dut.dt_u_rd_addr);
       end
+      dt_u_rd_en_d1 <= dut.dt_u_rd_en;
+      dt_u_rd_addr_d1 <= dut.dt_u_rd_addr;
       if (outproj_dbg_count < 32 &&
           (dut.u_out_proj.state == 3'd1 || dut.u_out_proj.y_wr_en)) begin
         $display("[%0t] OUTDBG cyc=%0d st=%0d row=%0d data=%0d tile=%0d valid=%0b ff1=%0b ff2=%0b fvin=%0b grp=%0b ywr=%0b yaddr=%0d paddr=%0d,%0d,%0d,%0d",
@@ -805,80 +777,50 @@ module tb_reuse_mamba_block_top_hw_debug;
                  $signed(dut.y_axis_TDATA[2]), $signed(dut.y_axis_TDATA[3]));
         outproj_dbg_count <= outproj_dbg_count + 1;
       end
-      if (dut.u_dt_sched.xt_en_reg_d1) begin
+      if (dt_u_rd_en_d1) begin
         int exp_addr;
-        if (xt_en_dbg_count < 12) begin
-          $display("[%0t] XTEN d1 tile_xt=%0d xt_next=%0d,%0d,%0d,%0d rd=%0d,%0d,%0d,%0d expq=%0d fifoq=%0d",
+        if (dt_rd_checks < 12) begin
+          $display("[%0t] DTREAD d1 addr=%0d rd=%0d,%0d,%0d,%0d qsz=%0d",
                    $time,
-                   dut.u_dt_sched.tile_cnt_for_xt,
-                   $signed(dut.u_dt_sched.xt_next[0]), $signed(dut.u_dt_sched.xt_next[1]),
-                   $signed(dut.u_dt_sched.xt_next[2]), $signed(dut.u_dt_sched.xt_next[3]),
+                   dt_u_rd_addr_d1,
                    $signed(dut.dt_u_rd_data[0]), $signed(dut.dt_u_rd_data[1]),
                    $signed(dut.dt_u_rd_data[2]), $signed(dut.dt_u_rd_data[3]),
-                   xt_expected_q.size(), xt_fifo_cmp_q.size());
-          xt_en_dbg_count <= xt_en_dbg_count + 1;
+                   dt_req_addr_q.size());
         end
         if (dt_req_addr_q.size() == 0) begin
           dt_rd_errors <= dt_rd_errors + 1;
           if (!dt_first_rd_mismatch_seen) begin
-            $error("[%0t] xt_en_reg_d1 fired with empty dt read queue", $time);
+            $error("[%0t] dt_u_rd_en_d1 fired with empty dt read queue", $time);
             dt_first_rd_mismatch_seen <= 1'b1;
           end
         end else begin
           exp_addr = dt_req_addr_q.pop_front();
           check_dt_read_lane_match(exp_addr);
-          if (dut.u_dt_sched.tile_cnt_for_xt == 16'd2)
-            xt_expected_q.push_back(u_act_golden_mem[exp_addr]);
-        end
-      end
-      if (dut.u_dt_sched.xt_fifo_in_valid) begin
-        logic [63:0] exp_xt_in_pack;
-        if (xt_fifo_dbg_count < 12) begin
-          $display("[%0t] XTFIFO in tile_xt=%0d in=%0d,%0d,%0d,%0d expq=%0d fifoq=%0d ready=%0b",
-                   $time,
-                   dut.u_dt_sched.tile_cnt_for_xt,
-                   $signed(dut.u_dt_sched.xt_fifo_in_vec[0]), $signed(dut.u_dt_sched.xt_fifo_in_vec[1]),
-                   $signed(dut.u_dt_sched.xt_fifo_in_vec[2]), $signed(dut.u_dt_sched.xt_fifo_in_vec[3]),
-                   xt_expected_q.size(), xt_fifo_cmp_q.size(),
-                   dut.u_dt_sched.xt_fifo_in_ready);
-          xt_fifo_dbg_count <= xt_fifo_dbg_count + 1;
-        end
-        if (xt_expected_q.size() == 0) begin
-          xt_fifo_errors <= xt_fifo_errors + 1;
-          if (!xt_fifo_first_mismatch_seen) begin
-            $error("[%0t] xt_fifo_in_valid fired with empty expected queue", $time);
-            xt_fifo_first_mismatch_seen <= 1'b1;
-          end
-        end else begin
-          exp_xt_in_pack = xt_expected_q.pop_front();
-          check_xt_fifo_in_match(exp_xt_in_pack);
-          xt_fifo_cmp_q.push_back({
-            dut.u_dt_sched.xt_fifo_in_vec[3],
-            dut.u_dt_sched.xt_fifo_in_vec[2],
-            dut.u_dt_sched.xt_fifo_in_vec[1],
-            dut.u_dt_sched.xt_fifo_in_vec[0]
-          });
         end
       end
       if (dut.xt_v && dut.xt_r_int) begin
         logic [63:0] exp_xt_pack;
+        if (xt_stream_idx < U_DEPTH)
+          exp_xt_pack = u_act_golden_mem[xt_stream_idx];
+        else
+          exp_xt_pack = '0;
         if (xt_fire_dbg_count < 12) begin
-          $display("[%0t] XTFIRE out=%0d,%0d,%0d,%0d fifoq=%0d",
+          $display("[%0t] XTFIRE idx=%0d out=%0d,%0d,%0d,%0d",
                    $time,
+                   xt_stream_idx,
                    $signed(dut.xt_d[0]), $signed(dut.xt_d[1]),
-                   $signed(dut.xt_d[2]), $signed(dut.xt_d[3]),
-                   xt_fifo_cmp_q.size());
+                   $signed(dut.xt_d[2]), $signed(dut.xt_d[3]));
           xt_fire_dbg_count <= xt_fire_dbg_count + 1;
         end
-        if (xt_fifo_cmp_q.size() == 0) begin
+        if (xt_stream_idx >= U_DEPTH) begin
           xt_errors <= xt_errors + 1;
           if (!xt_first_mismatch_seen) begin
-            $error("[%0t] xt stream fired with empty fifo compare queue", $time);
+            $error("[%0t] xt stream produced more than %0d vectors", $time, U_DEPTH);
             xt_first_mismatch_seen <= 1'b1;
           end
         end else begin
-          exp_xt_pack = xt_fifo_cmp_q.pop_front();
           check_xt_fire_match(exp_xt_pack);
+          xt_stream_idx <= xt_stream_idx + 1;
         end
       end
       if (dut.p_wr_en && p_stream_idx < U_DEPTH) begin
@@ -1261,16 +1203,14 @@ module tb_reuse_mamba_block_top_hw_debug;
     compare_y_mem();
     if (dt_rd_checks == 0)
       $fatal(1, "[%0t] no dt SRAM read checks observed", $time);
-    if (xt_fifo_checks == 0)
-      $fatal(1, "[%0t] no xt fifo-in checks observed", $time);
     if (xt_checks == 0)
       $fatal(1, "[%0t] no xt stream checks observed", $time);
     if (dt_rd_errors != 0)
       $fatal(1, "[%0t] found %0d dt SRAM read mismatches", $time, dt_rd_errors);
-    if (xt_fifo_errors != 0)
-      $fatal(1, "[%0t] found %0d xt fifo-in mismatches", $time, xt_fifo_errors);
     if (xt_errors != 0)
       $fatal(1, "[%0t] found %0d xt stream mismatches", $time, xt_errors);
+    if (xt_checks != U_DEPTH)
+      $fatal(1, "[%0t] xt stream collected=%0d expected=%0d", $time, xt_checks, U_DEPTH);
     if (p_stream_idx != U_DEPTH)
       $fatal(1, "[%0t] p stream collected=%0d expected=%0d", $time, p_stream_idx, U_DEPTH);
     if (y_stream_idx != Y_DEPTH)

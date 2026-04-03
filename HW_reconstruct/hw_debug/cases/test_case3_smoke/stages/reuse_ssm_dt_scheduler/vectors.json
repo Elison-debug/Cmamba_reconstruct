@@ -15,6 +15,7 @@
   },
   "notes": [
     "u_act_in_q88 is the dt scheduler read source.",
-    "xt_golden_q88 follows the scheduler's intended tile stream order and currently matches u_act row order."
+    "xt_golden_q88 is the direct u_act row stream aligned one-to-one with dt output rows.",
+    "dt_wbuf uses the dedicated cpp-aligned bank layout (bank=array index, addr=row_tile*groups+group)."
   ]
 }

@@ -43,7 +43,7 @@ module reuse_z_stream_reader #(
         end
     end
 
-    always_ff @(posedge clk or negedge rst_n) begin
+    always_ff @(posedge clk) begin
         if (!rst_n) begin
             state      <= IDLE;
             rd_addr_reg <= '0;

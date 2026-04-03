@@ -60,7 +60,7 @@ module reuse_reduction_accumulator #(
     logic                        mac_mode_q;
     logic                        clear_q;
 
-    always_ff @(posedge clk or negedge rst_n) begin
+    always_ff @(posedge clk) begin
         if (!rst_n) begin
             valid_q      <= 1'b0;
             mac_mode_q   <= 1'b0;
@@ -89,7 +89,7 @@ module reuse_reduction_accumulator #(
     logic valid_reg;
     logic suppress_valid; // 清零后屏蔽本 tile 剩余拍的 valid
 
-    always_ff @(posedge clk or negedge rst_n) begin
+    always_ff @(posedge clk) begin
         if (!rst_n) begin
             for (int j = 0; j < TILE_SIZE; j++)
                 acc_vec[j] <= '0;

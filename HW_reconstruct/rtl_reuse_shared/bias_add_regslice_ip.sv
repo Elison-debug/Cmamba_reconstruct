@@ -55,7 +55,7 @@ module bias_add_regslice_ip_A #(
     // ------------------------------------------------------------
     logic [ADDR_W-1:0] tile_idx;
 
-    always_ff @(posedge clk or negedge rst_n) begin
+    always_ff @(posedge clk) begin
         if (!rst_n) begin
             tile_idx <= '0;
         end else begin
@@ -90,13 +90,13 @@ module bias_add_regslice_ip_A #(
     initial begin
         for (int i = 0; i < TILE_DEPTH; i++) mem_sim[i] = '0;
     end
-    always_ff @(posedge clk or negedge rst_n) begin
+    always_ff @(posedge clk) begin
         if (!rst_n)
             bias64_d1 <= '0;
         else if (bias_en)
             bias64_d1 <= mem_sim[bias_addr];
     end
-    always_ff @(posedge clk or negedge rst_n) begin
+    always_ff @(posedge clk) begin
         if (!rst_n)
             bias64 <= '0;
         else
@@ -105,7 +105,7 @@ module bias_add_regslice_ip_A #(
 `endif
 
     // Read request on accept_in
-    always_ff @(posedge clk or negedge rst_n) begin
+    always_ff @(posedge clk) begin
         if (!rst_n) begin
             bias_en   <= 1'b0;
             bias_addr <= '0;
@@ -131,7 +131,7 @@ module bias_add_regslice_ip_A #(
     // ------------------------------------------------------------
     logic [PIPE_LAT:0] vpipe;
 
-    always_ff @(posedge clk or negedge rst_n) begin
+    always_ff @(posedge clk) begin
         if (!rst_n) begin
             vpipe <= '0;
         end else begin
@@ -144,7 +144,7 @@ module bias_add_regslice_ip_A #(
     // ------------------------------------------------------------
     logic signed [DATA_WIDTH-1:0] z_pipe [0:PIPE_LAT][TILE_SIZE-1:0];
 
-    always_ff @(posedge clk or negedge rst_n) begin
+    always_ff @(posedge clk) begin
         if (!rst_n) begin
             for (int st = 0; st <= PIPE_LAT; st++) begin
                 z_pipe[st] <= '{default:'0};
@@ -170,7 +170,7 @@ module bias_add_regslice_ip_A #(
     // 5) Produce output when ROM data is aligned
     // Backpressure-safe holding: out_vec stable while hold_valid=1 and out_ready=0
     // ------------------------------------------------------------
-    always_ff @(posedge clk or negedge rst_n) begin
+    always_ff @(posedge clk) begin
         if (!rst_n) begin
             hold_valid <= 1'b0;
             out_vec    <= '{default:'0};

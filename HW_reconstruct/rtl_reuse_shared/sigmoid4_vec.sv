@@ -107,7 +107,7 @@ module sigmoid4_vec #(
 
     // ---------------- Stage0 register ----------------
     // We clear stage0_valid every cycle and only raise it when we accept an input.
-    always_ff @(posedge clk or negedge rst_n) begin
+    always_ff @(posedge clk) begin
         if (!rst_n) begin
             stage0_valid <= 1'b0;
             for (int i=0; i<TILE_SIZE; i++) stage0_addr[i] <= '0;
@@ -128,7 +128,7 @@ module sigmoid4_vec #(
 
     // ---------------- ROM registered output (1-cycle) ----------------
     // rom_valid corresponds to stage0_valid delayed by 1.
-    always_ff @(posedge clk or negedge rst_n) begin
+    always_ff @(posedge clk) begin
         if (!rst_n) begin
             rom_valid <= 1'b0;
             for (int i=0; i<TILE_SIZE; i++) rom_dout[i] <= '0;
@@ -156,7 +156,7 @@ module sigmoid4_vec #(
     //       - else park rom_dout -> pending_reg (assert pending_valid)
     //
     // This guarantees rom_valid token is NEVER dropped.
-    always_ff @(posedge clk or negedge rst_n) begin
+    always_ff @(posedge clk) begin
         if (!rst_n) begin
             out_valid     <= 1'b0;
             pending_valid <= 1'b0;

@@ -26,7 +26,7 @@ module reuse_vec_out_sram #(
     logic [TILE_SIZE*DATA_WIDTH-1:0] q;
     logic [TILE_SIZE*DATA_WIDTH-1:0] q2;
 
-    always_ff @(posedge clk or negedge rst_n) begin
+    always_ff @(posedge clk) begin
         if (!rst_n) begin
             for (int i = 0; i < DEPTH; i++)
                 mem_sim[i] <= '0;

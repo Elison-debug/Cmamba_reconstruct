@@ -23,7 +23,7 @@ module reuse_ht_sram_sp #(
     logic [TILE_SIZE*DATA_WIDTH-1:0] mem_sim [DEPTH];
     logic [TILE_SIZE*DATA_WIDTH-1:0] q;
 
-    always_ff @(posedge clk or negedge rst_n) begin
+    always_ff @(posedge clk) begin
         if (!rst_n) begin
             for (int i = 0; i < DEPTH; i++)
                 mem_sim[i] <= '0;

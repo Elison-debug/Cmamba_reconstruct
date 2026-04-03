@@ -54,7 +54,7 @@ module ewm_vec4 #(
     end
 
     // 1-deep output register with valid
-    always_ff @(posedge clk or negedge rst_n) begin
+    always_ff @(posedge clk) begin
         if (!rst_n) begin
             out_valid <= 1'b0;
             for (int i=0;i<TILE_SIZE;i++) y_vec[i] <= '0;

@@ -1,4 +1,1 @@
-set_param project.enableReportConfiguration 0
-load_feature core
-current_fileset
-xsim {tb_reuse_mamba_block_top_hw_debug} -autoloadwcfg
+xsim {tb_reuse_mamba_block_top_hw_debug} -wdb {tb_reuse_mamba_block_top_hw_debug.wdb} -autoloadwcfg -tclbatch {run.tcl}

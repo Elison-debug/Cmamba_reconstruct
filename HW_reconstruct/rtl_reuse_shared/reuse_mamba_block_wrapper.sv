@@ -1,0 +1,138 @@
+`timescale 1ns/1ps
+//---------------------------------------------------------------
+// Module: reuse_mamba_block_wrapper
+// Function:
+//   Thin integration wrapper for reuse_mamba_block_top.
+//   - Synchronizes the external active-low reset into sys_clk
+//   - Flattens 4-lane vector ports into packed buses
+//   - Keeps the compute core interface intact for bring-up/debug
+//---------------------------------------------------------------
+module reuse_mamba_block_wrapper #(
+    parameter int TILE_SIZE  = 4,
+    parameter int DATA_WIDTH = 16,
+    parameter int ACC_WIDTH  = 32,
+    parameter int FRAC_BITS  = 8,
+    parameter int N_BANK     = 6,
+    parameter int WDEPTH     = 1024,
+    parameter int WADDR_W    = $clog2(WDEPTH),
+    parameter int DATA_W     = 256,
+    parameter int XT_ADDR_W  = 6,
+    parameter int D          = 256,
+    parameter int PIPE_LAT   = 4,
+    parameter int ADDR_BITS  = 11,
+    parameter string LUT_FILE = "sigmoid_lut_q016_2048.hex",
+    parameter int S_ADDR_W   = 6,
+    parameter int G_FRAC_BITS = 8
+)(
+    input  logic sys_clk,
+    input  logic ext_reset_n,
+    output logic core_rst_n_o,
+
+    input  logic block_auto_mode,
+    input  logic block_start,
+    output logic block_busy,
+    output logic block_done,
+
+    input  logic                         s_axis_tvalid,
+    output logic                         s_axis_tready,
+    input  logic                         g_axis_tvalid,
+    output logic                         g_axis_tready,
+    input  logic signed [TILE_SIZE*DATA_WIDTH-1:0] g_axis_tdata,
+    output logic                         y_axis_tvalid,
+    input  logic                         y_axis_tready,
+    output logic signed [TILE_SIZE*DATA_WIDTH-1:0] y_axis_tdata,
+
+    input  logic                         inproj_enable,
+    input  logic                         inproj_start,
+    output logic                         inproj_busy,
+    output logic                         inproj_done,
+    input  logic                         h_wr_en,
+    input  logic [4:0]                   h_wr_addr,
+    input  logic signed [TILE_SIZE*DATA_WIDTH-1:0] h_wr_data,
+    input  logic                         u_rd_en,
+    input  logic [5:0]                   u_rd_addr,
+    output logic signed [TILE_SIZE*DATA_WIDTH-1:0] u_rd_data,
+    input  logic                         z_rd_en,
+    input  logic [5:0]                   z_rd_addr,
+    output logic signed [TILE_SIZE*DATA_WIDTH-1:0] z_rd_data,
+
+    input  logic                         outproj_enable,
+    output logic                         outproj_busy
+);
+    logic [1:0] rst_sync_ff;
+    logic       core_rst_n;
+
+    logic signed [DATA_WIDTH-1:0] g_axis_tdata_arr [TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] y_axis_tdata_arr [TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] h_wr_data_arr    [TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] u_rd_data_arr    [TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] z_rd_data_arr    [TILE_SIZE-1:0];
+
+    always_ff @(posedge sys_clk) begin
+        if (!ext_reset_n)
+            rst_sync_ff <= '0;
+        else
+            rst_sync_ff <= {rst_sync_ff[0], 1'b1};
+    end
+
+    assign core_rst_n   = rst_sync_ff[1];
+    assign core_rst_n_o = core_rst_n;
+
+    always_comb begin
+        for (int i = 0; i < TILE_SIZE; i++) begin
+            g_axis_tdata_arr[i] = g_axis_tdata[i*DATA_WIDTH +: DATA_WIDTH];
+            h_wr_data_arr[i]    = h_wr_data[i*DATA_WIDTH +: DATA_WIDTH];
+            y_axis_tdata[i*DATA_WIDTH +: DATA_WIDTH] = y_axis_tdata_arr[i];
+            u_rd_data[i*DATA_WIDTH +: DATA_WIDTH]    = u_rd_data_arr[i];
+            z_rd_data[i*DATA_WIDTH +: DATA_WIDTH]    = z_rd_data_arr[i];
+        end
+    end
+
+    reuse_mamba_block_top #(
+        .TILE_SIZE   (TILE_SIZE),
+        .DATA_WIDTH  (DATA_WIDTH),
+        .ACC_WIDTH   (ACC_WIDTH),
+        .FRAC_BITS   (FRAC_BITS),
+        .N_BANK      (N_BANK),
+        .WDEPTH      (WDEPTH),
+        .WADDR_W     (WADDR_W),
+        .DATA_W      (DATA_W),
+        .XT_ADDR_W   (XT_ADDR_W),
+        .D           (D),
+        .PIPE_LAT    (PIPE_LAT),
+        .ADDR_BITS   (ADDR_BITS),
+        .LUT_FILE    (LUT_FILE),
+        .S_ADDR_W    (S_ADDR_W),
+        .G_FRAC_BITS (G_FRAC_BITS)
+    ) u_core (
+        .clk            (sys_clk),
+        .rst_n          (core_rst_n),
+        .block_auto_mode(block_auto_mode),
+        .block_start    (block_start),
+        .block_busy     (block_busy),
+        .block_done     (block_done),
+        .s_axis_TVALID  (s_axis_tvalid),
+        .s_axis_TREADY  (s_axis_tready),
+        .g_axis_TVALID  (g_axis_tvalid),
+        .g_axis_TREADY  (g_axis_tready),
+        .g_axis_TDATA   (g_axis_tdata_arr),
+        .y_axis_TVALID  (y_axis_tvalid),
+        .y_axis_TREADY  (y_axis_tready),
+        .y_axis_TDATA   (y_axis_tdata_arr),
+        .inproj_enable  (inproj_enable),
+        .inproj_start   (inproj_start),
+        .inproj_busy    (inproj_busy),
+        .inproj_done    (inproj_done),
+        .h_wr_en        (h_wr_en),
+        .h_wr_addr      (h_wr_addr),
+        .h_wr_data      (h_wr_data_arr),
+        .u_rd_en        (u_rd_en),
+        .u_rd_addr      (u_rd_addr),
+        .u_rd_data      (u_rd_data_arr),
+        .z_rd_en        (z_rd_en),
+        .z_rd_addr      (z_rd_addr),
+        .z_rd_data      (z_rd_data_arr),
+        .outproj_enable (outproj_enable),
+        .outproj_busy   (outproj_busy)
+    );
+endmodule

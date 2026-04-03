@@ -382,7 +382,7 @@ module reuse_in_proj_scheduler #(
         endcase
     end
 
-    always_ff @(posedge clk or negedge rst_n) begin
+    always_ff @(posedge clk) begin
         if (!rst_n) begin
             state         <= IDLE;
             row_group_idx <= '0;

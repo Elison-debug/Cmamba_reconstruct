@@ -18,7 +18,7 @@ module reuse_mamba_block_top #(
     parameter int ACC_WIDTH  = 32,
     parameter int FRAC_BITS  = 8,
     parameter int N_BANK     = 6,
-    parameter int WDEPTH     = 683,
+    parameter int WDEPTH     = 1024,
     parameter int WADDR_W    = $clog2(WDEPTH),
     parameter int DATA_W     = 256,
     parameter int XT_ADDR_W  = 6,
@@ -209,7 +209,7 @@ module reuse_mamba_block_top #(
     assign outproj_start_int = block_auto_mode ? pcap_done : 1'b0;
     assign uact_fill_done = (uact_wr_count == 7'd64);
 
-    always_ff @(posedge clk or negedge rst_n) begin
+    always_ff @(posedge clk) begin
         if (!rst_n) begin
             blk_st           <= BLK_IDLE;
             inproj_start_int <= 1'b0;
@@ -290,7 +290,7 @@ module reuse_mamba_block_top #(
         end
     end
 
-    always_ff @(posedge clk or negedge rst_n) begin
+    always_ff @(posedge clk) begin
         if (!rst_n) begin
             uact_wr_count <= '0;
         end else begin
@@ -672,7 +672,7 @@ module reuse_mamba_block_top #(
         .y_axis_TDATA(ssm_p_data)
     );
 
-    assign dt_reduce_rows  = 1'b0;
+    assign dt_reduce_rows  = 1'b1;
     assign in_reduce_rows  = 1'b1;
     assign out_reduce_rows = 1'b1;
 endmodule

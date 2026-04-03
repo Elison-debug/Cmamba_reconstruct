@@ -153,7 +153,7 @@ module reuse_pipeline_4array_top #(
     // ==========================================================
     // 5. Tile 完成检测逻辑 (用于驱动 reduction 清零)
     // ==========================================================
-    always_ff @(posedge clk or negedge rst_n) begin
+    always_ff @(posedge clk) begin
         if (!rst_n) begin
             col_cnt   <= '0;
             done_tile <= 1'b0;

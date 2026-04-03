@@ -50,7 +50,7 @@ module axis_vec_join2 #(
         end
     end
 
-    always_ff @(posedge clk or negedge rst_n) begin
+    always_ff @(posedge clk) begin
         if (!rst_n) begin
             a_wr <= '0; a_rd <= '0; a_count <= '0;
             b_wr <= '0; b_rd <= '0; b_count <= '0;

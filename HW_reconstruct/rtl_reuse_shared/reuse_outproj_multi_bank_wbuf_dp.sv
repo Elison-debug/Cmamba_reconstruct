@@ -55,7 +55,7 @@ module reuse_outproj_multi_bank_wbuf_dp #(
     logic [DATA_W-1:0] doutA_r [N_BANK];
     logic [DATA_W-1:0] doutB_r [N_BANK];
 
-    always_ff @(posedge clk or negedge rst_n) begin
+    always_ff @(posedge clk) begin
         if (!rst_n) begin
             for (int bi = 0; bi < N_BANK; bi++) begin
                 doutA_r[bi] <= '0;
@@ -83,7 +83,7 @@ module reuse_outproj_multi_bank_wbuf_dp #(
     logic [3:0]                     port_sel_q;
     logic [3:0]                     en_sel_q;
 
-    always_ff @(posedge clk or negedge rst_n) begin
+    always_ff @(posedge clk) begin
         if (!rst_n) begin
             bank_sel_q <= '0;
             port_sel_q <= '0;

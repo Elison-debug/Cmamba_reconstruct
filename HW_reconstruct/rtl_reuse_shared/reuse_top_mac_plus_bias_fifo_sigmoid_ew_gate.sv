@@ -186,7 +186,7 @@ module reuse_top_mac_plus_bias_fifo_sigmoid_ew_gate #(
     assign lam_in_valid = lam_skid0_valid;
     always_comb for (int i=0; i<TILE_SIZE; i++) lam_in_vec[i] = lam_skid0_vec[i];
 
-    always_ff @(posedge clk or negedge rst_n) begin
+    always_ff @(posedge clk) begin
         if (!rst_n) begin
             lam_skid0_valid <= 1'b0; lam_skid1_valid <= 1'b0;
             for (int i=0; i<TILE_SIZE; i++) begin
@@ -281,7 +281,7 @@ module reuse_top_mac_plus_bias_fifo_sigmoid_ew_gate #(
     logic [S_ADDR_W-1:0] s_addr_cnt;
     wire  [S_ADDR_W-1:0] s_addr_mux = s_addr_cnt;
     wire join_fire = join_out_valid && join_out_ready_int;
-    always_ff @(posedge clk or negedge rst_n) begin
+    always_ff @(posedge clk) begin
         if (!rst_n) s_addr_cnt <= '0;
         else if (join_fire) s_addr_cnt <= s_addr_cnt + 1'b1;
     end

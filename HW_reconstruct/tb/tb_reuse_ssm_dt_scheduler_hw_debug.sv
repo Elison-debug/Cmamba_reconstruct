@@ -6,8 +6,8 @@
 //   HW_reconstruct/hw_debug/cases/<case>/stages/reuse_ssm_dt_scheduler/
 //
 // Scope:
-//   - preload u_act SRAM
-//   - preload dt WBUF banks
+//   - preload u_act SRAM cache source
+//   - preload dedicated cpp-aligned dt WBUF banks
 //   - issue 64 tile-start pulses
 //   - compare dt output stream and xt stream
 //=============================================================================
@@ -23,7 +23,7 @@ module tb_reuse_ssm_dt_scheduler_hw_debug;
   localparam int ACC_WIDTH   = 32;
   localparam int FRAC_BITS   = 8;
   localparam int N_BANK      = 6;
-  localparam int WDEPTH      = 683;
+  localparam int WDEPTH      = 1024;
   localparam int WADDR_W     = $clog2(WDEPTH);
   localparam int DATA_W      = 256;
   localparam int XT_ADDR_W   = 6;
@@ -68,12 +68,6 @@ module tb_reuse_ssm_dt_scheduler_hw_debug;
   logic                         xt_axis_TVALID;
   logic                         xt_axis_TREADY;
   logic signed [DATA_WIDTH-1:0] xt_axis_TDATA [TILE_SIZE-1:0];
-  logic                         ref_xt_axis_TVALID;
-  logic                         ref_xt_axis_TREADY;
-  logic signed [DATA_WIDTH-1:0] ref_xt_axis_TDATA [TILE_SIZE-1:0];
-  logic                         ref_s_axis_TREADY;
-  logic                         ref_m_axis_TVALID;
-  logic signed [DATA_WIDTH-1:0] ref_reduced_trunc [TILE_SIZE-1:0];
   logic                         u_vec_rd_en;
   logic [XT_ADDR_W-1:0]         u_vec_rd_addr;
   logic signed [DATA_WIDTH-1:0] u_vec_rd_data [TILE_SIZE-1:0];
@@ -96,14 +90,11 @@ module tb_reuse_ssm_dt_scheduler_hw_debug;
   logic signed [ACC_WIDTH-1:0]   fabric_reduced_mat_3 [TILE_SIZE-1:0][TILE_SIZE-1:0];
   logic                          fabric_valid_out;
 
-  logic dt_errors, xt_errors;
   int dt_idx, xt_idx, dt_mismatch_count, xt_mismatch_count;
-  int ref_dt_mismatch_count, ref_xt_mismatch_count;
-  int cur_vs_ref_dt_mismatch_count, cur_vs_ref_xt_mismatch_count;
-  bit dt_first_seen, xt_first_seen, ref_dt_first_seen, ref_xt_first_seen, cur_ref_dt_first_seen, cur_ref_xt_first_seen;
-  int dbg_cycle;
+  bit dt_first_seen, xt_first_seen;
   logic [63:0] dt_captured_mem [0:U_DEPTH-1];
   logic [63:0] xt_captured_mem [0:U_DEPTH-1];
+  int token_timeout_cycles;
 
   function automatic string join_path(input string a, input string b);
     begin
@@ -215,7 +206,7 @@ module tb_reuse_ssm_dt_scheduler_hw_debug;
       .rst_n(rst_n),
       .mode(fabric_mode),
       .col_blocks_cfg(fabric_col_blocks),
-      .reduce_rows(1'b0),
+      .reduce_rows(1'b1),
       .valid_in(fabric_valid_in),
       .A0_mat(fabric_A0_mat), .A1_mat(fabric_A1_mat),
       .A2_mat(fabric_A2_mat), .A3_mat(fabric_A3_mat),
@@ -227,29 +218,6 @@ module tb_reuse_ssm_dt_scheduler_hw_debug;
       .reduced_mat_2(fabric_reduced_mat_2),
       .reduced_mat_3(fabric_reduced_mat_3),
       .valid_reduced(fabric_valid_out)
-  );
-
-  slim_mac_mem_controller_combined_dp #(
-      .TILE_SIZE (TILE_SIZE),
-      .DATA_WIDTH(DATA_WIDTH),
-      .ACC_WIDTH (ACC_WIDTH),
-      .FRAC_BITS (FRAC_BITS),
-      .N_BANK    (N_BANK),
-      .WDEPTH    (WDEPTH),
-      .WADDR_W   (WADDR_W),
-      .DATA_W    (DATA_W),
-      .XT_ADDR_W (XT_ADDR_W)
-  ) u_ref (
-      .clk(clk),
-      .rst_n(rst_n),
-      .s_axis_TVALID(s_axis_TVALID),
-      .s_axis_TREADY(ref_s_axis_TREADY),
-      .m_axis_TVALID(ref_m_axis_TVALID),
-      .m_axis_TREADY(m_axis_TREADY),
-      .reduced_trunc(ref_reduced_trunc),
-      .xt_axis_TVALID(ref_xt_axis_TVALID),
-      .xt_axis_TREADY(ref_xt_axis_TREADY),
-      .xt_axis_TDATA(ref_xt_axis_TDATA)
   );
 
   reuse_ht_sram_sp #(
@@ -274,56 +242,13 @@ module tb_reuse_ssm_dt_scheduler_hw_debug;
       xt_idx <= 0;
       dt_mismatch_count <= 0;
       xt_mismatch_count <= 0;
-      ref_dt_mismatch_count <= 0;
-      ref_xt_mismatch_count <= 0;
-      cur_vs_ref_dt_mismatch_count <= 0;
-      cur_vs_ref_xt_mismatch_count <= 0;
       dt_first_seen <= 1'b0;
       xt_first_seen <= 1'b0;
-      ref_dt_first_seen <= 1'b0;
-      ref_xt_first_seen <= 1'b0;
-      cur_ref_dt_first_seen <= 1'b0;
-      cur_ref_xt_first_seen <= 1'b0;
-      dbg_cycle <= 0;
     end else begin
-      if (dut.sched_busy) begin
-        dbg_cycle <= dbg_cycle + 1;
-        if (dbg_cycle < 8) begin
-          $display("[%0t] DBG cyc=%0d data_cnt=%0d tile_cnt=%0d phase=%0d en=%b en_r=%b bank=%0d,%0d,%0d,%0d addr=%0d,%0d,%0d,%0d",
-                   $time, dbg_cycle,
-                   dut.data_cnt, dut.tile_cnt, dut.phase_reg,
-                   dut.en_sel, dut.en_sel_reg,
-                   dut.bank_sel[0], dut.bank_sel[1], dut.bank_sel[2], dut.bank_sel[3],
-                   dut.addr_sel[0], dut.addr_sel[1], dut.addr_sel[2], dut.addr_sel[3]);
-          $display("[%0t] DBG A0=%0d,%0d,%0d,%0d A1=%0d,%0d,%0d,%0d A2=%0d,%0d,%0d,%0d A3=%0d,%0d,%0d,%0d",
-                   $time,
-                   dut.A0_mat_reg[0][0], dut.A0_mat_reg[0][1], dut.A0_mat_reg[0][2], dut.A0_mat_reg[0][3],
-                   dut.A1_mat_reg[0][0], dut.A1_mat_reg[0][1], dut.A1_mat_reg[0][2], dut.A1_mat_reg[0][3],
-                   dut.A2_mat_reg[0][0], dut.A2_mat_reg[0][1], dut.A2_mat_reg[0][2], dut.A2_mat_reg[0][3],
-                   dut.A3_mat_reg[0][0], dut.A3_mat_reg[0][1], dut.A3_mat_reg[0][2], dut.A3_mat_reg[0][3]);
-          $display("[%0t] DBG B0=%0d,%0d,%0d,%0d B1=%0d,%0d,%0d,%0d B2=%0d,%0d,%0d,%0d B3=%0d,%0d,%0d,%0d",
-                   $time,
-                   dut.B0_mat_reg[0][0], dut.B0_mat_reg[0][1], dut.B0_mat_reg[0][2], dut.B0_mat_reg[0][3],
-                   dut.B1_mat_reg[0][0], dut.B1_mat_reg[0][1], dut.B1_mat_reg[0][2], dut.B1_mat_reg[0][3],
-                   dut.B2_mat_reg[0][0], dut.B2_mat_reg[0][1], dut.B2_mat_reg[0][2], dut.B2_mat_reg[0][3],
-                   dut.B3_mat_reg[0][0], dut.B3_mat_reg[0][1], dut.B3_mat_reg[0][2], dut.B3_mat_reg[0][3]);
-        end
-      end else begin
-        dbg_cycle <= 0;
-      end
       if (m_axis_TVALID && m_axis_TREADY && dt_idx < U_DEPTH) begin
         dt_captured_mem[dt_idx] <= {
           reduced_trunc[3][15:0], reduced_trunc[2][15:0], reduced_trunc[1][15:0], reduced_trunc[0][15:0]
         };
-        if (dt_idx < 8) begin
-          $display("[%0t] DT idx=%0d got=%0d,%0d,%0d,%0d exp=%0d,%0d,%0d,%0d",
-                   $time, dt_idx,
-                   reduced_trunc[0], reduced_trunc[1], reduced_trunc[2], reduced_trunc[3],
-                   unpack_lane64(dt_golden_mem[dt_idx], 0),
-                   unpack_lane64(dt_golden_mem[dt_idx], 1),
-                   unpack_lane64(dt_golden_mem[dt_idx], 2),
-                   unpack_lane64(dt_golden_mem[dt_idx], 3));
-        end
         for (int lane = 0; lane < TILE_SIZE; lane++) begin
           logic signed [DATA_WIDTH-1:0] got_v;
           logic signed [DATA_WIDTH-1:0] exp_v;
@@ -334,20 +259,6 @@ module tb_reuse_ssm_dt_scheduler_hw_debug;
             if (!dt_first_seen) begin
               $error("[%0t] FIRST dt mismatch idx=%0d lane=%0d got=%0d exp=%0d", $time, dt_idx, lane, got_v, exp_v);
               dt_first_seen <= 1'b1;
-            end
-          end
-          if (got_v !== ref_reduced_trunc[lane]) begin
-            cur_vs_ref_dt_mismatch_count <= cur_vs_ref_dt_mismatch_count + 1;
-            if (!cur_ref_dt_first_seen) begin
-              $error("[%0t] FIRST cur-vs-ref dt mismatch idx=%0d lane=%0d cur=%0d ref=%0d", $time, dt_idx, lane, got_v, ref_reduced_trunc[lane]);
-              cur_ref_dt_first_seen <= 1'b1;
-            end
-          end
-          if (ref_reduced_trunc[lane] !== exp_v) begin
-            ref_dt_mismatch_count <= ref_dt_mismatch_count + 1;
-            if (!ref_dt_first_seen) begin
-              $error("[%0t] FIRST ref dt mismatch idx=%0d lane=%0d got=%0d exp=%0d", $time, dt_idx, lane, ref_reduced_trunc[lane], exp_v);
-              ref_dt_first_seen <= 1'b1;
             end
           end
         end
@@ -369,20 +280,6 @@ module tb_reuse_ssm_dt_scheduler_hw_debug;
               xt_first_seen <= 1'b1;
             end
           end
-          if (got_v !== ref_xt_axis_TDATA[lane]) begin
-            cur_vs_ref_xt_mismatch_count <= cur_vs_ref_xt_mismatch_count + 1;
-            if (!cur_ref_xt_first_seen) begin
-              $error("[%0t] FIRST cur-vs-ref xt mismatch idx=%0d lane=%0d cur=%0d ref=%0d", $time, xt_idx, lane, got_v, ref_xt_axis_TDATA[lane]);
-              cur_ref_xt_first_seen <= 1'b1;
-            end
-          end
-          if (ref_xt_axis_TDATA[lane] !== exp_v) begin
-            ref_xt_mismatch_count <= ref_xt_mismatch_count + 1;
-            if (!ref_xt_first_seen) begin
-              $error("[%0t] FIRST ref xt mismatch idx=%0d lane=%0d got=%0d exp=%0d", $time, xt_idx, lane, ref_xt_axis_TDATA[lane], exp_v);
-              ref_xt_first_seen <= 1'b1;
-            end
-          end
         end
         xt_idx <= xt_idx + 1;
       end
@@ -391,42 +288,78 @@ module tb_reuse_ssm_dt_scheduler_hw_debug;
 
   initial begin
     load_case_files();
+    $display("[%0t] after load_case_files", $time);
     s_axis_TVALID = 1'b0;
     m_axis_TREADY = 1'b1;
     xt_axis_TREADY = 1'b1;
-    ref_xt_axis_TREADY = 1'b1;
 
     wait(rst_n);
+    $display("[%0t] after wait rst_n", $time);
 
     for (int addr = 0; addr < U_DEPTH; addr++) begin
       u_uact_sram.mem_sim[addr] = u_act_in_mem[addr];
     end
+    $display("[%0t] after u_act mem preload", $time);
     for (int addr = 0; addr < WDEPTH; addr++) begin
-      dut.u_wbuf.mem_sim[0][addr] = dt_bank0_mem[addr];
-      dut.u_wbuf.mem_sim[1][addr] = dt_bank1_mem[addr];
-      dut.u_wbuf.mem_sim[2][addr] = dt_bank2_mem[addr];
-      dut.u_wbuf.mem_sim[3][addr] = dt_bank3_mem[addr];
-      dut.u_wbuf.mem_sim[4][addr] = dt_bank4_mem[addr];
-      dut.u_wbuf.mem_sim[5][addr] = dt_bank5_mem[addr];
-      u_ref.u_wbuf.mem_sim[0][addr] = dt_bank0_mem[addr];
-      u_ref.u_wbuf.mem_sim[1][addr] = dt_bank1_mem[addr];
-      u_ref.u_wbuf.mem_sim[2][addr] = dt_bank2_mem[addr];
-      u_ref.u_wbuf.mem_sim[3][addr] = dt_bank3_mem[addr];
-      u_ref.u_wbuf.mem_sim[4][addr] = dt_bank4_mem[addr];
-      u_ref.u_wbuf.mem_sim[5][addr] = dt_bank5_mem[addr];
+      dut.dt_wbuf_mem_sim[0][addr] = dt_bank0_mem[addr];
+      dut.dt_wbuf_mem_sim[1][addr] = dt_bank1_mem[addr];
+      dut.dt_wbuf_mem_sim[2][addr] = dt_bank2_mem[addr];
+      dut.dt_wbuf_mem_sim[3][addr] = dt_bank3_mem[addr];
     end
-    for (int addr = 0; addr < U_DEPTH; addr++) begin
-      u_ref.u_xt.mem_sim[addr] = u_act_in_mem[addr];
-    end
+    $display("[%0t] after dt bank preload", $time);
 
     repeat (4) @(posedge clk);
+    $display("[%0t] before token loop s_axis_TREADY=%0b state=%0d", $time, s_axis_TREADY, dut.state);
     for (int t = 0; t < U_DEPTH; t++) begin
+      if (t < 4) $display("[%0t] token %0d pre-handshake ready=%0b state=%0d sched_busy=%0b", $time, t, s_axis_TREADY, dut.state, dut.sched_busy);
       @(posedge clk);
       s_axis_TVALID <= 1'b1;
-      wait (s_axis_TREADY);
-      @(posedge clk);
+      token_timeout_cycles = 0;
+      while (s_axis_TREADY !== 1'b1) begin
+        @(posedge clk);
+        token_timeout_cycles = token_timeout_cycles + 1;
+        if (token_timeout_cycles > 2000) begin
+          $fatal(1, "[%0t] timeout waiting ready token=%0d state=%0d sched_busy=%0b row_idx=%0d", $time, t, dut.state, dut.sched_busy, dut.row_idx);
+        end
+      end
+      while (dut.sched_busy !== 1'b1 && dut.state == 3'd0) begin
+        @(posedge clk);
+        token_timeout_cycles = token_timeout_cycles + 1;
+        if (token_timeout_cycles > 2000) begin
+          $fatal(1, "[%0t] timeout waiting token accept token=%0d state=%0d sched_busy=%0b row_idx=%0d", $time, t, dut.state, dut.sched_busy, dut.row_idx);
+        end
+      end
+      if (t < 4) $display("[%0t] token %0d accepted ready=%0b state=%0d sched_busy=%0b", $time, t, s_axis_TREADY, dut.state, dut.sched_busy);
       s_axis_TVALID <= 1'b0;
-      wait (!dut.sched_busy);
+      token_timeout_cycles = 0;
+      while (dut.sched_busy) begin
+        @(posedge clk);
+        token_timeout_cycles = token_timeout_cycles + 1;
+        if (token_timeout_cycles > 5000) begin
+          $fatal(
+              1,
+              "[%0t] timeout waiting token=%0d state=%0d row_idx=%0d preload_req=%0d preload_store=%0d preload_pending=%0b cache_valid=%0b group_idx=%0d group_issue_q=%0d issue_valid=%0b issue_valid_q=%0b seen_valid_out=%0b valid_out=%0b xt_pending=%0b dt_idx=%0d xt_idx=%0d",
+              $time,
+              t,
+              dut.state,
+              dut.row_idx,
+              dut.preload_count,
+              dut.preload_count,
+              1'b0,
+              dut.cache_valid,
+              dut.group_idx,
+              0,
+              dut.issue_valid,
+              dut.issue_p0,
+              dut.seen_valid_out,
+              dut.fabric_valid_out,
+              dut.xt_pending,
+              dt_idx,
+              xt_idx
+          );
+        end
+      end
+      if (t < 4) $display("[%0t] token %0d done state=%0d dt_idx=%0d xt_idx=%0d", $time, t, dut.state, dt_idx, xt_idx);
       repeat (2) @(posedge clk);
     end
 
@@ -443,14 +376,6 @@ module tb_reuse_ssm_dt_scheduler_hw_debug;
       $fatal(1, "[%0t] found %0d dt mismatches", $time, dt_mismatch_count);
     if (xt_mismatch_count != 0)
       $fatal(1, "[%0t] found %0d xt mismatches", $time, xt_mismatch_count);
-    if (ref_dt_mismatch_count != 0)
-      $fatal(1, "[%0t] reference controller found %0d dt mismatches vs golden", $time, ref_dt_mismatch_count);
-    if (ref_xt_mismatch_count != 0)
-      $fatal(1, "[%0t] reference controller found %0d xt mismatches vs golden", $time, ref_xt_mismatch_count);
-    if (cur_vs_ref_dt_mismatch_count != 0)
-      $fatal(1, "[%0t] reuse scheduler differs from reference controller on %0d dt lanes", $time, cur_vs_ref_dt_mismatch_count);
-    if (cur_vs_ref_xt_mismatch_count != 0)
-      $fatal(1, "[%0t] reuse scheduler differs from reference controller on %0d xt lanes", $time, cur_vs_ref_xt_mismatch_count);
 
     $display("[%0t] PASS reuse_ssm_dt_scheduler_hw_debug", $time);
     $finish;

@@ -35,7 +35,7 @@ module reuse_pt_capture #(
     assign p_wr_addr = wr_addr;
     assign p_wr_data = s_axis_TDATA;
 
-    always_ff @(posedge clk or negedge rst_n) begin
+    always_ff @(posedge clk) begin
         if (!rst_n) begin
             st <= ST_IDLE;
             wr_addr <= '0;

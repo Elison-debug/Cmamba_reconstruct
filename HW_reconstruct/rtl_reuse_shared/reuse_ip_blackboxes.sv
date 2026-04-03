@@ -31,7 +31,7 @@ module bias2sigmoid_fifo (
     assign m_axis_tvalid = full;
     assign m_axis_tdata  = data_reg;
 
-    always_ff @(posedge s_aclk or negedge s_aresetn) begin
+    always_ff @(posedge s_aclk) begin
         if (!s_aresetn) begin
             full     <= 1'b0;
             data_reg <= '0;

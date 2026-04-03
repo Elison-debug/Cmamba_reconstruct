@@ -287,6 +287,64 @@ def _write_weight_banks_q88(
     return files
 
 
+def _write_weight_banks_q88_dt_aligned(
+    path_prefix: Path,
+    weight_oc_ic: np.ndarray,
+    n_bank: int = 6,
+    depth: int = 1024,
+    tile: int = 4,
+) -> list[str]:
+    """
+    Dedicated dt_proj bank layout aligned to the new RTL scheduler.
+
+    Mapping:
+      - Array a in {0,1,2,3} always reads bank=a
+      - One scheduler transaction computes one output row tile rt
+      - Within that transaction, group g in [0, groups-1] reads:
+          bank=a, addr=rt*groups + g  -> tile(rt, g*4 + a)
+      - Banks 4 and 5 are left zero-filled for compatibility with existing
+        6-bank wrappers / TB infrastructure.
+    """
+    oc, ic = weight_oc_ic.shape
+    row_tiles = oc // tile
+    col_tiles = ic // tile
+    if col_tiles % 4 != 0:
+        raise RuntimeError(f"dt aligned layout expects col_tiles divisible by 4, got {col_tiles}")
+    groups = col_tiles // 4
+    required_depth = row_tiles * groups
+    if required_depth > depth:
+        raise RuntimeError(
+            f"dt aligned layout depth too small: need {required_depth}, got {depth}"
+        )
+
+    bank_lines = [[0 for _ in range(depth)] for _ in range(n_bank)]
+    q = _quant_q88(weight_oc_ic)
+    for rt in range(row_tiles):
+        for g in range(groups):
+            addr = rt * groups + g
+            for a in range(4):
+                ct = g * 4 + a
+                tile_mat = q[rt * tile : (rt + 1) * tile, ct * tile : (ct + 1) * tile]
+                vals: list[int] = []
+                for r in range(tile):
+                    for c in range(tile):
+                        vals.append(int(tile_mat[r, c]) & 0xFFFF)
+                packed = 0
+                for idx, v in enumerate(vals):
+                    packed |= (v & 0xFFFF) << (16 * idx)
+                bank_lines[a][addr] = packed
+
+    files = []
+    for b in range(n_bank):
+        name = f"{path_prefix.name}_bank{b}.mem"
+        fpath = path_prefix.parent / name
+        with open(fpath, "w", encoding="utf-8") as f:
+            for line in bank_lines[b]:
+                f.write(f"{line:064X}\n")
+        files.append(name)
+    return files
+
+
 def _sigmoid_lut_values() -> list[int]:
     lut_path = _find_sigmoid_lut()
     if lut_path is not None:
@@ -557,7 +615,7 @@ def _export_reuse_top_stage(case_dir: Path, model: torch.nn.Module, x_arr: np.nd
     _write_mem_matrix_rows_q88(stage_dir / "gate_y_golden_q88.mem", gate_y_q88)
     _write_mem_matrix_rows_q88(stage_dir / "y_golden_q88.mem", y_q88)
     inproj_files = _write_weight_banks_q88(stage_dir / "inproj_wbuf", inproj_w, n_bank=6, depth=683)
-    dt_files = _write_weight_banks_q88(stage_dir / "dt_wbuf", dt_w, n_bank=6, depth=683)
+    dt_files = _write_weight_banks_q88_dt_aligned(stage_dir / "dt_wbuf", dt_w, n_bank=6, depth=1024)
     outproj_files = _write_weight_banks_q88(stage_dir / "outproj_wbuf", outproj_w, n_bank=6, depth=342)
 
     _write_json(
@@ -763,7 +821,7 @@ def _export_reuse_ssm_dt_scheduler_stage(case_dir: Path, model: torch.nn.Module,
     _write_mem_matrix_rows_q88(stage_dir / "u_act_in_q88.mem", u_act_q88)
     _write_mem_matrix_rows_q88(stage_dir / "dt_golden_q88.mem", dt_q88)
     _write_mem_matrix_rows_q88(stage_dir / "xt_golden_q88.mem", xt_q88)
-    dt_files = _write_weight_banks_q88(stage_dir / "dt_wbuf", dt_w, n_bank=6, depth=683)
+    dt_files = _write_weight_banks_q88_dt_aligned(stage_dir / "dt_wbuf", dt_w, n_bank=6, depth=1024)
     _write_json(
         stage_dir / "vectors.json",
         {
@@ -776,7 +834,8 @@ def _export_reuse_ssm_dt_scheduler_stage(case_dir: Path, model: torch.nn.Module,
             },
             "notes": [
                 "u_act_in_q88 is the dt scheduler read source.",
-                "xt_golden_q88 follows the scheduler's intended tile stream order and currently matches u_act row order.",
+                "xt_golden_q88 is the direct u_act row stream aligned one-to-one with dt output rows.",
+                "dt_wbuf uses the dedicated cpp-aligned bank layout (bank=array index, addr=row_tile*groups+group).",
             ],
         },
     )

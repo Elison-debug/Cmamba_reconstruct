@@ -19,7 +19,7 @@ module tb_reuse_mamba_block_top_inproj_to_outproj;
   localparam int ACC_WIDTH   = 32;
   localparam int FRAC_BITS   = 8;
   localparam int N_BANK      = 6;
-  localparam int WDEPTH      = 683;
+  localparam int WDEPTH      = 1024;
   localparam int WADDR_W     = $clog2(WDEPTH);
   localparam int DATA_W      = 256;
   localparam int XT_ADDR_W   = 6;
@@ -175,16 +175,16 @@ module tb_reuse_mamba_block_top_inproj_to_outproj;
     int element_id_i;
     int val_i;
     begin
-      for (int b = 0; b < N_BANK; b++) begin
+      for (int b = 0; b < 4; b++) begin
         for (int addr = 0; addr < WDEPTH; addr++) begin
           line_i = '0;
-          tile_id_i = b + addr * N_BANK;
+          tile_id_i = b + addr * 4;
           for (int w = 0; w < 16; w++) begin
             element_id_i = tile_id_i * 16 + w;
             val_i = 1 + element_id_i;
             line_i[w*DATA_WIDTH +: DATA_WIDTH] = val_i[DATA_WIDTH-1:0];
           end
-          dut.u_dt_sched.u_wbuf.mem_sim[b][addr] = line_i;
+          dut.u_dt_sched.dt_wbuf_mem_sim[b][addr] = line_i;
         end
       end
     end

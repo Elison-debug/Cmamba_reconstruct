@@ -41,7 +41,7 @@ module xt_input_buf #(
     initial begin
         for (int i = 0; i < XT_DEPTH; i++) mem_sim[i] = '0;
     end
-    always_ff @(posedge clk or negedge rst_n) begin
+    always_ff @(posedge clk) begin
         if (!rst_n) begin
             rom_dout_d1 <= '0;
             rom_dout    <= '0;

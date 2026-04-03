@@ -88,7 +88,7 @@ module ew_update_vec4 #(
     // in_ready: 只有在内部空闲且后续不会阻塞时才接 token
     assign in_ready = (st == ST_IDLE);
 
-    always_ff @(posedge clk or negedge rst_n) begin
+    always_ff @(posedge clk) begin
         if (!rst_n) begin
             st <= ST_IDLE;
             s_addr_r <= '0;
