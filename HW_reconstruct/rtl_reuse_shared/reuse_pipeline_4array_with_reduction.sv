@@ -15,6 +15,7 @@ module reuse_pipeline_4array_with_reduction #(
     input  logic rst_n,
     input  logic [1:0] mode,
     input  logic [6:0] col_blocks_cfg,
+    input  logic reduce_rows,
     input  logic valid_in,
 
     // --- A/B 矩阵 tile 输入 ---
@@ -77,7 +78,7 @@ module reuse_pipeline_4array_with_reduction #(
     logic                        valid3;
 
     reuse_reduction_accumulator #(.TILE_SIZE(TILE_SIZE), .ACC_WIDTH(ACC_WIDTH)) u_red3 (
-        .clk(clk), .rst_n(rst_n), .mode(mode),
+        .clk(clk), .rst_n(rst_n), .reduce_rows(reduce_rows), .mode(mode),
         .valid_in(valid_array4), .clear(done_tile),
         .mat_in(result_out_3), .vec_out(vec3), .valid_out(valid3)
     );

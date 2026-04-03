@@ -141,31 +141,21 @@ module bias_add_regslice_ip_A #(
 
     // ------------------------------------------------------------
     // 4) Align input vector with ROM latency (PIPE_LAT cycles)
-    // For PIPE_LAT=2:
-    //   accept_in -> z_q0
-    //   +1 cycle  -> z_q1
-    //   +2 cycle  -> z_q2  (aligned with bias64)
     // ------------------------------------------------------------
-    logic signed [DATA_WIDTH-1:0] z_q0 [TILE_SIZE-1:0];
-    logic signed [DATA_WIDTH-1:0] z_q1 [TILE_SIZE-1:0];
-    logic signed [DATA_WIDTH-1:0] z_q2 [TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] z_pipe [0:PIPE_LAT][TILE_SIZE-1:0];
 
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            z_q0 <= '{default:'0};
-            z_q1 <= '{default:'0};
-            z_q2 <= '{default:'0};
+            for (int st = 0; st <= PIPE_LAT; st++) begin
+                z_pipe[st] <= '{default:'0};
+            end
         end else begin
             if (accept_in) begin
-                z_q0 <= in_vec;
+                z_pipe[0] <= in_vec;
             end
-            // shift stages driven by vpipe taps (keeps behavior clean for sparse inputs)
-            if (vpipe[0]) begin
-                z_q1 <= z_q0;
-            end
-            if (PIPE_LAT >= 2) begin
-                if (vpipe[1]) begin
-                    z_q2 <= z_q1;
+            for (int st = 1; st <= PIPE_LAT; st++) begin
+                if (vpipe[st-1]) begin
+                    z_pipe[st] <= z_pipe[st-1];
                 end
             end
         end
@@ -173,8 +163,7 @@ module bias_add_regslice_ip_A #(
 
     logic signed [DATA_WIDTH-1:0] z_aligned [TILE_SIZE-1:0];
     always_comb begin
-        if (PIPE_LAT == 1) z_aligned = z_q1;
-        else               z_aligned = z_q2; // default PIPE_LAT=2
+        z_aligned = z_pipe[PIPE_LAT];
     end
 
     // ------------------------------------------------------------

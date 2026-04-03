@@ -4,9 +4,9 @@
   "h_depth": 32,
   "u_depth": 64,
   "notes": [
-    "Current top-level golden is partial.",
-    "Compare h->in_proj->u/z SRAM first.",
-    "Final y is not a valid top-level golden yet because out_proj is still stub in RTL.",
-    "Software path uses u_act before dt_proj, while current RTL top still reads raw u from SRAM for dt scheduling."
+    "Current top-level golden is block-local and ends at out_proj output before any residual add outside this RTL block.",
+    "Compare h->in_proj->u/z SRAM first, then dt/lam/ssm/gate, then y.",
+    "Golden uses integer Q8.8/Q0.16 arithmetic aligned to current RTL subpaths.",
+    "dt golden is generated from u_act SRAM semantics."
   ]
 }

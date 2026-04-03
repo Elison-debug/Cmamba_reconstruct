@@ -141,6 +141,7 @@ module tb_reuse_in_proj_scheduler;
       .rst_n(rst_n),
       .mode(fabric_mode),
       .col_blocks_cfg(fabric_col_blocks),
+      .reduce_rows(1'b1),
       .valid_in(fabric_valid_in),
       .A0_mat(fabric_A0_mat),
       .A1_mat(fabric_A1_mat),

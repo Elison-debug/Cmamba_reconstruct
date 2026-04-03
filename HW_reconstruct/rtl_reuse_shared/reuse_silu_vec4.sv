@@ -20,6 +20,7 @@ module reuse_silu_vec4 #(
 );
     logic                         x_path_valid, x_path_ready;
     logic signed [DATA_WIDTH-1:0] x_path_vec [TILE_SIZE-1:0];
+    logic        [DATA_WIDTH-1:0] x_path_vec_u [TILE_SIZE-1:0];
     logic                         sig_valid, sig_ready;
     logic [DATA_WIDTH-1:0]        sig_vec [TILE_SIZE-1:0];
     logic                         sig_join_ready, x_join_ready;
@@ -29,6 +30,11 @@ module reuse_silu_vec4 #(
     logic [DATA_WIDTH-1:0]        silu_u [TILE_SIZE-1:0];
 
     assign in_ready = x_path_ready && sig_ready;
+
+    always_comb begin
+        for (int i = 0; i < TILE_SIZE; i++)
+            x_path_vec_u[i] = x_path_vec[i];
+    end
 
     vec_fifo_axis_ip #(
         .TILE_SIZE (TILE_SIZE),
@@ -72,7 +78,7 @@ module reuse_silu_vec4 #(
         .a_vec    (sig_vec),
         .b_valid  (x_path_valid),
         .b_ready  (x_join_ready),
-        .b_vec    (x_path_vec),
+        .b_vec    (x_path_vec_u),
         .out_valid(join_valid),
         .out_ready(join_ready),
         .lam_vec  (sig_join_vec),

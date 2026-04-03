@@ -17,16 +17,18 @@
     "z_silu_golden_q88.mem",
     "dt_golden_q88.mem",
     "lam_golden_q016.mem",
-    "ssm_golden_q88.mem"
+    "ssm_golden_q88.mem",
+    "gate_y_golden_q88.mem",
+    "y_golden_q88.mem"
   ],
   "notes": [
     "Use only after in_proj and SSM subpaths are individually validated.",
-    "Current hardware out_proj is still stub, so final y compare may be partial.",
-    "Top compare currently targets internal SRAM / subpath outputs, not final y."
+    "Current top-level y golden is the block-local out_proj result before any residual add outside this RTL block.",
+    "Top compare targets internal SRAM / subpath outputs and the final out_proj y stream/SRAM."
   ],
   "generated_artifacts": {
     "generated": true,
-    "partial_only": true,
+    "partial_only": false,
     "files": [
       "h_wr_addr.mem",
       "h_wr_data_q88.mem",
@@ -37,6 +39,8 @@
       "dt_golden_q88.mem",
       "lam_golden_q016.mem",
       "ssm_golden_q88.mem",
+      "gate_y_golden_q88.mem",
+      "y_golden_q88.mem",
       "control.json",
       "vectors.json",
       "inproj_wbuf_bank0.mem",
@@ -50,7 +54,13 @@
       "dt_wbuf_bank2.mem",
       "dt_wbuf_bank3.mem",
       "dt_wbuf_bank4.mem",
-      "dt_wbuf_bank5.mem"
+      "dt_wbuf_bank5.mem",
+      "outproj_wbuf_bank0.mem",
+      "outproj_wbuf_bank1.mem",
+      "outproj_wbuf_bank2.mem",
+      "outproj_wbuf_bank3.mem",
+      "outproj_wbuf_bank4.mem",
+      "outproj_wbuf_bank5.mem"
     ]
   }
 }

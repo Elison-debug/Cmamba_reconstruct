@@ -15,6 +15,7 @@ module reuse_shared_mac_fabric #(
     input  logic rst_n,
     input  logic [1:0] mode,
     input  logic [6:0] col_blocks_cfg,
+    input  logic reduce_rows,
     input  logic valid_in,
 
     input  logic signed [DATA_WIDTH-1:0] A0_mat [TILE_SIZE-1:0][TILE_SIZE-1:0],
@@ -45,6 +46,7 @@ module reuse_shared_mac_fabric #(
         .rst_n(rst_n),
         .mode(mode),
         .col_blocks_cfg(col_blocks_cfg),
+        .reduce_rows(reduce_rows),
         .valid_in(valid_in),
         .A0_mat(A0_mat), .A1_mat(A1_mat), .A2_mat(A2_mat), .A3_mat(A3_mat),
         .B0_mat(B0_mat), .B1_mat(B1_mat), .B2_mat(B2_mat), .B3_mat(B3_mat),

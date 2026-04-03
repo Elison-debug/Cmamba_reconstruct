@@ -23,10 +23,11 @@ set COMMON_SRC=refactor\bittrue\cpp\ref_infer.cpp
 
 if /I "%TARGET%"=="full" goto build_full
 if /I "%TARGET%"=="batch" goto build_batch
+if /I "%TARGET%"=="block0" goto build_block0
 if /I "%TARGET%"=="all" goto build_all
 
 echo Unknown target: %TARGET%
-echo Usage: build_bittrue.bat [all^|full^|batch]
+echo Usage: build_bittrue.bat [all^|full^|batch^|block0]
 exit /b 1
 
 :build_full
@@ -41,10 +42,18 @@ cl %COMMON_FLAGS% %COMMON_SRC% refactor\bittrue\cpp\main_batch.cpp /Febuild\bitt
 if errorlevel 1 exit /b 1
 exit /b 0
 
+:build_block0
+echo [build] main_block0_y.exe
+cl %COMMON_FLAGS% %COMMON_SRC% refactor\bittrue\cpp\main_block0_y.cpp /Febuild\bittrue\main_block0_y.exe
+if errorlevel 1 exit /b 1
+exit /b 0
+
 :build_all
 call "%~f0" full
 if errorlevel 1 exit /b 1
 call "%~f0" batch
+if errorlevel 1 exit /b 1
+call "%~f0" block0
 if errorlevel 1 exit /b 1
 echo [build] done: build\bittrue
 exit /b 0

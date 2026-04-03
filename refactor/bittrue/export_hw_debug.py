@@ -52,6 +52,30 @@ def _stage_spec() -> list[dict]:
             ],
         },
         {
+            "name": "reuse_ssm_core",
+            "rtl_top": "reuse_ssm_core",
+            "status": "partial_ready",
+            "description": "Standalone SSM post-dt core: bias -> sigmoid -> join -> EW update -> gate.",
+            "golden_inputs": ["mac_in_q88.mem", "xt_in_q88.mem", "g_in_q88.mem"],
+            "golden_outputs": ["lam_golden_q016.mem", "ssm_golden_q88.mem", "gate_y_golden_q88.mem"],
+            "notes": [
+                "Current simulation model of bias_add_regslice_ip_A uses zero-initialized bias mem_sim unless TB explicitly initializes it.",
+                "This stage isolates dt/lam/ssm/gate from the top-level scheduler.",
+            ],
+        },
+        {
+            "name": "reuse_ssm_dt_scheduler",
+            "rtl_top": "reuse_ssm_dt_scheduler",
+            "status": "partial_ready",
+            "description": "Standalone dt scheduler with shared MAC fabric and u_act SRAM source.",
+            "golden_inputs": ["u_act_in_q88.mem", "dt_wbuf_bank*.mem"],
+            "golden_outputs": ["dt_golden_q88.mem", "xt_golden_q88.mem"],
+            "notes": [
+                "This stage isolates dt GEMV + xt FIFO wavefront from top-level ownership switching.",
+                "Use it to determine whether dt mismatch originates in the scheduler itself or in top-level integration.",
+            ],
+        },
+        {
             "name": "reuse_mamba_block_top",
             "rtl_top": "reuse_mamba_block_top",
             "status": "partial_ready",
@@ -71,11 +95,13 @@ def _stage_spec() -> list[dict]:
                 "dt_golden_q88.mem",
                 "lam_golden_q016.mem",
                 "ssm_golden_q88.mem",
+                "gate_y_golden_q88.mem",
+                "y_golden_q88.mem",
             ],
             "notes": [
                 "Use only after in_proj and SSM subpaths are individually validated.",
-                "Current hardware out_proj is still stub, so final y compare may be partial.",
-                "Top compare currently targets internal SRAM / subpath outputs, not final y.",
+                "Current top-level y golden is the block-local out_proj result before any residual add outside this RTL block.",
+                "Top compare targets internal SRAM / subpath outputs and the final out_proj y stream/SRAM.",
             ],
         },
     ]
@@ -133,11 +159,83 @@ def _quant_q88(x: np.ndarray) -> np.ndarray:
     return q
 
 
+def _wrap_s16_arr(x: np.ndarray) -> np.ndarray:
+    x_i = x.astype(np.int64) & 0xFFFF
+    x_s = np.where((x_i & 0x8000) != 0, x_i - 0x10000, x_i)
+    return x_s.astype(np.int16)
+
+
 def _quant_q016_from_sigmoid(x: np.ndarray) -> np.ndarray:
     s = 1.0 / (1.0 + np.exp(-x.astype(np.float64)))
     q = np.rint(s * 65536.0).astype(np.int64)
     q = np.clip(q, 0, 65535).astype(np.uint16)
     return q
+
+
+def _conv1x1_q88_intmac(weight_2d: np.ndarray, x_q88: np.ndarray) -> np.ndarray:
+    w_q88 = _quant_q88(weight_2d).astype(np.int64)
+    x_q88_i64 = x_q88.astype(np.int64)
+    acc_q1616 = w_q88 @ x_q88_i64
+    y_q88 = (acc_q1616 >> 8).astype(np.int64)
+    return _wrap_s16_arr(y_q88)
+
+
+def _sigmoid_q016_from_q88(x_q88: np.ndarray) -> np.ndarray:
+    x_i = x_q88.astype(np.int64)
+    x_clamp = np.clip(x_i, -1024, 1023)
+    addr = (x_clamp + 1024).astype(np.int64)
+    lut = np.asarray(_sigmoid_lut_values(), dtype=np.uint16)
+    return lut[addr]
+
+
+def _mul_q016_q88_to_q88(a_q016: np.ndarray, b_q88: np.ndarray) -> np.ndarray:
+    a_i = a_q016.astype(np.int64)
+    b_i = b_q88.astype(np.int64)
+    prod = a_i * b_i
+    y = (prod >> 16).astype(np.int64)
+    return _wrap_s16_arr(y)
+
+
+def _mul_q88_q88_to_q88(a_q88: np.ndarray, b_q88: np.ndarray) -> np.ndarray:
+    a_i = a_q88.astype(np.int64)
+    b_i = b_q88.astype(np.int64)
+    prod = a_i * b_i
+    y = (prod >> 8).astype(np.int64)
+    return _wrap_s16_arr(y)
+
+
+def _ssm_update_q88_from_lam_q016(lam_q016: np.ndarray, u_q88_rows: np.ndarray) -> np.ndarray:
+    state_depth = int(u_q88_rows.shape[0])
+    state_runtime = [[0 for _ in range(u_q88_rows.shape[1])] for _ in range(state_depth)]
+    last_wr_valid = False
+    last_wr_addr = 0
+    last_wr_data = [0 for _ in range(u_q88_rows.shape[1])]
+    out_rows: list[list[int]] = []
+
+    for t in range(u_q88_rows.shape[0]):
+        s_addr = t % state_depth
+        lam_row = lam_q016[t]
+        u_row = u_q88_rows[t]
+        s_prev = last_wr_data[:] if (last_wr_valid and last_wr_addr == s_addr) else state_runtime[s_addr][:]
+        s_new: list[int] = []
+        for lane in range(u_q88_rows.shape[1]):
+            lam_r = (int(lam_row[lane]) >> 8) & 0xFFFF
+            one_minus = (0x0100 - lam_r) & 0xFFFF
+            s_prev_s = _from_u16_signed(int(s_prev[lane]))
+            u_s = int(np.int16(u_row[lane]))
+            mul_a = _mul_q88_unsigned_signed(lam_r, s_prev_s)
+            mul_b = _mul_q88_unsigned_signed(one_minus, u_s)
+            s_new_lane = _add_wrap_s16(mul_a, mul_b)
+            s_new.append(_to_u16(s_new_lane))
+
+        s_addr_w = (s_addr + 1) % state_depth
+        state_runtime[s_addr_w] = s_new[:]
+        last_wr_valid = True
+        last_wr_addr = s_addr_w
+        last_wr_data = s_new[:]
+        out_rows.append([_from_u16_signed(v) for v in s_new])
+
+    return np.asarray(out_rows, dtype=np.int16)
 
 
 def _write_mem_matrix_rows_q88(path: Path, mat_2d: np.ndarray, tile: int = 4) -> None:
@@ -411,34 +509,56 @@ def _export_reuse_top_stage(case_dir: Path, model: torch.nn.Module, x_arr: np.nd
             ssm[:, t, :] = s
 
     h_np = h[0, 0].cpu().numpy()
-    u_np = u[0, 0].cpu().numpy()
-    z_np = z[0, 0].cpu().numpy()
     u_act_np = u_act[0, 0].cpu().numpy()
     z_silu_np = z_silu[0, 0].cpu().numpy()
     dt_np = dt[0, 0].cpu().numpy()
     lam_np = lam[0, 0].cpu().numpy()
     ssm_np = ssm[0, 0].cpu().numpy()
 
-    _write_mem_u16_scalar(stage_dir / "h_wr_addr.mem", list(range(32)), width_hex=2)
-    _write_mem_matrix_rows_q88(stage_dir / "h_wr_data_q88.mem", _quant_q88(h_np).reshape(32, 4))
-    _write_mem_matrix_rows_q88(stage_dir / "u_golden_q88.mem", _quant_q88(u_np).reshape(64, 4))
-    _write_mem_matrix_rows_q88(stage_dir / "z_golden_q88.mem", _quant_q88(z_np).reshape(64, 4))
-    _write_mem_matrix_rows_q88(stage_dir / "u_act_golden_q88.mem", _quant_q88(u_act_np).reshape(64, 4))
-    _write_mem_matrix_rows_q88(stage_dir / "z_silu_golden_q88.mem", _quant_q88(z_silu_np).reshape(64, 4))
-    _write_mem_matrix_rows_q88(stage_dir / "dt_golden_q88.mem", _quant_q88(dt_np).reshape(64, 4))
-    _write_mem_matrix_rows_q88(stage_dir / "lam_golden_q016.mem", _quant_q016_from_sigmoid(dt_np).reshape(64, 4))
-    _write_mem_matrix_rows_q88(stage_dir / "ssm_golden_q88.mem", _quant_q88(ssm_np).reshape(64, 4))
-
     inproj_conv = getattr(blk.in_proj, "conv", None)
     if inproj_conv is None and hasattr(blk.in_proj, "qconv") and hasattr(blk.in_proj.qconv, "conv"):
         inproj_conv = blk.in_proj.qconv.conv
     dtproj_conv = blk.ssm.dt_proj
+    outproj_conv = getattr(blk.out_proj, "conv", None)
+    if outproj_conv is None and hasattr(blk.out_proj, "qconv") and hasattr(blk.out_proj.qconv, "conv"):
+        outproj_conv = blk.out_proj.qconv.conv
     if inproj_conv is None:
         return {"generated": False, "reason": "unable to unwrap in_proj conv weights"}
+    if outproj_conv is None:
+        return {"generated": False, "reason": "unable to unwrap out_proj conv weights"}
     inproj_w = inproj_conv.weight.detach().cpu().numpy().reshape(inproj_conv.out_channels, inproj_conv.in_channels)
     dt_w = dtproj_conv.weight.detach().cpu().numpy().reshape(dtproj_conv.out_channels, dtproj_conv.in_channels)
+    outproj_w = outproj_conv.weight.detach().cpu().numpy().reshape(outproj_conv.out_channels, outproj_conv.in_channels)
+    h_q88 = _quant_q88(h_np)
+    uv_q88 = _conv1x1_q88_intmac(inproj_w, h_q88)
+    u_q88 = uv_q88[:inner]
+    z_q88 = uv_q88[inner:]
+    _write_mem_u16_scalar(stage_dir / "h_wr_addr.mem", list(range(32)), width_hex=2)
+    _write_mem_matrix_rows_q88(stage_dir / "h_wr_data_q88.mem", h_q88.reshape(32, 4))
+    _write_mem_matrix_rows_q88(stage_dir / "u_golden_q88.mem", u_q88.reshape(64, 4))
+    _write_mem_matrix_rows_q88(stage_dir / "z_golden_q88.mem", z_q88.reshape(64, 4))
+    u_q88_rows = u_q88.reshape(64, 4)
+    u_sig_q016 = _sigmoid_q016_from_q88(u_q88_rows)
+    u_act_q88 = _mul_q016_q88_to_q88(u_sig_q016, u_q88_rows)
+    z_q88_rows = z_q88.reshape(64, 4)
+    z_sig_q016 = _sigmoid_q016_from_q88(z_q88_rows)
+    z_silu_q88 = _mul_q016_q88_to_q88(z_sig_q016, z_q88_rows)
+    dt_q88 = _conv1x1_q88_intmac(dt_w, u_act_q88.reshape(-1)).reshape(64, 4)
+    lam_q016 = _sigmoid_q016_from_q88(dt_q88)
+    ssm_q88 = _ssm_update_q88_from_lam_q016(lam_q016, u_act_q88)
+    gate_y_q88 = _mul_q88_q88_to_q88(z_silu_q88, ssm_q88)
+    y_q88 = _conv1x1_q88_intmac(outproj_w, gate_y_q88.reshape(-1)).reshape(32, 4)
+
+    _write_mem_matrix_rows_q88(stage_dir / "u_act_golden_q88.mem", u_act_q88)
+    _write_mem_matrix_rows_q88(stage_dir / "z_silu_golden_q88.mem", z_silu_q88)
+    _write_mem_matrix_rows_q88(stage_dir / "dt_golden_q88.mem", dt_q88)
+    _write_mem_matrix_rows_q88(stage_dir / "lam_golden_q016.mem", lam_q016.astype(np.uint16))
+    _write_mem_matrix_rows_q88(stage_dir / "ssm_golden_q88.mem", ssm_q88)
+    _write_mem_matrix_rows_q88(stage_dir / "gate_y_golden_q88.mem", gate_y_q88)
+    _write_mem_matrix_rows_q88(stage_dir / "y_golden_q88.mem", y_q88)
     inproj_files = _write_weight_banks_q88(stage_dir / "inproj_wbuf", inproj_w, n_bank=6, depth=683)
     dt_files = _write_weight_banks_q88(stage_dir / "dt_wbuf", dt_w, n_bank=6, depth=683)
+    outproj_files = _write_weight_banks_q88(stage_dir / "outproj_wbuf", outproj_w, n_bank=6, depth=342)
 
     _write_json(
         stage_dir / "control.json",
@@ -448,10 +568,10 @@ def _export_reuse_top_stage(case_dir: Path, model: torch.nn.Module, x_arr: np.nd
             "h_depth": 32,
             "u_depth": 64,
             "notes": [
-                "Current top-level golden is partial.",
-                "Compare h->in_proj->u/z SRAM first.",
-                "Final y is not a valid top-level golden yet because out_proj is still stub in RTL.",
-                "Software path uses u_act before dt_proj, while current RTL top still reads raw u from SRAM for dt scheduling.",
+                "Current top-level golden is block-local and ends at out_proj output before any residual add outside this RTL block.",
+                "Compare h->in_proj->u/z SRAM first, then dt/lam/ssm/gate, then y.",
+                "Golden uses integer Q8.8/Q0.16 arithmetic aligned to current RTL subpaths.",
+                "dt golden is generated from u_act SRAM semantics.",
             ],
         },
     )
@@ -471,14 +591,17 @@ def _export_reuse_top_stage(case_dir: Path, model: torch.nn.Module, x_arr: np.nd
                 "dt_golden_q88": "dt_golden_q88.mem",
                 "lam_golden_q016": "lam_golden_q016.mem",
                 "ssm_golden_q88": "ssm_golden_q88.mem",
+                "gate_y_golden_q88": "gate_y_golden_q88.mem",
+                "y_golden_q88": "y_golden_q88.mem",
                 "inproj_wbuf": inproj_files,
                 "dt_wbuf": dt_files,
+                "outproj_wbuf": outproj_files,
             },
         },
     )
     return {
         "generated": True,
-        "partial_only": True,
+        "partial_only": False,
         "files": [
             "h_wr_addr.mem",
             "h_wr_data_q88.mem",
@@ -489,9 +612,181 @@ def _export_reuse_top_stage(case_dir: Path, model: torch.nn.Module, x_arr: np.nd
             "dt_golden_q88.mem",
             "lam_golden_q016.mem",
             "ssm_golden_q88.mem",
+            "gate_y_golden_q88.mem",
+            "y_golden_q88.mem",
             "control.json",
             "vectors.json",
             *inproj_files,
+            *dt_files,
+            *outproj_files,
+        ],
+    }
+
+
+def _export_reuse_ssm_core_stage(case_dir: Path, model: torch.nn.Module, x_arr: np.ndarray) -> dict:
+    stage_dir = case_dir / "stages" / "reuse_ssm_core"
+    bb = model.backbone
+    if len(bb.blocks) == 0:
+        return {"generated": False, "reason": "backbone has no blocks"}
+    blk = bb.blocks[0]
+    dev = next(model.parameters()).device
+    x0 = torch.from_numpy(x_arr[:1]).float().to(dev)
+    with torch.inference_mode():
+        xp = x0.permute(0, 2, 1)
+        proj = model.proj(xp)
+        patch = bb.patch_embedding(proj).permute(0, 2, 1)
+        if bb.pe_on:
+            pe = bb.pe_buf.to(device=patch.device, dtype=patch.dtype)
+            patch = patch + bb.pe_scale * pe.unsqueeze(0)
+        if patch.shape[1] != 1:
+            return {
+                "generated": False,
+                "reason": f"reuse_ssm_core currently assumes one patch/token, got num_patches={int(patch.shape[1])}",
+            }
+        h = blk.norm(patch)
+        uv = blk.in_proj(h.permute(0, 2, 1)).permute(0, 2, 1)
+        inner = blk.args.d_inner
+        u = uv[..., :inner]
+        z = uv[..., inner:]
+        if blk.dw_conv is not None:
+            u = blk.dw_conv(u.permute(0, 2, 1)).permute(0, 2, 1)
+        u_act = blk.act(u)
+        z_silu = blk.act(z)
+        dt = blk.ssm.dt_proj(u_act.permute(0, 2, 1)).permute(0, 2, 1)
+
+    inproj_conv = getattr(blk.in_proj, "conv", None)
+    if inproj_conv is None and hasattr(blk.in_proj, "qconv") and hasattr(blk.in_proj.qconv, "conv"):
+        inproj_conv = blk.in_proj.qconv.conv
+    dtproj_conv = blk.ssm.dt_proj
+    if inproj_conv is None:
+        return {"generated": False, "reason": "unable to unwrap in_proj conv weights"}
+    inproj_w = inproj_conv.weight.detach().cpu().numpy().reshape(inproj_conv.out_channels, inproj_conv.in_channels)
+    dt_w = dtproj_conv.weight.detach().cpu().numpy().reshape(dtproj_conv.out_channels, dtproj_conv.in_channels)
+
+    h_q88 = _quant_q88(h[0, 0].cpu().numpy())
+    uv_q88 = _conv1x1_q88_intmac(inproj_w, h_q88)
+    u_q88 = uv_q88[:inner]
+    z_q88 = uv_q88[inner:]
+    u_q88_rows = u_q88.reshape(64, 4)
+    u_sig_q016 = _sigmoid_q016_from_q88(u_q88_rows)
+    u_act_q88 = _mul_q016_q88_to_q88(u_sig_q016, u_q88_rows)
+    z_q88_rows = z_q88.reshape(64, 4)
+    z_sig_q016 = _sigmoid_q016_from_q88(z_q88_rows)
+    z_silu_q88 = _mul_q016_q88_to_q88(z_sig_q016, z_q88_rows)
+    dt_q88 = _conv1x1_q88_intmac(dt_w, u_act_q88.reshape(-1)).reshape(64, 4)
+    lam_q016 = _sigmoid_q016_from_q88(dt_q88)
+    ssm_q88 = _ssm_update_q88_from_lam_q016(lam_q016, u_act_q88)
+    gate_y_q88 = _mul_q88_q88_to_q88(z_silu_q88, ssm_q88)
+
+    _write_mem_matrix_rows_q88(stage_dir / "mac_in_q88.mem", dt_q88)
+    _write_mem_matrix_rows_q88(stage_dir / "xt_in_q88.mem", u_act_q88)
+    _write_mem_matrix_rows_q88(stage_dir / "g_in_q88.mem", z_silu_q88)
+    _write_mem_matrix_rows_q88(stage_dir / "dt_golden_q88.mem", dt_q88)
+    _write_mem_matrix_rows_q88(stage_dir / "lam_golden_q016.mem", lam_q016.astype(np.uint16))
+    _write_mem_matrix_rows_q88(stage_dir / "ssm_golden_q88.mem", ssm_q88)
+    _write_mem_matrix_rows_q88(stage_dir / "gate_y_golden_q88.mem", gate_y_q88)
+    _write_json(
+        stage_dir / "vectors.json",
+        {
+            "d_inner": int(inner),
+            "files": {
+                "mac_in_q88": "mac_in_q88.mem",
+                "xt_in_q88": "xt_in_q88.mem",
+                "g_in_q88": "g_in_q88.mem",
+                "dt_golden_q88": "dt_golden_q88.mem",
+                "lam_golden_q016": "lam_golden_q016.mem",
+                "ssm_golden_q88": "ssm_golden_q88.mem",
+                "gate_y_golden_q88": "gate_y_golden_q88.mem",
+            },
+            "notes": [
+                "Assumes bias_add_regslice_ip_A sim model uses zero-initialized mem_sim.",
+                "mac_in_q88 feeds reuse_ssm_core mac_m_valid/mac_vec directly.",
+            ],
+        },
+    )
+    return {
+        "generated": True,
+        "files": [
+            "mac_in_q88.mem",
+            "xt_in_q88.mem",
+            "g_in_q88.mem",
+            "dt_golden_q88.mem",
+            "lam_golden_q016.mem",
+            "ssm_golden_q88.mem",
+            "gate_y_golden_q88.mem",
+            "vectors.json",
+        ],
+    }
+
+
+def _export_reuse_ssm_dt_scheduler_stage(case_dir: Path, model: torch.nn.Module, x_arr: np.ndarray) -> dict:
+    stage_dir = case_dir / "stages" / "reuse_ssm_dt_scheduler"
+    bb = model.backbone
+    if len(bb.blocks) == 0:
+        return {"generated": False, "reason": "backbone has no blocks"}
+    blk = bb.blocks[0]
+    dev = next(model.parameters()).device
+    x0 = torch.from_numpy(x_arr[:1]).float().to(dev)
+    with torch.inference_mode():
+        xp = x0.permute(0, 2, 1)
+        proj = model.proj(xp)
+        patch = bb.patch_embedding(proj).permute(0, 2, 1)
+        if bb.pe_on:
+            pe = bb.pe_buf.to(device=patch.device, dtype=patch.dtype)
+            patch = patch + bb.pe_scale * pe.unsqueeze(0)
+        if patch.shape[1] != 1:
+            return {
+                "generated": False,
+                "reason": f"reuse_ssm_dt_scheduler currently assumes one patch/token, got num_patches={int(patch.shape[1])}",
+            }
+        h = blk.norm(patch)
+
+    inproj_conv = getattr(blk.in_proj, "conv", None)
+    if inproj_conv is None and hasattr(blk.in_proj, "qconv") and hasattr(blk.in_proj.qconv, "conv"):
+        inproj_conv = blk.in_proj.qconv.conv
+    dtproj_conv = blk.ssm.dt_proj
+    if inproj_conv is None:
+        return {"generated": False, "reason": "unable to unwrap in_proj conv weights"}
+    inproj_w = inproj_conv.weight.detach().cpu().numpy().reshape(inproj_conv.out_channels, inproj_conv.in_channels)
+    dt_w = dtproj_conv.weight.detach().cpu().numpy().reshape(dtproj_conv.out_channels, dtproj_conv.in_channels)
+
+    h_q88 = _quant_q88(h[0, 0].cpu().numpy())
+    uv_q88 = _conv1x1_q88_intmac(inproj_w, h_q88)
+    inner = blk.args.d_inner
+    u_q88 = uv_q88[:inner]
+    u_q88_rows = u_q88.reshape(64, 4)
+    u_sig_q016 = _sigmoid_q016_from_q88(u_q88_rows)
+    u_act_q88 = _mul_q016_q88_to_q88(u_sig_q016, u_q88_rows)
+    dt_q88 = _conv1x1_q88_intmac(dt_w, u_act_q88.reshape(-1)).reshape(64, 4)
+    xt_q88 = u_act_q88.copy()
+
+    _write_mem_matrix_rows_q88(stage_dir / "u_act_in_q88.mem", u_act_q88)
+    _write_mem_matrix_rows_q88(stage_dir / "dt_golden_q88.mem", dt_q88)
+    _write_mem_matrix_rows_q88(stage_dir / "xt_golden_q88.mem", xt_q88)
+    dt_files = _write_weight_banks_q88(stage_dir / "dt_wbuf", dt_w, n_bank=6, depth=683)
+    _write_json(
+        stage_dir / "vectors.json",
+        {
+            "d_inner": int(inner),
+            "files": {
+                "u_act_in_q88": "u_act_in_q88.mem",
+                "dt_golden_q88": "dt_golden_q88.mem",
+                "xt_golden_q88": "xt_golden_q88.mem",
+                "dt_wbuf": dt_files,
+            },
+            "notes": [
+                "u_act_in_q88 is the dt scheduler read source.",
+                "xt_golden_q88 follows the scheduler's intended tile stream order and currently matches u_act row order.",
+            ],
+        },
+    )
+    return {
+        "generated": True,
+        "files": [
+            "u_act_in_q88.mem",
+            "dt_golden_q88.mem",
+            "xt_golden_q88.mem",
+            "vectors.json",
             *dt_files,
         ],
     }
@@ -596,6 +891,10 @@ def main() -> None:
             manifest["generated_artifacts"] = _export_sigmoid_stage(out_dir)
         elif stage["name"] == "ew_update_vec4":
             manifest["generated_artifacts"] = _export_ew_update_stage(out_dir)
+        elif stage["name"] == "reuse_ssm_core":
+            manifest["generated_artifacts"] = _export_reuse_ssm_core_stage(out_dir, model, x_arr)
+        elif stage["name"] == "reuse_ssm_dt_scheduler":
+            manifest["generated_artifacts"] = _export_reuse_ssm_dt_scheduler_stage(out_dir, model, x_arr)
         elif stage["name"] == "reuse_mamba_block_top":
             manifest["generated_artifacts"] = _export_reuse_top_stage(out_dir, model, x_arr)
         else:

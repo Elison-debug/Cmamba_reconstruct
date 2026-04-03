@@ -87,8 +87,11 @@ module reuse_in_proj_scheduler #(
     logic [1:0]                    drain_cnt;
 
     logic                          h_rd_en;
-    logic [H_ADDR_W-1:0]           h_rd_addr;
-    logic signed [DATA_WIDTH-1:0]  h_rd_data [TILE_SIZE-1:0];
+    logic [H_ADDR_W-1:0]           h_rd_addr0, h_rd_addr1, h_rd_addr2, h_rd_addr3;
+    logic signed [DATA_WIDTH-1:0]  h_rd_data0 [TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0]  h_rd_data1 [TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0]  h_rd_data2 [TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0]  h_rd_data3 [TILE_SIZE-1:0];
     logic                          fetch_fire_d1, fetch_fire_d2, fetch_fire_d3;
 
     logic [3:0][$clog2(N_BANK)-1:0] w_bank_sel;
@@ -122,14 +125,13 @@ module reuse_in_proj_scheduler #(
     logic signed [DATA_WIDTH-1:0] cur_B1 [TILE_SIZE-1:0][TILE_SIZE-1:0];
     logic signed [DATA_WIDTH-1:0] cur_B2 [TILE_SIZE-1:0][TILE_SIZE-1:0];
     logic signed [DATA_WIDTH-1:0] cur_B3 [TILE_SIZE-1:0][TILE_SIZE-1:0];
-    logic signed [DATA_WIDTH-1:0] B0_curr [TILE_SIZE-1:0][TILE_SIZE-1:0];
-    logic signed [DATA_WIDTH-1:0] B1_curr [TILE_SIZE-1:0][TILE_SIZE-1:0];
-    logic signed [DATA_WIDTH-1:0] B2_curr [TILE_SIZE-1:0][TILE_SIZE-1:0];
-    logic signed [DATA_WIDTH-1:0] B3_curr [TILE_SIZE-1:0][TILE_SIZE-1:0];
-    logic signed [DATA_WIDTH-1:0] B0_next [TILE_SIZE-1:0][TILE_SIZE-1:0];
-    logic signed [DATA_WIDTH-1:0] B1_next [TILE_SIZE-1:0][TILE_SIZE-1:0];
-    logic signed [DATA_WIDTH-1:0] B2_next [TILE_SIZE-1:0][TILE_SIZE-1:0];
-    logic signed [DATA_WIDTH-1:0] B3_next [TILE_SIZE-1:0][TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] B0_hold [TILE_SIZE-1:0][TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] B1_hold [TILE_SIZE-1:0][TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] B2_hold [TILE_SIZE-1:0][TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] B3_hold [TILE_SIZE-1:0][TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] B2_hold1 [TILE_SIZE-1:0][TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] B3_hold1 [TILE_SIZE-1:0][TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] B3_hold2 [TILE_SIZE-1:0][TILE_SIZE-1:0];
     logic signed [DATA_WIDTH-1:0] B0_mat_reg [TILE_SIZE-1:0][TILE_SIZE-1:0];
     logic signed [DATA_WIDTH-1:0] B1_mat_reg [TILE_SIZE-1:0][TILE_SIZE-1:0];
     logic signed [DATA_WIDTH-1:0] B2_mat_reg [TILE_SIZE-1:0][TILE_SIZE-1:0];
@@ -142,8 +144,6 @@ module reuse_in_proj_scheduler #(
     logic [U_ADDR_W-1:0]          out_wr_addr;
     logic signed [DATA_WIDTH-1:0] out_wr_data [TILE_SIZE-1:0];
     logic                         valid_in;
-    logic                         group_start;
-    logic                         h_group_fire;
 
     assign row_tile_linear       = row_group_idx * ROWS_PER_GRP + row_subtile_idx;
     assign write_row_tile_linear = write_row_group_idx * ROWS_PER_GRP + write_row_subtile_idx;
@@ -163,7 +163,7 @@ module reuse_in_proj_scheduler #(
         .dout_sel(w_dout_sel)
     );
 
-    reuse_ht_sram_sp #(
+    reuse_ht_sram #(
         .TILE_SIZE (TILE_SIZE),
         .DATA_WIDTH(DATA_WIDTH),
         .DEPTH     (H_DEPTH),
@@ -175,8 +175,14 @@ module reuse_in_proj_scheduler #(
         .wr_addr(h_wr_addr),
         .wr_data(h_wr_data),
         .rd_en(h_rd_en),
-        .rd_addr(h_rd_addr),
-        .rd_data(h_rd_data)
+        .rd_addr0(h_rd_addr0),
+        .rd_addr1(h_rd_addr1),
+        .rd_addr2(h_rd_addr2),
+        .rd_addr3(h_rd_addr3),
+        .rd_data0(h_rd_data0),
+        .rd_data1(h_rd_data1),
+        .rd_data2(h_rd_data2),
+        .rd_data3(h_rd_data3)
     );
 
     reuse_vec_out_sram #(
@@ -222,28 +228,28 @@ module reuse_in_proj_scheduler #(
     assign busy              = (state != IDLE && state != DONE_S);
     assign done              = (state == DONE_S);
     assign valid_in          = (state == RUN_PIPELINE) && (data_cnt < K_GROUPS);
-    assign h_group_fire      = (state == RUN_PIPELINE) && (tile_cnt == 0) && valid_in;
-    assign h_rd_en           = enable && h_group_fire;
+    assign h_rd_en           = enable && valid_in;
     assign fabric_valid_in   = valid_in_d2;
-    //assign group_start       = (state == RUN_PIPELINE) && (data_cnt == 0) && valid_in;
-    assign group_start       = fetch_fire_d1 && (data_cnt == 1);
 
     always_comb begin
         int phys_base_idx;
         int tile_idx0, tile_idx1, tile_idx2, tile_idx3;
 
-        h_rd_addr  = '0;
+        h_rd_addr0 = '0;
+        h_rd_addr1 = '0;
+        h_rd_addr2 = '0;
+        h_rd_addr3 = '0;
         w_bank_sel = '0;
         w_addr_sel = '0;
         w_en_sel   = '0;
         w_port_sel = '0;
 
-        if (state == RUN_PIPELINE) begin
-            h_rd_addr = row_tile_linear[H_ADDR_W-1:0];
-        end
-
         if (valid_in) begin
             phys_base_idx = data_cnt * 4;
+            h_rd_addr0 = phys_base_idx + 0;
+            h_rd_addr1 = phys_base_idx + 1;
+            h_rd_addr2 = phys_base_idx + 2;
+            h_rd_addr3 = phys_base_idx + 3;
 
             tile_idx0 = row_tile_linear * PHYS_K_BLOCKS + phys_base_idx + 0;
             tile_idx1 = row_tile_linear * PHYS_K_BLOCKS + phys_base_idx + 1;
@@ -296,10 +302,10 @@ module reuse_in_proj_scheduler #(
             cur_A3[i][3] = w_dout_sel[3][(i*TILE_SIZE+3)*DATA_WIDTH +: DATA_WIDTH];
 
             for (int j = 0; j < TILE_SIZE; j++) begin
-                cur_B0[i][j] = h_rd_data[j];
-                cur_B1[i][j] = h_rd_data[j];
-                cur_B2[i][j] = h_rd_data[j];
-                cur_B3[i][j] = h_rd_data[j];
+                cur_B0[i][j] = h_rd_data0[j];
+                cur_B1[i][j] = h_rd_data1[j];
+                cur_B2[i][j] = h_rd_data2[j];
+                cur_B3[i][j] = h_rd_data3[j];
             end
         end
     end
@@ -333,14 +339,14 @@ module reuse_in_proj_scheduler #(
     assign z_wr_en = (state == WRITE) && (write_row_tile_linear >= U_DEPTH);
 
     always_comb begin
-        fabric_A0_mat = out_sel[0] ? A0_mat_reg : '{default:'0};
-        fabric_A1_mat = out_sel[1] ? A1_mat_reg : '{default:'0};
-        fabric_A2_mat = out_sel[2] ? A2_mat_reg : '{default:'0};
-        fabric_A3_mat = out_sel[3] ? A3_mat_reg : '{default:'0};
-        fabric_B0_mat = out_sel[0] ? B0_curr : '{default:'0};
-        fabric_B1_mat = out_sel[1] ? B1_curr : '{default:'0};
-        fabric_B2_mat = out_sel[2] ? B2_curr : '{default:'0};
-        fabric_B3_mat = out_sel[3] ? B3_curr : '{default:'0};
+        fabric_A0_mat = A0_mat_reg;
+        fabric_A1_mat = A1_mat_reg;
+        fabric_A2_mat = A2_mat_reg;
+        fabric_A3_mat = A3_mat_reg;
+        fabric_B0_mat = B0_mat_reg;
+        fabric_B1_mat = B1_mat_reg;
+        fabric_B2_mat = B2_mat_reg;
+        fabric_B3_mat = B3_mat_reg;
     end
 
     always_comb begin
@@ -405,18 +411,17 @@ module reuse_in_proj_scheduler #(
             A1_mat_reg    <= '{default:'0};
             A2_mat_reg    <= '{default:'0};
             A3_mat_reg    <= '{default:'0};
-            B0_curr       <= '{default:'0};
-            B1_curr       <= '{default:'0};
-            B2_curr       <= '{default:'0};
-            B3_curr       <= '{default:'0};
-            B0_next       <= '{default:'0};
-            B1_next       <= '{default:'0};
-            B2_next       <= '{default:'0};
-            B3_next       <= '{default:'0};
             B0_mat_reg    <= '{default:'0};
             B1_mat_reg    <= '{default:'0};
             B2_mat_reg    <= '{default:'0};
             B3_mat_reg    <= '{default:'0};
+            B0_hold       <= '{default:'0};
+            B1_hold       <= '{default:'0};
+            B2_hold       <= '{default:'0};
+            B3_hold       <= '{default:'0};
+            B2_hold1      <= '{default:'0};
+            B3_hold1      <= '{default:'0};
+            B3_hold2      <= '{default:'0};
             valid_in_d1   <= 1'b0;
             valid_in_d2   <= 1'b0;
             out_phase_cnt <= '0;
@@ -455,14 +460,13 @@ module reuse_in_proj_scheduler #(
                 B1_mat_reg     <= '{default:'0};
                 B2_mat_reg     <= '{default:'0};
                 B3_mat_reg     <= '{default:'0};
-                B0_curr        <= '{default:'0};
-                B1_curr        <= '{default:'0};
-                B2_curr        <= '{default:'0};
-                B3_curr        <= '{default:'0};
-                B0_next        <= '{default:'0};
-                B1_next        <= '{default:'0};
-                B2_next        <= '{default:'0};
-                B3_next        <= '{default:'0};
+                B0_hold       <= '{default:'0};
+                B1_hold       <= '{default:'0};
+                B2_hold       <= '{default:'0};
+                B3_hold       <= '{default:'0};
+                B2_hold1      <= '{default:'0};
+                B3_hold1      <= '{default:'0};
+                B3_hold2      <= '{default:'0};
                 out_phase_cnt  <= '0;
                 out_phase_active <= 1'b0;
                 A2_hold1      <= '{default:'0};
@@ -500,6 +504,10 @@ module reuse_in_proj_scheduler #(
                         A1_mat_reg       <= '{default:'0};
                         A2_mat_reg       <= '{default:'0};
                         A3_mat_reg       <= '{default:'0};
+                        B0_mat_reg       <= '{default:'0};
+                        B1_mat_reg       <= '{default:'0};
+                        B2_mat_reg       <= '{default:'0};
+                        B3_mat_reg       <= '{default:'0};
                     end else begin
                         out_phase_cnt <= out_phase_cnt + 1'b1;
                     end
@@ -516,28 +524,28 @@ module reuse_in_proj_scheduler #(
                 A1_hold <= cur_A1;
                 A2_hold <= cur_A2;
                 A3_hold <= cur_A3;
+                B0_hold <= cur_B0;
+                B1_hold <= cur_B1;
+                B2_hold <= cur_B2;
+                B3_hold <= cur_B3;
             end
 
             if (fetch_fire_d2) begin
                 A2_hold1 <= A2_hold;
                 A3_hold1 <= A3_hold;
+                B2_hold1 <= B2_hold;
+                B3_hold1 <= B3_hold;
             end
 
             if (fetch_fire_d3) begin
                 A3_hold2 <= A3_hold1;
+                B3_hold2 <= B3_hold1;
             end
 
-            if (group_start) begin
+            if (fetch_fire_d1) begin
                 out_phase_active <= 1'b1;
                 out_phase_cnt    <= '0;
-                B0_curr          <= cur_B0;
-                B1_curr          <= cur_B1;
-                B2_curr          <= cur_B2;
-                B3_curr          <= cur_B3;
                 B0_mat_reg       <= cur_B0;
-                B1_mat_reg       <= cur_B1;
-                B2_mat_reg       <= cur_B2;
-                B3_mat_reg       <= cur_B3;
             end
 
             if (out_phase_active && out_phase_cnt == K_GROUPS-1)
@@ -559,6 +567,26 @@ module reuse_in_proj_scheduler #(
                 A3_mat_reg <= '{default:'0};
             else if (en_sel_reg[3])
                 A3_mat_reg <= A3_hold2;
+
+            if (out_phase_active && out_phase_cnt == K_GROUPS-1)
+                B0_mat_reg <= '{default:'0};
+            else if (en_sel_reg[0])
+                B0_mat_reg <= cur_B0;
+
+            if (out_phase_active && out_phase_cnt == K_GROUPS)
+                B1_mat_reg <= '{default:'0};
+            else if (en_sel_reg[1])
+                B1_mat_reg <= B1_hold;
+
+            if (out_phase_active && out_phase_cnt == K_GROUPS+1)
+                B2_mat_reg <= '{default:'0};
+            else if (en_sel_reg[2])
+                B2_mat_reg <= B2_hold1;
+
+            if (out_phase_active && out_phase_cnt == K_GROUPS+2)
+                B3_mat_reg <= '{default:'0};
+            else if (en_sel_reg[3])
+                B3_mat_reg <= B3_hold2;
 
             if (state == WRITE) begin
                 seen_valid <= 1'b0;

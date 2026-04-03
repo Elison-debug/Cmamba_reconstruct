@@ -844,6 +844,75 @@ bool ForwardFull(const std::string& export_json, const std::vector<float>& xKD, 
     return ForwardFull(export_json, xKD, Din, opts, y_out);
 }
 
+bool ForwardBlock0LocalY(const std::string& export_json, const std::vector<float>& xKD, int Din, std::vector<float>& y_out) {
+    RuntimeOptions opts;
+    return ForwardBlock0LocalY(export_json, xKD, Din, opts, y_out);
+}
+
+bool ForwardBlock0LocalY(const std::string& export_json, const std::vector<float>& xKD, int Din, const RuntimeOptions& opts, std::vector<float>& y_out) {
+    ModelIR ir;
+    if (!LoadExport(export_json, ir)) return false;
+    if (Din != 0 && ir.input_dim != 0 && Din != ir.input_dim) {
+        throw std::runtime_error("Input dim mismatch between CLI and export");
+    }
+    const BackboneDesc& bb = ir.backbone;
+    if (bb.blocks.empty()) {
+        throw std::runtime_error("No backbone blocks in export");
+    }
+
+    ActLUT lut;
+    lut.build();
+
+    std::vector<float> proj_out;
+    conv1d_run(ir.proj, xKD, ir.seq_len, opts, proj_out);
+
+    std::vector<float> x_seq = proj_out;
+    std::vector<float> x_patches;
+    conv1d_run(bb.patch_embedding, x_seq, ir.seq_len, opts, x_patches);
+    const int T_patch = conv1d_out_len(ir.seq_len, bb.patch_embedding.kernel_size, bb.patch_embedding.stride, bb.patch_embedding.padding);
+    if (bb.positional_encoding.enabled && !bb.positional_encoding.value_path.empty()) {
+        std::vector<int64_t> pe_shape;
+        std::vector<float> pe;
+        load_npy_float32(bb.positional_encoding.value_path, pe_shape, pe);
+        for (int t = 0; t < T_patch; ++t) {
+            for (int c = 0; c < bb.d_model; ++c) {
+                x_patches[t * bb.d_model + c] += static_cast<float>(bb.positional_encoding.scale) * pe[t * bb.d_model + c];
+            }
+        }
+    }
+    x_seq = x_patches;
+
+    const auto& blk = bb.blocks.front();
+    const int T = static_cast<int>(x_seq.size()) / blk.d_model;
+    rmsnorm_inplace(x_seq, T, blk.d_model, blk.norm);
+
+    std::vector<float> uv;
+    conv1d_run(blk.in_proj, x_seq, T, opts, uv);
+    std::vector<float> u(T * blk.d_inner, 0.0f);
+    std::vector<float> z(T * blk.d_inner, 0.0f);
+    for (int t = 0; t < T; ++t) {
+        for (int c = 0; c < blk.d_inner; ++c) {
+            u[t * blk.d_inner + c] = uv[t * (2 * blk.d_inner) + c];
+            z[t * blk.d_inner + c] = uv[t * (2 * blk.d_inner) + blk.d_inner + c];
+        }
+    }
+
+    if (blk.use_dwconv) {
+        std::vector<float> u_dw;
+        conv1d_run(blk.dw_conv, u, T, opts, u_dw);
+        u.swap(u_dw);
+    }
+
+    for (float& v : u) v = lut.silu_fn(v);
+
+    std::vector<float> dt;
+    conv1d_run(blk.ssm.dt_proj, u, T, opts, dt);
+    std::vector<float> ssm_out;
+    selective_scan_run(blk, u, z, dt, opts, lut, ssm_out);
+    conv1d_run(blk.out_proj, ssm_out, T, opts, y_out);
+    return true;
+}
+
 bool ForwardFull(const std::string& export_json, const std::vector<float>& xKD, int Din, const RuntimeOptions& opts, std::vector<float>& y_out) {
     ModelIR ir;
     if (!LoadExport(export_json, ir)) return false;

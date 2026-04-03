@@ -56,7 +56,7 @@ module ew_update_vec4 #(
 
 
     // FSM: in -> RD1 -> RD2 -> CALC (2-cycle RAM read latency)
-    typedef enum logic [2:0] {ST_IDLE, ST_RD1, ST_RD2, ST_CALC, ST_WAIT} st_t;
+    typedef enum logic [2:0] {ST_IDLE, ST_RD1, ST_RD2, ST_CALC, ST_WAIT, ST_HOLD} st_t;
     st_t st;
 
     // latch input
@@ -70,7 +70,9 @@ module ew_update_vec4 #(
     // EWM outputs
     logic ewm1_v, ewm1_r;
     logic ewm2_v, ewm2_r;
-    wire  ewm_in_fire = (st == ST_CALC) && ewm1_r && ewm2_r;
+    logic calc_operands_ready;
+    logic calc_issue_done;
+    wire  ewm_in_fire = (st == ST_CALC) && calc_operands_ready && !calc_issue_done && ewm1_r && ewm2_r;
     logic [W-1:0] mul_a [TILE_SIZE-1:0];
     logic [W-1:0] mul_b [TILE_SIZE-1:0];
 
@@ -92,6 +94,8 @@ module ew_update_vec4 #(
             s_addr_r <= '0;
             out_valid <= 1'b0;
             calc_done <= 1'b0;
+            calc_operands_ready <= 1'b0;
+            calc_issue_done <= 1'b0;
             for (int i=0;i<TILE_SIZE;i++) s_new_vec[i] <= '0;
             s_new_packed <= '0;
             for (int i=0;i<TILE_SIZE;i++) begin
@@ -118,6 +122,8 @@ module ew_update_vec4 #(
                         s_addr_r <= s_addr;
                         st <= ST_RD1;
                         calc_done <= 1'b0;
+                        calc_operands_ready <= 1'b0;
+                        calc_issue_done <= 1'b0;
                         // 如果需要，可以在此重置 last_wr_valid，当地址改变时旁路失效
                         if (last_wr_valid && (last_wr_addr != s_addr)) last_wr_valid <= 1'b0;
                     end
@@ -131,9 +137,14 @@ module ew_update_vec4 #(
                 ST_RD2: begin
                     // second read latency cycle
                     st <= ST_CALC;
+                    calc_operands_ready <= 1'b0;
                 end
 
                 ST_CALC: begin
+                    if (!calc_operands_ready)
+                        calc_operands_ready <= 1'b1;
+                    if (ewm_in_fire)
+                        calc_issue_done <= 1'b1;
                     // 当 EWA 的结果有效并且我们能推出去时，准备写回 + 输出
                     if (ewa_v && ewa_r) begin
                         for (int i=0;i<TILE_SIZE;i++) begin
@@ -153,6 +164,12 @@ module ew_update_vec4 #(
                         last_wr_addr  <= s_addr_w;
                         last_wr_data  <= s_new_packed;
                     end
+                    st <= ST_HOLD;
+                end
+
+                ST_HOLD: begin
+                    calc_operands_ready <= 1'b0;
+                    calc_issue_done <= 1'b0;
                     st <= ST_IDLE;
                 end
             endcase

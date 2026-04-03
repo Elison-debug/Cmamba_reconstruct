@@ -1,0 +1,33 @@
+{
+  "name": "reuse_ssm_dt_scheduler",
+  "rtl_top": "reuse_ssm_dt_scheduler",
+  "status": "partial_ready",
+  "description": "Standalone dt scheduler with shared MAC fabric and u_act SRAM source.",
+  "golden_inputs": [
+    "u_act_in_q88.mem",
+    "dt_wbuf_bank*.mem"
+  ],
+  "golden_outputs": [
+    "dt_golden_q88.mem",
+    "xt_golden_q88.mem"
+  ],
+  "notes": [
+    "This stage isolates dt GEMV + xt FIFO wavefront from top-level ownership switching.",
+    "Use it to determine whether dt mismatch originates in the scheduler itself or in top-level integration."
+  ],
+  "generated_artifacts": {
+    "generated": true,
+    "files": [
+      "u_act_in_q88.mem",
+      "dt_golden_q88.mem",
+      "xt_golden_q88.mem",
+      "vectors.json",
+      "dt_wbuf_bank0.mem",
+      "dt_wbuf_bank1.mem",
+      "dt_wbuf_bank2.mem",
+      "dt_wbuf_bank3.mem",
+      "dt_wbuf_bank4.mem",
+      "dt_wbuf_bank5.mem"
+    ]
+  }
+}

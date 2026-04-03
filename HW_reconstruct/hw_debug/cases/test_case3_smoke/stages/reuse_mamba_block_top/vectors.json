@@ -12,6 +12,8 @@
     "dt_golden_q88": "dt_golden_q88.mem",
     "lam_golden_q016": "lam_golden_q016.mem",
     "ssm_golden_q88": "ssm_golden_q88.mem",
+    "gate_y_golden_q88": "gate_y_golden_q88.mem",
+    "y_golden_q88": "y_golden_q88.mem",
     "inproj_wbuf": [
       "inproj_wbuf_bank0.mem",
       "inproj_wbuf_bank1.mem",
@@ -27,6 +29,14 @@
       "dt_wbuf_bank3.mem",
       "dt_wbuf_bank4.mem",
       "dt_wbuf_bank5.mem"
+    ],
+    "outproj_wbuf": [
+      "outproj_wbuf_bank0.mem",
+      "outproj_wbuf_bank1.mem",
+      "outproj_wbuf_bank2.mem",
+      "outproj_wbuf_bank3.mem",
+      "outproj_wbuf_bank4.mem",
+      "outproj_wbuf_bank5.mem"
     ]
   }
 }

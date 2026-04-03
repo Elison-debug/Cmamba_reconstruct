@@ -24,6 +24,27 @@ module bias2sigmoid_fifo (
     input  logic        m_axis_tready,
     output logic [63:0] m_axis_tdata
 );
+    logic        full;
+    logic [63:0] data_reg;
+
+    assign s_axis_tready = !full || (m_axis_tvalid && m_axis_tready);
+    assign m_axis_tvalid = full;
+    assign m_axis_tdata  = data_reg;
+
+    always_ff @(posedge s_aclk or negedge s_aresetn) begin
+        if (!s_aresetn) begin
+            full     <= 1'b0;
+            data_reg <= '0;
+        end else begin
+            if (m_axis_tvalid && m_axis_tready)
+                full <= 1'b0;
+
+            if (s_axis_tvalid && s_axis_tready) begin
+                data_reg <= s_axis_tdata;
+                full     <= 1'b1;
+            end
+        end
+    end
 endmodule
 
 module s_buffer (

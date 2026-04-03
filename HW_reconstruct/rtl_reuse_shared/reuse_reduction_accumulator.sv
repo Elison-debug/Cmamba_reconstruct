@@ -8,6 +8,7 @@ module reuse_reduction_accumulator #(
     input  logic clk,
     input  logic rst_n,
     input  logic valid_in,
+    input  logic reduce_rows,
     input  logic [1:0] mode,
     input  logic clear,
     input  logic signed [ACC_WIDTH-1:0] mat_in [TILE_SIZE-1:0][TILE_SIZE-1:0],
@@ -24,22 +25,31 @@ module reuse_reduction_accumulator #(
 
     // ----------------------------------------------------------
     // Level 1: 4→2 并行加法
+    // reduce_rows=1:
+    //   vec_out[i] = sum_j mat_in[i][j]
+    // reduce_rows=0:
+    //   vec_out[j] = sum_i mat_in[i][j]
     // ----------------------------------------------------------
     logic signed [ACC_WIDTH-1:0] sum_l1 [TILE_SIZE-1:0][1:0];
     always_comb begin
-        for (int j = 0; j < TILE_SIZE; j++) begin
-            sum_l1[j][0] = mat_in[0][j] + mat_in[1][j];
-            sum_l1[j][1] = mat_in[2][j] + mat_in[3][j];
+        for (int idx = 0; idx < TILE_SIZE; idx++) begin
+            if (reduce_rows) begin
+                sum_l1[idx][0] = mat_in[idx][0] + mat_in[idx][1];
+                sum_l1[idx][1] = mat_in[idx][2] + mat_in[idx][3];
+            end else begin
+                sum_l1[idx][0] = mat_in[0][idx] + mat_in[1][idx];
+                sum_l1[idx][1] = mat_in[2][idx] + mat_in[3][idx];
+            end
         end
     end
 
     // ----------------------------------------------------------
-    // Level 2: 2→1 加法 (列规约完成)
+    // Level 2: 2→1 加法
     // ----------------------------------------------------------
     logic signed [ACC_WIDTH-1:0] col_sum [TILE_SIZE-1:0];
     always_comb begin
-        for (int j = 0; j < TILE_SIZE; j++)
-            col_sum[j] = sum_l1[j][0] + sum_l1[j][1];
+        for (int idx = 0; idx < TILE_SIZE; idx++)
+            col_sum[idx] = sum_l1[idx][0] + sum_l1[idx][1];
     end
 
     // ----------------------------------------------------------

@@ -32,8 +32,14 @@ module reuse_out_proj_scheduler_stub #(
     output logic done,
 
     output logic                         p_rd_en,
-    output logic [P_ADDR_W-1:0]          p_rd_addr,
-    input  logic signed [DATA_WIDTH-1:0] p_rd_data [TILE_SIZE-1:0],
+    output logic [P_ADDR_W-1:0]          p_rd_addr0,
+    output logic [P_ADDR_W-1:0]          p_rd_addr1,
+    output logic [P_ADDR_W-1:0]          p_rd_addr2,
+    output logic [P_ADDR_W-1:0]          p_rd_addr3,
+    input  logic signed [DATA_WIDTH-1:0] p_rd_data0 [TILE_SIZE-1:0],
+    input  logic signed [DATA_WIDTH-1:0] p_rd_data1 [TILE_SIZE-1:0],
+    input  logic signed [DATA_WIDTH-1:0] p_rd_data2 [TILE_SIZE-1:0],
+    input  logic signed [DATA_WIDTH-1:0] p_rd_data3 [TILE_SIZE-1:0],
 
     output logic                         y_axis_TVALID,
     input  logic                         y_axis_TREADY,
@@ -78,11 +84,8 @@ module reuse_out_proj_scheduler_stub #(
     logic [$clog2(K_GROUPS+1)-1:0] data_cnt;
     logic [$clog2(TILE_CYCLE+2)-1:0] tile_cnt, tile_cnt_d;
     logic [1:0]                    drain_cnt;
-    logic [P_ADDR_W-1:0]           p_rd_addr_reg;
-
     logic                          p_tile_fire;
     logic                          fetch_fire_d1, fetch_fire_d2, fetch_fire_d3;
-    logic                          b_fetch_d1;
     logic [3:0][$clog2(N_BANK)-1:0] w_bank_sel;
     logic [3:0][WADDR_W-1:0]        w_addr_sel;
     logic [3:0]                     w_en_sel;
@@ -114,14 +117,20 @@ module reuse_out_proj_scheduler_stub #(
     logic signed [DATA_WIDTH-1:0] cur_B1 [TILE_SIZE-1:0][TILE_SIZE-1:0];
     logic signed [DATA_WIDTH-1:0] cur_B2 [TILE_SIZE-1:0][TILE_SIZE-1:0];
     logic signed [DATA_WIDTH-1:0] cur_B3 [TILE_SIZE-1:0][TILE_SIZE-1:0];
-    logic signed [DATA_WIDTH-1:0] B0_curr [TILE_SIZE-1:0][TILE_SIZE-1:0];
-    logic signed [DATA_WIDTH-1:0] B1_curr [TILE_SIZE-1:0][TILE_SIZE-1:0];
-    logic signed [DATA_WIDTH-1:0] B2_curr [TILE_SIZE-1:0][TILE_SIZE-1:0];
-    logic signed [DATA_WIDTH-1:0] B3_curr [TILE_SIZE-1:0][TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] B0_hold [TILE_SIZE-1:0][TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] B1_hold [TILE_SIZE-1:0][TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] B2_hold [TILE_SIZE-1:0][TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] B3_hold [TILE_SIZE-1:0][TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] B2_hold1 [TILE_SIZE-1:0][TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] B3_hold1 [TILE_SIZE-1:0][TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] B3_hold2 [TILE_SIZE-1:0][TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] B0_mat_reg [TILE_SIZE-1:0][TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] B1_mat_reg [TILE_SIZE-1:0][TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] B2_mat_reg [TILE_SIZE-1:0][TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] B3_mat_reg [TILE_SIZE-1:0][TILE_SIZE-1:0];
 
     logic                         valid_in;
     logic                         valid_in_d1, valid_in_d2;
-    logic                         suppress_first_valid;
     logic                         group_start;
     logic                         seen_valid;
     logic signed [ACC_WIDTH-1:0]  final_vec [TILE_SIZE-1:0];
@@ -171,11 +180,10 @@ module reuse_out_proj_scheduler_stub #(
     assign busy              = (state != IDLE && state != DONE_S);
     assign done              = (state == DONE_S);
     assign valid_in          = (state == RUN_PIPELINE) && (data_cnt < K_GROUPS);
-    assign p_tile_fire       = (state == RUN_PIPELINE) && (tile_cnt == 0) && valid_in;
+    assign p_tile_fire       = (state == RUN_PIPELINE) && valid_in;
     assign p_rd_en           = enable && p_tile_fire;
-    assign p_rd_addr         = p_rd_addr_reg;
-    assign fabric_valid_in   = valid_in_d2 && !suppress_first_valid;
-    assign group_start       = b_fetch_d1;
+    assign fabric_valid_in   = valid_in_d2;
+    assign group_start       = fetch_fire_d1;
 
     always_comb begin
         int phys_base_idx;
@@ -186,8 +194,17 @@ module reuse_out_proj_scheduler_stub #(
         w_en_sel   = '0;
         w_port_sel = '0;
 
+        p_rd_addr0 = '0;
+        p_rd_addr1 = '0;
+        p_rd_addr2 = '0;
+        p_rd_addr3 = '0;
+
         if (valid_in) begin
             phys_base_idx = data_cnt * 4;
+            p_rd_addr0 = phys_base_idx + 0;
+            p_rd_addr1 = phys_base_idx + 1;
+            p_rd_addr2 = phys_base_idx + 2;
+            p_rd_addr3 = phys_base_idx + 3;
 
             tile_idx0 = row_tile_linear * PHYS_K_BLOCKS + phys_base_idx + 0;
             tile_idx1 = row_tile_linear * PHYS_K_BLOCKS + phys_base_idx + 1;
@@ -240,10 +257,10 @@ module reuse_out_proj_scheduler_stub #(
             cur_A3[i][3] = w_dout_sel[3][(i*TILE_SIZE+3)*DATA_WIDTH +: DATA_WIDTH];
 
             for (int j = 0; j < TILE_SIZE; j++) begin
-                cur_B0[i][j] = p_rd_data[j];
-                cur_B1[i][j] = p_rd_data[j];
-                cur_B2[i][j] = p_rd_data[j];
-                cur_B3[i][j] = p_rd_data[j];
+                cur_B0[i][j] = p_rd_data0[j];
+                cur_B1[i][j] = p_rd_data1[j];
+                cur_B2[i][j] = p_rd_data2[j];
+                cur_B3[i][j] = p_rd_data3[j];
             end
         end
     end
@@ -275,14 +292,14 @@ module reuse_out_proj_scheduler_stub #(
     assign y_axis_TDATA  = y_wr_data;
 
     always_comb begin
-        fabric_A0_mat = out_sel[0] ? A0_mat_reg : '{default:'0};
-        fabric_A1_mat = out_sel[1] ? A1_mat_reg : '{default:'0};
-        fabric_A2_mat = out_sel[2] ? A2_mat_reg : '{default:'0};
-        fabric_A3_mat = out_sel[3] ? A3_mat_reg : '{default:'0};
-        fabric_B0_mat = out_sel[0] ? B0_curr : '{default:'0};
-        fabric_B1_mat = out_sel[1] ? B1_curr : '{default:'0};
-        fabric_B2_mat = out_sel[2] ? B2_curr : '{default:'0};
-        fabric_B3_mat = out_sel[3] ? B3_curr : '{default:'0};
+        fabric_A0_mat = A0_mat_reg;
+        fabric_A1_mat = A1_mat_reg;
+        fabric_A2_mat = A2_mat_reg;
+        fabric_A3_mat = A3_mat_reg;
+        fabric_B0_mat = B0_mat_reg;
+        fabric_B1_mat = B1_mat_reg;
+        fabric_B2_mat = B2_mat_reg;
+        fabric_B3_mat = B3_mat_reg;
     end
 
     always_comb begin
@@ -331,16 +348,13 @@ module reuse_out_proj_scheduler_stub #(
             tile_cnt            <= '0;
             tile_cnt_d          <= '0;
             drain_cnt           <= '0;
-            p_rd_addr_reg       <= '0;
             fetch_fire_d1       <= 1'b0;
             fetch_fire_d2       <= 1'b0;
             fetch_fire_d3       <= 1'b0;
-            b_fetch_d1          <= 1'b0;
             en_sel_reg          <= '0;
             phase_reg           <= '0;
             valid_in_d1         <= 1'b0;
             valid_in_d2         <= 1'b0;
-            suppress_first_valid<= 1'b1;
             seen_valid          <= 1'b0;
             final_vec           <= '{default:'0};
             A0_hold             <= '{default:'0};
@@ -354,10 +368,17 @@ module reuse_out_proj_scheduler_stub #(
             A1_mat_reg          <= '{default:'0};
             A2_mat_reg          <= '{default:'0};
             A3_mat_reg          <= '{default:'0};
-            B0_curr             <= '{default:'0};
-            B1_curr             <= '{default:'0};
-            B2_curr             <= '{default:'0};
-            B3_curr             <= '{default:'0};
+            B0_hold             <= '{default:'0};
+            B1_hold             <= '{default:'0};
+            B2_hold             <= '{default:'0};
+            B3_hold             <= '{default:'0};
+            B2_hold1            <= '{default:'0};
+            B3_hold1            <= '{default:'0};
+            B3_hold2            <= '{default:'0};
+            B0_mat_reg          <= '{default:'0};
+            B1_mat_reg          <= '{default:'0};
+            B2_mat_reg          <= '{default:'0};
+            B3_mat_reg          <= '{default:'0};
             out_phase_cnt       <= '0;
             out_phase_active    <= 1'b0;
         end else begin
@@ -365,7 +386,6 @@ module reuse_out_proj_scheduler_stub #(
             fetch_fire_d1 <= valid_in;
             fetch_fire_d2 <= fetch_fire_d1;
             fetch_fire_d3 <= fetch_fire_d2;
-            b_fetch_d1    <= p_rd_en;
             valid_in_d1   <= valid_in;
             valid_in_d2   <= valid_in_d1;
             en_sel_reg    <= en_sel;
@@ -377,23 +397,17 @@ module reuse_out_proj_scheduler_stub #(
                     final_vec[i] <= fabric_reduced_vec[i];
             end
 
-            if (valid_in_d2 && suppress_first_valid)
-                suppress_first_valid <= 1'b0;
-
             if (state == IDLE) begin
                 row_group_idx         <= '0;
                 row_subtile_idx       <= '0;
                 data_cnt              <= '0;
                 tile_cnt              <= '0;
                 drain_cnt             <= 2'd3;
-                p_rd_addr_reg         <= '0;
                 write_row_group_idx   <= '0;
                 write_row_subtile_idx <= '0;
                 seen_valid            <= 1'b0;
-                b_fetch_d1            <= 1'b0;
                 en_sel_reg            <= '0;
                 phase_reg             <= '0;
-                suppress_first_valid  <= 1'b1;
                 A0_hold               <= '{default:'0};
                 A1_hold               <= '{default:'0};
                 A2_hold               <= '{default:'0};
@@ -405,18 +419,22 @@ module reuse_out_proj_scheduler_stub #(
                 A1_mat_reg            <= '{default:'0};
                 A2_mat_reg            <= '{default:'0};
                 A3_mat_reg            <= '{default:'0};
-                B0_curr               <= '{default:'0};
-                B1_curr               <= '{default:'0};
-                B2_curr               <= '{default:'0};
-                B3_curr               <= '{default:'0};
+                B0_hold               <= '{default:'0};
+                B1_hold               <= '{default:'0};
+                B2_hold               <= '{default:'0};
+                B3_hold               <= '{default:'0};
+                B2_hold1              <= '{default:'0};
+                B3_hold1              <= '{default:'0};
+                B3_hold2              <= '{default:'0};
+                B0_mat_reg            <= '{default:'0};
+                B1_mat_reg            <= '{default:'0};
+                B2_mat_reg            <= '{default:'0};
+                B3_mat_reg            <= '{default:'0};
                 out_phase_cnt         <= '0;
                 out_phase_active      <= 1'b0;
             end
 
             if (state == RUN_PIPELINE) begin
-                if (p_tile_fire)
-                    p_rd_addr_reg <= {{(P_ADDR_W-$bits(row_tile_linear)){1'b0}}, row_tile_linear};
-
                 if (valid_in) begin
                     data_cnt <= data_cnt + 1'b1;
                 end else if (drain_cnt != 0) begin
@@ -446,6 +464,17 @@ module reuse_out_proj_scheduler_stub #(
                         A1_mat_reg       <= '{default:'0};
                         A2_mat_reg       <= '{default:'0};
                         A3_mat_reg       <= '{default:'0};
+                        B0_mat_reg       <= '{default:'0};
+                        B1_mat_reg       <= '{default:'0};
+                        B2_mat_reg       <= '{default:'0};
+                        B3_mat_reg       <= '{default:'0};
+                        B0_hold          <= '{default:'0};
+                        B1_hold          <= '{default:'0};
+                        B2_hold          <= '{default:'0};
+                        B3_hold          <= '{default:'0};
+                        B2_hold1         <= '{default:'0};
+                        B3_hold1         <= '{default:'0};
+                        B3_hold2         <= '{default:'0};
                     end else begin
                         out_phase_cnt <= out_phase_cnt + 1'b1;
                     end
@@ -462,24 +491,28 @@ module reuse_out_proj_scheduler_stub #(
                 A1_hold <= cur_A1;
                 A2_hold <= cur_A2;
                 A3_hold <= cur_A3;
+                B0_hold <= cur_B0;
+                B1_hold <= cur_B1;
+                B2_hold <= cur_B2;
+                B3_hold <= cur_B3;
             end
 
             if (fetch_fire_d2) begin
                 A2_hold1 <= A2_hold;
                 A3_hold1 <= A3_hold;
+                B2_hold1 <= B2_hold;
+                B3_hold1 <= B3_hold;
             end
 
             if (fetch_fire_d3) begin
                 A3_hold2 <= A3_hold1;
+                B3_hold2 <= B3_hold1;
             end
 
-            if (group_start) begin
+            if (fetch_fire_d1) begin
                 out_phase_active <= 1'b1;
                 out_phase_cnt    <= '0;
-                B0_curr          <= cur_B0;
-                B1_curr          <= cur_B1;
-                B2_curr          <= cur_B2;
-                B3_curr          <= cur_B3;
+                B0_mat_reg       <= cur_B0;
             end
 
             if (out_phase_active && out_phase_cnt == K_GROUPS-1)
@@ -501,6 +534,26 @@ module reuse_out_proj_scheduler_stub #(
                 A3_mat_reg <= '{default:'0};
             else if (en_sel_reg[3])
                 A3_mat_reg <= A3_hold2;
+
+            if (out_phase_active && out_phase_cnt == K_GROUPS-1)
+                B0_mat_reg <= '{default:'0};
+            else if (en_sel_reg[0])
+                B0_mat_reg <= cur_B0;
+
+            if (out_phase_active && out_phase_cnt == K_GROUPS)
+                B1_mat_reg <= '{default:'0};
+            else if (en_sel_reg[1])
+                B1_mat_reg <= B1_hold;
+
+            if (out_phase_active && out_phase_cnt == K_GROUPS+1)
+                B2_mat_reg <= '{default:'0};
+            else if (en_sel_reg[2])
+                B2_mat_reg <= B2_hold1;
+
+            if (out_phase_active && out_phase_cnt == K_GROUPS+2)
+                B3_mat_reg <= '{default:'0};
+            else if (en_sel_reg[3])
+                B3_mat_reg <= B3_hold2;
 
             if (state == WRITE && y_axis_TREADY) begin
                 seen_valid <= 1'b0;

@@ -137,6 +137,8 @@ bool GetLayer(const ModelIR& ir, const std::string& name, Conv1dDesc& out);
 void Forward(const ModelIR& ir, const float* x_ck, float* y_out);
 bool ForwardFull(const std::string& export_json, const std::vector<float>& xKD, int Din, std::vector<float>& y_out);
 bool ForwardFull(const std::string& export_json, const std::vector<float>& xKD, int Din, const RuntimeOptions& opts, std::vector<float>& y_out);
+bool ForwardBlock0LocalY(const std::string& export_json, const std::vector<float>& xKD, int Din, std::vector<float>& y_out);
+bool ForwardBlock0LocalY(const std::string& export_json, const std::vector<float>& xKD, int Din, const RuntimeOptions& opts, std::vector<float>& y_out);
 
 ExecMode ParseExecMode(const std::string& text);
 std::string ExecModeName(ExecMode mode);

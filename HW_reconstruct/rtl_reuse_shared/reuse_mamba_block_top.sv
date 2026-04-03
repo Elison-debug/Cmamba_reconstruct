@@ -73,8 +73,10 @@ module reuse_mamba_block_top #(
         BLK_IDLE,
         BLK_START_INPROJ,
         BLK_WAIT_INPROJ,
+        BLK_WAIT_UACT,
         BLK_ISSUE_DT,
         BLK_WAIT_DT_BUSY,
+        BLK_WAIT_OUTPROJ,
         BLK_DONE
     } blk_st_t;
 
@@ -89,6 +91,7 @@ module reuse_mamba_block_top #(
     logic dt_busy, out_busy;
     logic [1:0] dt_mode, in_mode, out_mode;
     logic [6:0] dt_col_blocks, in_col_blocks, out_col_blocks;
+    logic dt_reduce_rows, in_reduce_rows, out_reduce_rows;
     logic dt_valid_in, in_valid_in, out_valid_in;
 
     logic signed [DATA_WIDTH-1:0] dt_A0_mat [TILE_SIZE-1:0][TILE_SIZE-1:0];
@@ -145,6 +148,26 @@ module reuse_mamba_block_top #(
     logic                         dt_u_rd_en;
     logic [5:0]                   dt_u_rd_addr;
     logic signed [DATA_WIDTH-1:0] dt_u_rd_data [TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] dt_u_raw_rd_data [TILE_SIZE-1:0];
+    logic                         u_auto_rd_en;
+    logic [5:0]                   u_auto_rd_addr;
+    logic signed [DATA_WIDTH-1:0] u_auto_rd_data [TILE_SIZE-1:0];
+    logic                         u_mux_rd_en;
+    logic [5:0]                   u_mux_rd_addr;
+    logic signed [DATA_WIDTH-1:0] u_mux_rd_data [TILE_SIZE-1:0];
+    logic                         u_stream_busy, u_stream_done;
+    logic                         u_stream_valid, u_stream_ready;
+    logic signed [DATA_WIDTH-1:0] u_stream_vec [TILE_SIZE-1:0];
+    logic                         uact_valid, uact_ready;
+    logic signed [DATA_WIDTH-1:0] uact_vec [TILE_SIZE-1:0];
+    logic                         uact_wr_en;
+    logic [5:0]                   uact_wr_addr;
+    logic signed [DATA_WIDTH-1:0] uact_wr_data [TILE_SIZE-1:0];
+    logic                         uact_rd_en;
+    logic [5:0]                   uact_rd_addr;
+    logic signed [DATA_WIDTH-1:0] uact_rd_data [TILE_SIZE-1:0];
+    logic [6:0]                   uact_wr_count;
+    logic                         uact_fill_done;
     logic                         z_gate_rd_en;
     logic [5:0]                   z_gate_rd_addr;
     logic signed [DATA_WIDTH-1:0] z_gate_rd_data [TILE_SIZE-1:0];
@@ -165,9 +188,16 @@ module reuse_mamba_block_top #(
     logic signed [DATA_WIDTH-1:0] p_wr_data [TILE_SIZE-1:0];
     logic                         p_rd_en_out;
     logic [5:0]                   p_rd_addr_out;
+    logic [5:0]                   p_rd_addr0_out, p_rd_addr1_out, p_rd_addr2_out, p_rd_addr3_out;
     logic signed [DATA_WIDTH-1:0] p_rd_data_out [TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] p_rd_data0_out [TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] p_rd_data1_out [TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] p_rd_data2_out [TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] p_rd_data3_out [TILE_SIZE-1:0];
     logic                         outproj_enable_int;
     logic                         outproj_start_int;
+    logic                         outproj_done_int;
+    logic                         outproj_done_seen;
 
     assign block_busy = (blk_st != BLK_IDLE && blk_st != BLK_DONE);
     assign block_done = (blk_st == BLK_DONE);
@@ -177,6 +207,7 @@ module reuse_mamba_block_top #(
     assign y_fire = y_axis_TVALID && y_axis_TREADY;
     assign pcap_start = block_auto_mode ? inproj_done : 1'b0;
     assign outproj_start_int = block_auto_mode ? pcap_done : 1'b0;
+    assign uact_fill_done = (uact_wr_count == 7'd64);
 
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
@@ -184,8 +215,13 @@ module reuse_mamba_block_top #(
             inproj_start_int <= 1'b0;
             dt_issue_count   <= '0;
             dt_seen_busy     <= 1'b0;
+            outproj_done_seen<= 1'b0;
         end else begin
             inproj_start_int <= 1'b0;
+            if (!block_auto_mode || blk_st == BLK_IDLE)
+                outproj_done_seen <= 1'b0;
+            else if (outproj_done_int)
+                outproj_done_seen <= 1'b1;
 
             if (!block_auto_mode) begin
                 blk_st         <= BLK_IDLE;
@@ -196,6 +232,7 @@ module reuse_mamba_block_top #(
                     BLK_IDLE: begin
                         dt_issue_count <= '0;
                         dt_seen_busy   <= 1'b0;
+                        outproj_done_seen <= 1'b0;
                         if (block_start) begin
                             inproj_start_int <= 1'b1;
                             blk_st <= BLK_START_INPROJ;
@@ -208,6 +245,11 @@ module reuse_mamba_block_top #(
 
                     BLK_WAIT_INPROJ: begin
                         if (inproj_done)
+                            blk_st <= BLK_WAIT_UACT;
+                    end
+
+                    BLK_WAIT_UACT: begin
+                        if (uact_fill_done)
                             blk_st <= BLK_ISSUE_DT;
                     end
 
@@ -225,9 +267,16 @@ module reuse_mamba_block_top #(
                         end else if (dt_seen_busy) begin
                             if (dt_issue_count < SSM_TILE_COUNT)
                                 blk_st <= BLK_ISSUE_DT;
-                            else
+                            else if (outproj_done_int || outproj_done_seen)
                                 blk_st <= BLK_DONE;
+                            else
+                                blk_st <= BLK_WAIT_OUTPROJ;
                         end
+                    end
+
+                    BLK_WAIT_OUTPROJ: begin
+                        if (outproj_done_int || outproj_done_seen)
+                            blk_st <= BLK_DONE;
                     end
 
                     BLK_DONE: begin
@@ -237,6 +286,18 @@ module reuse_mamba_block_top #(
 
                     default: blk_st <= BLK_IDLE;
                 endcase
+            end
+        end
+    end
+
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            uact_wr_count <= '0;
+        end else begin
+            if (!block_auto_mode || blk_st == BLK_IDLE || blk_st == BLK_START_INPROJ || blk_st == BLK_WAIT_INPROJ) begin
+                uact_wr_count <= '0;
+            end else if (uact_wr_en && (uact_wr_count < 7'd64)) begin
+                uact_wr_count <= uact_wr_count + 1'b1;
             end
         end
     end
@@ -281,6 +342,14 @@ module reuse_mamba_block_top #(
         .fabric_valid_out(dt_valid_out)
     );
 
+    assign u_mux_rd_en   = block_auto_mode ? u_auto_rd_en   : u_rd_en;
+    assign u_mux_rd_addr = block_auto_mode ? u_auto_rd_addr : u_rd_addr;
+    assign u_rd_data     = u_mux_rd_data;
+    always_comb begin
+        for (int i = 0; i < TILE_SIZE; i++)
+            u_auto_rd_data[i] = u_mux_rd_data[i];
+    end
+
     reuse_in_proj_scheduler #(
         .TILE_SIZE (TILE_SIZE),
         .DATA_WIDTH(DATA_WIDTH),
@@ -295,12 +364,12 @@ module reuse_mamba_block_top #(
         .h_wr_en(h_wr_en),
         .h_wr_addr(h_wr_addr),
         .h_wr_data(h_wr_data),
-        .u_rd_en(u_rd_en),
-        .u_rd_addr(u_rd_addr),
-        .u_rd_data(u_rd_data),
+        .u_rd_en(u_mux_rd_en),
+        .u_rd_addr(u_mux_rd_addr),
+        .u_rd_data(u_mux_rd_data),
         .u_ssm_rd_en(dt_u_rd_en),
         .u_ssm_rd_addr(dt_u_rd_addr),
-        .u_ssm_rd_data(dt_u_rd_data),
+        .u_ssm_rd_data(dt_u_raw_rd_data),
         .z_rd_en(z_rd_en),
         .z_rd_addr(z_rd_addr),
         .z_rd_data(z_rd_data),
@@ -322,6 +391,70 @@ module reuse_mamba_block_top #(
         .fabric_valid_out(in_valid_out)
     );
 
+    reuse_z_stream_reader #(
+        .TILE_SIZE (TILE_SIZE),
+        .DATA_WIDTH(DATA_WIDTH),
+        .Z_DEPTH   (64),
+        .Z_ADDR_W  (6)
+    ) u_u_reader (
+        .clk     (clk),
+        .rst_n   (rst_n),
+        .enable  (block_auto_mode),
+        .start   (inproj_done),
+        .busy    (u_stream_busy),
+        .done    (u_stream_done),
+        .z_rd_en (u_auto_rd_en),
+        .z_rd_addr(u_auto_rd_addr),
+        .z_rd_data(u_auto_rd_data),
+        .out_valid(u_stream_valid),
+        .out_ready(u_stream_ready),
+        .out_vec (u_stream_vec)
+    );
+
+    reuse_silu_vec4 #(
+        .TILE_SIZE (TILE_SIZE),
+        .DATA_WIDTH(DATA_WIDTH),
+        .FRAC_BITS (FRAC_BITS),
+        .ADDR_BITS (ADDR_BITS),
+        .LUT_FILE  (LUT_FILE)
+    ) u_u_silu (
+        .clk      (clk),
+        .rst_n    (rst_n),
+        .in_valid (u_stream_valid),
+        .in_ready (u_stream_ready),
+        .in_vec   (u_stream_vec),
+        .out_valid(uact_valid),
+        .out_ready(uact_ready),
+        .out_vec  (uact_vec)
+    );
+
+    assign uact_ready  = 1'b1;
+    assign uact_wr_en  = uact_valid && uact_ready;
+    assign uact_wr_addr = uact_wr_count[5:0];
+    assign uact_rd_en   = dt_u_rd_en;
+    assign uact_rd_addr = dt_u_rd_addr;
+    assign dt_u_rd_data = uact_rd_data;
+    always_comb begin
+        for (int i = 0; i < TILE_SIZE; i++)
+            uact_wr_data[i] = uact_vec[i];
+    end
+
+    reuse_ht_sram_sp #(
+        .TILE_SIZE (TILE_SIZE),
+        .DATA_WIDTH(DATA_WIDTH),
+        .DEPTH     (64),
+        .ADDR_W    (6)
+    ) u_uact_sram (
+        .clk(clk),
+        .rst_n(rst_n),
+        .wr_en(uact_wr_en),
+        .wr_addr(uact_wr_addr),
+        .wr_data(uact_wr_data),
+        .rd_en(uact_rd_en),
+        .rd_addr(uact_rd_addr),
+        .rd_data(uact_rd_data)
+    );
+
     reuse_out_proj_scheduler_stub #(
         .TILE_SIZE (TILE_SIZE),
         .DATA_WIDTH(DATA_WIDTH),
@@ -332,10 +465,16 @@ module reuse_mamba_block_top #(
         .enable(outproj_enable_int),
         .start(block_auto_mode ? outproj_start_int : outproj_enable),
         .busy(outproj_busy),
-        .done(),
+        .done(outproj_done_int),
         .p_rd_en(p_rd_en_out),
-        .p_rd_addr(p_rd_addr_out),
-        .p_rd_data(p_rd_data_out),
+        .p_rd_addr0(p_rd_addr0_out),
+        .p_rd_addr1(p_rd_addr1_out),
+        .p_rd_addr2(p_rd_addr2_out),
+        .p_rd_addr3(p_rd_addr3_out),
+        .p_rd_data0(p_rd_data0_out),
+        .p_rd_data1(p_rd_data1_out),
+        .p_rd_data2(p_rd_data2_out),
+        .p_rd_data3(p_rd_data3_out),
         .y_axis_TVALID(y_axis_TVALID),
         .y_axis_TREADY(y_axis_TREADY),
         .y_axis_TDATA(y_axis_TDATA),
@@ -374,7 +513,10 @@ module reuse_mamba_block_top #(
         .p_wr_data(p_wr_data)
     );
 
-    reuse_ht_sram_sp #(
+    assign p_rd_addr_out = p_rd_addr0_out;
+    assign p_rd_data_out = p_rd_data0_out;
+
+    reuse_ht_sram #(
         .TILE_SIZE (TILE_SIZE),
         .DATA_WIDTH(DATA_WIDTH),
         .DEPTH     (64),
@@ -386,8 +528,14 @@ module reuse_mamba_block_top #(
         .wr_addr(p_wr_addr),
         .wr_data(p_wr_data),
         .rd_en(p_rd_en_out),
-        .rd_addr(p_rd_addr_out),
-        .rd_data(p_rd_data_out)
+        .rd_addr0(p_rd_addr0_out),
+        .rd_addr1(p_rd_addr1_out),
+        .rd_addr2(p_rd_addr2_out),
+        .rd_addr3(p_rd_addr3_out),
+        .rd_data0(p_rd_data0_out),
+        .rd_data1(p_rd_data1_out),
+        .rd_data2(p_rd_data2_out),
+        .rd_data3(p_rd_data3_out)
     );
 
     reuse_z_stream_reader #(
@@ -454,6 +602,7 @@ module reuse_mamba_block_top #(
         .dt_busy(dt_busy),
         .dt_mode(dt_mode),
         .dt_col_blocks(dt_col_blocks),
+        .dt_reduce_rows(dt_reduce_rows),
         .dt_valid_in(dt_valid_in),
         .dt_A0_mat(dt_A0_mat), .dt_A1_mat(dt_A1_mat),
         .dt_A2_mat(dt_A2_mat), .dt_A3_mat(dt_A3_mat),
@@ -468,6 +617,7 @@ module reuse_mamba_block_top #(
         .in_busy(inproj_busy),
         .in_mode(in_mode),
         .in_col_blocks(in_col_blocks),
+        .in_reduce_rows(in_reduce_rows),
         .in_valid_in(in_valid_in),
         .in_A0_mat(in_A0_mat), .in_A1_mat(in_A1_mat),
         .in_A2_mat(in_A2_mat), .in_A3_mat(in_A3_mat),
@@ -482,6 +632,7 @@ module reuse_mamba_block_top #(
         .out_busy(outproj_busy),
         .out_mode(out_mode),
         .out_col_blocks(out_col_blocks),
+        .out_reduce_rows(out_reduce_rows),
         .out_valid_in(out_valid_in),
         .out_A0_mat(out_A0_mat), .out_A1_mat(out_A1_mat),
         .out_A2_mat(out_A2_mat), .out_A3_mat(out_A3_mat),
@@ -520,4 +671,8 @@ module reuse_mamba_block_top #(
         .y_axis_TREADY(ssm_p_ready),
         .y_axis_TDATA(ssm_p_data)
     );
+
+    assign dt_reduce_rows  = 1'b0;
+    assign in_reduce_rows  = 1'b1;
+    assign out_reduce_rows = 1'b1;
 endmodule

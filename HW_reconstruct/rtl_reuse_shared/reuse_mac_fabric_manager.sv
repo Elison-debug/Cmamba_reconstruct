@@ -21,6 +21,7 @@ module reuse_mac_fabric_manager #(
     input  logic                         dt_busy,
     input  logic [1:0]                   dt_mode,
     input  logic [6:0]                   dt_col_blocks,
+    input  logic                         dt_reduce_rows,
     input  logic                         dt_valid_in,
     input  logic signed [DATA_WIDTH-1:0] dt_A0_mat [TILE_SIZE-1:0][TILE_SIZE-1:0],
     input  logic signed [DATA_WIDTH-1:0] dt_A1_mat [TILE_SIZE-1:0][TILE_SIZE-1:0],
@@ -41,6 +42,7 @@ module reuse_mac_fabric_manager #(
     input  logic                         in_busy,
     input  logic [1:0]                   in_mode,
     input  logic [6:0]                   in_col_blocks,
+    input  logic                         in_reduce_rows,
     input  logic                         in_valid_in,
     input  logic signed [DATA_WIDTH-1:0] in_A0_mat [TILE_SIZE-1:0][TILE_SIZE-1:0],
     input  logic signed [DATA_WIDTH-1:0] in_A1_mat [TILE_SIZE-1:0][TILE_SIZE-1:0],
@@ -61,6 +63,7 @@ module reuse_mac_fabric_manager #(
     input  logic                         out_busy,
     input  logic [1:0]                   out_mode,
     input  logic [6:0]                   out_col_blocks,
+    input  logic                         out_reduce_rows,
     input  logic                         out_valid_in,
     input  logic signed [DATA_WIDTH-1:0] out_A0_mat [TILE_SIZE-1:0][TILE_SIZE-1:0],
     input  logic signed [DATA_WIDTH-1:0] out_A1_mat [TILE_SIZE-1:0][TILE_SIZE-1:0],
@@ -79,6 +82,7 @@ module reuse_mac_fabric_manager #(
 );
     logic [1:0] active_mode;
     logic [6:0] active_col_blocks;
+    logic       active_reduce_rows;
     logic       active_valid_in;
     logic signed [DATA_WIDTH-1:0] active_A0_mat [TILE_SIZE-1:0][TILE_SIZE-1:0];
     logic signed [DATA_WIDTH-1:0] active_A1_mat [TILE_SIZE-1:0][TILE_SIZE-1:0];
@@ -104,6 +108,7 @@ module reuse_mac_fabric_manager #(
 
         active_mode     = dt_mode;
         active_col_blocks = dt_col_blocks;
+        active_reduce_rows = dt_reduce_rows;
         active_valid_in = 1'b0;
         active_A0_mat   = '{default:'0};
         active_A1_mat   = '{default:'0};
@@ -117,6 +122,7 @@ module reuse_mac_fabric_manager #(
         if (sel_dt) begin
             active_mode     = dt_mode;
             active_col_blocks = dt_col_blocks;
+            active_reduce_rows = dt_reduce_rows;
             active_valid_in = dt_valid_in;
             active_A0_mat   = dt_A0_mat; active_A1_mat = dt_A1_mat;
             active_A2_mat   = dt_A2_mat; active_A3_mat = dt_A3_mat;
@@ -125,6 +131,7 @@ module reuse_mac_fabric_manager #(
         end else if (sel_in) begin
             active_mode     = in_mode;
             active_col_blocks = in_col_blocks;
+            active_reduce_rows = in_reduce_rows;
             active_valid_in = in_valid_in;
             active_A0_mat   = in_A0_mat; active_A1_mat = in_A1_mat;
             active_A2_mat   = in_A2_mat; active_A3_mat = in_A3_mat;
@@ -133,6 +140,7 @@ module reuse_mac_fabric_manager #(
         end else if (sel_out) begin
             active_mode     = out_mode;
             active_col_blocks = out_col_blocks;
+            active_reduce_rows = out_reduce_rows;
             active_valid_in = out_valid_in;
             active_A0_mat   = out_A0_mat; active_A1_mat = out_A1_mat;
             active_A2_mat   = out_A2_mat; active_A3_mat = out_A3_mat;
@@ -151,6 +159,7 @@ module reuse_mac_fabric_manager #(
         .rst_n(rst_n),
         .mode(active_mode),
         .col_blocks_cfg(active_col_blocks),
+        .reduce_rows(active_reduce_rows),
         .valid_in(active_valid_in),
         .A0_mat(active_A0_mat), .A1_mat(active_A1_mat),
         .A2_mat(active_A2_mat), .A3_mat(active_A3_mat),

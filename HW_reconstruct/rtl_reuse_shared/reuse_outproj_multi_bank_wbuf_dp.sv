@@ -79,6 +79,22 @@ module reuse_outproj_multi_bank_wbuf_dp #(
     end
 `endif
 
+    logic [3:0][$clog2(N_BANK)-1:0] bank_sel_q;
+    logic [3:0]                     port_sel_q;
+    logic [3:0]                     en_sel_q;
+
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            bank_sel_q <= '0;
+            port_sel_q <= '0;
+            en_sel_q   <= '0;
+        end else begin
+            bank_sel_q <= bank_sel;
+            port_sel_q <= port_sel;
+            en_sel_q   <= en_sel;
+        end
+    end
+
     always_comb begin
         enA_bank = '0;
         enB_bank = '0;
@@ -104,13 +120,16 @@ module reuse_outproj_multi_bank_wbuf_dp #(
     end
 
     always_comb begin
-        dout_sel = '{default:'0};
         for (int j = 0; j < 4; j++) begin
-            b = bank_sel[j];
-            if (port_sel[j] == 1'b0)
-                dout_sel[j] = doutA_bank[b];
-            else
-                dout_sel[j] = doutB_bank[b];
+            if (!en_sel_q[j]) begin
+                dout_sel[j] = '0;
+            end else begin
+                b = bank_sel_q[j];
+                if (port_sel_q[j] == 1'b0)
+                    dout_sel[j] = doutA_bank[b];
+                else
+                    dout_sel[j] = doutB_bank[b];
+            end
         end
     end
 endmodule

@@ -135,11 +135,6 @@ module reuse_ssm_dt_scheduler #(
         bank_sel[2] = bank_x;
         bank_sel[3] = bank_y;
 
-        addr_sel[0] = addr_bank_cnt[bank_sel[0]];
-        addr_sel[1] = addr_bank_cnt[bank_sel[1]];
-        addr_sel[2] = addr_bank_cnt[bank_sel[2]];
-        addr_sel[3] = addr_bank_cnt[bank_sel[3]];
-
         //array0/array1 走 Port A，array2/array3 走 Port B
         port_sel[0] = 1'b0;
         port_sel[1] = 1'b0;
@@ -151,6 +146,11 @@ module reuse_ssm_dt_scheduler #(
         en_sel[1] = (state == RUN_PIPELINE) && (tile_cnt_d >= 1) && (tile_cnt_d < 19);
         en_sel[2] = (state == RUN_PIPELINE) && (tile_cnt_d >= 2) && (tile_cnt_d < 20);
         en_sel[3] = (state == RUN_PIPELINE) && (tile_cnt_d >= 3) && (tile_cnt_d < 21);
+
+        addr_sel[0] = addr_bank_cnt[bank_sel[0]];
+        addr_sel[1] = addr_bank_cnt[bank_sel[1]];
+        addr_sel[2] = addr_bank_cnt[bank_sel[2]];
+        addr_sel[3] = addr_bank_cnt[bank_sel[3]];
     end
 
     //-------------------------------
@@ -212,7 +212,6 @@ module reuse_ssm_dt_scheduler #(
             port_sel_reg <= port_sel;
             w_data_reg   <= w_data;
 
-            // ONE increment per bank
             for (int b=0; b<N_BANK; b++) begin
                 if (bank_hit_mask_comb[b]) begin
                     if (addr_bank_cnt[b] == WDEPTH-1)
@@ -356,10 +355,10 @@ module reuse_ssm_dt_scheduler #(
     always_comb begin
         for (int i = 0; i < TILE_SIZE; i++) begin
             case (xt_stage_cnt_reg)
-                0: begin B0_mat[i] = xt_curr[0]; B1_mat[i] = xt_curr[1]; B2_mat[i] = xt_curr[2]; B3_mat[i] = xt_curr[3]; end
-                1: begin B0_mat[i] = xt_next;    B1_mat[i] = xt_curr[1]; B2_mat[i] = xt_curr[2]; B3_mat[i] = xt_curr[3]; end
-                2: begin B0_mat[i] = xt_next;    B1_mat[i] = xt_next;    B2_mat[i] = xt_curr[2]; B3_mat[i] = xt_curr[3]; end
-                default: begin B0_mat[i] = xt_next; B1_mat[i] = xt_next; B2_mat[i] = xt_next; B3_mat[i] = xt_curr[3]; end
+                0: begin B0_mat[i] = xt_next;    B1_mat[i] = xt_curr[1]; B2_mat[i] = xt_curr[2]; B3_mat[i] = xt_curr[3]; end
+                1: begin B0_mat[i] = xt_next;    B1_mat[i] = xt_next;    B2_mat[i] = xt_curr[2]; B3_mat[i] = xt_curr[3]; end
+                2: begin B0_mat[i] = xt_next;    B1_mat[i] = xt_next;    B2_mat[i] = xt_next;    B3_mat[i] = xt_curr[3]; end
+                default: begin B0_mat[i] = xt_next; B1_mat[i] = xt_next; B2_mat[i] = xt_next; B3_mat[i] = xt_next; end
             endcase
         end
     end
@@ -409,17 +408,17 @@ module reuse_ssm_dt_scheduler #(
             A2_mat_reg <= '{default:'0};
             A3_mat_reg <= '{default:'0};
         end else begin
-            if (state == IDLE) begin
-                A0_mat_reg <= '{default:'0};
-                A1_mat_reg <= '{default:'0};
-                A2_mat_reg <= '{default:'0};
-                A3_mat_reg <= '{default:'0};
-            end else begin
-                if (en_sel_reg[0]) A0_mat_reg <= A0_mat;
-                if (en_sel_reg[1]) A1_mat_reg <= A1_mat;
-                if (en_sel_reg[2]) A2_mat_reg <= A2_mat;
-                if (en_sel_reg[3]) A3_mat_reg <= A3_mat;
-            end
+            if (en_sel_reg[0])           A0_mat_reg <= A0_mat;
+            else if (!en_sel[0])         A0_mat_reg <= '{default:'0};
+
+            if (en_sel_reg[1])           A1_mat_reg <= A1_mat;
+            else if (!en_sel[1])         A1_mat_reg <= '{default:'0};
+
+            if (en_sel_reg[2])           A2_mat_reg <= A2_mat;
+            else if (!en_sel[2])         A2_mat_reg <= '{default:'0};
+
+            if (en_sel_reg[3])           A3_mat_reg <= A3_mat;
+            else if (!en_sel[3])         A3_mat_reg <= '{default:'0};
         end
     end
 

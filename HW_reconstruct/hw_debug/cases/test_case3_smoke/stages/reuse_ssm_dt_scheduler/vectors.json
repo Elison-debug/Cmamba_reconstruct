@@ -1,0 +1,20 @@
+{
+  "d_inner": 256,
+  "files": {
+    "u_act_in_q88": "u_act_in_q88.mem",
+    "dt_golden_q88": "dt_golden_q88.mem",
+    "xt_golden_q88": "xt_golden_q88.mem",
+    "dt_wbuf": [
+      "dt_wbuf_bank0.mem",
+      "dt_wbuf_bank1.mem",
+      "dt_wbuf_bank2.mem",
+      "dt_wbuf_bank3.mem",
+      "dt_wbuf_bank4.mem",
+      "dt_wbuf_bank5.mem"
+    ]
+  },
+  "notes": [
+    "u_act_in_q88 is the dt scheduler read source.",
+    "xt_golden_q88 follows the scheduler's intended tile stream order and currently matches u_act row order."
+  ]
+}
