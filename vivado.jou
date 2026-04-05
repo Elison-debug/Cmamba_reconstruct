@@ -111,3 +111,131 @@ regenerate_bd_layout -routing
 regenerate_bd_layout -routing
 save_bd_design
 add_files -scan_for_includes {E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_block_top.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/bias_add_regslice_ip.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_array4x4.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_vec_out_sram.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/sigmoid4_vec.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/slim_multi_bank_wbuf_dp.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_out_proj_scheduler.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_ssm_core.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_ht_multi_copy_ip.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_board_shell.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ewm_gate_sbuf_vec4.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_outproj_multi_bank_wbuf_dp.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_silu_vec4.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mac_fabric_manager.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_top_mac_plus_bias_fifo_sigmoid_ew_gate.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_ht_sram.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_z_stream_reader.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_block_wrapper.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_h_stream_loader.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_pipeline_4array_with_reduction.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_ip_blackboxes.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/requant_round_sat_engine.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_ht_sram_sp.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/xt_input_buf.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_pt_capture.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_ssm_dt_scheduler.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/vec_fifo_axis_ip.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_packed_scale_mem.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_in_proj_scheduler.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_outproj_weight_sram.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_pipeline_4array_top.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_slim_mac_mem_controller_combined_dp.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/axis_vec_join2.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_reduction_accumulator.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_vec_out_sram_ip.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_inproj_weight_sram.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_axi_lite_regs.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ew_update_vec4.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ewm_vec4.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pulse_to_stream_adapter.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_shared_mac_fabric.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ewa_vec4.sv}
+add_files -norecurse -scan_for_includes E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_board_shell.v
+update_compile_order -fileset sources_1
+set_property is_enabled false [get_files  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_board_shell.sv]
+update_compile_order -fileset sources_1
+create_bd_cell -type module -reference reuse_mamba_board_shell reuse_mamba_board_sh_0
+startgroup
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config { Clk_master {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Clk_slave {Auto} Clk_xbar {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Master {/zynq_ultra_ps_e_0/M_AXI_HPM0_FPD} Slave {/reuse_mamba_board_sh_0/s_axi} ddr_seg {Auto} intc_ip {/smartconnect_ctrl} master_apm {0}}  [get_bd_intf_pins reuse_mamba_board_sh_0/s_axi]
+apply_bd_automation -rule xilinx.com:bd_rule:clkrst -config { Clk {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Freq {99} Ref_Clk0 {} Ref_Clk1 {} Ref_Clk2 {}}  [get_bd_pins reuse_mamba_board_sh_0/sys_clk]
+endgroup
+connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_resetn0] [get_bd_pins reuse_mamba_board_sh_0/ext_reset_n]
+startgroup
+connect_bd_net [get_bd_pins reuse_mamba_board_sh_0/irq] [get_bd_pins zynq_ultra_ps_e_0/pl_ps_irq0]
+endgroup
+set_property name axi_dma_h [get_bd_cells axi_dma_0]
+startgroup
+create_bd_cell -type ip -vlnv xilinx.com:ip:axi_dma:7.1 axi_dma_0
+endgroup
+set_property location {4 1216 -260} [get_bd_cells axi_dma_0]
+set_property location {3 1329 813} [get_bd_cells axi_dma_0]
+set_property location {2 776 718} [get_bd_cells reuse_mamba_board_sh_0]
+startgroup
+create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat:2.1 xlconcat_0
+endgroup
+set_property location {2 832 907} [get_bd_cells xlconcat_0]
+set_property name axi_dma_GY [get_bd_cells axi_dma_0]
+startgroup
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config { Clk_master {Auto} Clk_slave {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Clk_xbar {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Master {/axi_dma_GY/M_AXI_MM2S} Slave {/zynq_ultra_ps_e_0/S_AXI_HPC0_FPD} ddr_seg {Auto} intc_ip {/smartconnect_mem} master_apm {0}}  [get_bd_intf_pins axi_dma_GY/M_AXI_MM2S]
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config { Clk_master {Auto} Clk_slave {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Clk_xbar {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Master {/axi_dma_GY/M_AXI_S2MM} Slave {/zynq_ultra_ps_e_0/S_AXI_HPC0_FPD} ddr_seg {Auto} intc_ip {/smartconnect_mem} master_apm {0}}  [get_bd_intf_pins axi_dma_GY/M_AXI_S2MM]
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config { Clk_master {Auto} Clk_slave {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Clk_xbar {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Master {/axi_dma_GY/M_AXI_SG} Slave {/zynq_ultra_ps_e_0/S_AXI_HPC0_FPD} ddr_seg {Auto} intc_ip {/smartconnect_mem} master_apm {0}}  [get_bd_intf_pins axi_dma_GY/M_AXI_SG]
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config { Clk_master {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Clk_slave {Auto} Clk_xbar {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Master {/zynq_ultra_ps_e_0/M_AXI_HPM0_FPD} Slave {/axi_dma_GY/S_AXI_LITE} ddr_seg {Auto} intc_ip {/smartconnect_ctrl} master_apm {0}}  [get_bd_intf_pins axi_dma_GY/S_AXI_LITE]
+endgroup
+startgroup
+set_property -dict [list \
+  CONFIG.c_include_mm2s {1} \
+  CONFIG.c_include_s2mm {0} \
+] [get_bd_cells axi_dma_h]
+delete_bd_objs [get_bd_intf_nets axi_dma_0_M_AXI_S2MM]
+endgroup
+startgroup
+set_property CONFIG.NUM_SI {1} [get_bd_cells smartconnect_ctrl]
+delete_bd_objs [get_bd_intf_nets zynq_ultra_ps_e_0_M_AXI_HPM0_FPD]
+endgroup
+startgroup
+set_property -dict [list \
+  CONFIG.NUM_MI {1} \
+  CONFIG.NUM_SI {3} \
+] [get_bd_cells smartconnect_mem]
+delete_bd_objs [get_bd_intf_nets axi_dma_GY_M_AXI_MM2S] [get_bd_intf_nets axi_dma_GY_M_AXI_S2MM] [get_bd_intf_nets axi_dma_GY_M_AXI_SG] [get_bd_intf_nets smartconnect_mem_M01_AXI]
+endgroup
+startgroup
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config { Clk_master {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Clk_slave {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Clk_xbar {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Master {/axi_dma_GY/M_AXI_MM2S} Slave {/zynq_ultra_ps_e_0/S_AXI_HPC0_FPD} ddr_seg {Auto} intc_ip {/smartconnect_mem} master_apm {0}}  [get_bd_intf_pins axi_dma_GY/M_AXI_MM2S]
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config { Clk_master {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Clk_slave {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Clk_xbar {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Master {/axi_dma_GY/M_AXI_S2MM} Slave {/zynq_ultra_ps_e_0/S_AXI_HPC0_FPD} ddr_seg {Auto} intc_ip {/smartconnect_mem} master_apm {0}}  [get_bd_intf_pins axi_dma_GY/M_AXI_S2MM]
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config { Clk_master {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Clk_slave {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Clk_xbar {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Master {/axi_dma_GY/M_AXI_SG} Slave {/zynq_ultra_ps_e_0/S_AXI_HPC0_FPD} ddr_seg {Auto} intc_ip {/smartconnect_mem} master_apm {0}}  [get_bd_intf_pins axi_dma_GY/M_AXI_SG]
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config { Clk_master {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Clk_slave {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Clk_xbar {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Master {/zynq_ultra_ps_e_0/M_AXI_HPM0_FPD} Slave {/axi_dma_h/S_AXI_LITE} ddr_seg {Auto} intc_ip {/smartconnect_ctrl} master_apm {0}}  [get_bd_intf_pins zynq_ultra_ps_e_0/M_AXI_HPM0_FPD]
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config { Clk_master {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Clk_slave {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Clk_xbar {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Master {/axi_dma_GY/M_AXI_MM2S} Slave {/zynq_ultra_ps_e_0/S_AXI_HPC1_FPD} ddr_seg {Auto} intc_ip {New AXI SmartConnect} master_apm {0}}  [get_bd_intf_pins zynq_ultra_ps_e_0/S_AXI_HPC1_FPD]
+endgroup
+delete_bd_objs [get_bd_intf_nets zynq_ultra_ps_e_0_M_AXI_HPM0_FPD]
+delete_bd_objs [get_bd_intf_nets zynq_ultra_ps_e_0_M_AXI_HPM1_FPD]
+set_property location {3 1257 451} [get_bd_cells zynq_ultra_ps_e_0]
+connect_bd_intf_net [get_bd_intf_pins zynq_ultra_ps_e_0/M_AXI_HPM0_FPD] [get_bd_intf_pins smartconnect_ctrl/S00_AXI]
+delete_bd_objs [get_bd_intf_nets smartconnect_ctrl_M00_AXI]
+delete_bd_objs [get_bd_intf_nets smartconnect_ctrl_M01_AXI]
+delete_bd_objs [get_bd_nets reuse_mamba_board_sh_0_irq]
+set_property location {4 1781 238} [get_bd_cells smartconnect_ctrl]
+delete_bd_objs [get_bd_intf_nets axi_dma_GY_M_AXI_S2MM]
+delete_bd_objs [get_bd_intf_nets axi_dma_GY_M_AXI_MM2S]
+delete_bd_objs [get_bd_intf_nets axi_dma_0_M_AXI_MM2S]
+delete_bd_objs [get_bd_intf_nets axi_dma_GY_M_AXI_SG]
+delete_bd_objs [get_bd_intf_nets smartconnect_ctrl_M02_AXI]
+delete_bd_objs [get_bd_intf_nets smartconnect_mem_M01_AXI]
+delete_bd_objs [get_bd_intf_nets smartconnect_mem_M00_AXI]
+delete_bd_objs [get_bd_intf_nets axi_dma_0_M_AXI_SG]
+connect_bd_intf_net [get_bd_intf_pins smartconnect_ctrl/M00_AXI] [get_bd_intf_pins reuse_mamba_board_sh_0/s_axi]
+connect_bd_intf_net [get_bd_intf_pins smartconnect_ctrl/M01_AXI] [get_bd_intf_pins axi_dma_h/S_AXI_LITE]
+connect_bd_intf_net [get_bd_intf_pins smartconnect_ctrl/M02_AXI] [get_bd_intf_pins axi_dma_GY/S_AXI_LITE]
+connect_bd_intf_net [get_bd_intf_pins axi_dma_h/M_AXIS_MM2S] [get_bd_intf_pins reuse_mamba_board_sh_0/s_axis_h]
+connect_bd_intf_net [get_bd_intf_pins axi_dma_GY/M_AXIS_MM2S] [get_bd_intf_pins reuse_mamba_board_sh_0/s_axis_g]
+connect_bd_intf_net [get_bd_intf_pins reuse_mamba_board_sh_0/m_axis_y] [get_bd_intf_pins axi_dma_GY/S_AXIS_S2MM]
+connect_bd_intf_net [get_bd_intf_pins axi_dma_h/M_AXI_MM2S] [get_bd_intf_pins smartconnect_mem/S00_AXI]
+connect_bd_intf_net [get_bd_intf_pins axi_dma_GY/M_AXI_MM2S] [get_bd_intf_pins smartconnect_mem/S01_AXI]
+connect_bd_intf_net [get_bd_intf_pins axi_dma_GY/M_AXI_S2MM] [get_bd_intf_pins smartconnect_mem/S02_AXI]
+connect_bd_intf_net [get_bd_intf_pins smartconnect_mem/M00_AXI] [get_bd_intf_pins zynq_ultra_ps_e_0/S_AXI_HPC0_FPD]
+startgroup
+set_property CONFIG.c_include_sg {0} [get_bd_cells axi_dma_h]
+endgroup
+delete_bd_objs [get_bd_nets zynq_ultra_ps_e_0_pl_resetn0]
+connect_bd_net [get_bd_pins zynq_ultra_ps_e_0/pl_resetn0] [get_bd_pins proc_sys_reset_0/ext_reset_in]
+connect_bd_net [get_bd_pins proc_sys_reset_0/peripheral_aresetn] [get_bd_pins reuse_mamba_board_sh_0/ext_reset_n]
+delete_bd_objs [get_bd_cells xlconcat_0]
+connect_bd_net [get_bd_pins axi_dma_GY/s2mm_introut] [get_bd_pins zynq_ultra_ps_e_0/pl_ps_irq0]
+startgroup
+set_property -dict [list \
+  CONFIG.NUM_MI {1} \
+  CONFIG.NUM_SI {3} \
+] [get_bd_cells smartconnect_mem]
+endgroup
+startgroup
+set_property CONFIG.NUM_SI {1} [get_bd_cells smartconnect_ctrl]
+endgroup
+save_bd_design
+startgroup
+set_property CONFIG.c_include_sg {0} [get_bd_cells axi_dma_GY]
+endgroup
+startgroup
+set_property -dict [list \
+  CONFIG.PSU__USE__M_AXI_GP1 {0} \
+  CONFIG.PSU__USE__S_AXI_GP0 {0} \
+  CONFIG.PSU__USE__S_AXI_GP1 {0} \
+  CONFIG.PSU__USE__S_AXI_GP2 {1} \
+] [get_bd_cells zynq_ultra_ps_e_0]
+delete_bd_objs [get_bd_intf_nets smartconnect_mem_M00_AXI]
+endgroup
+connect_bd_intf_net [get_bd_intf_pins smartconnect_mem/M00_AXI] [get_bd_intf_pins zynq_ultra_ps_e_0/S_AXI_HP0_FPD]
+apply_bd_automation -rule xilinx.com:bd_rule:clkrst -config { Clk {/zynq_ultra_ps_e_0/pl_clk0 (99 MHz)} Freq {99} Ref_Clk0 {} Ref_Clk1 {} Ref_Clk2 {}}  [get_bd_pins zynq_ultra_ps_e_0/saxihp0_fpd_aclk]
+save_bd_design
+validate_bd_design
+delete_bd_objs [get_bd_addr_segs] [get_bd_addr_segs -excluded]
+assign_bd_address
+set_property offset 0xA0030000 [get_bd_addr_segs {zynq_ultra_ps_e_0/Data/SEG_axi_dma_GY_Reg}]
+set_property offset 0xA0000000 [get_bd_addr_segs {zynq_ultra_ps_e_0/Data/SEG_reuse_mamba_board_sh_0_reg0}]
+set_property offset 0xA0020000 [get_bd_addr_segs {zynq_ultra_ps_e_0/Data/SEG_axi_dma_GY_Reg}]
+set_property range 64K [get_bd_addr_segs {zynq_ultra_ps_e_0/Data/SEG_reuse_mamba_board_sh_0_reg0}]
+validate_bd_design
+regenerate_bd_layout -routing
+set_property location {1 245 616} [get_bd_cells reuse_mamba_board_sh_0]
+set_property location {1.5 444 582} [get_bd_cells reuse_mamba_board_sh_0]
+set_property location {2 371 295} [get_bd_cells smartconnect_mem]
+regenerate_bd_layout -routing

@@ -1,7 +1,7 @@
 {
   "design": {
     "design_info": {
-      "boundary_crc": "0xAF447E0ADCAE049D",
+      "boundary_crc": "0xFBE352013198B8BC",
       "design_src": "SBD",
       "device": "xczu9eg-ffvb1156-2-e",
       "name": "bd_886d",
@@ -50,12 +50,6 @@
         "vlnv_bus_definition": "xilinx.com:interface:aximm:1.0",
         "vlnv": "xilinx.com:interface:aximm_rtl:1.0",
         "memory_map_ref": "M00_AXI"
-      },
-      "M01_AXI": {
-        "mode": "Master",
-        "vlnv_bus_definition": "xilinx.com:interface:aximm:1.0",
-        "vlnv": "xilinx.com:interface:aximm_rtl:1.0",
-        "memory_map_ref": "M01_AXI"
       }
     },
     "ports": {
@@ -86,16 +80,6 @@
         },
         "memory_maps": {
           "M00_AXI": {
-            "address_blocks": {
-              "Reg": {
-                "base_address": "0",
-                "range": "64K",
-                "width": "16",
-                "usage": "register"
-              }
-            }
-          },
-          "M01_AXI": {
             "address_blocks": {
               "Reg": {
                 "base_address": "0",

@@ -1,7 +1,7 @@
 {
   "design": {
     "design_info": {
-      "boundary_crc": "0x303B221B65DBB18",
+      "boundary_crc": "0x2028FB7A9AC935D8",
       "design_src": "SBD",
       "device": "xczu9eg-ffvb1156-2-e",
       "name": "bd_48ac",
@@ -23,22 +23,23 @@
           "width": "32"
         }
       },
-      "S01_AXI": {
-        "mode": "Slave",
-        "vlnv_bus_definition": "xilinx.com:interface:aximm:1.0",
-        "vlnv": "xilinx.com:interface:aximm_rtl:1.0",
-        "address_space_ref": "S01_AXI",
-        "base_address": {
-          "minimum": "0x00000000",
-          "maximum": "0xFFFFFFFF",
-          "width": "32"
-        }
-      },
       "M00_AXI": {
         "mode": "Master",
         "vlnv_bus_definition": "xilinx.com:interface:aximm:1.0",
         "vlnv": "xilinx.com:interface:aximm_rtl:1.0",
         "memory_map_ref": "M00_AXI"
+      },
+      "M01_AXI": {
+        "mode": "Master",
+        "vlnv_bus_definition": "xilinx.com:interface:aximm:1.0",
+        "vlnv": "xilinx.com:interface:aximm_rtl:1.0",
+        "memory_map_ref": "M01_AXI"
+      },
+      "M02_AXI": {
+        "mode": "Master",
+        "vlnv_bus_definition": "xilinx.com:interface:aximm:1.0",
+        "vlnv": "xilinx.com:interface:aximm_rtl:1.0",
+        "memory_map_ref": "M02_AXI"
       }
     },
     "ports": {
@@ -57,14 +58,30 @@
           "S00_AXI": {
             "range": "4G",
             "width": "32"
-          },
-          "S01_AXI": {
-            "range": "4G",
-            "width": "32"
           }
         },
         "memory_maps": {
           "M00_AXI": {
+            "address_blocks": {
+              "Reg": {
+                "base_address": "0",
+                "range": "64K",
+                "width": "16",
+                "usage": "register"
+              }
+            }
+          },
+          "M01_AXI": {
+            "address_blocks": {
+              "Reg": {
+                "base_address": "0",
+                "range": "64K",
+                "width": "16",
+                "usage": "register"
+              }
+            }
+          },
+          "M02_AXI": {
             "address_blocks": {
               "Reg": {
                 "base_address": "0",
