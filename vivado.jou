@@ -329,3 +329,212 @@ add_files -fileset sim_1 -scan_for_includes {E:/course/master/mamba/Cmamba_recon
 export_ip_user_files -of_objects  [get_files E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_h_stream_loader.sv] -no_script -reset -force -quiet
 remove_files  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_h_stream_loader.sv
 open_run impl_1
+# Disabling source management mode.  This is to allow the top design properties to be set without GUI intervention.
+set_property source_mgmt_mode None [current_project]
+set_property top tb_reuse_mamba_block_top [get_filesets sim_2]
+set_property top_lib xil_defaultlib [get_filesets sim_2]
+# Re-enabling previously disabled source management mode.
+set_property source_mgmt_mode All [current_project]
+update_compile_order -fileset sim_2
+current_fileset -simset [ get_filesets sim_2 ]
+set_property SOURCE_SET sources_1 [get_filesets sim_2]
+add_files -fileset sim_2 -scan_for_includes {E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_reuse_top_mac_plus_bias_fifo_sigmoid_ew_gate.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_ew_update_vec4.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_recfg_array.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_reuse_mamba_block_top_inproj_to_outproj.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_pipeline_4array_top.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_reuse_mamba_block_top_hw_debug.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_mac_mem_controller_combined.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_recfg_array_EWA.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_pe_new.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_reuse_mamba_block_top.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_reuse_ssm_core_hw_debug.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_slim_mac_mem_controller_combined_dp.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_reuse_mamba_board_shell.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_axis_join_ew_update_top.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_top_mac_plus_bias_fifo_sigmoid_ew.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_mac_mem_controller_combined_dp.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_top_mac_to_sigmoid_fullpath.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_recfg_array_fpverify.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_top_mac_sigmoid_xt_join_fullpath.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_sigmoid4_vec.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_nonlinear_tile.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_top_mac_plus_bias_fifo_sigmoid_ew_gate.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_recfg_array_debug.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_pipeline_4array_with_reduction.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_reuse_in_proj_scheduler.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_reduction_accumulator.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_top_mac_plus_bias_pure_ip.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_reuse_ssm_dt_scheduler_hw_debug.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_top_mac_plus_bias_fifo.sv}
+update_compile_order -fileset sim_2
+set_property SOURCE_SET sources_1 [get_filesets sim_2]
+add_files -fileset sim_2 -norecurse -scan_for_includes E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/tb_hw_debug_case_path.svh
+update_compile_order -fileset sim_2
+set_property SOURCE_SET sources_1 [get_filesets sim_2]
+add_files -fileset sim_2 -norecurse -scan_for_includes {E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/ssm_hw_golden_q88.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_scale_q15.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank4.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank5.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank1.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/lam_hw_golden_q016.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank2.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank0.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/xt_hw_golden_q88.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/y_golden_q88.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank5.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_scale_q15.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/lam_golden_q016.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank5.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_hw_golden_q88.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank3.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/gate_y_golden_q88.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/y_hw_golden_q88.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank1.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank2.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank4.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/z_silu_golden_q88.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank2.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_golden_q88.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/u_act_golden_q88.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_scale_q15.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank3.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank0.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/ssm_golden_q88.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/u_golden_q88.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank4.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/h_wr_data_q88.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank1.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/gate_y_hw_golden_q88.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/z_golden_q88.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank3.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank0.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/h_wr_addr.mem}
+import_files -fileset sim_2 -norecurse {E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/ssm_hw_golden_q88.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_scale_q15.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank4.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank5.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank1.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/lam_hw_golden_q016.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank2.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank0.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/xt_hw_golden_q88.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/y_golden_q88.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank5.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_scale_q15.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/lam_golden_q016.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank5.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_hw_golden_q88.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank3.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/gate_y_golden_q88.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/y_hw_golden_q88.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank1.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank2.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank4.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/z_silu_golden_q88.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank2.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_golden_q88.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/u_act_golden_q88.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_scale_q15.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank3.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank0.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/ssm_golden_q88.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/u_golden_q88.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank4.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/h_wr_data_q88.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank1.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/gate_y_hw_golden_q88.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/z_golden_q88.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank3.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank0.mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/h_wr_addr.mem}
+export_ip_user_files -of_objects  [get_files E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_axis_join_ew_update_top.sv] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_ew_update_vec4.sv] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_mac_mem_controller_combined.sv] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_mac_mem_controller_combined_dp.sv] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_nonlinear_tile.sv] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_pe_new.sv] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_pipeline_4array_top.sv] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_pipeline_4array_with_reduction.sv] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_recfg_array.sv] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_recfg_array_EWA.sv] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_recfg_array_debug.sv] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_recfg_array_fpverify.sv] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_reduction_accumulator.sv] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_sigmoid4_vec.sv] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_slim_mac_mem_controller_combined_dp.sv] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_top_mac_plus_bias_fifo.sv] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_top_mac_plus_bias_fifo_sigmoid_ew.sv] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_top_mac_plus_bias_fifo_sigmoid_ew_gate.sv] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_top_mac_plus_bias_pure_ip.sv] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_top_mac_sigmoid_xt_join_fullpath.sv] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_top_mac_to_sigmoid_fullpath.sv] -no_script -reset -force -quiet
+remove_files  -fileset sim_2 {E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_axis_join_ew_update_top.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_ew_update_vec4.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_mac_mem_controller_combined.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_mac_mem_controller_combined_dp.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_nonlinear_tile.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_pe_new.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_pipeline_4array_top.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_pipeline_4array_with_reduction.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_recfg_array.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_recfg_array_EWA.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_recfg_array_debug.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_recfg_array_fpverify.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_reduction_accumulator.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_sigmoid4_vec.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_slim_mac_mem_controller_combined_dp.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_top_mac_plus_bias_fifo.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_top_mac_plus_bias_fifo_sigmoid_ew.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_top_mac_plus_bias_fifo_sigmoid_ew_gate.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_top_mac_plus_bias_pure_ip.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_top_mac_sigmoid_xt_join_fullpath.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_top_mac_to_sigmoid_fullpath.sv}
+# Disabling source management mode.  This is to allow the top design properties to be set without GUI intervention.
+set_property source_mgmt_mode None [current_project]
+set_property top tb_reuse_mamba_board_shell [get_filesets sim_2]
+set_property top_lib xil_defaultlib [get_filesets sim_2]
+# Re-enabling previously disabled source management mode.
+set_property source_mgmt_mode All [current_project]
+update_compile_order -fileset sim_2
+launch_simulation -simset [get_filesets sim_2 ]
+reset_simulation -simset sim_2 -mode behavioral
+launch_simulation -simset [get_filesets sim_2 ]
+reset_simulation -simset sim_2 -mode behavioral
+launch_simulation -simset [get_filesets sim_2 ]
+reset_simulation -simset sim_2 -mode behavioral
+launch_simulation -simset [get_filesets sim_2 ]
+source tb_reuse_mamba_board_shell.tcl
+close_sim
+reset_simulation -simset sim_2 -mode behavioral
+launch_simulation -simset [get_filesets sim_2 ]
+source tb_reuse_mamba_board_shell.tcl
+close_sim
+launch_simulation -simset [get_filesets sim_2 ]
+reset_simulation -simset sim_2 -mode behavioral
+launch_simulation -simset [get_filesets sim_2 ]
+source tb_reuse_mamba_board_shell.tcl
+close_sim
+reset_simulation -simset sim_2 -mode behavioral
+launch_simulation -simset [get_filesets sim_2 ]
+source tb_reuse_mamba_board_shell.tcl
+run 50 us
+close_sim
+reset_simulation -simset sim_2 -mode behavioral
+launch_simulation -simset [get_filesets sim_2 ]
+source tb_reuse_mamba_board_shell.tcl
+run 50 us
+close_sim
+reset_simulation -simset sim_2 -mode behavioral
+launch_simulation -simset [get_filesets sim_2 ]
+source tb_reuse_mamba_board_shell.tcl
+run 50 us
+close_sim
+reset_simulation -simset sim_2 -mode behavioral
+launch_simulation -simset [get_filesets sim_2 ]
+source tb_reuse_mamba_board_shell.tcl
+run 50 us
+run all
+current_wave_config {Untitled 7}
+add_wave {{/tb_reuse_mamba_board_shell/dut/preload_h_busy}} 
+current_wave_config {Untitled 7}
+add_wave {{/tb_reuse_mamba_board_shell/dut/preload_h_done}} 
+restart
+run 50 us
+run all
+close_sim
+reset_simulation -simset sim_2 -mode behavioral
+launch_simulation -simset [get_filesets sim_2 ]
+source tb_reuse_mamba_board_shell.tcl
+run 50 us
+current_wave_config {Untitled 8}
+add_wave {{/tb_reuse_mamba_board_shell/dut/preload_h_done}} 
+current_wave_config {Untitled 8}
+add_wave {{/tb_reuse_mamba_board_shell/dut/preload_h_busy}} 
+restart
+run 50 us
+run 50 us
+update_compile_order -fileset sim_2
+update_compile_order -fileset sim_2
+save_wave_config {E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/tb_reuse_mamba_board_shell_behav.wcfg}
+close_sim
+reset_simulation -simset sim_2 -mode behavioral
+launch_simulation -simset [get_filesets sim_2 ]
+set_property SOURCE_SET sources_1 [get_filesets sim_2]
+add_files -fileset sim_2 -norecurse -scan_for_includes E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_reuse_mamba_board_shell_min_v3.sv
+import_files -fileset sim_2 -norecurse E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/tb/tb_reuse_mamba_board_shell_min_v3.sv
+update_compile_order -fileset sim_2
+# Disabling source management mode.  This is to allow the top design properties to be set without GUI intervention.
+set_property source_mgmt_mode None [current_project]
+set_property top tb_reuse_mamba_board_shell_min_v2 [get_filesets sim_2]
+set_property top_lib xil_defaultlib [get_filesets sim_2]
+# Re-enabling previously disabled source management mode.
+set_property source_mgmt_mode All [current_project]
+update_compile_order -fileset sim_2
+reset_simulation -simset sim_2 -mode behavioral
+launch_simulation -simset [get_filesets sim_2 ]
+source tb_reuse_mamba_board_shell_min_v2.tcl
+run 50 us
+current_wave_config {Untitled 9}
+add_wave {{/tb_reuse_mamba_board_shell_min_v2/dut/block_done}} 
+current_wave_config {Untitled 9}
+add_wave {{/tb_reuse_mamba_board_shell_min_v2/dut/inproj_done}} 
+current_wave_config {Untitled 9}
+add_wave {{/tb_reuse_mamba_board_shell_min_v2/dut/block_busy}} 
+current_wave_config {Untitled 9}
+add_wave {{/tb_reuse_mamba_board_shell_min_v2/dut/inproj_busy}} 
+current_wave_config {Untitled 9}
+add_wave {{/tb_reuse_mamba_board_shell_min_v2/dut/outproj_busy}} 
+current_wave_config {Untitled 9}
+add_wave {{/tb_reuse_mamba_board_shell_min_v2/dut/preload_h_busy}} 
+current_wave_config {Untitled 9}
+add_wave {{/tb_reuse_mamba_board_shell_min_v2/dut/preload_h_done}} 
+restart
+run 50 us
+current_wave_config {Untitled 9}
+add_wave {{/tb_reuse_mamba_board_shell_min_v2/preload_track_en}} 
+current_wave_config {Untitled 9}
+add_wave {{/tb_reuse_mamba_board_shell_min_v2/block_track_en}} 
+current_wave_config {Untitled 9}
+add_wave {{/tb_reuse_mamba_board_shell_min_v2/preload_track_en_d}} 
+current_wave_config {Untitled 9}
+add_wave {{/tb_reuse_mamba_board_shell_min_v2/block_track_en_d}} 
+current_wave_config {Untitled 9}
+add_wave {{/tb_reuse_mamba_board_shell_min_v2/preload_busy_seen}} 
+current_wave_config {Untitled 9}
+add_wave {{/tb_reuse_mamba_board_shell_min_v2/preload_done_seen}} 
+current_wave_config {Untitled 9}
+add_wave {{/tb_reuse_mamba_board_shell_min_v2/block_busy_seen}} 
+current_wave_config {Untitled 9}
+add_wave {{/tb_reuse_mamba_board_shell_min_v2/block_done_seen}} 
+current_wave_config {Untitled 9}
+add_wave {{/tb_reuse_mamba_board_shell_min_v2/inproj_done_seen}} 
+current_wave_config {Untitled 9}
+add_wave {{/tb_reuse_mamba_board_shell_min_v2/outproj_busy_seen}} 
+restart
+run 50 us
+run 50 us
+close_sim
+export_ip_user_files -of_objects  [get_files E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sim_2/imports/tb/tb_reuse_mamba_board_shell_min_v3.sv] -no_script -reset -force -quiet
+remove_files  -fileset sim_2 E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sim_2/imports/tb/tb_reuse_mamba_board_shell_min_v3.sv
+update_compile_order -fileset sim_2
+update_compile_order -fileset sim_2
+# Disabling source management mode.  This is to allow the top design properties to be set without GUI intervention.
+set_property source_mgmt_mode None [current_project]
+set_property top tb_reuse_mamba_board_shell [get_filesets sim_2]
+set_property top_lib xil_defaultlib [get_filesets sim_2]
+# Re-enabling previously disabled source management mode.
+set_property source_mgmt_mode All [current_project]
+update_compile_order -fileset sim_2
+export_ip_user_files -of_objects  [get_files E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_ht_multi_copy_ip.sv] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_vec_out_sram_ip.sv] -no_script -reset -force -quiet
+export_ip_user_files -of_objects  [get_files E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_ip_blackboxes.sv] -no_script -reset -force -quiet
+remove_files  {E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_ht_multi_copy_ip.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_vec_out_sram_ip.sv E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_ip_blackboxes.sv}
+reset_simulation -simset sim_2 -mode behavioral
+launch_simulation -simset [get_filesets sim_2 ]
+update_compile_order -fileset sim_2
+update_compile_order -fileset sim_2
+reset_simulation -simset sim_2 -mode behavioral
+launch_simulation -simset [get_filesets sim_2 ]
+source tb_reuse_mamba_board_shell.tcl
+run 50 us
+update_compile_order -fileset sim_2
+close_sim
+update_compile_order -fileset sim_2
+reset_simulation -simset sim_2 -mode behavioral
+launch_simulation -simset [get_filesets sim_2 ]
+reset_simulation -simset sim_2 -mode behavioral
+launch_simulation -simset [get_filesets sim_2 ]
+source tb_reuse_mamba_board_shell.tcl
+run 50 us
+run 50 us
+close_sim
+# Disabling source management mode.  This is to allow the top design properties to be set without GUI intervention.
+set_property source_mgmt_mode None [current_project]
+set_property top tb_reuse_mamba_block_top_hw_debug [get_filesets sim_2]
+set_property top_lib xil_defaultlib [get_filesets sim_2]
+# Re-enabling previously disabled source management mode.
+set_property source_mgmt_mode All [current_project]
+update_compile_order -fileset sim_2
+reset_simulation -simset sim_2 -mode behavioral
+launch_simulation -simset [get_filesets sim_2 ]
+source tb_reuse_mamba_block_top_hw_debug.tcl
+run 50 us

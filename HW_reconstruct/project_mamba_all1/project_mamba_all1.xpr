@@ -44,7 +44,7 @@
     <Option Name="SimulatorGccVersionRiviera" Val="9.3.0"/>
     <Option Name="SimulatorGccVersionActiveHdl" Val="9.3.0"/>
     <Option Name="BoardPart" Val="xilinx.com:zcu102:part0:3.4"/>
-    <Option Name="ActiveSimSet" Val="sim_1"/>
+    <Option Name="ActiveSimSet" Val="sim_2"/>
     <Option Name="DefaultLib" Val="xil_defaultlib"/>
     <Option Name="ProjectType" Val="Default"/>
     <Option Name="IPOutputRepo" Val="$PCACHEDIR/ip"/>
@@ -59,7 +59,7 @@
     <Option Name="IPStaticSourceDir" Val="$PIPUSERFILESDIR/ipstatic"/>
     <Option Name="EnableBDX" Val="FALSE"/>
     <Option Name="DSABoardId" Val="zcu102"/>
-    <Option Name="WTXSimLaunchSim" Val="253"/>
+    <Option Name="WTXSimLaunchSim" Val="272"/>
     <Option Name="WTModelSimLaunchSim" Val="0"/>
     <Option Name="WTQuestaLaunchSim" Val="0"/>
     <Option Name="WTIesLaunchSim" Val="0"/>
@@ -161,13 +161,6 @@
         </FileInfo>
       </File>
       <File Path="$PPRDIR/../rtl_reuse_shared/reuse_array4x4.sv">
-        <FileInfo>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="implementation"/>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
-      </File>
-      <File Path="$PPRDIR/../rtl_reuse_shared/reuse_ht_multi_copy_ip.sv">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
@@ -321,13 +314,6 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../rtl_reuse_shared/reuse_vec_out_sram_ip.sv">
-        <FileInfo>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="implementation"/>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
-      </File>
       <File Path="$PPRDIR/../rtl_reuse_shared/reuse_z_stream_reader.sv">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
@@ -366,14 +352,6 @@
       <File Path="$PPRDIR/../rtl_reuse_shared/reuse_mamba_board_shell.sv">
         <FileInfo>
           <Attr Name="UserDisabled" Val="1"/>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="implementation"/>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
-      </File>
-      <File Path="$PPRDIR/../rtl_reuse_shared/reuse_ip_blackboxes.sv">
-        <FileInfo>
-          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -991,6 +969,36 @@
     </FileSet>
     <FileSet Name="sim_2" Type="SimulationSrcs" RelSrcDir="$PSRCDIR/sim_2" RelGenDir="$PGENDIR/sim_2">
       <Filter Type="Srcs"/>
+      <File Path="$PPRDIR/tb_hw_debug_case_path.svh">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+          <Attr Name="IsVisible" Val="1"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../tb/tb_reuse_mamba_block_top_hw_debug.sv">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../tb/tb_reuse_mamba_board_shell.sv">
+        <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../tb/tb_reuse_in_proj_scheduler.sv">
+        <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
       <File Path="$PPRDIR/../tb/tb_reuse_mamba_block_top.sv">
         <FileInfo>
           <Attr Name="AutoDisabled" Val="1"/>
@@ -999,11 +1007,346 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
+      <File Path="$PPRDIR/../tb/tb_reuse_mamba_block_top_inproj_to_outproj.sv">
+        <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../tb/tb_reuse_ssm_core_hw_debug.sv">
+        <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../tb/tb_reuse_ssm_dt_scheduler_hw_debug.sv">
+        <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../tb/tb_reuse_top_mac_plus_bias_fifo_sigmoid_ew_gate.sv">
+        <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/ssm_hw_golden_q88.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/ssm_hw_golden_q88.mem"/>
+          <Attr Name="ImportTime" Val="1775190107"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/dt_scale_q15.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_scale_q15.mem"/>
+          <Attr Name="ImportTime" Val="1775407901"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/outproj_wbuf_bank4.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank4.mem"/>
+          <Attr Name="ImportTime" Val="1775407901"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/outproj_wbuf_bank5.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank5.mem"/>
+          <Attr Name="ImportTime" Val="1775407901"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/dt_wbuf_bank1.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank1.mem"/>
+          <Attr Name="ImportTime" Val="1775407901"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/lam_hw_golden_q016.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/lam_hw_golden_q016.mem"/>
+          <Attr Name="ImportTime" Val="1775190107"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/inproj_wbuf_bank2.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank2.mem"/>
+          <Attr Name="ImportTime" Val="1775407901"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/outproj_wbuf_bank0.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank0.mem"/>
+          <Attr Name="ImportTime" Val="1775407901"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/xt_hw_golden_q88.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/xt_hw_golden_q88.mem"/>
+          <Attr Name="ImportTime" Val="1775190107"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/y_golden_q88.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/y_golden_q88.mem"/>
+          <Attr Name="ImportTime" Val="1775407901"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/dt_wbuf_bank5.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank5.mem"/>
+          <Attr Name="ImportTime" Val="1775407901"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/inproj_scale_q15.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_scale_q15.mem"/>
+          <Attr Name="ImportTime" Val="1775407901"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/lam_golden_q016.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/lam_golden_q016.mem"/>
+          <Attr Name="ImportTime" Val="1775407901"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/inproj_wbuf_bank5.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank5.mem"/>
+          <Attr Name="ImportTime" Val="1775407901"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/dt_hw_golden_q88.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_hw_golden_q88.mem"/>
+          <Attr Name="ImportTime" Val="1775190107"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/outproj_wbuf_bank3.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank3.mem"/>
+          <Attr Name="ImportTime" Val="1775407901"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/gate_y_golden_q88.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/gate_y_golden_q88.mem"/>
+          <Attr Name="ImportTime" Val="1775407901"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/y_hw_golden_q88.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/y_hw_golden_q88.mem"/>
+          <Attr Name="ImportTime" Val="1775190107"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/inproj_wbuf_bank1.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank1.mem"/>
+          <Attr Name="ImportTime" Val="1775407901"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/dt_wbuf_bank2.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank2.mem"/>
+          <Attr Name="ImportTime" Val="1775407901"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/inproj_wbuf_bank4.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank4.mem"/>
+          <Attr Name="ImportTime" Val="1775407901"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/z_silu_golden_q88.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/z_silu_golden_q88.mem"/>
+          <Attr Name="ImportTime" Val="1775407901"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/outproj_wbuf_bank2.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank2.mem"/>
+          <Attr Name="ImportTime" Val="1775407901"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/dt_golden_q88.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_golden_q88.mem"/>
+          <Attr Name="ImportTime" Val="1775407901"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/u_act_golden_q88.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/u_act_golden_q88.mem"/>
+          <Attr Name="ImportTime" Val="1775407901"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/outproj_scale_q15.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_scale_q15.mem"/>
+          <Attr Name="ImportTime" Val="1775407901"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/dt_wbuf_bank3.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank3.mem"/>
+          <Attr Name="ImportTime" Val="1775407901"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/inproj_wbuf_bank0.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank0.mem"/>
+          <Attr Name="ImportTime" Val="1775407901"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/ssm_golden_q88.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/ssm_golden_q88.mem"/>
+          <Attr Name="ImportTime" Val="1775407901"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/u_golden_q88.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/u_golden_q88.mem"/>
+          <Attr Name="ImportTime" Val="1775407901"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/dt_wbuf_bank4.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank4.mem"/>
+          <Attr Name="ImportTime" Val="1775407901"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/h_wr_data_q88.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/h_wr_data_q88.mem"/>
+          <Attr Name="ImportTime" Val="1775407901"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/outproj_wbuf_bank1.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank1.mem"/>
+          <Attr Name="ImportTime" Val="1775407901"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/gate_y_hw_golden_q88.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/gate_y_hw_golden_q88.mem"/>
+          <Attr Name="ImportTime" Val="1775190107"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/z_golden_q88.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/z_golden_q88.mem"/>
+          <Attr Name="ImportTime" Val="1775407901"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/inproj_wbuf_bank3.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank3.mem"/>
+          <Attr Name="ImportTime" Val="1775407901"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/dt_wbuf_bank0.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank0.mem"/>
+          <Attr Name="ImportTime" Val="1775407901"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sim_2/imports/reuse_mamba_block_top/h_wr_addr.mem">
+        <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/h_wr_addr.mem"/>
+          <Attr Name="ImportTime" Val="1775407901"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
       <Config>
         <Option Name="DesignMode" Val="RTL"/>
-        <Option Name="TopModule" Val="reuse_top_mac_plus_bias_fifo_sigmoid_ew_gate"/>
+        <Option Name="TopModule" Val="tb_reuse_mamba_block_top_hw_debug"/>
         <Option Name="TopLib" Val="xil_defaultlib"/>
-        <Option Name="TopAutoSet" Val="TRUE"/>
         <Option Name="TransportPathDelay" Val="0"/>
         <Option Name="TransportIntDelay" Val="0"/>
         <Option Name="SelectedSimModel" Val="rtl"/>
@@ -1145,6 +1488,7 @@
     <FileSet Name="inproj_vec_out_sram_ip" Type="BlockSrcs" RelSrcDir="$PSRCDIR/inproj_vec_out_sram_ip" RelGenDir="$PGENDIR/inproj_vec_out_sram_ip">
       <File Path="$PSRCDIR/sources_1/ip/inproj_vec_out_sram_ip/inproj_vec_out_sram_ip.xci">
         <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
