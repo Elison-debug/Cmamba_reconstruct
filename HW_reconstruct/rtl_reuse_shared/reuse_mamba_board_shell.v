@@ -20,7 +20,7 @@ module reuse_mamba_board_shell #(
     parameter integer G_FRAC_BITS = 8,
     parameter integer AXIL_ADDR_W = 12
 ) (
-    (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME sys_clk, ASSOCIATED_BUSIF s_axi:s_axis_h:s_axis_g:m_axis_y, ASSOCIATED_RESET ext_reset_n, FREQ_HZ 100000000" *)
+    (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME sys_clk, ASSOCIATED_BUSIF s_axi:s_axis_h:s_axis_g:m_axis_y, ASSOCIATED_RESET ext_reset_n, FREQ_HZ 99990005" *)
     (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 sys_clk CLK" *)
     input  wire                           sys_clk,
 
@@ -118,7 +118,6 @@ module reuse_mamba_board_shell #(
     wire                           h_wr_en;
     wire [4:0]                     h_wr_addr;
     wire signed [TILE_SIZE*DATA_WIDTH-1:0] h_wr_data_flat;
-    wire signed [DATA_WIDTH-1:0]   h_wr_data_arr [0:TILE_SIZE-1];
     wire signed [TILE_SIZE*DATA_WIDTH-1:0] u_rd_data_flat;
     wire signed [TILE_SIZE*DATA_WIDTH-1:0] z_rd_data_flat;
 
@@ -192,15 +191,9 @@ module reuse_mamba_board_shell #(
         .s_axis_tlast (s_axis_h_tlast),
         .h_wr_en      (h_wr_en),
         .h_wr_addr    (h_wr_addr),
-        .h_wr_data    (h_wr_data_arr)
+        .h_wr_data    (h_wr_data_flat)
     );
 
-    genvar gi;
-    generate
-        for (gi = 0; gi < TILE_SIZE; gi = gi + 1) begin : g_h_flat
-            assign h_wr_data_flat[gi*DATA_WIDTH +: DATA_WIDTH] = h_wr_data_arr[gi];
-        end
-    endgenerate
 
     reuse_mamba_block_wrapper #(
         .TILE_SIZE   (TILE_SIZE),

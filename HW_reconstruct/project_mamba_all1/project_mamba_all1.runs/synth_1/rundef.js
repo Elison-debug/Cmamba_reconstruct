@@ -24,7 +24,7 @@ eval( EAInclude(ISEJScriptLib) );
 
 
 ISEStep( "vivado",
-         "-log reuse_mamba_block_wrapper.vds -m64 -product Vivado -mode batch -messageDb vivado.pb -notrace -source reuse_mamba_block_wrapper.tcl" );
+         "-log reuse_mamba_board_shell.vds -m64 -product Vivado -mode batch -messageDb vivado.pb -notrace -source reuse_mamba_board_shell.tcl" );
 
 
 

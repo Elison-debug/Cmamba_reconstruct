@@ -1,54 +1,17 @@
 # --------------------------------------------------------------------
 # minimal_timing.xdc
-# Minimal internal-timing constraints for bring-up synthesis/implementation.
-# Current project top is `reuse_mamba_block_wrapper`.
+# Top-level timing constraints for reuse_mamba_board_shell
 # --------------------------------------------------------------------
 
-# Core analysis clock.
-# Use a realistic bring-up target first; tighten later after timing cleanup.
-create_clock -name sys_clk -period 5.000 [get_ports sys_clk]
+# Main board clock
+create_clock -period 10.000 -name sys_clk -waveform {0.000 5.000} [get_ports sys_clk]
 
-# Reset is asynchronous at the chip boundary but is synchronized inside the
-# wrapper. Exclude the external reset port from timing closure.
+# External reset is asynchronous at chip boundary
 set_false_path -from [get_ports ext_reset_n]
 
-# The synchronized reset output is only for observation/debug.
-set_false_path -to [get_ports -quiet core_rst_n_o]
+# Top-level input delays relative to sys_clk
+set_input_delay -clock [get_clocks sys_clk] 0.100 [get_ports {{s_axi_awaddr[*]} s_axi_awvalid {s_axi_wdata[*]} {s_axi_wstrb[*]} s_axi_wvalid s_axi_bready {s_axi_araddr[*]} s_axi_arvalid s_axi_rready s_axis_h_tvalid {s_axis_h_tdata[*]} s_axis_h_tlast s_axis_g_tvalid {s_axis_g_tdata[*]} s_axis_g_tlast m_axis_y_tready}]
 
-# This project is still a kernel-level top, not a board-level shell.
-# Suppress unrelated board-interface timing warnings for now by giving all
-# functional top-level I/O simple delays relative to sys_clk. Replace these
-# with real board constraints once AXI/DDR/board wrapper ports are defined.
-set_input_delay 0.000 -clock [get_clocks sys_clk] [get_ports {
-    block_auto_mode
-    block_start
-    s_axis_tvalid
-    g_axis_tvalid
-    g_axis_tdata[*]
-    y_axis_tready
-    inproj_enable
-    inproj_start
-    h_wr_en
-    h_wr_addr[*]
-    h_wr_data[*]
-    u_rd_en
-    u_rd_addr[*]
-    z_rd_en
-    z_rd_addr[*]
-    outproj_enable
-}]
+# Top-level output delays relative to sys_clk
+set_output_delay -clock [get_clocks sys_clk] 0.100 [get_ports {irq s_axi_awready s_axi_wready {s_axi_bresp[*]} s_axi_bvalid s_axi_arready {s_axi_rdata[*]} {s_axi_rresp[*]} s_axi_rvalid s_axis_h_tready s_axis_g_tready m_axis_y_tvalid {m_axis_y_tdata[*]} m_axis_y_tlast}]
 
-set_output_delay 0.000 -clock [get_clocks sys_clk] [get_ports {
-    core_rst_n_o
-    block_busy
-    block_done
-    s_axis_tready
-    g_axis_tready
-    y_axis_tvalid
-    y_axis_tdata[*]
-    inproj_busy
-    inproj_done
-    u_rd_data[*]
-    z_rd_data[*]
-    outproj_busy
-}]

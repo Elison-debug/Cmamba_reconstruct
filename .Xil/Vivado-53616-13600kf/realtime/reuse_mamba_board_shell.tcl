@@ -40,29 +40,11 @@ set rt::rc [catch {
     rt::set_parameter sortHdlCommandLine true
     set rt::useElabCache false
     if {$rt::useElabCache == false} {
-      rt::read_verilog -sv -include {
-    E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/slim_WBUF_bank_dp
-    E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/bias_ROM
-    E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/s_buffer
-    E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/bias2sigmoid_fifo
-    E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/inproj_ht_sram_ip_1
-    E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/outproj_WBUF_bank_dp
-    E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/inproj_vec_out_sram_ip
-    E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/vivado_runs/reuse_mamba_block_top_hw_debug
-  } {
+      rt::read_verilog -sv -include E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/vivado_runs/reuse_mamba_block_top_hw_debug {
       E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_cdc/hdl/xpm_cdc.sv
       E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_memory/hdl/xpm_memory.sv
     }
-      rt::read_verilog -sv -include {
-    E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/slim_WBUF_bank_dp
-    E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/bias_ROM
-    E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/s_buffer
-    E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/bias2sigmoid_fifo
-    E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/inproj_ht_sram_ip_1
-    E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/outproj_WBUF_bank_dp
-    E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/inproj_vec_out_sram_ip
-    E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/vivado_runs/reuse_mamba_block_top_hw_debug
-  } {
+      rt::read_verilog -sv -include E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/vivado_runs/reuse_mamba_block_top_hw_debug {
       E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/axis_vec_join2.sv
       E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/bias_add_regslice_ip.sv
       E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ew_update_vec4.sv
@@ -82,7 +64,6 @@ set rt::rc [catch {
       E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_axi_lite_regs.sv
       E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_block_top.sv
       E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_block_wrapper.sv
-      E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_h_stream_loader.sv
       E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_out_proj_scheduler.sv
       E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_outproj_multi_bank_wbuf_dp.sv
       E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_outproj_weight_sram.sv
@@ -101,18 +82,8 @@ set rt::rc [catch {
       E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/sigmoid4_vec.sv
       E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/slim_multi_bank_wbuf_dp.sv
       E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/vec_fifo_axis_ip.sv
-      E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_board_shell.sv
     }
-      rt::read_verilog -include {
-    E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/slim_WBUF_bank_dp
-    E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/bias_ROM
-    E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/s_buffer
-    E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/bias2sigmoid_fifo
-    E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/inproj_ht_sram_ip_1
-    E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/outproj_WBUF_bank_dp
-    E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/inproj_vec_out_sram_ip
-    E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/vivado_runs/reuse_mamba_block_top_hw_debug
-  } {
+      rt::read_verilog -include E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/vivado_runs/reuse_mamba_block_top_hw_debug {
       E:/course/master/mamba/Cmamba_reconstruct/.Xil/Vivado-53616-13600kf/realtime/slim_WBUF_bank_dp_stub.v
       E:/course/master/mamba/Cmamba_reconstruct/.Xil/Vivado-53616-13600kf/realtime/bias_ROM_stub.v
       E:/course/master/mamba/Cmamba_reconstruct/.Xil/Vivado-53616-13600kf/realtime/s_buffer_stub.v
@@ -120,6 +91,8 @@ set rt::rc [catch {
       E:/course/master/mamba/Cmamba_reconstruct/.Xil/Vivado-53616-13600kf/realtime/inproj_ht_sram_ip_stub.v
       E:/course/master/mamba/Cmamba_reconstruct/.Xil/Vivado-53616-13600kf/realtime/outproj_WBUF_bank_dp_stub.v
       E:/course/master/mamba/Cmamba_reconstruct/.Xil/Vivado-53616-13600kf/realtime/inproj_vec_out_sram_ip_stub.v
+      E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_h_stream_loader.v
+      E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_board_shell.v
     }
       rt::read_vhdl -lib xpm E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_VCOMP.vhd
       rt::filesetChecksum
@@ -129,19 +102,18 @@ set rt::rc [catch {
     rt::set_parameter enableIncremental true
     rt::set_parameter markDebugPreservationLevel "enable"
     set rt::reportTiming false
-    rt::set_parameter lint_verbosity true
-    rt::set_parameter elaborateOnly true
-    rt::set_parameter elaborateRtl true
-    rt::set_parameter eliminateRedundantBitOperator false
+    rt::set_parameter elaborateOnly false
+    rt::set_parameter elaborateRtl false
+    rt::set_parameter eliminateRedundantBitOperator true
+    rt::set_parameter linterFlow true
+    rt::set_parameter synthReportEmptyAndUndriven false
     rt::set_parameter dataflowBusHighlighting false
     rt::set_parameter generateDataflowBusNetlist false
     rt::set_parameter dataFlowViewInElab false
     rt::set_parameter busViewFixBrokenConnections false
-    rt::set_parameter elaborateRtlOnlyFlow true
+    rt::set_parameter elaborateRtlOnlyFlow false
     rt::set_parameter writeBlackboxInterface true
     rt::set_parameter merge_flipflops true
-    rt::set_parameter srlDepthThreshold 3
-    rt::set_parameter rstSrlDepthThreshold 4
 # MODE: 
     rt::set_parameter webTalkPath {}
     rt::set_parameter synthDebugLog false
@@ -155,13 +127,15 @@ set rt::rc [catch {
         set oldMIITMVal [rt::get_parameter maxInputIncreaseToMerge]; rt::set_parameter maxInputIncreaseToMerge 1000
         set oldCDPCRL [rt::get_parameter createDfgPartConstrRecurLimit]; rt::set_parameter createDfgPartConstrRecurLimit 1
         $rt::db readXRFFile
-      rt::run_rtlelab -module $rt::top
+      rt::run_synthesis -module $rt::top
         rt::set_parameter maxInputIncreaseToMerge $oldMIITMVal
         rt::set_parameter createDfgPartConstrRecurLimit $oldCDPCRL
     }
 
     set rt::flowresult [ source $::env(SYNTH_COMMON)/flow.tcl ]
     rt::HARTNDb_stopJobStats
+    rt::HARTNDb_reportJobStats "Synthesis Optimization Runtime"
+    rt::HARTNDb_stopSystemStats
     if { $rt::flowresult == 1 } { return -code error }
 
 
