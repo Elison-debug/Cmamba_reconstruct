@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import subprocess
 from pathlib import Path
 
 import numpy as np
@@ -68,7 +69,7 @@ def _stage_spec() -> list[dict]:
             "rtl_top": "reuse_ssm_dt_scheduler",
             "status": "partial_ready",
             "description": "Standalone dt scheduler with shared MAC fabric and u_act SRAM source.",
-            "golden_inputs": ["u_act_in_q88.mem", "dt_wbuf_bank*.mem"],
+            "golden_inputs": ["u_act_in_q88.mem", "dt_wbuf_bank*.mem", "dt_scale_q15.mem"],
             "golden_outputs": ["dt_golden_q88.mem", "xt_golden_q88.mem"],
             "notes": [
                 "This stage isolates dt GEMV + xt FIFO wavefront from top-level ownership switching.",
@@ -84,7 +85,11 @@ def _stage_spec() -> list[dict]:
                 "h_wr_addr.mem",
                 "h_wr_data_q88.mem",
                 "inproj_wbuf_bank*.mem",
+                "inproj_scale_q15.mem",
                 "dt_wbuf_bank*.mem",
+                "dt_scale_q15.mem",
+                "outproj_wbuf_bank*.mem",
+                "outproj_scale_q15.mem",
                 "control.json",
             ],
             "golden_outputs": [
@@ -153,6 +158,331 @@ def _write_mem_u16_scalar(path: Path, vals: list[int], width_hex: int = 4) -> No
             f.write(f"{int(v) & ((1 << (4 * width_hex)) - 1):0{width_hex}X}\n")
 
 
+def _signed_qmax_for_bits(bits: int) -> int:
+    return (1 << (bits - 1)) - 1
+
+
+def _signed_qmin_for_bits(bits: int) -> int:
+    return -(1 << (bits - 1))
+
+
+def _rshift_rne_i64(x: int, frac_bits: int) -> int:
+    if frac_bits <= 0:
+        return int(x)
+    base = 1 << frac_bits
+    q = x // base
+    r = x % base
+    if r < 0:
+        r += base
+        q -= 1
+    half = base >> 1
+    if r > half or (r == half and (q & 1)):
+        q += 1
+    return int(q)
+
+
+def _quantize_centered_input(x: float, scale: float, bits: int, zero_point: int, raw_qmin: int, raw_qmax: int) -> int:
+    if scale == 0.0:
+        return 0
+    qmin = raw_qmin if raw_qmin < raw_qmax else _signed_qmin_for_bits(bits)
+    qmax = raw_qmax if raw_qmax > raw_qmin else _signed_qmax_for_bits(bits)
+    q = int(np.rint(float(x) / float(scale))) + int(zero_point)
+    q = max(qmin, min(qmax, q))
+    return q - int(zero_point)
+
+
+def _conv1d_out_len(in_len: int, kernel_size: int, stride: int, padding: int) -> int:
+    return (in_len + 2 * padding - kernel_size) // stride + 1
+
+
+def _load_scale_vector(qdesc: dict, base_dir: Path) -> np.ndarray:
+    scale_ref = qdesc.get("scale", "")
+    if isinstance(scale_ref, str) and scale_ref:
+        return np.load(base_dir / scale_ref).astype(np.float32).reshape(-1)
+    return np.zeros((0,), dtype=np.float32)
+
+
+def _make_activation_scales(qdesc: dict, channels: int, x: np.ndarray) -> np.ndarray:
+    if qdesc.get("enabled") and qdesc.get("scheme") == "per_channel_sym":
+        scales = _load_scale_vector(qdesc, x.base_dir if hasattr(x, "base_dir") else Path("."))
+        if scales.shape[0] == channels:
+            return scales.astype(np.float32)
+
+    scales = np.ones((channels,), dtype=np.float32)
+    if qdesc.get("enabled") and qdesc.get("scheme") == "per_tensor_asym" and float(qdesc.get("scale", 0.0) or 0.0) > 0.0:
+        scales.fill(float(qdesc["scale"]))
+        return scales
+
+    mx = float(np.max(np.abs(x))) if x.size else 0.0
+    fallback = (mx / 127.0) if mx > 0.0 else (1.0 / 127.0)
+    scales.fill(fallback)
+    return scales
+
+
+class _XWithBase(np.ndarray):
+    base_dir: Path
+
+
+def _attach_base_dir(x: np.ndarray, base_dir: Path) -> np.ndarray:
+    y = np.asarray(x).view(_XWithBase)
+    y.base_dir = base_dir
+    return y
+
+
+class _ActLut:
+    def __init__(self, a: float = -8.0, b: float = 8.0, n: int = 4096):
+        self.xmin = float(a)
+        self.xmax = float(b)
+        self.n = int(n)
+        xs = np.linspace(self.xmin, self.xmax, self.n, dtype=np.float32)
+        sig = 1.0 / (1.0 + np.exp(-xs.astype(np.float64)))
+        self.sig = sig.astype(np.float32)
+        self.silu = (xs.astype(np.float64) * sig).astype(np.float32)
+
+    def _interp(self, table: np.ndarray, x: np.ndarray) -> np.ndarray:
+        xc = np.clip(x.astype(np.float32), self.xmin, self.xmax)
+        t = (xc - self.xmin) / (self.xmax - self.xmin)
+        idx = t * float(self.n - 1)
+        i = np.floor(idx).astype(np.int32)
+        i = np.clip(i, 0, self.n - 2)
+        u = idx - i.astype(np.float32)
+        return table[i] * (1.0 - u) + table[i + 1] * u
+
+    def sigmoid(self, x: np.ndarray) -> np.ndarray:
+        return self._interp(self.sig, x)
+
+    def silu_fn(self, x: np.ndarray) -> np.ndarray:
+        return self._interp(self.silu, x)
+
+
+def _conv1d_run_integer_desc(desc: dict, base_dir: Path, x_tc: np.ndarray, t_in: int, bits: int = 16) -> np.ndarray:
+    weight = np.load(base_dir / desc["weight"]).astype(np.float32)
+    w_raw = weight.reshape(desc["out_channels"], desc["in_channels"] // desc["groups"], desc["kernel_size"])
+    bias = None
+    if desc.get("bias") and desc.get("bias_file"):
+        bias = np.load(base_dir / desc["bias_file"]).astype(np.float32).reshape(-1)
+
+    qmax = _signed_qmax_for_bits(bits)
+    qmin = _signed_qmin_for_bits(bits)
+    act_q = desc.get("quant", {}).get("activation", {})
+    act_asym = bool(act_q.get("enabled")) and act_q.get("scheme") == "per_tensor_asym"
+    act_zp = int(act_q.get("zero_point", 0)) if act_asym else 0
+    act_raw_qmin = int(act_q.get("qmin", qmin)) if act_asym else qmin
+    act_raw_qmax = int(act_q.get("qmax", qmax)) if act_asym else qmax
+
+    a_scales = _make_activation_scales(act_q, desc["in_channels"], _attach_base_dir(x_tc, base_dir))
+    xq = np.zeros_like(x_tc, dtype=np.int32)
+    for t in range(t_in):
+        for c in range(desc["in_channels"]):
+            xq[t, c] = _quantize_centered_input(float(x_tc[t, c]), float(a_scales[c]), bits, act_zp, act_raw_qmin, act_raw_qmax)
+
+    t_out = _conv1d_out_len(t_in, int(desc["kernel_size"]), int(desc["stride"]), int(desc["padding"]))
+    cin_per_group = desc["in_channels"] // desc["groups"]
+    cout_per_group = desc["out_channels"] // desc["groups"]
+    y_tc = np.zeros((t_out, desc["out_channels"]), dtype=np.float32)
+    out_scales = np.ones((desc["out_channels"],), dtype=np.float32)
+    w_eff = np.zeros_like(w_raw, dtype=np.int32)
+
+    for oc in range(desc["out_channels"]):
+        g = oc // cout_per_group
+        max_abs = 0.0
+        for icg in range(cin_per_group):
+            ic = g * cin_per_group + icg
+            for k in range(desc["kernel_size"]):
+                max_abs = max(max_abs, abs(float(w_raw[oc, icg, k]) * float(a_scales[ic])))
+        sy = (max_abs / float(qmax)) if max_abs > 0.0 else (1.0 / float(qmax))
+        out_scales[oc] = sy
+        for icg in range(cin_per_group):
+            ic = g * cin_per_group + icg
+            for k in range(desc["kernel_size"]):
+                folded = float(w_raw[oc, icg, k]) * float(a_scales[ic]) / float(sy)
+                q = int(np.rint(folded))
+                q = max(qmin, min(qmax, q))
+                w_eff[oc, icg, k] = q
+
+    for t in range(t_out):
+        for oc in range(desc["out_channels"]):
+            g = oc // cout_per_group
+            acc = 0
+            if bias is not None:
+                acc += int(np.rint(float(bias[oc]) / float(out_scales[oc])))
+            for icg in range(cin_per_group):
+                ic = g * cin_per_group + icg
+                for k in range(desc["kernel_size"]):
+                    ti = t * desc["stride"] - desc["padding"] + k
+                    if ti < 0 or ti >= t_in:
+                        continue
+                    acc += int(xq[ti, ic]) * int(w_eff[oc, icg, k])
+            y_tc[t, oc] = float(acc) * float(out_scales[oc])
+
+    return y_tc
+
+
+def _rmsnorm_inplace_np(x_tc: np.ndarray, norm_desc: dict, base_dir: Path) -> None:
+    weight = np.load(base_dir / norm_desc["weight"]).astype(np.float32).reshape(-1)
+    eps = float(norm_desc.get("eps", 1e-5))
+    for t in range(x_tc.shape[0]):
+        mean_sq = float(np.mean(np.square(x_tc[t].astype(np.float64))))
+        inv = 1.0 / math.sqrt(mean_sq + eps)
+        x_tc[t] = x_tc[t] * np.float32(inv) * weight
+
+
+def _selective_scan_run_int16(blk_desc: dict, u: np.ndarray, z: np.ndarray, dt: np.ndarray, lut: _ActLut) -> np.ndarray:
+    t_len, d_inner = u.shape
+    bits = 16
+    frac_bits = 15
+    qmin = _signed_qmin_for_bits(bits)
+    qmax = _signed_qmax_for_bits(bits)
+
+    state_scale = np.ones((d_inner,), dtype=np.float32) / 127.0
+    for c in range(d_inner):
+        mx = float(np.max(np.abs(u[:, c])))
+        state_scale[c] = (mx / float(qmax)) if mx > 0.0 else (1.0 / float(qmax))
+
+    s_q = np.zeros((d_inner,), dtype=np.int32)
+    ssm_out = np.zeros_like(u, dtype=np.float32)
+    lam = lut.sigmoid(dt)
+    for t in range(t_len):
+        for c in range(d_inner):
+            lam_q = int(np.rint(float(lam[t, c]) * float(1 << frac_bits)))
+            lam_q = max(0, min(1 << frac_bits, lam_q))
+            u_q = int(np.rint(float(u[t, c]) / float(state_scale[c])))
+            u_q = max(qmin, min(qmax, u_q))
+            acc = lam_q * int(s_q[c]) + ((1 << frac_bits) - lam_q) * u_q
+            s_new = _rshift_rne_i64(acc, frac_bits)
+            s_new = max(qmin, min(qmax, s_new))
+            s_q[c] = s_new
+            ssm_out[t, c] = float(s_new) * float(state_scale[c])
+
+    gate_scale = np.ones((d_inner,), dtype=np.float32) / 127.0
+    gate = lut.silu_fn(z)
+    for c in range(d_inner):
+        mx = float(np.max(np.abs(gate[:, c])))
+        gate_scale[c] = (mx / float(qmax)) if mx > 0.0 else (1.0 / float(qmax))
+    for t in range(t_len):
+        for c in range(d_inner):
+            qg = int(np.rint(float(gate[t, c]) / float(gate_scale[c])))
+            qg = max(qmin, min(qmax, qg))
+            ssm_out[t, c] = float(ssm_out[t, c]) * float(qg) * float(gate_scale[c])
+
+    return ssm_out
+
+
+def _load_export_ir(export_json: Path) -> tuple[dict, dict, Path]:
+    export = json.loads(export_json.read_text(encoding="utf-8"))
+    base_dir = export_json.parent
+    backbone = json.loads((base_dir / export["backbone"]["file"]).read_text(encoding="utf-8"))
+    return export, backbone, base_dir
+
+
+def _compute_block0_local_y_cppish(export_json: Path, x_sample_kd: np.ndarray) -> np.ndarray:
+    export, backbone, base_dir = _load_export_ir(export_json)
+    lut = _ActLut()
+    proj = _conv1d_run_integer_desc(export["proj"], base_dir, x_sample_kd.astype(np.float32), int(export["model"]["seq_len"]), bits=16)
+    patch = _conv1d_run_integer_desc(backbone["patch_embedding"], base_dir, proj, proj.shape[0], bits=16)
+    if backbone.get("positional_encoding", {}).get("enabled") and backbone["positional_encoding"].get("file"):
+        pe = np.load(base_dir / backbone["positional_encoding"]["file"]).astype(np.float32)
+        patch += float(backbone["positional_encoding"].get("scale", 1.0)) * pe.reshape(patch.shape)
+
+    blk = backbone["blocks"][0]
+    x_seq = patch.copy()
+    _rmsnorm_inplace_np(x_seq, blk["norm"], base_dir)
+    uv = _conv1d_run_integer_desc(blk["in_proj"], base_dir, x_seq, x_seq.shape[0], bits=16)
+    inner = int(blk["d_inner"])
+    u = uv[:, :inner]
+    z = uv[:, inner:]
+    u_act = lut.silu_fn(u)
+    dt = _conv1d_run_integer_desc(blk["ssm"]["dt_proj"], base_dir, u_act, u_act.shape[0], bits=16)
+    ssm_out = _selective_scan_run_int16(blk, u_act, z, dt, lut)
+    y = _conv1d_run_integer_desc(blk["out_proj"], base_dir, ssm_out, ssm_out.shape[0], bits=16)
+    return y.reshape(-1)
+
+
+def _load_packed_mem_q88(path: Path) -> np.ndarray:
+    rows = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        packed = int(line, 16)
+        lanes = []
+        for lane in range(4):
+            v = (packed >> (16 * lane)) & 0xFFFF
+            if v & 0x8000:
+                v -= 0x10000
+            lanes.append(v / 256.0)
+        rows.append(lanes)
+    return np.asarray(rows, dtype=np.float32)
+
+
+def _write_compare_csv(path: Path, a: np.ndarray, b: np.ndarray, labels: tuple[str, str]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(f"row,col,{labels[0]},{labels[1]},diff\n")
+        for r in range(a.shape[0]):
+            for c in range(a.shape[1]):
+                diff = float(a[r, c] - b[r, c])
+                f.write(f"{r},{c},{float(a[r,c])},{float(b[r,c])},{diff}\n")
+
+
+def _export_block0_cpp_compare(case_dir: Path, export_json: Path) -> dict:
+    exe = Path("build/bittrue/main_block0_y.exe")
+    samples = case_dir / "float" / "samples.npy"
+    if not exe.exists() or not samples.exists():
+        return {"generated": False, "reason": "cpp exe or samples.npy missing"}
+
+    out_npy = case_dir / "float" / "cpp_block0_y_cppbittrue.npy"
+    cmd = [
+        str(exe),
+        str(export_json),
+        str(samples),
+        "2100",
+        str(out_npy),
+        "--mode",
+        "int16",
+    ]
+    subprocess.run(cmd, check=True)
+
+    cpp = np.load(out_npy).astype(np.float32)
+    sample0 = np.load(samples).astype(np.float32)[0]
+    py_cppish = _compute_block0_local_y_cppish(export_json, sample0).reshape(32, 4)
+    legacy = _load_packed_mem_q88(case_dir / "stages" / "reuse_mamba_block_top" / "y_golden_q88.mem")
+    cpp0 = cpp[0]
+
+    legacy_mae = float(np.mean(np.abs(cpp0 - legacy)))
+    legacy_max = float(np.max(np.abs(cpp0 - legacy)))
+    cppish_mae = float(np.mean(np.abs(cpp0 - py_cppish)))
+    cppish_max = float(np.max(np.abs(cpp0 - py_cppish)))
+
+    _write_compare_csv(case_dir / "logs" / "final_compare_cpp_export_hw_cppish.csv", cpp0, py_cppish, ("cpp", "export_cppish"))
+    _write_json(
+        case_dir / "logs" / "final_compare_cpp_export_hw_cppish.json",
+        {
+            "sample_index": 0,
+            "shape": list(cpp0.shape),
+            "cpp_vs_legacy_export_mae": legacy_mae,
+            "cpp_vs_legacy_export_max_abs": legacy_max,
+            "cpp_vs_cppish_export_mae": cppish_mae,
+            "cpp_vs_cppish_export_max_abs": cppish_max,
+            "row0_cpp": cpp0[0].astype(float).tolist(),
+            "row0_legacy_export_hw": legacy[0].astype(float).tolist(),
+            "row0_cppish_export_hw": py_cppish[0].astype(float).tolist(),
+        },
+    )
+    return {
+        "generated": True,
+        "cpp_vs_legacy_export_mae": legacy_mae,
+        "cpp_vs_cppish_export_mae": cppish_mae,
+        "cpp_vs_legacy_export_max_abs": legacy_max,
+        "cpp_vs_cppish_export_max_abs": cppish_max,
+        "files": [
+            "logs/final_compare_cpp_export_hw_cppish.json",
+            "logs/final_compare_cpp_export_hw_cppish.csv",
+            "float/cpp_block0_y_cppbittrue.npy",
+        ],
+    }
+
+
 def _quant_q88(x: np.ndarray) -> np.ndarray:
     q = np.rint(x.astype(np.float64) * 256.0).astype(np.int64)
     q = np.clip(q, -32768, 32767).astype(np.int16)
@@ -163,6 +493,16 @@ def _wrap_s16_arr(x: np.ndarray) -> np.ndarray:
     x_i = x.astype(np.int64) & 0xFFFF
     x_s = np.where((x_i & 0x8000) != 0, x_i - 0x10000, x_i)
     return x_s.astype(np.int16)
+
+
+def _clamp_s16_arr(x: np.ndarray) -> np.ndarray:
+    return np.clip(x.astype(np.int64), -32768, 32767).astype(np.int16)
+
+
+def _quant_q15_scale(x: np.ndarray) -> np.ndarray:
+    q = np.rint(x.astype(np.float64) * 32768.0).astype(np.int64)
+    q = np.clip(q, 1, 0xFFFF).astype(np.uint16)
+    return q
 
 
 def _quant_q016_from_sigmoid(x: np.ndarray) -> np.ndarray:
@@ -178,6 +518,40 @@ def _conv1x1_q88_intmac(weight_2d: np.ndarray, x_q88: np.ndarray) -> np.ndarray:
     acc_q1616 = w_q88 @ x_q88_i64
     y_q88 = (acc_q1616 >> 8).astype(np.int64)
     return _wrap_s16_arr(y_q88)
+
+
+def _choose_row_scale_q15(weight_2d: np.ndarray) -> np.ndarray:
+    row_max = np.max(np.abs(weight_2d.astype(np.float64)), axis=1)
+    scale = np.where(row_max > 0.0, row_max / 127.0, 1.0 / 32768.0)
+    scale = np.clip(scale, 1.0 / 32768.0, 65535.0 / 32768.0)
+    return _quant_q15_scale(scale)
+
+
+def _rshift_rne_vec(x: np.ndarray, shift: int) -> np.ndarray:
+    flat = x.reshape(-1)
+    out = np.empty_like(flat, dtype=np.int64)
+    for i in range(flat.shape[0]):
+        out[i] = _rshift_rne_i64(int(flat[i]), shift)
+    return out.reshape(x.shape)
+
+
+def _conv1x1_q88_scaled_intmac(
+    weight_2d: np.ndarray,
+    x_q88: np.ndarray,
+    scale_q15: np.ndarray | None = None,
+    clamp: bool = True,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    if scale_q15 is None:
+        scale_q15 = _choose_row_scale_q15(weight_2d)
+    scale_f = scale_q15.astype(np.float64) / 32768.0
+    w_fold = weight_2d.astype(np.float64) / scale_f[:, None]
+    w_fold_q88 = _quant_q88(w_fold).astype(np.int64)
+    x_q88_i64 = x_q88.astype(np.int64)
+    acc = w_fold_q88 @ x_q88_i64
+    scaled = acc * scale_q15.astype(np.int64)
+    y_q88 = _rshift_rne_vec(scaled, 23)
+    y = _clamp_s16_arr(y_q88) if clamp else _wrap_s16_arr(y_q88)
+    return y, scale_q15.astype(np.uint16), w_fold_q88.astype(np.int16)
 
 
 def _sigmoid_q016_from_q88(x_q88: np.ndarray) -> np.ndarray:
@@ -248,6 +622,16 @@ def _write_mem_matrix_rows_q88(path: Path, mat_2d: np.ndarray, tile: int = 4) ->
     _write_mem_packed_u16(path, rows)
 
 
+def _write_scale_rows_q15(path: Path, scale_q15: np.ndarray, tile: int = 4) -> None:
+    rows = []
+    vec = np.asarray(scale_q15).reshape(-1)
+    if vec.shape[0] % tile != 0:
+        raise ValueError(f"expected scale vector multiple of {tile}, got {vec.shape[0]}")
+    for i in range(0, vec.shape[0], tile):
+        rows.append([int(v) & 0xFFFF for v in vec[i : i + tile].tolist()])
+    _write_mem_packed_u16(path, rows)
+
+
 def _write_weight_banks_q88(
     path_prefix: Path,
     weight_oc_ic: np.ndarray,
@@ -287,7 +671,7 @@ def _write_weight_banks_q88(
     return files
 
 
-def _write_weight_banks_q88_dt_aligned(
+def _write_weight_banks_q88_aligned_4array(
     path_prefix: Path,
     weight_oc_ic: np.ndarray,
     n_bank: int = 6,
@@ -295,7 +679,7 @@ def _write_weight_banks_q88_dt_aligned(
     tile: int = 4,
 ) -> list[str]:
     """
-    Dedicated dt_proj bank layout aligned to the new RTL scheduler.
+    4-array-aligned bank layout shared by in_proj / dt_proj / out_proj.
 
     Mapping:
       - Array a in {0,1,2,3} always reads bank=a
@@ -588,7 +972,7 @@ def _export_reuse_top_stage(case_dir: Path, model: torch.nn.Module, x_arr: np.nd
     dt_w = dtproj_conv.weight.detach().cpu().numpy().reshape(dtproj_conv.out_channels, dtproj_conv.in_channels)
     outproj_w = outproj_conv.weight.detach().cpu().numpy().reshape(outproj_conv.out_channels, outproj_conv.in_channels)
     h_q88 = _quant_q88(h_np)
-    uv_q88 = _conv1x1_q88_intmac(inproj_w, h_q88)
+    uv_q88, inproj_scale_q15, inproj_w_fold_q88 = _conv1x1_q88_scaled_intmac(inproj_w, h_q88)
     u_q88 = uv_q88[:inner]
     z_q88 = uv_q88[inner:]
     _write_mem_u16_scalar(stage_dir / "h_wr_addr.mem", list(range(32)), width_hex=2)
@@ -601,11 +985,13 @@ def _export_reuse_top_stage(case_dir: Path, model: torch.nn.Module, x_arr: np.nd
     z_q88_rows = z_q88.reshape(64, 4)
     z_sig_q016 = _sigmoid_q016_from_q88(z_q88_rows)
     z_silu_q88 = _mul_q016_q88_to_q88(z_sig_q016, z_q88_rows)
-    dt_q88 = _conv1x1_q88_intmac(dt_w, u_act_q88.reshape(-1)).reshape(64, 4)
+    dt_q88_flat, dt_scale_q15, dt_w_fold_q88 = _conv1x1_q88_scaled_intmac(dt_w, u_act_q88.reshape(-1))
+    dt_q88 = dt_q88_flat.reshape(64, 4)
     lam_q016 = _sigmoid_q016_from_q88(dt_q88)
     ssm_q88 = _ssm_update_q88_from_lam_q016(lam_q016, u_act_q88)
     gate_y_q88 = _mul_q88_q88_to_q88(z_silu_q88, ssm_q88)
-    y_q88 = _conv1x1_q88_intmac(outproj_w, gate_y_q88.reshape(-1)).reshape(32, 4)
+    y_q88_flat, outproj_scale_q15, outproj_w_fold_q88 = _conv1x1_q88_scaled_intmac(outproj_w, gate_y_q88.reshape(-1))
+    y_q88 = y_q88_flat.reshape(32, 4)
 
     _write_mem_matrix_rows_q88(stage_dir / "u_act_golden_q88.mem", u_act_q88)
     _write_mem_matrix_rows_q88(stage_dir / "z_silu_golden_q88.mem", z_silu_q88)
@@ -614,9 +1000,18 @@ def _export_reuse_top_stage(case_dir: Path, model: torch.nn.Module, x_arr: np.nd
     _write_mem_matrix_rows_q88(stage_dir / "ssm_golden_q88.mem", ssm_q88)
     _write_mem_matrix_rows_q88(stage_dir / "gate_y_golden_q88.mem", gate_y_q88)
     _write_mem_matrix_rows_q88(stage_dir / "y_golden_q88.mem", y_q88)
-    inproj_files = _write_weight_banks_q88(stage_dir / "inproj_wbuf", inproj_w, n_bank=6, depth=683)
-    dt_files = _write_weight_banks_q88_dt_aligned(stage_dir / "dt_wbuf", dt_w, n_bank=6, depth=1024)
-    outproj_files = _write_weight_banks_q88(stage_dir / "outproj_wbuf", outproj_w, n_bank=6, depth=342)
+    _write_scale_rows_q15(stage_dir / "inproj_scale_q15.mem", inproj_scale_q15)
+    _write_scale_rows_q15(stage_dir / "dt_scale_q15.mem", dt_scale_q15)
+    _write_scale_rows_q15(stage_dir / "outproj_scale_q15.mem", outproj_scale_q15)
+    inproj_files = _write_weight_banks_q88_aligned_4array(
+        stage_dir / "inproj_wbuf", inproj_w_fold_q88.astype(np.float32) / 256.0, n_bank=6, depth=1024
+    )
+    dt_files = _write_weight_banks_q88_aligned_4array(
+        stage_dir / "dt_wbuf", dt_w_fold_q88.astype(np.float32) / 256.0, n_bank=6, depth=1024
+    )
+    outproj_files = _write_weight_banks_q88_aligned_4array(
+        stage_dir / "outproj_wbuf", outproj_w_fold_q88.astype(np.float32) / 256.0, n_bank=6, depth=512
+    )
 
     _write_json(
         stage_dir / "control.json",
@@ -628,8 +1023,9 @@ def _export_reuse_top_stage(case_dir: Path, model: torch.nn.Module, x_arr: np.nd
             "notes": [
                 "Current top-level golden is block-local and ends at out_proj output before any residual add outside this RTL block.",
                 "Compare h->in_proj->u/z SRAM first, then dt/lam/ssm/gate, then y.",
-                "Golden uses integer Q8.8/Q0.16 arithmetic aligned to current RTL subpaths.",
-                "dt golden is generated from u_act SRAM semantics.",
+                "Golden uses aligned 4-array weight banking plus row-tile scale_q15 requant.",
+                "dt golden is generated from u_act SRAM semantics with per-output-channel scale folded into weights + writeback scale.",
+                "For cpp-bittrue style ties-to-even/clamp/per-channel-scale comparison, see logs/final_compare_cpp_export_hw_cppish.json.",
             ],
         },
     )
@@ -651,6 +1047,9 @@ def _export_reuse_top_stage(case_dir: Path, model: torch.nn.Module, x_arr: np.nd
                 "ssm_golden_q88": "ssm_golden_q88.mem",
                 "gate_y_golden_q88": "gate_y_golden_q88.mem",
                 "y_golden_q88": "y_golden_q88.mem",
+                "inproj_scale_q15": "inproj_scale_q15.mem",
+                "dt_scale_q15": "dt_scale_q15.mem",
+                "outproj_scale_q15": "outproj_scale_q15.mem",
                 "inproj_wbuf": inproj_files,
                 "dt_wbuf": dt_files,
                 "outproj_wbuf": outproj_files,
@@ -809,19 +1208,23 @@ def _export_reuse_ssm_dt_scheduler_stage(case_dir: Path, model: torch.nn.Module,
     dt_w = dtproj_conv.weight.detach().cpu().numpy().reshape(dtproj_conv.out_channels, dtproj_conv.in_channels)
 
     h_q88 = _quant_q88(h[0, 0].cpu().numpy())
-    uv_q88 = _conv1x1_q88_intmac(inproj_w, h_q88)
+    uv_q88, _, inproj_w_fold_q88 = _conv1x1_q88_scaled_intmac(inproj_w, h_q88)
     inner = blk.args.d_inner
     u_q88 = uv_q88[:inner]
     u_q88_rows = u_q88.reshape(64, 4)
     u_sig_q016 = _sigmoid_q016_from_q88(u_q88_rows)
     u_act_q88 = _mul_q016_q88_to_q88(u_sig_q016, u_q88_rows)
-    dt_q88 = _conv1x1_q88_intmac(dt_w, u_act_q88.reshape(-1)).reshape(64, 4)
+    dt_q88_flat, dt_scale_q15, dt_w_fold_q88 = _conv1x1_q88_scaled_intmac(dt_w, u_act_q88.reshape(-1))
+    dt_q88 = dt_q88_flat.reshape(64, 4)
     xt_q88 = u_act_q88.copy()
 
     _write_mem_matrix_rows_q88(stage_dir / "u_act_in_q88.mem", u_act_q88)
     _write_mem_matrix_rows_q88(stage_dir / "dt_golden_q88.mem", dt_q88)
     _write_mem_matrix_rows_q88(stage_dir / "xt_golden_q88.mem", xt_q88)
-    dt_files = _write_weight_banks_q88_dt_aligned(stage_dir / "dt_wbuf", dt_w, n_bank=6, depth=1024)
+    _write_scale_rows_q15(stage_dir / "dt_scale_q15.mem", dt_scale_q15)
+    dt_files = _write_weight_banks_q88_aligned_4array(
+        stage_dir / "dt_wbuf", dt_w_fold_q88.astype(np.float32) / 256.0, n_bank=6, depth=1024
+    )
     _write_json(
         stage_dir / "vectors.json",
         {
@@ -830,12 +1233,13 @@ def _export_reuse_ssm_dt_scheduler_stage(case_dir: Path, model: torch.nn.Module,
                 "u_act_in_q88": "u_act_in_q88.mem",
                 "dt_golden_q88": "dt_golden_q88.mem",
                 "xt_golden_q88": "xt_golden_q88.mem",
+                "dt_scale_q15": "dt_scale_q15.mem",
                 "dt_wbuf": dt_files,
             },
             "notes": [
                 "u_act_in_q88 is the dt scheduler read source.",
                 "xt_golden_q88 is the direct u_act row stream aligned one-to-one with dt output rows.",
-                "dt_wbuf uses the dedicated cpp-aligned bank layout (bank=array index, addr=row_tile*groups+group).",
+                "dt_wbuf uses the aligned 4-array bank layout (bank=array index, addr=row_tile*groups+group).",
             ],
         },
     )
@@ -845,6 +1249,7 @@ def _export_reuse_ssm_dt_scheduler_stage(case_dir: Path, model: torch.nn.Module,
             "u_act_in_q88.mem",
             "dt_golden_q88.mem",
             "xt_golden_q88.mem",
+            "dt_scale_q15.mem",
             "vectors.json",
             *dt_files,
         ],
@@ -959,6 +1364,9 @@ def main() -> None:
         else:
             manifest["generated_artifacts"] = {"generated": False}
         _write_json(stage_dir / "manifest.json", manifest)
+
+    compare_summary = _export_block0_cpp_compare(out_dir, Path(export_json))
+    _write_json(out_dir / "logs" / "block0_cpp_compare_manifest.json", compare_summary)
 
     (out_dir / "rtl_out").mkdir(parents=True, exist_ok=True)
     (out_dir / "logs").mkdir(parents=True, exist_ok=True)

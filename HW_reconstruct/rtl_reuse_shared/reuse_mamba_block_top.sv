@@ -7,9 +7,9 @@
 //   around one shared 4x4x4 MAC fabric.
 //
 // Current status:
-//   - in_proj path is connected to the shared fabric
-//   - ssm dt path is connected to the shared fabric
-//   - out_proj is still a stub
+//   - in_proj / ssm dt / out_proj all run on the shared fabric
+//   - weight banks use the aligned 4-array export layout
+//   - scheduler writeback uses the shared requant/scale engine
 //   - SSM internal post-processing logic is preserved in reuse_ssm_core
 //---------------------------------------------------------------
 module reuse_mamba_block_top #(
@@ -455,7 +455,7 @@ module reuse_mamba_block_top #(
         .rd_data(uact_rd_data)
     );
 
-    reuse_out_proj_scheduler_stub #(
+    reuse_out_proj_scheduler #(
         .TILE_SIZE (TILE_SIZE),
         .DATA_WIDTH(DATA_WIDTH),
         .ACC_WIDTH (ACC_WIDTH)

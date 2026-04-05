@@ -40,7 +40,7 @@ module tb_reuse_mamba_block_top_hw_debug;
   localparam int H_DEPTH     = 32;
   localparam int U_DEPTH     = 64;
   localparam int Y_DEPTH     = 32;
-  localparam int OUT_WDEPTH  = 342;
+  localparam int OUT_WDEPTH  = 512;
 
   logic clk, rst_n;
   initial begin
@@ -195,6 +195,9 @@ module tb_reuse_mamba_block_top_hw_debug;
   logic [255:0] outproj_bank3_mem [0:OUT_WDEPTH-1];
   logic [255:0] outproj_bank4_mem [0:OUT_WDEPTH-1];
   logic [255:0] outproj_bank5_mem [0:OUT_WDEPTH-1];
+  logic [63:0]  inproj_scale_mem [0:127];
+  logic [63:0]  dt_scale_mem [0:63];
+  logic [63:0]  outproj_scale_mem [0:31];
   logic [63:0]  y_golden_mem [0:Y_DEPTH-1];
   int dt_rd_checks;
   int dt_rd_errors;
@@ -290,6 +293,9 @@ module tb_reuse_mamba_block_top_hw_debug;
       $readmemh(join_path(stage_dir, "outproj_wbuf_bank3.mem"), outproj_bank3_mem);
       $readmemh(join_path(stage_dir, "outproj_wbuf_bank4.mem"), outproj_bank4_mem);
       $readmemh(join_path(stage_dir, "outproj_wbuf_bank5.mem"), outproj_bank5_mem);
+      $readmemh(join_path(stage_dir, "inproj_scale_q15.mem"), inproj_scale_mem);
+      $readmemh(join_path(stage_dir, "dt_scale_q15.mem"), dt_scale_mem);
+      $readmemh(join_path(stage_dir, "outproj_scale_q15.mem"), outproj_scale_mem);
       $readmemh(join_path(stage_dir, "y_golden_q88.mem"), y_golden_mem);
     end
   endtask
@@ -309,6 +315,12 @@ module tb_reuse_mamba_block_top_hw_debug;
         dut.u_dt_sched.dt_wbuf_mem_sim[2][addr] = dt_bank2_mem[addr];
         dut.u_dt_sched.dt_wbuf_mem_sim[3][addr] = dt_bank3_mem[addr];
       end
+      for (int addr = 0; addr < 128; addr++) begin
+        dut.u_in_proj.u_scale_mem.mem[addr] = inproj_scale_mem[addr];
+      end
+      for (int addr = 0; addr < 64; addr++) begin
+        dut.u_dt_sched.u_scale_mem.mem[addr] = dt_scale_mem[addr];
+      end
       $display("[%0t] FILE  inproj bank0 addr0 = %h", $time, inproj_bank0_mem[0]);
       $display("[%0t] SRAM  inproj bank0 addr0 = %h", $time, dut.u_in_proj.u_w_sram.u_weight.mem_sim[0][0]);
       $display("[%0t] FILE  dt     bank0 addr0 = %h", $time, dt_bank0_mem[0]);
@@ -320,6 +332,9 @@ module tb_reuse_mamba_block_top_hw_debug;
         dut.u_out_proj.u_w_sram.u_weight.mem_sim[3][addr] = outproj_bank3_mem[addr];
         dut.u_out_proj.u_w_sram.u_weight.mem_sim[4][addr] = outproj_bank4_mem[addr];
         dut.u_out_proj.u_w_sram.u_weight.mem_sim[5][addr] = outproj_bank5_mem[addr];
+      end
+      for (int addr = 0; addr < 32; addr++) begin
+        dut.u_out_proj.u_scale_mem.mem[addr] = outproj_scale_mem[addr];
       end
       $display("[%0t] FILE  outproj bank0 addr0 = %h", $time, outproj_bank0_mem[0]);
       $display("[%0t] SRAM  outproj bank0 addr0 = %h", $time, dut.u_out_proj.u_w_sram.u_weight.mem_sim[0][0]);

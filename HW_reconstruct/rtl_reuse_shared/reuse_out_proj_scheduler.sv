@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 //---------------------------------------------------------------
-// Module: reuse_out_proj_scheduler_stub
+// Module: reuse_out_proj_scheduler
 // Function:
 //   out_proj scheduler using the shared 4x4x4 MAC fabric.
 //   This version mirrors the stabilized in_proj semantics:
@@ -8,13 +8,13 @@
 //   - B-path reads one p_t tile per output tile and holds it
 //   - p address updates once per output tile
 //---------------------------------------------------------------
-module reuse_out_proj_scheduler_stub #(
+module reuse_out_proj_scheduler #(
     parameter int TILE_SIZE   = 4,
     parameter int DATA_WIDTH  = 16,
     parameter int ACC_WIDTH   = 32,
     parameter int FRAC_BITS   = 8,
     parameter int N_BANK      = 6,
-    parameter int WDEPTH      = 342,
+    parameter int WDEPTH      = 512,
     parameter int WADDR_W     = $clog2(WDEPTH),
     parameter int DATA_W      = 256,
     parameter int IN_DIM      = 256,
@@ -22,7 +22,12 @@ module reuse_out_proj_scheduler_stub #(
     parameter int P_DEPTH     = IN_DIM / TILE_SIZE,
     parameter int P_ADDR_W    = $clog2(P_DEPTH),
     parameter int Y_DEPTH     = OUT_DIM / TILE_SIZE,
-    parameter int Y_ADDR_W    = $clog2(Y_DEPTH)
+    parameter int Y_ADDR_W    = $clog2(Y_DEPTH),
+    parameter int SCALE_W            = 16,
+    parameter int SCALE_FRAC_BITS    = 15,
+    parameter bit USE_PER_CHANNEL_SCALE = 1,
+    parameter int REQUANT_ROUND_MODE = 1,
+    parameter int REQUANT_SAT_MODE   = 1
 )(
     input  logic clk,
     input  logic rst_n,
@@ -71,6 +76,8 @@ module reuse_out_proj_scheduler_stub #(
     localparam int PHYS_K_BLOCKS   = IN_DIM / TILE_SIZE;        // 64 physical 4-dim tiles
     localparam int TILE_CYCLE      = K_GROUPS + 3;
     localparam int OUT_PHASE_LAST  = K_GROUPS + 2;
+    localparam int SCALE_DEPTH     = ROW_TILES;
+    localparam int SCALE_ADDR_W    = $clog2(SCALE_DEPTH);
 
     typedef enum logic [2:0] { IDLE, RUN_PIPELINE, WAIT_DONE, WRITE, DONE_S } state_t;
     state_t state, next_state;
@@ -91,6 +98,9 @@ module reuse_out_proj_scheduler_stub #(
     logic [3:0]                     w_en_sel;
     logic [3:0]                     w_port_sel;
     logic [3:0][DATA_W-1:0]         w_dout_sel;
+    logic                           scale_rd_en;
+    logic [SCALE_ADDR_W-1:0]        scale_rd_addr;
+    logic [63:0]                    scale_rd_data;
 
     logic [3:0]                    en_sel, en_sel_reg, out_sel;
     logic [$clog2(K_GROUPS+5)-1:0] out_phase_cnt;
@@ -137,6 +147,9 @@ module reuse_out_proj_scheduler_stub #(
     logic                         y_wr_en;
     logic [Y_ADDR_W-1:0]          y_wr_addr;
     logic signed [DATA_WIDTH-1:0] y_wr_data [TILE_SIZE-1:0];
+    logic [DATA_WIDTH-1:0]        y_wr_data_u [TILE_SIZE-1:0];
+    logic [ACC_WIDTH-1:0]         final_vec_u [TILE_SIZE-1:0];
+    logic [SCALE_W-1:0]           out_scale_vec [TILE_SIZE-1:0];
 
     assign row_tile_linear       = row_group_idx * ROWS_PER_GRP + row_subtile_idx;
     assign write_row_tile_linear = write_row_group_idx * ROWS_PER_GRP + write_row_subtile_idx;
@@ -184,10 +197,22 @@ module reuse_out_proj_scheduler_stub #(
     assign p_rd_en           = enable && p_tile_fire;
     assign fabric_valid_in   = valid_in_d2;
     assign group_start       = fetch_fire_d1;
+    assign scale_rd_en       = enable && (state == RUN_PIPELINE) && (data_cnt == '0);
+    assign scale_rd_addr     = row_tile_linear[SCALE_ADDR_W-1:0];
+
+    reuse_packed_scale_mem #(
+        .DEPTH  (SCALE_DEPTH),
+        .ADDR_W (SCALE_ADDR_W),
+        .DATA_W (64)
+    ) u_scale_mem (
+        .clk  (clk),
+        .en   (scale_rd_en),
+        .addr (scale_rd_addr),
+        .dout (scale_rd_data)
+    );
 
     always_comb begin
-        int phys_base_idx;
-        int tile_idx0, tile_idx1, tile_idx2, tile_idx3;
+        int aligned_addr;
 
         w_bank_sel = '0;
         w_addr_sel = '0;
@@ -200,28 +225,29 @@ module reuse_out_proj_scheduler_stub #(
         p_rd_addr3 = '0;
 
         if (valid_in) begin
-            phys_base_idx = data_cnt * 4;
-            p_rd_addr0 = phys_base_idx + 0;
-            p_rd_addr1 = phys_base_idx + 1;
-            p_rd_addr2 = phys_base_idx + 2;
-            p_rd_addr3 = phys_base_idx + 3;
+            p_rd_addr0 = data_cnt * 4 + 0;
+            p_rd_addr1 = data_cnt * 4 + 1;
+            p_rd_addr2 = data_cnt * 4 + 2;
+            p_rd_addr3 = data_cnt * 4 + 3;
 
-            tile_idx0 = row_tile_linear * PHYS_K_BLOCKS + phys_base_idx + 0;
-            tile_idx1 = row_tile_linear * PHYS_K_BLOCKS + phys_base_idx + 1;
-            tile_idx2 = row_tile_linear * PHYS_K_BLOCKS + phys_base_idx + 2;
-            tile_idx3 = row_tile_linear * PHYS_K_BLOCKS + phys_base_idx + 3;
-
-            w_bank_sel[0] = tile_idx0 % N_BANK;
-            w_addr_sel[0] = tile_idx0 / N_BANK;
-            w_bank_sel[1] = tile_idx1 % N_BANK;
-            w_addr_sel[1] = tile_idx1 / N_BANK;
-            w_bank_sel[2] = tile_idx2 % N_BANK;
-            w_addr_sel[2] = tile_idx2 / N_BANK;
-            w_bank_sel[3] = tile_idx3 % N_BANK;
-            w_addr_sel[3] = tile_idx3 / N_BANK;
+            aligned_addr = row_tile_linear * K_GROUPS + data_cnt;
+            w_bank_sel[0] = 0;
+            w_bank_sel[1] = 1;
+            w_bank_sel[2] = 2;
+            w_bank_sel[3] = 3;
+            w_addr_sel[0] = aligned_addr[WADDR_W-1:0];
+            w_addr_sel[1] = aligned_addr[WADDR_W-1:0];
+            w_addr_sel[2] = aligned_addr[WADDR_W-1:0];
+            w_addr_sel[3] = aligned_addr[WADDR_W-1:0];
 
             w_en_sel      = 4'b1111;
             w_port_sel    = '0;
+        end
+    end
+
+    always_comb begin
+        for (int lane = 0; lane < TILE_SIZE; lane++) begin
+            out_scale_vec[lane] = scale_rd_data[lane*SCALE_W +: SCALE_W];
         end
     end
 
@@ -279,9 +305,31 @@ module reuse_out_proj_scheduler_stub #(
         out_sel[3] = out_phase_active && (out_phase_cnt >= 3) && (out_phase_cnt < K_GROUPS + 3);
     end
 
+    for (genvar g = 0; g < TILE_SIZE; g++) begin : gen_final_vec_cast
+        assign final_vec_u[g] = final_vec[g];
+    end
+
+    requant_round_sat_engine #(
+        .TILE_SIZE  (TILE_SIZE),
+        .IN_W       (ACC_WIDTH),
+        .OUT_W      (DATA_WIDTH),
+        .SHIFT      (FRAC_BITS),
+        .SCALE_W    (SCALE_W),
+        .SCALE_FRAC_BITS(SCALE_FRAC_BITS),
+        .SIGNED_IN  (1),
+        .SIGNED_OUT (1),
+        .USE_SCALE  (USE_PER_CHANNEL_SCALE),
+        .ROUND_MODE (REQUANT_ROUND_MODE),
+        .SAT_MODE   (REQUANT_SAT_MODE)
+    ) u_out_requant (
+        .in_vec  (final_vec_u),
+        .scale_vec(out_scale_vec),
+        .out_vec (y_wr_data_u)
+    );
+
     always_comb begin
         for (int i = 0; i < TILE_SIZE; i++) begin
-            y_wr_data[i] = final_vec[i] >>> FRAC_BITS;
+            y_wr_data[i] = $signed(y_wr_data_u[i]);
         end
 
         y_wr_addr = write_row_tile_linear[Y_ADDR_W-1:0];

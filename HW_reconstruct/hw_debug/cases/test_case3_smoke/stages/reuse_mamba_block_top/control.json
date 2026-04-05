@@ -6,7 +6,8 @@
   "notes": [
     "Current top-level golden is block-local and ends at out_proj output before any residual add outside this RTL block.",
     "Compare h->in_proj->u/z SRAM first, then dt/lam/ssm/gate, then y.",
-    "Golden uses integer Q8.8/Q0.16 arithmetic aligned to current RTL subpaths.",
-    "dt golden is generated from u_act SRAM semantics."
+    "Golden uses aligned 4-array weight banking plus row-tile scale_q15 requant.",
+    "dt golden is generated from u_act SRAM semantics with per-output-channel scale folded into weights + writeback scale.",
+    "For cpp-bittrue style ties-to-even/clamp/per-channel-scale comparison, see logs/final_compare_cpp_export_hw_cppish.json."
   ]
 }

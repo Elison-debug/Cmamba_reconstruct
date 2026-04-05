@@ -82,7 +82,8 @@
       "description": "Standalone dt scheduler with shared MAC fabric and u_act SRAM source.",
       "golden_inputs": [
         "u_act_in_q88.mem",
-        "dt_wbuf_bank*.mem"
+        "dt_wbuf_bank*.mem",
+        "dt_scale_q15.mem"
       ],
       "golden_outputs": [
         "dt_golden_q88.mem",
@@ -102,7 +103,11 @@
         "h_wr_addr.mem",
         "h_wr_data_q88.mem",
         "inproj_wbuf_bank*.mem",
+        "inproj_scale_q15.mem",
         "dt_wbuf_bank*.mem",
+        "dt_scale_q15.mem",
+        "outproj_wbuf_bank*.mem",
+        "outproj_scale_q15.mem",
         "control.json"
       ],
       "golden_outputs": [

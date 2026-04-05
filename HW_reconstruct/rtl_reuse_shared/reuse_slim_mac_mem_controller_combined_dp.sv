@@ -191,7 +191,7 @@ module reuse_slim_mac_mem_controller_combined_dp #(
         .fabric_valid_out(in_valid_out)
     );
 
-    reuse_out_proj_scheduler_stub #(
+    reuse_out_proj_scheduler #(
         .TILE_SIZE (TILE_SIZE),
         .DATA_WIDTH(DATA_WIDTH),
         .ACC_WIDTH (ACC_WIDTH)

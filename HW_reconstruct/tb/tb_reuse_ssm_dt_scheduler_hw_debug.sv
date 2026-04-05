@@ -59,6 +59,7 @@ module tb_reuse_ssm_dt_scheduler_hw_debug;
   logic [255:0] dt_bank3_mem [0:WDEPTH-1];
   logic [255:0] dt_bank4_mem [0:WDEPTH-1];
   logic [255:0] dt_bank5_mem [0:WDEPTH-1];
+  logic [63:0]  dt_scale_mem [0:63];
 
   logic                         s_axis_TVALID;
   logic                         s_axis_TREADY;
@@ -135,6 +136,7 @@ module tb_reuse_ssm_dt_scheduler_hw_debug;
       $readmemh(join_path(stage_dir, "dt_wbuf_bank3.mem"), dt_bank3_mem);
       $readmemh(join_path(stage_dir, "dt_wbuf_bank4.mem"), dt_bank4_mem);
       $readmemh(join_path(stage_dir, "dt_wbuf_bank5.mem"), dt_bank5_mem);
+      $readmemh(join_path(stage_dir, "dt_scale_q15.mem"), dt_scale_mem);
     end
   endtask
 
@@ -305,6 +307,9 @@ module tb_reuse_ssm_dt_scheduler_hw_debug;
       dut.dt_wbuf_mem_sim[1][addr] = dt_bank1_mem[addr];
       dut.dt_wbuf_mem_sim[2][addr] = dt_bank2_mem[addr];
       dut.dt_wbuf_mem_sim[3][addr] = dt_bank3_mem[addr];
+    end
+    for (int addr = 0; addr < 64; addr++) begin
+      dut.u_scale_mem.mem[addr] = dt_scale_mem[addr];
     end
     $display("[%0t] after dt bank preload", $time);
 

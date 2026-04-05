@@ -13,7 +13,7 @@ module reuse_in_proj_scheduler #(
     parameter int ACC_WIDTH   = 32,
     parameter int FRAC_BITS   = 8,
     parameter int N_BANK      = 6,
-    parameter int WDEPTH      = 683,
+    parameter int WDEPTH      = 1024,
     parameter int WADDR_W     = $clog2(WDEPTH),
     parameter int DATA_W      = 256,
     parameter int IN_DIM      = 128,
@@ -21,7 +21,12 @@ module reuse_in_proj_scheduler #(
     parameter int H_DEPTH     = IN_DIM / TILE_SIZE,
     parameter int H_ADDR_W    = $clog2(H_DEPTH),
     parameter int U_DEPTH     = (OUT_DIM/2) / TILE_SIZE,
-    parameter int U_ADDR_W    = $clog2(U_DEPTH)
+    parameter int U_ADDR_W    = $clog2(U_DEPTH),
+    parameter int SCALE_W            = 16,
+    parameter int SCALE_FRAC_BITS    = 15,
+    parameter bit USE_PER_CHANNEL_SCALE = 1,
+    parameter int REQUANT_ROUND_MODE = 1,
+    parameter int REQUANT_SAT_MODE   = 1
 )(
     input  logic clk,
     input  logic rst_n,
@@ -72,6 +77,8 @@ module reuse_in_proj_scheduler #(
     localparam int PHYS_K_BLOCKS = IN_DIM / TILE_SIZE;        // 32 physical 4-dim tiles
     localparam int TILE_CYCLE    = K_GROUPS + 3;             // 8 valid + 3 stagger drain
     localparam int OUT_PHASE_LAST = K_GROUPS + 2;            // 0..10 then clear on next beat
+    localparam int SCALE_DEPTH   = ROW_TILES;
+    localparam int SCALE_ADDR_W  = $clog2(SCALE_DEPTH);
 
     typedef enum logic [2:0] { IDLE, RUN_PIPELINE, WAIT_DONE, WRITE, DONE_S } state_t;
     state_t state, next_state;
@@ -99,6 +106,9 @@ module reuse_in_proj_scheduler #(
     logic [3:0]                     w_en_sel;
     logic [3:0]                     w_port_sel;
     logic [3:0][DATA_W-1:0]         w_dout_sel;
+    logic                           scale_rd_en;
+    logic [SCALE_ADDR_W-1:0]        scale_rd_addr;
+    logic [63:0]                    scale_rd_data;
 
     logic [3:0]                    en_sel, en_sel_reg, out_sel;
     logic [$clog2(K_GROUPS+5)-1:0] out_phase_cnt;
@@ -143,6 +153,9 @@ module reuse_in_proj_scheduler #(
     logic                         u_wr_en, z_wr_en;
     logic [U_ADDR_W-1:0]          out_wr_addr;
     logic signed [DATA_WIDTH-1:0] out_wr_data [TILE_SIZE-1:0];
+    logic [DATA_WIDTH-1:0]        out_wr_data_u [TILE_SIZE-1:0];
+    logic [ACC_WIDTH-1:0]         final_vec_u [TILE_SIZE-1:0];
+    logic [SCALE_W-1:0]           out_scale_vec [TILE_SIZE-1:0];
     logic                         valid_in;
 
     assign row_tile_linear       = row_group_idx * ROWS_PER_GRP + row_subtile_idx;
@@ -230,10 +243,22 @@ module reuse_in_proj_scheduler #(
     assign valid_in          = (state == RUN_PIPELINE) && (data_cnt < K_GROUPS);
     assign h_rd_en           = enable && valid_in;
     assign fabric_valid_in   = valid_in_d2;
+    assign scale_rd_en       = enable && (state == RUN_PIPELINE) && (data_cnt == '0);
+    assign scale_rd_addr     = row_tile_linear[SCALE_ADDR_W-1:0];
+
+    reuse_packed_scale_mem #(
+        .DEPTH  (SCALE_DEPTH),
+        .ADDR_W (SCALE_ADDR_W),
+        .DATA_W (64)
+    ) u_scale_mem (
+        .clk  (clk),
+        .en   (scale_rd_en),
+        .addr (scale_rd_addr),
+        .dout (scale_rd_data)
+    );
 
     always_comb begin
-        int phys_base_idx;
-        int tile_idx0, tile_idx1, tile_idx2, tile_idx3;
+        int aligned_addr;
 
         h_rd_addr0 = '0;
         h_rd_addr1 = '0;
@@ -245,28 +270,28 @@ module reuse_in_proj_scheduler #(
         w_port_sel = '0;
 
         if (valid_in) begin
-            phys_base_idx = data_cnt * 4;
-            h_rd_addr0 = phys_base_idx + 0;
-            h_rd_addr1 = phys_base_idx + 1;
-            h_rd_addr2 = phys_base_idx + 2;
-            h_rd_addr3 = phys_base_idx + 3;
+            h_rd_addr0 = data_cnt * 4 + 0;
+            h_rd_addr1 = data_cnt * 4 + 1;
+            h_rd_addr2 = data_cnt * 4 + 2;
+            h_rd_addr3 = data_cnt * 4 + 3;
 
-            tile_idx0 = row_tile_linear * PHYS_K_BLOCKS + phys_base_idx + 0;
-            tile_idx1 = row_tile_linear * PHYS_K_BLOCKS + phys_base_idx + 1;
-            tile_idx2 = row_tile_linear * PHYS_K_BLOCKS + phys_base_idx + 2;
-            tile_idx3 = row_tile_linear * PHYS_K_BLOCKS + phys_base_idx + 3;
-
-            w_bank_sel[0] = tile_idx0 % N_BANK;
-            w_addr_sel[0] = tile_idx0 / N_BANK;
-            w_bank_sel[1] = tile_idx1 % N_BANK;
-            w_addr_sel[1] = tile_idx1 / N_BANK;
-            w_bank_sel[2] = tile_idx2 % N_BANK;
-            w_addr_sel[2] = tile_idx2 / N_BANK;
-            w_bank_sel[3] = tile_idx3 % N_BANK;
-            w_addr_sel[3] = tile_idx3 / N_BANK;
-
+            aligned_addr = row_tile_linear * K_GROUPS + data_cnt;
+            w_bank_sel[0] = 0;
+            w_bank_sel[1] = 1;
+            w_bank_sel[2] = 2;
+            w_bank_sel[3] = 3;
+            w_addr_sel[0] = aligned_addr[WADDR_W-1:0];
+            w_addr_sel[1] = aligned_addr[WADDR_W-1:0];
+            w_addr_sel[2] = aligned_addr[WADDR_W-1:0];
+            w_addr_sel[3] = aligned_addr[WADDR_W-1:0];
             w_en_sel      = 4'b1111;
             w_port_sel    = '0;
+        end
+    end
+
+    always_comb begin
+        for (int lane = 0; lane < TILE_SIZE; lane++) begin
+            out_scale_vec[lane] = scale_rd_data[lane*SCALE_W +: SCALE_W];
         end
     end
 
@@ -324,9 +349,31 @@ module reuse_in_proj_scheduler #(
         out_sel[3] = out_phase_active && (out_phase_cnt >= 3) && (out_phase_cnt < K_GROUPS + 3);
     end
 
+    for (genvar g = 0; g < TILE_SIZE; g++) begin : gen_final_vec_cast
+        assign final_vec_u[g] = final_vec[g];
+    end
+
+    requant_round_sat_engine #(
+        .TILE_SIZE  (TILE_SIZE),
+        .IN_W       (ACC_WIDTH),
+        .OUT_W      (DATA_WIDTH),
+        .SHIFT      (FRAC_BITS),
+        .SCALE_W    (SCALE_W),
+        .SCALE_FRAC_BITS(SCALE_FRAC_BITS),
+        .SIGNED_IN  (1),
+        .SIGNED_OUT (1),
+        .USE_SCALE  (USE_PER_CHANNEL_SCALE),
+        .ROUND_MODE (REQUANT_ROUND_MODE),
+        .SAT_MODE   (REQUANT_SAT_MODE)
+    ) u_out_requant (
+        .in_vec  (final_vec_u),
+        .scale_vec(out_scale_vec),
+        .out_vec (out_wr_data_u)
+    );
+
     always_comb begin
         for (int i = 0; i < TILE_SIZE; i++) begin
-            out_wr_data[i] = final_vec[i] >>> FRAC_BITS;
+            out_wr_data[i] = $signed(out_wr_data_u[i]);
         end
 
         if (write_row_tile_linear >= U_DEPTH)

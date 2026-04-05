@@ -83,15 +83,17 @@ read_verilog -library xil_defaultlib -sv {
   E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ewm_vec4.sv
   E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv
   E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pulse_to_stream_adapter.sv
+  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/requant_round_sat_engine.sv
   E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_array4x4.sv
   E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_ht_multi_copy_ip.sv
+  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_packed_scale_mem.sv
   E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_ht_sram.sv
   E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_ht_sram_sp.sv
   E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_in_proj_scheduler.sv
   E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_inproj_weight_sram.sv
   E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mac_fabric_manager.sv
   E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_block_top.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_out_proj_scheduler_stub.sv
+  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_out_proj_scheduler.sv
   E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_outproj_multi_bank_wbuf_dp.sv
   E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_outproj_weight_sram.sv
   E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_pipeline_4array_top.sv

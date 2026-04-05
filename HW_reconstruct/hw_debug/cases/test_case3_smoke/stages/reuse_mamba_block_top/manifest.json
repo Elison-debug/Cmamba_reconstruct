@@ -7,7 +7,11 @@
     "h_wr_addr.mem",
     "h_wr_data_q88.mem",
     "inproj_wbuf_bank*.mem",
+    "inproj_scale_q15.mem",
     "dt_wbuf_bank*.mem",
+    "dt_scale_q15.mem",
+    "outproj_wbuf_bank*.mem",
+    "outproj_scale_q15.mem",
     "control.json"
   ],
   "golden_outputs": [

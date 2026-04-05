@@ -25,7 +25,7 @@ Current structure:
 - `reuse_in_proj_scheduler.sv`
   - First concrete in-proj scheduler using the shared 4x4x4 MAC fabric.
   - Reads `W_in` from a dedicated weight SRAM, reads `h_t` from a dedicated activation SRAM, and writes results into `u_t` / `z_t` SRAMs.
-- `reuse_out_proj_scheduler_stub.sv`
+- `reuse_out_proj_scheduler.sv`
   - Empty placeholder for the future out-proj scheduler.
 - `reuse_inproj_weight_sram.sv`
   - Dedicated read-only SRAM wrapper for `W_in`.
@@ -61,7 +61,7 @@ Recommended hierarchy:
 - `reuse_mamba_block_top`
   - `reuse_in_proj_scheduler`
   - `reuse_ssm_dt_scheduler`
-  - `reuse_out_proj_scheduler_stub`
+  - `reuse_out_proj_scheduler`
   - `reuse_mac_fabric_manager`
     - `reuse_shared_mac_fabric`
   - `reuse_ssm_core`

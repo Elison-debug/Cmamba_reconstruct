@@ -14,7 +14,12 @@ module reuse_ssm_dt_scheduler #(
     parameter int WDEPTH     = 1024,
     parameter int WADDR_W    = $clog2(WDEPTH),
     parameter int DATA_W     = 256,
-    parameter int XT_ADDR_W  = 6
+    parameter int XT_ADDR_W  = 6,
+    parameter int SCALE_W            = 16,
+    parameter int SCALE_FRAC_BITS    = 15,
+    parameter bit USE_PER_CHANNEL_SCALE = 1,
+    parameter int REQUANT_ROUND_MODE = 1,
+    parameter int REQUANT_SAT_MODE   = 1
 )(
     input  logic clk,
     input  logic rst_n,
@@ -57,6 +62,8 @@ module reuse_ssm_dt_scheduler #(
     localparam int TILE_CYCLE  = GROUPS + 3;
     localparam int CNT_W       = $clog2(GROUPS + 1);
     localparam int TILE_CNT_W  = $clog2(TILE_CYCLE + 1);
+    localparam int SCALE_DEPTH = ROW_TILES;
+    localparam int SCALE_ADDR_W = $clog2(SCALE_DEPTH);
 
     typedef enum logic [2:0] {
         IDLE,
@@ -91,6 +98,9 @@ module reuse_ssm_dt_scheduler #(
     logic [WADDR_W-1:0]             w_addr_cur;
     logic                           w_rd_en_cur;
     logic [3:0][DATA_W-1:0]         w_dout_sel;
+    logic                           scale_rd_en;
+    logic [SCALE_ADDR_W-1:0]        scale_rd_addr;
+    logic [63:0]                    scale_rd_data;
 
     logic signed [DATA_WIDTH-1:0]   x_cache [ROW_TILES-1:0][TILE_SIZE-1:0];
     logic signed [DATA_WIDTH-1:0]   cur_A0 [TILE_SIZE-1:0][TILE_SIZE-1:0];
@@ -123,6 +133,9 @@ module reuse_ssm_dt_scheduler #(
     logic signed [DATA_WIDTH-1:0]   B1_mat_reg [TILE_SIZE-1:0][TILE_SIZE-1:0];
     logic signed [DATA_WIDTH-1:0]   B2_mat_reg [TILE_SIZE-1:0][TILE_SIZE-1:0];
     logic signed [DATA_WIDTH-1:0]   B3_mat_reg [TILE_SIZE-1:0][TILE_SIZE-1:0];
+    logic [DATA_WIDTH-1:0]          reduced_trunc_u [TILE_SIZE-1:0];
+    logic [ACC_WIDTH-1:0]           fabric_reduced_vec_u [TILE_SIZE-1:0];
+    logic [SCALE_W-1:0]             out_scale_vec [TILE_SIZE-1:0];
 
     assign sched_busy        = (state != IDLE && state != DONE_S);
     assign fabric_mode       = 2'b00;
@@ -135,6 +148,8 @@ module reuse_ssm_dt_scheduler #(
     assign s_axis_TREADY     = (state == IDLE);
     assign m_axis_TVALID     = (state == DONE_S);
     assign xt_axis_TVALID    = xt_pending;
+    assign scale_rd_en       = (state == RUN_PIPELINE) && (data_cnt == '0);
+    assign scale_rd_addr     = row_idx[SCALE_ADDR_W-1:0];
 
     assign fabric_A0_mat = A0_mat_reg;
     assign fabric_A1_mat = A1_mat_reg;
@@ -144,6 +159,40 @@ module reuse_ssm_dt_scheduler #(
     assign fabric_B1_mat = B1_mat_reg;
     assign fabric_B2_mat = B2_mat_reg;
     assign fabric_B3_mat = B3_mat_reg;
+
+    reuse_packed_scale_mem #(
+        .DEPTH  (SCALE_DEPTH),
+        .ADDR_W (SCALE_ADDR_W),
+        .DATA_W (64)
+    ) u_scale_mem (
+        .clk  (clk),
+        .en   (scale_rd_en),
+        .addr (scale_rd_addr),
+        .dout (scale_rd_data)
+    );
+
+    for (genvar g = 0; g < TILE_SIZE; g++) begin : gen_reduced_vec_cast
+        assign fabric_reduced_vec_u[g] = fabric_reduced_vec[g];
+        assign out_scale_vec[g] = scale_rd_data[g*SCALE_W +: SCALE_W];
+    end
+
+    requant_round_sat_engine #(
+        .TILE_SIZE  (TILE_SIZE),
+        .IN_W       (ACC_WIDTH),
+        .OUT_W      (DATA_WIDTH),
+        .SHIFT      (FRAC_BITS),
+        .SCALE_W    (SCALE_W),
+        .SCALE_FRAC_BITS(SCALE_FRAC_BITS),
+        .SIGNED_IN  (1),
+        .SIGNED_OUT (1),
+        .USE_SCALE  (USE_PER_CHANNEL_SCALE),
+        .ROUND_MODE (REQUANT_ROUND_MODE),
+        .SAT_MODE   (REQUANT_SAT_MODE)
+    ) u_reduced_requant (
+        .in_vec  (fabric_reduced_vec_u),
+        .scale_vec(out_scale_vec),
+        .out_vec (reduced_trunc_u)
+    );
 
 `ifdef SYNTHESIS
     slim_WBUF_bank_dp u_dt_wbuf_bank0 (
@@ -349,7 +398,7 @@ module reuse_ssm_dt_scheduler #(
             if (fabric_valid_out) begin
                 seen_valid_out <= 1'b1;
                 for (int i = 0; i < TILE_SIZE; i++)
-                    reduced_trunc[i] <= fabric_reduced_vec[i] >>> FRAC_BITS;
+                    reduced_trunc[i] <= $signed(reduced_trunc_u[i]);
             end
 
             if (xt_pending && xt_axis_TREADY)
