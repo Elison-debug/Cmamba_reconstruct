@@ -3,8 +3,8 @@
 # SW Build 5076996 on Wed May 22 18:37:14 MDT 2024
 # IP Build 5075265 on Wed May 22 21:45:21 MDT 2024
 # SharedData Build 5076995 on Wed May 22 18:29:18 MDT 2024
-# Start of session at: Fri Apr  3 23:33:08 2026
-# Process ID: 44252
+# Start of session at: Fri Apr  3 23:43:32 2026
+# Process ID: 86704
 # Current directory: E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1
 # Command line: vivado.exe -log reuse_mamba_block_wrapper.vds -product Vivado -mode batch -messageDb vivado.pb -notrace -source reuse_mamba_block_wrapper.tcl
 # Log file: E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1/reuse_mamba_block_wrapper.vds
@@ -19,7 +19,7 @@
 # Host memory       :34163 MB
 # Swap memory       :34163 MB
 # Total Virtual     :68327 MB
-# Available Virtual :18993 MB
+# Available Virtual :21265 MB
 #-----------------------------------------------------------
 source reuse_mamba_block_wrapper.tcl -notrace
 Command: read_checkpoint -auto_incremental -incremental E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/utils_1/imports/synth_1/reuse_mamba_block_top.dcp
@@ -32,9 +32,9 @@ INFO: [Common 17-349] Got license for feature 'Synthesis' and/or device 'xczu9eg
 INFO: [Device 21-403] Loading part xczu9eg-ffvb1156-2-e
 INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 2 processes.
 INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
-INFO: [Synth 8-7075] Helper process launched with PID 43944
+INFO: [Synth 8-7075] Helper process launched with PID 63528
 ---------------------------------------------------------------------------------
-Starting RTL Elaboration : Time (s): cpu = 00:00:03 ; elapsed = 00:00:03 . Memory (MB): peak = 1880.539 ; gain = 402.898
+Starting RTL Elaboration : Time (s): cpu = 00:00:03 ; elapsed = 00:00:03 . Memory (MB): peak = 1880.438 ; gain = 403.230
 ---------------------------------------------------------------------------------
 INFO: [Synth 8-6157] synthesizing module 'reuse_mamba_block_wrapper' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_block_wrapper.sv:10]
 INFO: [Synth 8-6157] synthesizing module 'reuse_mamba_block_top' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_block_top.sv:15]
@@ -63,8 +63,8 @@ INFO: [Synth 8-6157] synthesizing module 'reuse_ssm_dt_scheduler' [E:/course/mas
 	Parameter WADDR_W bound to: 32'sb00000000000000000000000000001010 
 	Parameter DATA_W bound to: 32'sb00000000000000000000000100000000 
 	Parameter XT_ADDR_W bound to: 32'sb00000000000000000000000000000110 
-INFO: [Synth 8-6157] synthesizing module 'slim_WBUF_bank_dp' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1/.Xil/Vivado-44252-13600kf/realtime/slim_WBUF_bank_dp_stub.v:6]
-INFO: [Synth 8-6155] done synthesizing module 'slim_WBUF_bank_dp' (0#1) [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1/.Xil/Vivado-44252-13600kf/realtime/slim_WBUF_bank_dp_stub.v:6]
+INFO: [Synth 8-6157] synthesizing module 'slim_WBUF_bank_dp' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1/.Xil/Vivado-86704-13600kf/realtime/slim_WBUF_bank_dp_stub.v:6]
+INFO: [Synth 8-6155] done synthesizing module 'slim_WBUF_bank_dp' (0#1) [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1/.Xil/Vivado-86704-13600kf/realtime/slim_WBUF_bank_dp_stub.v:6]
 INFO: [Synth 8-155] case statement is not full and has no default [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_ssm_dt_scheduler.sv:358]
 INFO: [Synth 8-6155] done synthesizing module 'reuse_ssm_dt_scheduler' (0#1) [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_ssm_dt_scheduler.sv:8]
 INFO: [Synth 8-6157] synthesizing module 'reuse_in_proj_scheduler' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_in_proj_scheduler.sv:10]
@@ -91,8 +91,8 @@ INFO: [Synth 8-6157] synthesizing module 'reuse_ht_sram' [E:/course/master/mamba
 INFO: [Synth 8-6157] synthesizing module 'reuse_ht_multi_copy_ip' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_ht_multi_copy_ip.sv:7]
 	Parameter DATA_W bound to: 32'sb00000000000000000000000001000000 
 	Parameter ADDR_W bound to: 32'sb00000000000000000000000000000101 
-INFO: [Synth 8-6157] synthesizing module 'inproj_ht_sram_ip' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1/.Xil/Vivado-44252-13600kf/realtime/inproj_ht_sram_ip_stub.v:6]
-INFO: [Synth 8-6155] done synthesizing module 'inproj_ht_sram_ip' (0#1) [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1/.Xil/Vivado-44252-13600kf/realtime/inproj_ht_sram_ip_stub.v:6]
+INFO: [Synth 8-6157] synthesizing module 'inproj_ht_sram_ip' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1/.Xil/Vivado-86704-13600kf/realtime/inproj_ht_sram_ip_stub.v:6]
+INFO: [Synth 8-6155] done synthesizing module 'inproj_ht_sram_ip' (0#1) [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1/.Xil/Vivado-86704-13600kf/realtime/inproj_ht_sram_ip_stub.v:6]
 INFO: [Synth 8-6155] done synthesizing module 'reuse_ht_multi_copy_ip' (0#1) [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_ht_multi_copy_ip.sv:7]
 INFO: [Synth 8-6155] done synthesizing module 'reuse_ht_sram' (0#1) [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_ht_sram.sv:8]
 INFO: [Synth 8-6157] synthesizing module 'reuse_vec_out_sram' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_vec_out_sram.sv:6]
@@ -103,8 +103,8 @@ INFO: [Synth 8-6157] synthesizing module 'reuse_vec_out_sram' [E:/course/master/
 INFO: [Synth 8-6157] synthesizing module 'reuse_vec_out_sram_ip' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_vec_out_sram_ip.sv:7]
 	Parameter DATA_W bound to: 32'sb00000000000000000000000001000000 
 	Parameter ADDR_W bound to: 32'sb00000000000000000000000000000110 
-INFO: [Synth 8-6157] synthesizing module 'inproj_vec_out_sram_ip' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1/.Xil/Vivado-44252-13600kf/realtime/inproj_vec_out_sram_ip_stub.v:6]
-INFO: [Synth 8-6155] done synthesizing module 'inproj_vec_out_sram_ip' (0#1) [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1/.Xil/Vivado-44252-13600kf/realtime/inproj_vec_out_sram_ip_stub.v:6]
+INFO: [Synth 8-6157] synthesizing module 'inproj_vec_out_sram_ip' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1/.Xil/Vivado-86704-13600kf/realtime/inproj_vec_out_sram_ip_stub.v:6]
+INFO: [Synth 8-6155] done synthesizing module 'inproj_vec_out_sram_ip' (0#1) [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1/.Xil/Vivado-86704-13600kf/realtime/inproj_vec_out_sram_ip_stub.v:6]
 INFO: [Synth 8-6155] done synthesizing module 'reuse_vec_out_sram_ip' (0#1) [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_vec_out_sram_ip.sv:7]
 INFO: [Synth 8-6155] done synthesizing module 'reuse_vec_out_sram' (0#1) [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_vec_out_sram.sv:6]
 INFO: [Synth 8-6155] done synthesizing module 'reuse_in_proj_scheduler' (0#1) [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_in_proj_scheduler.sv:10]
@@ -123,8 +123,8 @@ INFO: [Synth 8-6157] synthesizing module 'reuse_silu_vec4' [E:/course/master/mam
 INFO: [Synth 8-6157] synthesizing module 'vec_fifo_axis_ip' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/vec_fifo_axis_ip.sv:1]
 	Parameter TILE_SIZE bound to: 32'sb00000000000000000000000000000100 
 	Parameter DATA_WIDTH bound to: 32'sb00000000000000000000000000010000 
-INFO: [Synth 8-6157] synthesizing module 'bias2sigmoid_fifo' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1/.Xil/Vivado-44252-13600kf/realtime/bias2sigmoid_fifo_stub.v:6]
-INFO: [Synth 8-6155] done synthesizing module 'bias2sigmoid_fifo' (0#1) [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1/.Xil/Vivado-44252-13600kf/realtime/bias2sigmoid_fifo_stub.v:6]
+INFO: [Synth 8-6157] synthesizing module 'bias2sigmoid_fifo' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1/.Xil/Vivado-86704-13600kf/realtime/bias2sigmoid_fifo_stub.v:6]
+INFO: [Synth 8-6155] done synthesizing module 'bias2sigmoid_fifo' (0#1) [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1/.Xil/Vivado-86704-13600kf/realtime/bias2sigmoid_fifo_stub.v:6]
 INFO: [Synth 8-6155] done synthesizing module 'vec_fifo_axis_ip' (0#1) [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/vec_fifo_axis_ip.sv:1]
 INFO: [Synth 8-6157] synthesizing module 'sigmoid4_vec' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/sigmoid4_vec.sv:5]
 	Parameter TILE_SIZE bound to: 32'sb00000000000000000000000000000100 
@@ -169,8 +169,8 @@ INFO: [Synth 8-6157] synthesizing module 'reuse_outproj_multi_bank_wbuf_dp' [E:/
 	Parameter DEPTH bound to: 32'sb00000000000000000000000101010110 
 	Parameter ADDR_W bound to: 32'sb00000000000000000000000000001001 
 	Parameter DATA_W bound to: 32'sb00000000000000000000000100000000 
-INFO: [Synth 8-6157] synthesizing module 'outproj_WBUF_bank_dp' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1/.Xil/Vivado-44252-13600kf/realtime/outproj_WBUF_bank_dp_stub.v:6]
-INFO: [Synth 8-6155] done synthesizing module 'outproj_WBUF_bank_dp' (0#1) [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1/.Xil/Vivado-44252-13600kf/realtime/outproj_WBUF_bank_dp_stub.v:6]
+INFO: [Synth 8-6157] synthesizing module 'outproj_WBUF_bank_dp' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1/.Xil/Vivado-86704-13600kf/realtime/outproj_WBUF_bank_dp_stub.v:6]
+INFO: [Synth 8-6155] done synthesizing module 'outproj_WBUF_bank_dp' (0#1) [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1/.Xil/Vivado-86704-13600kf/realtime/outproj_WBUF_bank_dp_stub.v:6]
 INFO: [Synth 8-6155] done synthesizing module 'reuse_outproj_multi_bank_wbuf_dp' (0#1) [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_outproj_multi_bank_wbuf_dp.sv:10]
 INFO: [Synth 8-6155] done synthesizing module 'reuse_outproj_weight_sram' (0#1) [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_outproj_weight_sram.sv:1]
 WARNING: [Synth 8-4446] all outputs are unconnected for this instance and logic may be removed [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_out_proj_scheduler_stub.sv:164]
@@ -271,16 +271,16 @@ INFO: [Synth 8-6157] synthesizing module 'bias_add_regslice_ip_A' [E:/course/mas
 	Parameter DATA_WIDTH bound to: 32'sb00000000000000000000000000010000 
 	Parameter D bound to: 32'sb00000000000000000000000100000000 
 	Parameter PIPE_LAT bound to: 32'sb00000000000000000000000000000100 
-INFO: [Synth 8-6157] synthesizing module 'bias_ROM' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1/.Xil/Vivado-44252-13600kf/realtime/bias_ROM_stub.v:6]
-INFO: [Synth 8-6155] done synthesizing module 'bias_ROM' (0#1) [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1/.Xil/Vivado-44252-13600kf/realtime/bias_ROM_stub.v:6]
+INFO: [Synth 8-6157] synthesizing module 'bias_ROM' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1/.Xil/Vivado-86704-13600kf/realtime/bias_ROM_stub.v:6]
+INFO: [Synth 8-6155] done synthesizing module 'bias_ROM' (0#1) [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1/.Xil/Vivado-86704-13600kf/realtime/bias_ROM_stub.v:6]
 INFO: [Synth 8-6155] done synthesizing module 'bias_add_regslice_ip_A' (0#1) [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/bias_add_regslice_ip.sv:16]
 INFO: [Synth 8-6157] synthesizing module 'ew_update_vec4' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ew_update_vec4.sv:11]
 	Parameter TILE_SIZE bound to: 32'sb00000000000000000000000000000100 
 	Parameter W bound to: 32'sb00000000000000000000000000010000 
 	Parameter S_ADDR_W bound to: 32'sb00000000000000000000000000000110 
 INFO: [Synth 8-155] case statement is not full and has no default [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ew_update_vec4.sv:113]
-INFO: [Synth 8-6157] synthesizing module 's_buffer' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1/.Xil/Vivado-44252-13600kf/realtime/s_buffer_stub.v:6]
-INFO: [Synth 8-6155] done synthesizing module 's_buffer' (0#1) [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1/.Xil/Vivado-44252-13600kf/realtime/s_buffer_stub.v:6]
+INFO: [Synth 8-6157] synthesizing module 's_buffer' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1/.Xil/Vivado-86704-13600kf/realtime/s_buffer_stub.v:6]
+INFO: [Synth 8-6155] done synthesizing module 's_buffer' (0#1) [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1/.Xil/Vivado-86704-13600kf/realtime/s_buffer_stub.v:6]
 INFO: [Synth 8-6157] synthesizing module 'ewm_vec4__parameterized0' [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ewm_vec4.sv:7]
 	Parameter TILE_SIZE bound to: 32'sb00000000000000000000000000000100 
 	Parameter IN_W bound to: 32'sb00000000000000000000000000010000 
@@ -502,18 +502,18 @@ WARNING: [Synth 8-7129] Port fabric_reduced_mat_0[3][1][4] in module reuse_out_p
 WARNING: [Synth 8-7129] Port fabric_reduced_mat_0[3][1][3] in module reuse_out_proj_scheduler_stub is either unconnected or has no load
 INFO: [Common 17-14] Message 'Synth 8-7129' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
 ---------------------------------------------------------------------------------
-Finished RTL Elaboration : Time (s): cpu = 00:00:08 ; elapsed = 00:00:08 . Memory (MB): peak = 2255.305 ; gain = 777.664
+Finished RTL Elaboration : Time (s): cpu = 00:00:10 ; elapsed = 00:00:11 . Memory (MB): peak = 2255.352 ; gain = 778.145
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Handling Custom Attributes
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Handling Custom Attributes : Time (s): cpu = 00:00:08 ; elapsed = 00:00:08 . Memory (MB): peak = 2255.305 ; gain = 777.664
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:11 ; elapsed = 00:00:12 . Memory (MB): peak = 2255.352 ; gain = 778.145
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:08 ; elapsed = 00:00:08 . Memory (MB): peak = 2255.305 ; gain = 777.664
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:11 ; elapsed = 00:00:12 . Memory (MB): peak = 2255.352 ; gain = 778.145
 ---------------------------------------------------------------------------------
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.412 . Memory (MB): peak = 2255.305 ; gain = 0.000
+Netlist sorting complete. Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.767 . Memory (MB): peak = 2255.352 ; gain = 0.000
 INFO: [Project 1-570] Preparing netlist for logic optimization
 
 Processing XDC Constraints
@@ -593,16 +593,15 @@ Finished Parsing XDC File [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstr
 Parsing XDC File [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/inproj_vec_out_sram_ip/inproj_vec_out_sram_ip/inproj_vec_out_sram_ip_in_context.xdc] for cell 'u_core/u_out_proj/u_y_sram/u_vec_ip/u_copy1'
 Finished Parsing XDC File [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/inproj_vec_out_sram_ip/inproj_vec_out_sram_ip/inproj_vec_out_sram_ip_in_context.xdc] for cell 'u_core/u_out_proj/u_y_sram/u_vec_ip/u_copy1'
 Parsing XDC File [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/minimal_timing.xdc]
-CRITICAL WARNING: [Designutils 20-1307] Command 'if' is not supported in the xdc constraint file. [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/minimal_timing.xdc:16]
-CRITICAL WARNING: [Designutils 20-1307] Command 'remove_from_collection' is not supported in the xdc constraint file. [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/minimal_timing.xdc:24]
+create_clock: Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2392.707 ; gain = 4.293
 Finished Parsing XDC File [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/minimal_timing.xdc]
 Completed Processing XDC Constraints
 
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.005 . Memory (MB): peak = 2392.473 ; gain = 0.000
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.013 . Memory (MB): peak = 2392.707 ; gain = 0.000
 INFO: [Project 1-111] Unisim Transformation Summary:
 No Unisim elements were transformed.
 
-Constraint Validation Runtime : Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.266 . Memory (MB): peak = 2392.473 ; gain = 0.000
+Constraint Validation Runtime : Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.501 . Memory (MB): peak = 2392.707 ; gain = 0.000
 WARNING: [Timing 38-316] Clock period '20.000' specified during out-of-context synthesis of instance 'u_core/u_dt_sched/u_dt_wbuf_bank0' at clock pin 'clka' is different from the actual clock period '5.000', this can lead to different synthesis results.
 WARNING: [Timing 38-316] Clock period '20.000' specified during out-of-context synthesis of instance 'u_core/u_dt_sched/u_dt_wbuf_bank1' at clock pin 'clka' is different from the actual clock period '5.000', this can lead to different synthesis results.
 WARNING: [Timing 38-316] Clock period '20.000' specified during out-of-context synthesis of instance 'u_core/u_dt_sched/u_dt_wbuf_bank2' at clock pin 'clka' is different from the actual clock period '5.000', this can lead to different synthesis results.
@@ -641,7 +640,7 @@ WARNING: [Timing 38-316] Clock period '10.000' specified during out-of-context s
 WARNING: [Timing 38-316] Clock period '10.000' specified during out-of-context synthesis of instance 'u_core/u_u_silu/u_x_fifo/u_fifo' at clock pin 's_aclk' is different from the actual clock period '5.000', this can lead to different synthesis results.
 WARNING: [Timing 38-316] Clock period '20.000' specified during out-of-context synthesis of instance 'u_core/u_uact_sram/u_ht_ip' at clock pin 'clka' is different from the actual clock period '5.000', this can lead to different synthesis results.
 ---------------------------------------------------------------------------------
-Finished Constraint Validation : Time (s): cpu = 00:00:21 ; elapsed = 00:00:21 . Memory (MB): peak = 2404.133 ; gain = 926.492
+Finished Constraint Validation : Time (s): cpu = 00:00:38 ; elapsed = 00:00:39 . Memory (MB): peak = 2395.832 ; gain = 918.625
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Loading Part and Timing Information
@@ -649,7 +648,7 @@ Start Loading Part and Timing Information
 Loading part: xczu9eg-ffvb1156-2-e
 INFO: [Synth 8-6742] Reading net delay rules and data
 ---------------------------------------------------------------------------------
-Finished Loading Part and Timing Information : Time (s): cpu = 00:00:21 ; elapsed = 00:00:21 . Memory (MB): peak = 2404.133 ; gain = 926.492
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:38 ; elapsed = 00:00:39 . Memory (MB): peak = 2395.832 ; gain = 918.625
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Applying 'set_property' XDC Constraints
@@ -692,25 +691,25 @@ Applied set_property KEEP_HIERARCHY = SOFT for u_core/u_in_proj/u_u_sram/u_vec_i
 Applied set_property KEEP_HIERARCHY = SOFT for u_core/u_in_proj/u_z_sram/u_vec_ip/u_copy1. (constraint file  auto generated constraint).
 Applied set_property KEEP_HIERARCHY = SOFT for u_core/u_out_proj/u_y_sram/u_vec_ip/u_copy1. (constraint file  auto generated constraint).
 ---------------------------------------------------------------------------------
-Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:21 ; elapsed = 00:00:22 . Memory (MB): peak = 2404.133 ; gain = 926.492
+Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:38 ; elapsed = 00:00:40 . Memory (MB): peak = 2395.832 ; gain = 918.625
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Preparing Guide Design
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Doing Graph Differ : Time (s): cpu = 00:00:23 ; elapsed = 00:00:24 . Memory (MB): peak = 2404.133 ; gain = 926.492
+Finished Doing Graph Differ : Time (s): cpu = 00:00:42 ; elapsed = 00:00:44 . Memory (MB): peak = 2395.832 ; gain = 918.625
 ---------------------------------------------------------------------------------
 reuse_mamba_block_wrapper__GC0reuse_mamba_block_top__GB3reuse_mamba_block_top__GB2reuse_mamba_block_top__GB1reuse_mamba_block_top__GB0reuse_in_proj_scheduler---------------------------------------------------------------------------------
-Finished Preparing Guide Design : Time (s): cpu = 00:00:24 ; elapsed = 00:00:25 . Memory (MB): peak = 2404.133 ; gain = 926.492
+Finished Preparing Guide Design : Time (s): cpu = 00:00:44 ; elapsed = 00:00:46 . Memory (MB): peak = 2395.832 ; gain = 918.625
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:25 ; elapsed = 00:00:26 . Memory (MB): peak = 2404.133 ; gain = 926.492
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:45 ; elapsed = 00:00:47 . Memory (MB): peak = 2395.832 ; gain = 918.625
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Mimic Skeleton from Reference
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Mimic Skeleton from Reference : Time (s): cpu = 00:00:25 ; elapsed = 00:00:26 . Memory (MB): peak = 2404.133 ; gain = 926.492
+Finished Mimic Skeleton from Reference : Time (s): cpu = 00:00:47 ; elapsed = 00:00:49 . Memory (MB): peak = 2395.832 ; gain = 918.625
 ---------------------------------------------------------------------------------
 
 
@@ -783,25 +782,25 @@ Start Cross Boundary and Area Optimization
 WARNING: [Synth 8-7080] Parallel synthesis criteria is not met
 WARNING: [Synth 8-7077] IncrSyn: subsequent runs will still be incremental as the reference run was parallel and that data is reused
 ---------------------------------------------------------------------------------
-Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:27 ; elapsed = 00:00:28 . Memory (MB): peak = 2404.133 ; gain = 926.492
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:51 ; elapsed = 00:00:53 . Memory (MB): peak = 2395.832 ; gain = 918.625
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Stitch Unchanged AreaOpt Partitions
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Stitch Unchanged AreaOpt Partitions : Time (s): cpu = 00:00:28 ; elapsed = 00:00:29 . Memory (MB): peak = 2404.133 ; gain = 926.492
+Finished Stitch Unchanged AreaOpt Partitions : Time (s): cpu = 00:00:52 ; elapsed = 00:00:54 . Memory (MB): peak = 2395.832 ; gain = 918.625
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Applying XDC Timing Constraints
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Applying XDC Timing Constraints : Time (s): cpu = 00:00:37 ; elapsed = 00:00:39 . Memory (MB): peak = 2771.691 ; gain = 1294.051
+Finished Applying XDC Timing Constraints : Time (s): cpu = 00:01:10 ; elapsed = 00:01:14 . Memory (MB): peak = 2766.121 ; gain = 1288.914
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Timing Optimization
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Timing Optimization : Time (s): cpu = 00:00:37 ; elapsed = 00:00:39 . Memory (MB): peak = 2773.039 ; gain = 1295.398
+Finished Timing Optimization : Time (s): cpu = 00:01:11 ; elapsed = 00:01:15 . Memory (MB): peak = 2767.469 ; gain = 1290.262
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Technology Mapping
@@ -809,13 +808,13 @@ Start Technology Mapping
 WARNING: [Synth 8-7080] Parallel synthesis criteria is not met
 WARNING: [Synth 8-7077] IncrSyn: subsequent runs will still be incremental as the reference run was parallel and that data is reused
 ---------------------------------------------------------------------------------
-Finished Technology Mapping : Time (s): cpu = 00:00:37 ; elapsed = 00:00:39 . Memory (MB): peak = 2781.750 ; gain = 1304.109
+Finished Technology Mapping : Time (s): cpu = 00:01:11 ; elapsed = 00:01:15 . Memory (MB): peak = 2775.461 ; gain = 1298.254
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Stitch Unchanged Partitions
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Stitch Unchanged Partitions : Time (s): cpu = 00:00:38 ; elapsed = 00:00:40 . Memory (MB): peak = 2781.750 ; gain = 1304.109
+Finished Stitch Unchanged Partitions : Time (s): cpu = 00:01:12 ; elapsed = 00:01:16 . Memory (MB): peak = 2775.461 ; gain = 1298.254
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start IO Insertion
@@ -833,37 +832,37 @@ Start Final Netlist Cleanup
 Finished Final Netlist Cleanup
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished IO Insertion : Time (s): cpu = 00:00:43 ; elapsed = 00:00:45 . Memory (MB): peak = 2830.008 ; gain = 1352.367
+Finished IO Insertion : Time (s): cpu = 00:01:23 ; elapsed = 00:01:28 . Memory (MB): peak = 2826.812 ; gain = 1349.605
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Renaming Generated Instances
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Renaming Generated Instances : Time (s): cpu = 00:00:43 ; elapsed = 00:00:45 . Memory (MB): peak = 2830.008 ; gain = 1352.367
+Finished Renaming Generated Instances : Time (s): cpu = 00:01:23 ; elapsed = 00:01:28 . Memory (MB): peak = 2826.812 ; gain = 1349.605
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Rebuilding User Hierarchy
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Rebuilding User Hierarchy : Time (s): cpu = 00:00:45 ; elapsed = 00:00:47 . Memory (MB): peak = 2830.008 ; gain = 1352.367
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:01:26 ; elapsed = 00:01:31 . Memory (MB): peak = 2826.812 ; gain = 1349.605
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Renaming Generated Ports
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Renaming Generated Ports : Time (s): cpu = 00:00:45 ; elapsed = 00:00:47 . Memory (MB): peak = 2830.008 ; gain = 1352.367
+Finished Renaming Generated Ports : Time (s): cpu = 00:01:27 ; elapsed = 00:01:32 . Memory (MB): peak = 2826.812 ; gain = 1349.605
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Handling Custom Attributes
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Handling Custom Attributes : Time (s): cpu = 00:00:46 ; elapsed = 00:00:48 . Memory (MB): peak = 2830.008 ; gain = 1352.367
+Finished Handling Custom Attributes : Time (s): cpu = 00:01:29 ; elapsed = 00:01:34 . Memory (MB): peak = 2826.812 ; gain = 1349.605
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Renaming Generated Nets
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Renaming Generated Nets : Time (s): cpu = 00:00:46 ; elapsed = 00:00:48 . Memory (MB): peak = 2830.008 ; gain = 1352.367
+Finished Renaming Generated Nets : Time (s): cpu = 00:01:29 ; elapsed = 00:01:34 . Memory (MB): peak = 2826.812 ; gain = 1349.605
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Writing Synthesis Report
@@ -1009,15 +1008,15 @@ Report Cell Usage:
 |60    |OBUF                   |   201|
 +------+-----------------------+------+
 ---------------------------------------------------------------------------------
-Finished Writing Synthesis Report : Time (s): cpu = 00:00:46 ; elapsed = 00:00:48 . Memory (MB): peak = 2830.008 ; gain = 1352.367
+Finished Writing Synthesis Report : Time (s): cpu = 00:01:29 ; elapsed = 00:01:34 . Memory (MB): peak = 2826.812 ; gain = 1349.605
 ---------------------------------------------------------------------------------
 Synthesis finished with 0 errors, 0 critical warnings and 4 warnings.
-Synthesis Optimization Runtime : Time (s): cpu = 00:00:31 ; elapsed = 00:00:40 . Memory (MB): peak = 2830.008 ; gain = 1203.539
-Synthesis Optimization Complete : Time (s): cpu = 00:00:47 ; elapsed = 00:00:49 . Memory (MB): peak = 2830.008 ; gain = 1352.367
+Synthesis Optimization Runtime : Time (s): cpu = 00:01:02 ; elapsed = 00:01:18 . Memory (MB): peak = 2826.812 ; gain = 1209.125
+Synthesis Optimization Complete : Time (s): cpu = 00:01:30 ; elapsed = 00:01:35 . Memory (MB): peak = 2826.812 ; gain = 1349.605
 INFO: [Project 1-571] Translating synthesized netlist
-Netlist sorting complete. Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.293 . Memory (MB): peak = 2830.008 ; gain = 0.000
+Netlist sorting complete. Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.441 . Memory (MB): peak = 2826.812 ; gain = 0.000
 INFO: [Netlist 29-17] Analyzing 1330 Unisim elements for replacement
-INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Netlist 29-28] Unisim Transformation completed in 1 CPU seconds
 INFO: [Project 1-570] Preparing netlist for logic optimization
 INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
 INFO: [Opt 31-422] The CLOCK_DOMAINS attribute on the BRAM cell u_core/u_silu/u_sigmoid/stage0_addr_reg[1] has been changed from INDEPENDENT to COMMON to match the clocking topology used for the BRAM.
@@ -1026,7 +1025,7 @@ INFO: [Opt 31-422] The CLOCK_DOMAINS attribute on the BRAM cell u_core/u_ssm_cor
 INFO: [Opt 31-422] The CLOCK_DOMAINS attribute on the BRAM cell u_core/u_ssm_core/u_sigmoid/stage0_addr_reg[3] has been changed from INDEPENDENT to COMMON to match the clocking topology used for the BRAM.
 INFO: [Opt 31-422] The CLOCK_DOMAINS attribute on the BRAM cell u_core/u_u_silu/u_sigmoid/stage0_addr_reg[1] has been changed from INDEPENDENT to COMMON to match the clocking topology used for the BRAM.
 INFO: [Opt 31-422] The CLOCK_DOMAINS attribute on the BRAM cell u_core/u_u_silu/u_sigmoid/stage0_addr_reg[3] has been changed from INDEPENDENT to COMMON to match the clocking topology used for the BRAM.
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.005 . Memory (MB): peak = 2830.008 ; gain = 0.000
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.012 . Memory (MB): peak = 2826.812 ; gain = 0.000
 INFO: [Project 1-111] Unisim Transformation Summary:
   A total of 243 instances were transformed.
   BUFG => BUFGCE: 1 instance 
@@ -1035,11 +1034,10 @@ INFO: [Project 1-111] Unisim Transformation Summary:
 
 Synth Design complete | Checksum: 7c769a56
 INFO: [Common 17-83] Releasing license: Synthesis
-122 Infos, 244 Warnings, 2 Critical Warnings and 0 Errors encountered.
+122 Infos, 244 Warnings, 0 Critical Warnings and 0 Errors encountered.
 synth_design completed successfully
-synth_design: Time (s): cpu = 00:00:57 ; elapsed = 00:01:00 . Memory (MB): peak = 2830.008 ; gain = 2328.418
-INFO: [runtcl-6] Synthesis results are not added to the cache due to CRITICAL_WARNING
-Write ShapeDB Complete: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.036 . Memory (MB): peak = 2830.008 ; gain = 0.000
+synth_design: Time (s): cpu = 00:01:46 ; elapsed = 00:01:52 . Memory (MB): peak = 2826.812 ; gain = 2324.246
+Write ShapeDB Complete: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.069 . Memory (MB): peak = 2826.812 ; gain = 0.000
 INFO: [Common 17-1381] The checkpoint 'E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1/reuse_mamba_block_wrapper.dcp' has been generated.
 INFO: [Vivado 12-24828] Executing command : report_utilization -file reuse_mamba_block_wrapper_utilization_synth.rpt -pb reuse_mamba_block_wrapper_utilization_synth.pb
-INFO: [Common 17-206] Exiting Vivado at Fri Apr  3 23:34:18 2026...
+INFO: [Common 17-206] Exiting Vivado at Fri Apr  3 23:45:36 2026...

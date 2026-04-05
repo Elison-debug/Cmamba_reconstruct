@@ -3,10 +3,10 @@
 # SW Build 5076996 on Wed May 22 18:37:14 MDT 2024
 # IP Build 5075265 on Wed May 22 21:45:21 MDT 2024
 # SharedData Build 5076995 on Wed May 22 18:29:18 MDT 2024
-# Start of session at: Fri Apr  3 23:37:55 2026
-# Process ID: 67052
+# Start of session at: Fri Apr  3 23:41:46 2026
+# Process ID: 52756
 # Current directory: E:/course/master/mamba/Cmamba_reconstruct
-# Command line: vivado.exe -mode batch -source .\HW_reconstruct\project_mamba_all1\project_mamba_all1.runs\synth_1\reuse_mamba_block_wrapper.tcl
+# Command line: vivado.exe HW_reconstruct\project_mamba_all1\project_mamba_all1.xpr
 # Log file: E:/course/master/mamba/Cmamba_reconstruct/vivado.log
 # Journal file: E:/course/master/mamba/Cmamba_reconstruct\vivado.jou
 # Running On        :13600kf
@@ -19,6 +19,53 @@
 # Host memory       :34163 MB
 # Swap memory       :34163 MB
 # Total Virtual     :68327 MB
-# Available Virtual :18599 MB
+# Available Virtual :22712 MB
 #-----------------------------------------------------------
-source {.\HW_reconstruct\project_mamba_all1\project_mamba_all1.runs\synth_1\reuse_mamba_block_wrapper.tcl}
+start_gui
+open_project HW_reconstruct/project_mamba_all1/project_mamba_all1.xpr
+update_compile_order -fileset sources_1
+reset_run synth_1
+launch_runs synth_1 -jobs 20
+wait_on_run synth_1
+open_run synth_1 -name synth_1
+report_timing_summary -delay_type min_max -report_unconstrained -check_timing_verbose -max_paths 10 -input_pins -routable_nets -name timing_1 -file E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/reports/timing_report.txt
+report_methodology -name ultrafast_methodology_1 -file E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/reports/methodology_report.txt
+close_design
+synth_design -rtl -rtl_skip_mlo -name rtl_1
+launch_simulation
+source tb_reuse_mamba_block_top_hw_debug.tcl
+close_sim
+reset_simulation -simset sim_1 -mode behavioral
+launch_simulation
+source tb_reuse_mamba_block_top_hw_debug.tcl
+run 50 us
+current_wave_config {Untitled 2}
+add_wave {{/tb_reuse_mamba_block_top_hw_debug/dut/u_dt_sched/fabric_valid_in}} 
+current_wave_config {Untitled 2}
+add_wave {{/tb_reuse_mamba_block_top_hw_debug/dut/u_dt_sched/sched_busy}} 
+restart
+run 50 us
+current_wave_config {Untitled 2}
+add_wave {{/tb_reuse_mamba_block_top_hw_debug/dut/blk_st}} 
+current_wave_config {Untitled 2}
+add_wave {{/tb_reuse_mamba_block_top_hw_debug/dut/dt_busy}} 
+current_wave_config {Untitled 2}
+add_wave {{/tb_reuse_mamba_block_top_hw_debug/dut/dt_issue_count}} 
+current_wave_config {Untitled 2}
+add_wave {{/tb_reuse_mamba_block_top_hw_debug/dut/uact_fill_done}} 
+current_wave_config {Untitled 2}
+add_wave {{/tb_reuse_mamba_block_top_hw_debug/dut/outproj_done_seen}} 
+restart
+run 50 us
+current_wave_config {Untitled 2}
+add_wave {{/tb_reuse_mamba_block_top_hw_debug/dut/u_dt_sched/m_axis_TVALID}} 
+current_wave_config {Untitled 2}
+add_wave {{/tb_reuse_mamba_block_top_hw_debug/dut/u_dt_sched/xt_axis_TVALID}} 
+current_wave_config {Untitled 2}
+add_wave {{/tb_reuse_mamba_block_top_hw_debug/dut/u_dt_sched/fabric_valid_in}} 
+restart
+run 50 us
+open_run synth_1 -name synth_1
+report_timing_summary -delay_type min_max -report_unconstrained -check_timing_verbose -max_paths 10 -input_pins -routable_nets -name timing_1
+report_timing_summary -delay_type min_max -report_unconstrained -check_timing_verbose -max_paths 1000 -input_pins -routable_nets -name timing_2
+report_timing_summary -delay_type min_max -report_unconstrained -check_timing_verbose -max_paths 1000 -input_pins -routable_nets -name timing_3 -file E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/reports/timing_report.txt
