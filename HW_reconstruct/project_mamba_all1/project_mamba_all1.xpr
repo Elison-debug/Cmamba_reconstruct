@@ -146,6 +146,13 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
+      <File Path="$PPRDIR/../rtl_reuse_shared/requant_round_sat_engine.sv">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
       <File Path="$PPRDIR/../rtl_reuse_shared/reuse_array4x4.sv">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
@@ -195,7 +202,28 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
+      <File Path="$PPRDIR/../rtl_reuse_shared/reuse_mamba_axi_lite_regs.sv">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
       <File Path="$PPRDIR/../rtl_reuse_shared/reuse_mamba_block_top.sv">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../rtl_reuse_shared/reuse_mamba_block_wrapper.sv">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../rtl_reuse_shared/reuse_mamba_h_stream_loader.sv">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
@@ -217,6 +245,13 @@
         </FileInfo>
       </File>
       <File Path="$PPRDIR/../rtl_reuse_shared/reuse_outproj_weight_sram.sv">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../rtl_reuse_shared/reuse_packed_scale_mem.sv">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
@@ -321,7 +356,7 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../rtl_reuse_shared/reuse_mamba_block_wrapper.sv">
+      <File Path="$PPRDIR/../rtl_reuse_shared/reuse_mamba_board_shell.sv">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
@@ -384,7 +419,7 @@
       </File>
       <Config>
         <Option Name="DesignMode" Val="RTL"/>
-        <Option Name="TopModule" Val="reuse_mamba_block_wrapper"/>
+        <Option Name="TopModule" Val="reuse_mamba_board_shell"/>
       </Config>
     </FileSet>
     <FileSet Name="constrs_1" Type="Constrs" RelSrcDir="$PSRCDIR/constrs_1" RelGenDir="$PGENDIR/constrs_1">
@@ -939,7 +974,7 @@
     </FileSet>
     <FileSet Name="sim_2" Type="SimulationSrcs" RelSrcDir="$PSRCDIR/sim_2" RelGenDir="$PGENDIR/sim_2">
       <Filter Type="Srcs"/>
-      <File Path="$PPRDIR/../hardware_reconstruct/tb/tb_reuse_mamba_block_top.sv">
+      <File Path="$PPRDIR/../tb/tb_reuse_mamba_block_top.sv">
         <FileInfo>
           <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
@@ -964,7 +999,7 @@
     </FileSet>
     <FileSet Name="sim_3" Type="SimulationSrcs" RelSrcDir="$PSRCDIR/sim_3" RelGenDir="$PGENDIR/sim_3">
       <Filter Type="Srcs"/>
-      <File Path="$PPRDIR/../hardware_reconstruct/tb/tb_reuse_in_proj_scheduler.sv">
+      <File Path="$PPRDIR/../tb/tb_reuse_in_proj_scheduler.sv">
         <FileInfo>
           <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
@@ -995,7 +1030,7 @@
     </FileSet>
     <FileSet Name="sim_4" Type="SimulationSrcs" RelSrcDir="$PSRCDIR/sim_4" RelGenDir="$PGENDIR/sim_4">
       <Filter Type="Srcs"/>
-      <File Path="$PPRDIR/../hardware_reconstruct/rtl_reuse_shared/reuse_ht_sram_sp.sv">
+      <File Path="$PPRDIR/../rtl_reuse_shared/reuse_ht_sram_sp.sv">
         <FileInfo>
           <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
@@ -1003,7 +1038,7 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../hardware_reconstruct/tb/tb_reuse_mamba_block_top.sv">
+      <File Path="$PPRDIR/../tb/tb_reuse_mamba_block_top.sv">
         <FileInfo>
           <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
@@ -1035,7 +1070,7 @@
     </FileSet>
     <FileSet Name="sim_5" Type="SimulationSrcs" RelSrcDir="$PSRCDIR/sim_5" RelGenDir="$PGENDIR/sim_5">
       <Filter Type="Srcs"/>
-      <File Path="$PPRDIR/../hardware_reconstruct/tb/tb_reuse_mamba_block_top_inproj_to_outproj.sv">
+      <File Path="$PPRDIR/../tb/tb_reuse_mamba_block_top_inproj_to_outproj.sv">
         <FileInfo>
           <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>

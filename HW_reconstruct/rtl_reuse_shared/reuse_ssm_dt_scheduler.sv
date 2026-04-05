@@ -17,7 +17,7 @@ module reuse_ssm_dt_scheduler #(
     parameter int XT_ADDR_W  = 6,
     parameter int SCALE_W            = 16,
     parameter int SCALE_FRAC_BITS    = 15,
-    parameter bit USE_PER_CHANNEL_SCALE = 1,
+    parameter bit USE_PER_CHANNEL_SCALE = 0,
     parameter int REQUANT_ROUND_MODE = 1,
     parameter int REQUANT_SAT_MODE   = 1
 )(

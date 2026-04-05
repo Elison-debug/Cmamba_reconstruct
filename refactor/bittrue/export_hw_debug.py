@@ -520,6 +520,14 @@ def _conv1x1_q88_intmac(weight_2d: np.ndarray, x_q88: np.ndarray) -> np.ndarray:
     return _wrap_s16_arr(y_q88)
 
 
+def _conv1x1_q88_rne_clamp(weight_2d: np.ndarray, x_q88: np.ndarray) -> np.ndarray:
+    w_q88 = _quant_q88(weight_2d).astype(np.int64)
+    x_q88_i64 = x_q88.astype(np.int64)
+    acc_q1616 = w_q88 @ x_q88_i64
+    y_q88 = _rshift_rne_vec(acc_q1616, 8)
+    return _clamp_s16_arr(y_q88)
+
+
 def _choose_row_scale_q15(weight_2d: np.ndarray) -> np.ndarray:
     row_max = np.max(np.abs(weight_2d.astype(np.float64)), axis=1)
     scale = np.where(row_max > 0.0, row_max / 127.0, 1.0 / 32768.0)
@@ -972,7 +980,9 @@ def _export_reuse_top_stage(case_dir: Path, model: torch.nn.Module, x_arr: np.nd
     dt_w = dtproj_conv.weight.detach().cpu().numpy().reshape(dtproj_conv.out_channels, dtproj_conv.in_channels)
     outproj_w = outproj_conv.weight.detach().cpu().numpy().reshape(outproj_conv.out_channels, outproj_conv.in_channels)
     h_q88 = _quant_q88(h_np)
-    uv_q88, inproj_scale_q15, inproj_w_fold_q88 = _conv1x1_q88_scaled_intmac(inproj_w, h_q88)
+    uv_q88 = _conv1x1_q88_rne_clamp(inproj_w, h_q88)
+    inproj_scale_q15 = np.full((inproj_w.shape[0],), 1 << 15, dtype=np.uint16)
+    inproj_w_fold_q88 = _quant_q88(inproj_w)
     u_q88 = uv_q88[:inner]
     z_q88 = uv_q88[inner:]
     _write_mem_u16_scalar(stage_dir / "h_wr_addr.mem", list(range(32)), width_hex=2)
@@ -985,12 +995,16 @@ def _export_reuse_top_stage(case_dir: Path, model: torch.nn.Module, x_arr: np.nd
     z_q88_rows = z_q88.reshape(64, 4)
     z_sig_q016 = _sigmoid_q016_from_q88(z_q88_rows)
     z_silu_q88 = _mul_q016_q88_to_q88(z_sig_q016, z_q88_rows)
-    dt_q88_flat, dt_scale_q15, dt_w_fold_q88 = _conv1x1_q88_scaled_intmac(dt_w, u_act_q88.reshape(-1))
+    dt_q88_flat = _conv1x1_q88_rne_clamp(dt_w, u_act_q88.reshape(-1))
+    dt_scale_q15 = np.full((dt_w.shape[0],), 1 << 15, dtype=np.uint16)
+    dt_w_fold_q88 = _quant_q88(dt_w)
     dt_q88 = dt_q88_flat.reshape(64, 4)
     lam_q016 = _sigmoid_q016_from_q88(dt_q88)
     ssm_q88 = _ssm_update_q88_from_lam_q016(lam_q016, u_act_q88)
     gate_y_q88 = _mul_q88_q88_to_q88(z_silu_q88, ssm_q88)
-    y_q88_flat, outproj_scale_q15, outproj_w_fold_q88 = _conv1x1_q88_scaled_intmac(outproj_w, gate_y_q88.reshape(-1))
+    y_q88_flat = _conv1x1_q88_rne_clamp(outproj_w, gate_y_q88.reshape(-1))
+    outproj_scale_q15 = np.full((outproj_w.shape[0],), 1 << 15, dtype=np.uint16)
+    outproj_w_fold_q88 = _quant_q88(outproj_w)
     y_q88 = y_q88_flat.reshape(32, 4)
 
     _write_mem_matrix_rows_q88(stage_dir / "u_act_golden_q88.mem", u_act_q88)
@@ -1023,8 +1037,8 @@ def _export_reuse_top_stage(case_dir: Path, model: torch.nn.Module, x_arr: np.nd
             "notes": [
                 "Current top-level golden is block-local and ends at out_proj output before any residual add outside this RTL block.",
                 "Compare h->in_proj->u/z SRAM first, then dt/lam/ssm/gate, then y.",
-                "Golden uses aligned 4-array weight banking plus row-tile scale_q15 requant.",
-                "dt golden is generated from u_act SRAM semantics with per-output-channel scale folded into weights + writeback scale.",
+                "Golden uses aligned 4-array weight banking plus row-tile scale_q15 mems.",
+                "Current RTL-default path uses ties-to-even/clamp with identity scale on in_proj/dt/out_proj.",
                 "For cpp-bittrue style ties-to-even/clamp/per-channel-scale comparison, see logs/final_compare_cpp_export_hw_cppish.json.",
             ],
         },
@@ -1208,13 +1222,16 @@ def _export_reuse_ssm_dt_scheduler_stage(case_dir: Path, model: torch.nn.Module,
     dt_w = dtproj_conv.weight.detach().cpu().numpy().reshape(dtproj_conv.out_channels, dtproj_conv.in_channels)
 
     h_q88 = _quant_q88(h[0, 0].cpu().numpy())
-    uv_q88, _, inproj_w_fold_q88 = _conv1x1_q88_scaled_intmac(inproj_w, h_q88)
+    uv_q88 = _conv1x1_q88_rne_clamp(inproj_w, h_q88)
+    inproj_w_fold_q88 = _quant_q88(inproj_w)
     inner = blk.args.d_inner
     u_q88 = uv_q88[:inner]
     u_q88_rows = u_q88.reshape(64, 4)
     u_sig_q016 = _sigmoid_q016_from_q88(u_q88_rows)
     u_act_q88 = _mul_q016_q88_to_q88(u_sig_q016, u_q88_rows)
-    dt_q88_flat, dt_scale_q15, dt_w_fold_q88 = _conv1x1_q88_scaled_intmac(dt_w, u_act_q88.reshape(-1))
+    dt_q88_flat = _conv1x1_q88_rne_clamp(dt_w, u_act_q88.reshape(-1))
+    dt_scale_q15 = np.full((dt_w.shape[0],), 1 << 15, dtype=np.uint16)
+    dt_w_fold_q88 = _quant_q88(dt_w)
     dt_q88 = dt_q88_flat.reshape(64, 4)
     xt_q88 = u_act_q88.copy()
 

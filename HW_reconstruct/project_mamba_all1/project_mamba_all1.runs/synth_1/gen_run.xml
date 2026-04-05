@@ -1,14 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <GenRun Id="synth_1" LaunchPart="xczu9eg-ffvb1156-2-e" LaunchTime="1775252608" LaunchIncrCheckpoint="$PSRCDIR/utils_1/imports/synth_1/reuse_mamba_block_top.dcp">
   <File Type="PA-TCL" Name="reuse_mamba_block_wrapper.tcl"/>
-  <File Type="RDS-PROPCONSTRS" Name="reuse_mamba_block_wrapper_drc_synth.rpt"/>
   <File Type="REPORTS-TCL" Name="reuse_mamba_block_wrapper_reports.tcl"/>
   <File Type="RDS-RDS" Name="reuse_mamba_block_wrapper.vds"/>
   <File Type="RDS-UTIL" Name="reuse_mamba_block_wrapper_utilization_synth.rpt"/>
   <File Type="RDS-UTIL-PB" Name="reuse_mamba_block_wrapper_utilization_synth.pb"/>
   <File Type="RDS-DCP" Name="reuse_mamba_block_wrapper.dcp"/>
-  <File Type="VDS-TIMINGSUMMARY" Name="reuse_mamba_block_wrapper_timing_summary_synth.rpt"/>
-  <File Type="VDS-TIMING-PB" Name="reuse_mamba_block_wrapper_timing_summary_synth.pb"/>
   <FileSet Name="sources" Type="DesignSrcs" RelSrcDir="$PSRCDIR/sources_1" RelGenDir="$PGENDIR/sources_1">
     <Filter Type="Srcs"/>
     <File Path="$PPRDIR/../rtl_reuse_shared/axis_vec_join2.sv">
@@ -338,10 +335,10 @@
     <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2024"/>
     <Step Id="synth_design"/>
   </Strategy>
-  <BlockFileSet Type="BlockSrcs" Name="bias2sigmoid_fifo"/>
   <BlockFileSet Type="BlockSrcs" Name="slim_WBUF_bank_dp"/>
-  <BlockFileSet Type="BlockSrcs" Name="inproj_vec_out_sram_ip"/>
+  <BlockFileSet Type="BlockSrcs" Name="bias2sigmoid_fifo"/>
   <BlockFileSet Type="BlockSrcs" Name="bias_ROM"/>
+  <BlockFileSet Type="BlockSrcs" Name="inproj_vec_out_sram_ip"/>
   <BlockFileSet Type="BlockSrcs" Name="s_buffer"/>
   <BlockFileSet Type="BlockSrcs" Name="inproj_ht_sram_ip"/>
   <BlockFileSet Type="BlockSrcs" Name="outproj_WBUF_bank_dp"/>

@@ -24,7 +24,7 @@ module reuse_in_proj_scheduler #(
     parameter int U_ADDR_W    = $clog2(U_DEPTH),
     parameter int SCALE_W            = 16,
     parameter int SCALE_FRAC_BITS    = 15,
-    parameter bit USE_PER_CHANNEL_SCALE = 1,
+    parameter bit USE_PER_CHANNEL_SCALE = 0,
     parameter int REQUANT_ROUND_MODE = 1,
     parameter int REQUANT_SAT_MODE   = 1
 )(
