@@ -1,0 +1,1 @@
+--incr --debug typical --relax --mt 2  -L blk_mem_gen_v8_4_8 -L xil_defaultlib -L xilinx_vip -L unisims_ver -L unimacro_ver -L secureip -L xpm --snapshot norm_gamma_rom_ip xil_defaultlib.norm_gamma_rom_ip xil_defaultlib.glbl -log elaborate.log

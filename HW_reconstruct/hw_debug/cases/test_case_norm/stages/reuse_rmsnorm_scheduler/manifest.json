@@ -1,0 +1,28 @@
+{
+  "name": "reuse_rmsnorm_scheduler",
+  "rtl_top": "reuse_rmsnorm_scheduler",
+  "status": "planned",
+  "description": "Standalone Q8.8 RMSNorm preprocessor for block input h.",
+  "golden_inputs": [
+    "h_wr_addr.mem",
+    "h_raw_wr_data_q88.mem",
+    "norm_weight_q88.mem"
+  ],
+  "golden_outputs": [
+    "h_norm_golden_q88.mem"
+  ],
+  "notes": [
+    "Reads raw block input h from SRAM, computes scalar rms, then applies per-channel norm weight.",
+    "Golden matches the integer hardware model used by block-top integration."
+  ],
+  "generated_artifacts": {
+    "generated": true,
+    "files": [
+      "h_wr_addr.mem",
+      "h_raw_wr_data_q88.mem",
+      "norm_weight_q88.mem",
+      "h_norm_golden_q88.mem",
+      "vectors.json"
+    ]
+  }
+}

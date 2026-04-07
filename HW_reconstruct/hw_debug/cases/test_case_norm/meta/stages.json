@@ -1,0 +1,151 @@
+{
+  "stages": [
+    {
+      "name": "sigmoid4_vec",
+      "rtl_top": "sigmoid4_vec",
+      "status": "ready_to_hook",
+      "description": "Q8.8 -> clamp[-4,4) -> addr=x+1024 -> Q0.16 ROM output.",
+      "golden_inputs": [
+        "in_q88.mem"
+      ],
+      "golden_outputs": [
+        "out_q016.mem"
+      ],
+      "notes": [
+        "Best first stage for cocotb bit-exact verification.",
+        "Should match RTL clamp, ROM address, and Q0.16 output exactly."
+      ]
+    },
+    {
+      "name": "ew_update_vec4",
+      "rtl_top": "ew_update_vec4",
+      "status": "ready_to_hook",
+      "description": "State update s_new = lam*s_prev + (1-lam)*u with SRAM timing.",
+      "golden_inputs": [
+        "lam_q016.mem",
+        "u_q88.mem",
+        "s_prev_q88.mem",
+        "s_addr.mem"
+      ],
+      "golden_outputs": [
+        "s_new_q88.mem",
+        "state_write_addr.mem",
+        "state_write_data.mem"
+      ],
+      "notes": [
+        "Must align lam Q0.16 -> Q8.8 truncation, one_minus, SRAM read latency, and write-back address."
+      ]
+    },
+    {
+      "name": "top_mac_plus_bias_fifo_sigmoid_ew_gate",
+      "rtl_top": "top_mac_plus_bias_fifo_sigmoid_ew_gate",
+      "status": "planned",
+      "description": "SSM post-dt path including bias, sigmoid, EW update, and gate.",
+      "golden_inputs": [
+        "mac_vec_q88.mem",
+        "xt_q88.mem",
+        "gate_q88.mem"
+      ],
+      "golden_outputs": [
+        "y_q88.mem",
+        "lam_q016.mem",
+        "s_new_q88.mem"
+      ],
+      "notes": [
+        "Good integration target after sigmoid4_vec and ew_update_vec4 pass."
+      ]
+    },
+    {
+      "name": "reuse_ssm_core",
+      "rtl_top": "reuse_ssm_core",
+      "status": "partial_ready",
+      "description": "Standalone SSM post-dt core: bias -> sigmoid -> join -> EW update -> gate.",
+      "golden_inputs": [
+        "mac_in_q88.mem",
+        "xt_in_q88.mem",
+        "g_in_q88.mem"
+      ],
+      "golden_outputs": [
+        "lam_golden_q016.mem",
+        "ssm_golden_q88.mem",
+        "gate_y_golden_q88.mem"
+      ],
+      "notes": [
+        "Current simulation model of bias_add_regslice_ip_A uses zero-initialized bias mem_sim unless TB explicitly initializes it.",
+        "This stage isolates dt/lam/ssm/gate from the top-level scheduler."
+      ]
+    },
+    {
+      "name": "reuse_ssm_dt_scheduler",
+      "rtl_top": "reuse_ssm_dt_scheduler",
+      "status": "partial_ready",
+      "description": "Standalone dt scheduler with shared MAC fabric and u_act SRAM source.",
+      "golden_inputs": [
+        "u_act_in_q88.mem",
+        "dt_wbuf_bank*.mem",
+        "dt_scale_q15.mem"
+      ],
+      "golden_outputs": [
+        "dt_golden_q88.mem",
+        "xt_golden_q88.mem"
+      ],
+      "notes": [
+        "This stage isolates dt GEMV + xt FIFO wavefront from top-level ownership switching.",
+        "Use it to determine whether dt mismatch originates in the scheduler itself or in top-level integration."
+      ]
+    },
+    {
+      "name": "reuse_rmsnorm_scheduler",
+      "rtl_top": "reuse_rmsnorm_scheduler",
+      "status": "planned",
+      "description": "Standalone Q8.8 RMSNorm preprocessor for block input h.",
+      "golden_inputs": [
+        "h_wr_addr.mem",
+        "h_raw_wr_data_q88.mem",
+        "norm_weight_q88.mem"
+      ],
+      "golden_outputs": [
+        "h_norm_golden_q88.mem"
+      ],
+      "notes": [
+        "Reads raw block input h from SRAM, computes scalar rms, then applies per-channel norm weight.",
+        "Golden matches the integer hardware model used by block-top integration."
+      ]
+    },
+    {
+      "name": "reuse_mamba_block_top",
+      "rtl_top": "reuse_mamba_block_top",
+      "status": "partial_ready",
+      "description": "Block-level top around shared MAC fabric.",
+      "golden_inputs": [
+        "h_wr_addr.mem",
+        "h_raw_wr_data_q88.mem",
+        "norm_weight_q88.mem",
+        "inproj_wbuf_bank*.mem",
+        "inproj_scale_q15.mem",
+        "dt_wbuf_bank*.mem",
+        "dt_scale_q15.mem",
+        "outproj_wbuf_bank*.mem",
+        "outproj_scale_q15.mem",
+        "control.json"
+      ],
+      "golden_outputs": [
+        "h_norm_golden_q88.mem",
+        "u_golden_q88.mem",
+        "z_golden_q88.mem",
+        "u_act_golden_q88.mem",
+        "z_silu_golden_q88.mem",
+        "dt_golden_q88.mem",
+        "lam_golden_q016.mem",
+        "ssm_golden_q88.mem",
+        "gate_y_golden_q88.mem",
+        "y_golden_q88.mem"
+      ],
+      "notes": [
+        "Use only after in_proj and SSM subpaths are individually validated.",
+        "Current top-level y golden is the block-local out_proj result before any residual add outside this RTL block.",
+        "Top compare targets internal SRAM / subpath outputs and the final out_proj y stream/SRAM."
+      ]
+    }
+  ]
+}
