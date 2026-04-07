@@ -5,13 +5,11 @@ if "%out%"=="" (
   echo Usage: ref_export.bat export_out_dir [ckpt]
   goto :eof
 )
-if "%ckpt%"=="" (set ckpt=refactor_last.pt)
+if "%ckpt%"=="" (set ckpt=refactor/bittrue/reference.pt)
 
-python -m refactor.export.cli ^
+python -m refactor.bittrue.run_export ^
   --out=%out% ^
-  --ckpt=%ckpt% ^
-  --Din=2100 --K=12 --proj_dim=64 --d_model=96 --n_layer=3 --patch_len=8 --stride=4
+  --ckpt=%ckpt%
 
 echo Export written to %out%
 goto :eof
-

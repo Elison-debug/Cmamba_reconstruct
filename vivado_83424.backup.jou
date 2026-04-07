@@ -1,0 +1,58 @@
+#-----------------------------------------------------------
+# Vivado v2024.1 (64-bit)
+# SW Build 5076996 on Wed May 22 18:37:14 MDT 2024
+# IP Build 5075265 on Wed May 22 21:45:21 MDT 2024
+# SharedData Build 5076995 on Wed May 22 18:29:18 MDT 2024
+# Start of session at: Mon Apr  6 02:58:25 2026
+# Process ID: 83424
+# Current directory: E:/course/master/mamba/Cmamba_reconstruct
+# Command line: vivado.exe HW_reconstruct\project_mamba_all1\project_mamba_all1.xpr
+# Log file: E:/course/master/mamba/Cmamba_reconstruct/vivado.log
+# Journal file: E:/course/master/mamba/Cmamba_reconstruct\vivado.jou
+# Running On        :13600kf
+# Platform          :Windows Server 2016 or Windows 10
+# Operating System  :26200
+# Processor Detail  :13th Gen Intel(R) Core(TM) i5-13600KF
+# CPU Frequency     :3494 MHz
+# CPU Physical cores:14
+# CPU Logical cores :20
+# Host memory       :34163 MB
+# Swap memory       :34163 MB
+# Total Virtual     :68327 MB
+# Available Virtual :21302 MB
+#-----------------------------------------------------------
+start_gui
+open_project HW_reconstruct/project_mamba_all1/project_mamba_all1.xpr
+update_compile_order -fileset sources_1
+set_property is_enabled false [get_files  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_board_shell_with_g_loader.v]
+set_property is_enabled true [get_files  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_board_shell_with_g_loader.v]
+set_property is_enabled false [get_files  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_board_shell.v]
+report_ip_status -name ip_status 
+update_compile_order -fileset sources_1
+# Disabling source management mode.  This is to allow the top design properties to be set without GUI intervention.
+set_property source_mgmt_mode None [current_project]
+set_property top reuse_mamba_board_shell [current_fileset]
+set_property top_lib xil_defaultlib [current_fileset]
+set_property top_file E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_board_shell_with_g_loader.v [current_fileset]
+# Re-enabling previously disabled source management mode.
+set_property source_mgmt_mode All [current_project]
+update_compile_order -fileset sources_1
+reset_simulation -simset sim_3 -mode behavioral
+launch_simulation -simset [get_filesets sim_3 ]
+open_wave_config E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/tb_reuse_in_proj_scheduler_behav.wcfg
+source tb_reuse_mamba_board_shell_min_v7.tcl
+current_wave_config {tb_reuse_in_proj_scheduler_behav.wcfg}
+add_wave {{/tb_reuse_mamba_board_shell_min_v7/dut/u_core/u_core}} 
+restart
+run 5 us
+run 5 us
+current_wave_config {tb_reuse_in_proj_scheduler_behav.wcfg}
+add_wave {{/tb_reuse_mamba_board_shell_min_v7/dut}} 
+restart
+run 5 us
+run all
+run all
+close_sim
+reset_simulation -simset sim_3 -mode behavioral
+launch_simulation -simset [get_filesets sim_3 ]
+launch_simulation -simset [get_filesets sim_3 ]

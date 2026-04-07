@@ -138,7 +138,9 @@ def cir_features_hw(
     Ltap: int,
     *,
     phase_center: bool = True,
-    append_delta: bool = True,
+    include_ori: bool = True,
+    include_power: bool = True,
+    include_delta: bool = False,
 ) -> np.ndarray:
     """Hardware-friendly CIR feature extraction with optional phase centering
     and delta channels. Output is strictly real-valued and contiguous.
@@ -147,7 +149,7 @@ def cir_features_hw(
       1) IFFT across frequency to obtain CIR taps, take first Ltap.
       2) Per-antenna power normalization.
       3) Optional phase centering: subtract mean phase per (tap, antenna).
-      4) Concatenate [real, imag] and log-power; optionally first-order time delta.
+      4) Concatenate [real, imag] and optional log-power; optionally first-order time delta.
     """
     D = ifft(Y, axis=1)[:, :Ltap, :]                        # (T, Ltap, A)
     p = np.sqrt(np.mean(np.abs(D) ** 2, axis=(0, 1), keepdims=True)) + 1e-8
@@ -159,16 +161,43 @@ def cir_features_hw(
 
     T, L, A = Dn.shape
     feat_cir = np.stack([Dn.real, Dn.imag], axis=2)         # (T, L, 2, A)
-    feat_cir = feat_cir.transpose(0, 1, 3, 2).reshape(T, L * A * 2)
-    power = np.log1p(np.mean(np.abs(D) ** 2, axis=1))       # (T, A)
-    feats = np.concatenate([feat_cir.astype(np.float32), power.astype(np.float32)], axis=1)
+    feat_cir = feat_cir.transpose(0, 1, 3, 2).reshape(T, L * A * 2).astype(np.float32)
 
-    if append_delta:
-        d = np.zeros_like(feats)
-        d[1:] = feats[1:] - feats[:-1]
-        feats = np.concatenate([feats, d], axis=1)
+    power_feats: Optional[np.ndarray] = None
 
-    return feats
+    def _ensure_power() -> np.ndarray:
+        nonlocal power_feats
+        if power_feats is None:
+            power_feats = np.log1p(np.mean(np.abs(D) ** 2, axis=1)).astype(np.float32)
+        return power_feats #type: ignore
+
+    def _delta(arr: np.ndarray) -> np.ndarray:
+        d = np.zeros_like(arr)
+        d[1:] = arr[1:] - arr[:-1]
+        return d
+
+    main_parts: List[np.ndarray] = []
+    if include_ori:
+        main_parts.append(feat_cir)
+    if include_power:
+        main_parts.append(_ensure_power())
+
+    final_parts: List[np.ndarray] = []
+    if main_parts:
+        final_parts.extend(main_parts)
+        delta_src = np.concatenate(main_parts, axis=1) if len(main_parts) > 1 else main_parts[0]
+    else:
+        delta_src = feat_cir
+        if not include_delta:
+            final_parts.append(feat_cir)
+
+    if include_delta:
+        final_parts.append(_delta(delta_src))
+
+    if not final_parts:
+        final_parts.append(feat_cir)
+
+    return np.concatenate(final_parts, axis=1) if len(final_parts) > 1 else final_parts[0]
 
 
 def secs_to_frames(sec: float, fps: int) -> int:
@@ -233,11 +262,24 @@ def main():
     # features
     ap.add_argument("--taps", type=int, default=10, help="number of CIR taps to keep")
     ap.add_argument("--phase_center", action="store_true", help="enable phase centering")
-    ap.add_argument("--append_delta", action="store_true", help="append first-order delta features")
+    ap.add_argument("--ori", dest="feature_select", action="append_const", const="ori", help="include real/imag CIR features")
+    ap.add_argument("--power", dest="feature_select", action="append_const", const="power", help="include per-antenna log-power features")
+    ap.add_argument("--delta", dest="feature_select", action="append_const", const="delta", help="include first-order delta features")
     ap.add_argument("--dtype", type=str, default="float16", choices=["float16", "float32"], help="feature dtype on disk")
     ap.add_argument("--pos_units", type=str, default="mm", choices=["mm", "m"], help="position units in CSV")
     ap.add_argument("--std_floor", type=float, default=1e-5, help="minimum std for normalization")
     args = ap.parse_args()
+
+    selected_feats = set(args.feature_select or [])
+    if selected_feats:
+        include_ori = "ori" in selected_feats
+        include_power = "power" in selected_feats
+        include_delta = "delta" in selected_feats
+    else:
+        include_ori = True
+        include_power = True
+        include_delta = False
+    feature_config = {"ori": bool(include_ori), "power": bool(include_power), "delta": bool(include_delta)}
 
     out = Path(args.out_dir)
     # 新布局：所有 NPY 放在 out/train/npy 下；所有 JSON 放在 out/train/json 下
@@ -312,7 +354,12 @@ def main():
         L = min(T, ts_gt.shape[0])
 
         feats_full = cir_features_hw(
-            Y, args.taps, phase_center=bool(args.phase_center), append_delta=bool(args.append_delta)
+            Y,
+            args.taps,
+            phase_center=bool(args.phase_center),
+            include_ori=include_ori,
+            include_power=include_power,
+            include_delta=include_delta,
         )
         Din = int(feats_full.shape[1])
         if Din_ref is None:
@@ -357,6 +404,7 @@ def main():
             "stride": int(stride),
             "embargo_sec": float(args.embargo_sec),
             "dtype": str(args.dtype),
+            "features": feature_config,
         }
         if role == "train":
             meta["indices_train"] = [int(i) for i in indices]

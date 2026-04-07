@@ -42,9 +42,6 @@ module tb_ew_update_vec4;
     forever #5 clk = ~clk; // 100MHz
   end
 
- // expected state (Q8.8 signed)
-  logic signed [15:0] exp_state [0:(1<<S_ADDR_W)-1][0:TILE_SIZE-1];
-
   // reset
   initial begin
     rst_n = 0;
@@ -62,7 +59,8 @@ module tb_ew_update_vec4;
     rst_n = 1;
   end
 
-
+  // expected state (Q8.8 signed)
+  logic signed [15:0] exp_state [0:(1<<S_ADDR_W)-1][0:TILE_SIZE-1];
 
   function automatic integer ema_step(input integer lam_q0_16, input integer s_prev_q8_8, input integer u_q8_8);
     integer term1, term2;

@@ -1,0 +1,17 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version      : Vivado v.2024.1 (win64) Build 5076996 Wed May 22 18:37:14 MDT 2024
+| Date              : Sun Apr  5 23:25:38 2026
+| Host              : 13600kf running 64-bit major release  (build 9200)
+| Command           : report_bus_skew -warn_on_violation -file reuse_mamba_board_shell_bus_skew_routed.rpt -pb reuse_mamba_board_shell_bus_skew_routed.pb -rpx reuse_mamba_board_shell_bus_skew_routed.rpx
+| Design            : reuse_mamba_board_shell
+| Device            : xczu9eg-ffvb1156
+| Speed File        : -2  PRODUCTION 1.30 05-15-2022
+| Design State      : Routed
+| Temperature Grade : E
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Bus Skew Report
+
+No bus skew constraints
+

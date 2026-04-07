@@ -23,7 +23,7 @@ module tb_top_mac_plus_bias_fifo_sigmoid_ew_gate;
   localparam int PIPE_LAT   = 4;
 
   localparam int ADDR_BITS  = 11;
-  localparam string LUT_FILE = "E:/Master/2025/Mamba/Cmamba_reconstruct/user/data/sigmoid_lut_q016_2048.hex";
+  localparam string LUT_FILE = "D:/Mamba/Cmamba_reconstruct/sigmoid_lut_q016_2048.hex";
   localparam int S_ADDR_W   = 6;
   localparam int G_FRAC_BITS = 8;
 
@@ -57,7 +57,7 @@ module tb_top_mac_plus_bias_fifo_sigmoid_ew_gate;
   logic                         y_axis_TREADY;
   logic signed [DATA_WIDTH-1:0] y_axis_TDATA [TILE_SIZE-1:0];
 
-top_mac_plus_bias_fifo_sigmoid_ew_gate #(
+  top_mac_plus_bias_fifo_sigmoid_ew_gate #(
       .TILE_SIZE  (TILE_SIZE),
       .DATA_WIDTH (DATA_WIDTH),
       .ACC_WIDTH  (ACC_WIDTH),

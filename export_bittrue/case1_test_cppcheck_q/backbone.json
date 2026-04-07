@@ -1,0 +1,707 @@
+{
+  "version": 2,
+  "type": "mamba_slim_backbone",
+  "meta": {
+    "d_model": 128,
+    "d_inner": 256,
+    "n_layer": 4,
+    "d_conv": 4,
+    "num_patches": 1,
+    "patch_len": 2,
+    "stride": 2,
+    "seq_len": 2,
+    "num_channels": 64,
+    "forecast_len": 1,
+    "pe_on": false,
+    "pe_scale": 1.0,
+    "gate_off": false,
+    "agg_pool": "",
+    "use_dwconv": false
+  },
+  "bittrue": {
+    "version": "bittrue_v1",
+    "weights": {
+      "scheme": "symmetric",
+      "dtype": "int8",
+      "bits": 8,
+      "granularity": "per_channel",
+      "zero_point": "fixed_zero"
+    },
+    "activations": {
+      "scheme": "asymmetric",
+      "dtype": "int8",
+      "bits": 8,
+      "granularity": "per_tensor",
+      "zero_point": "learned_or_calibrated"
+    },
+    "bias": {
+      "scheme": "integer",
+      "dtype": "int32",
+      "bits": 32,
+      "granularity": "per_channel",
+      "zero_point": "fixed_zero"
+    },
+    "accumulators": {
+      "dtype": "int32",
+      "bits": 32,
+      "rounding": "ties_to_even",
+      "saturation": "clamp"
+    },
+    "requant": {
+      "dtype": "int8",
+      "bits": 8,
+      "rounding": "ties_to_even",
+      "saturation": "clamp"
+    },
+    "sigmoid_lut": {
+      "enabled": true,
+      "xmin": -8.0,
+      "xmax": 8.0,
+      "entries": 4096,
+      "interpolation": "linear"
+    },
+    "silu_lut": {
+      "enabled": true,
+      "xmin": -8.0,
+      "xmax": 8.0,
+      "entries": 4096,
+      "interpolation": "linear"
+    },
+    "rmsnorm": {
+      "mode": "float_reference",
+      "eps": 1e-05
+    },
+    "notes": [
+      "Training/QAT stays in refactor.core and refactor.quant.",
+      "This config is for deployment-side bit-true inference only.",
+      "The current baseline keeps RMSNorm in float_reference mode.",
+      "Exported bit-true packages should embed a copy of this config."
+    ]
+  },
+  "patch_embedding": {
+    "name": "backbone.patch_embedding",
+    "type": "conv1d",
+    "impl": "refactor.core.mamba_slim._QuantConv1d",
+    "in_channels": 64,
+    "out_channels": 128,
+    "kernel_size": 2,
+    "stride": 2,
+    "padding": 0,
+    "groups": 1,
+    "bias": true,
+    "weight": "patch_embedding_W.npy",
+    "weight_shape": [
+      128,
+      64,
+      2
+    ],
+    "bias_file": "patch_embedding_B.npy",
+    "bias_shape": [
+      128
+    ],
+    "quant": {
+      "activation": {
+        "enabled": false,
+        "scheme": "none",
+        "bits": 0
+      },
+      "weight": {
+        "enabled": false,
+        "scheme": "none",
+        "bits": 0,
+        "axis": 0
+      }
+    }
+  },
+  "positional_encoding": {
+    "enabled": false,
+    "scale": 1.0,
+    "num_patches": 1,
+    "d_model": 128,
+    "file": null
+  },
+  "blocks": [
+    {
+      "index": 0,
+      "type": "slim_mamba_block",
+      "d_model": 128,
+      "d_inner": 256,
+      "d_conv": 4,
+      "use_gate": true,
+      "use_dwconv": false,
+      "norm": {
+        "name": "block0.norm",
+        "type": "rmsnorm",
+        "impl": "refactor.core.mamba_slim.RMSNorm",
+        "dim": 128,
+        "eps": 1e-05,
+        "weight": "block0_norm_W.npy"
+      },
+      "in_proj": {
+        "name": "block0.in_proj",
+        "type": "conv1d",
+        "impl": "refactor.core.mamba_slim._Pointwise1x1",
+        "in_channels": 128,
+        "out_channels": 512,
+        "kernel_size": 1,
+        "stride": 1,
+        "padding": 0,
+        "groups": 1,
+        "bias": false,
+        "weight": "block0_in_proj_W.npy",
+        "weight_shape": [
+          512,
+          128,
+          1
+        ],
+        "bias_file": null,
+        "bias_shape": [],
+        "quant": {
+          "activation": {
+            "enabled": false,
+            "scheme": "none",
+            "bits": 0
+          },
+          "weight": {
+            "enabled": false,
+            "scheme": "none",
+            "bits": 0,
+            "axis": 0
+          }
+        }
+      },
+      "ssm": {
+        "type": "selective_scan_ic",
+        "dim": 256,
+        "dt_proj": {
+          "name": "block0.ssm.dt_proj",
+          "type": "conv1d",
+          "impl": "torch.nn.modules.conv.Conv1d",
+          "in_channels": 256,
+          "out_channels": 256,
+          "kernel_size": 1,
+          "stride": 1,
+          "padding": 0,
+          "groups": 1,
+          "bias": true,
+          "weight": "block0_dt_proj_W.npy",
+          "weight_shape": [
+            256,
+            256,
+            1
+          ],
+          "bias_file": "block0_dt_proj_B.npy",
+          "bias_shape": [
+            256
+          ],
+          "quant": {
+            "activation": {
+              "enabled": false,
+              "scheme": "none",
+              "bits": 0
+            },
+            "weight": {
+              "enabled": false,
+              "scheme": "none",
+              "bits": 0,
+              "axis": 0
+            }
+          }
+        }
+      },
+      "out_proj": {
+        "name": "block0.out_proj",
+        "type": "conv1d",
+        "impl": "refactor.core.mamba_slim._Pointwise1x1",
+        "in_channels": 256,
+        "out_channels": 128,
+        "kernel_size": 1,
+        "stride": 1,
+        "padding": 0,
+        "groups": 1,
+        "bias": false,
+        "weight": "block0_out_proj_W.npy",
+        "weight_shape": [
+          128,
+          256,
+          1
+        ],
+        "bias_file": null,
+        "bias_shape": [],
+        "quant": {
+          "activation": {
+            "enabled": false,
+            "scheme": "none",
+            "bits": 0
+          },
+          "weight": {
+            "enabled": false,
+            "scheme": "none",
+            "bits": 0,
+            "axis": 0
+          }
+        }
+      },
+      "dw_conv": {
+        "enabled": false
+      }
+    },
+    {
+      "index": 1,
+      "type": "slim_mamba_block",
+      "d_model": 128,
+      "d_inner": 256,
+      "d_conv": 4,
+      "use_gate": true,
+      "use_dwconv": false,
+      "norm": {
+        "name": "block1.norm",
+        "type": "rmsnorm",
+        "impl": "refactor.core.mamba_slim.RMSNorm",
+        "dim": 128,
+        "eps": 1e-05,
+        "weight": "block1_norm_W.npy"
+      },
+      "in_proj": {
+        "name": "block1.in_proj",
+        "type": "conv1d",
+        "impl": "refactor.core.mamba_slim._Pointwise1x1",
+        "in_channels": 128,
+        "out_channels": 512,
+        "kernel_size": 1,
+        "stride": 1,
+        "padding": 0,
+        "groups": 1,
+        "bias": false,
+        "weight": "block1_in_proj_W.npy",
+        "weight_shape": [
+          512,
+          128,
+          1
+        ],
+        "bias_file": null,
+        "bias_shape": [],
+        "quant": {
+          "activation": {
+            "enabled": false,
+            "scheme": "none",
+            "bits": 0
+          },
+          "weight": {
+            "enabled": false,
+            "scheme": "none",
+            "bits": 0,
+            "axis": 0
+          }
+        }
+      },
+      "ssm": {
+        "type": "selective_scan_ic",
+        "dim": 256,
+        "dt_proj": {
+          "name": "block1.ssm.dt_proj",
+          "type": "conv1d",
+          "impl": "torch.nn.modules.conv.Conv1d",
+          "in_channels": 256,
+          "out_channels": 256,
+          "kernel_size": 1,
+          "stride": 1,
+          "padding": 0,
+          "groups": 1,
+          "bias": true,
+          "weight": "block1_dt_proj_W.npy",
+          "weight_shape": [
+            256,
+            256,
+            1
+          ],
+          "bias_file": "block1_dt_proj_B.npy",
+          "bias_shape": [
+            256
+          ],
+          "quant": {
+            "activation": {
+              "enabled": false,
+              "scheme": "none",
+              "bits": 0
+            },
+            "weight": {
+              "enabled": false,
+              "scheme": "none",
+              "bits": 0,
+              "axis": 0
+            }
+          }
+        }
+      },
+      "out_proj": {
+        "name": "block1.out_proj",
+        "type": "conv1d",
+        "impl": "refactor.core.mamba_slim._Pointwise1x1",
+        "in_channels": 256,
+        "out_channels": 128,
+        "kernel_size": 1,
+        "stride": 1,
+        "padding": 0,
+        "groups": 1,
+        "bias": false,
+        "weight": "block1_out_proj_W.npy",
+        "weight_shape": [
+          128,
+          256,
+          1
+        ],
+        "bias_file": null,
+        "bias_shape": [],
+        "quant": {
+          "activation": {
+            "enabled": false,
+            "scheme": "none",
+            "bits": 0
+          },
+          "weight": {
+            "enabled": false,
+            "scheme": "none",
+            "bits": 0,
+            "axis": 0
+          }
+        }
+      },
+      "dw_conv": {
+        "enabled": false
+      }
+    },
+    {
+      "index": 2,
+      "type": "slim_mamba_block",
+      "d_model": 128,
+      "d_inner": 256,
+      "d_conv": 4,
+      "use_gate": true,
+      "use_dwconv": false,
+      "norm": {
+        "name": "block2.norm",
+        "type": "rmsnorm",
+        "impl": "refactor.core.mamba_slim.RMSNorm",
+        "dim": 128,
+        "eps": 1e-05,
+        "weight": "block2_norm_W.npy"
+      },
+      "in_proj": {
+        "name": "block2.in_proj",
+        "type": "conv1d",
+        "impl": "refactor.core.mamba_slim._Pointwise1x1",
+        "in_channels": 128,
+        "out_channels": 512,
+        "kernel_size": 1,
+        "stride": 1,
+        "padding": 0,
+        "groups": 1,
+        "bias": false,
+        "weight": "block2_in_proj_W.npy",
+        "weight_shape": [
+          512,
+          128,
+          1
+        ],
+        "bias_file": null,
+        "bias_shape": [],
+        "quant": {
+          "activation": {
+            "enabled": false,
+            "scheme": "none",
+            "bits": 0
+          },
+          "weight": {
+            "enabled": false,
+            "scheme": "none",
+            "bits": 0,
+            "axis": 0
+          }
+        }
+      },
+      "ssm": {
+        "type": "selective_scan_ic",
+        "dim": 256,
+        "dt_proj": {
+          "name": "block2.ssm.dt_proj",
+          "type": "conv1d",
+          "impl": "torch.nn.modules.conv.Conv1d",
+          "in_channels": 256,
+          "out_channels": 256,
+          "kernel_size": 1,
+          "stride": 1,
+          "padding": 0,
+          "groups": 1,
+          "bias": true,
+          "weight": "block2_dt_proj_W.npy",
+          "weight_shape": [
+            256,
+            256,
+            1
+          ],
+          "bias_file": "block2_dt_proj_B.npy",
+          "bias_shape": [
+            256
+          ],
+          "quant": {
+            "activation": {
+              "enabled": false,
+              "scheme": "none",
+              "bits": 0
+            },
+            "weight": {
+              "enabled": false,
+              "scheme": "none",
+              "bits": 0,
+              "axis": 0
+            }
+          }
+        }
+      },
+      "out_proj": {
+        "name": "block2.out_proj",
+        "type": "conv1d",
+        "impl": "refactor.core.mamba_slim._Pointwise1x1",
+        "in_channels": 256,
+        "out_channels": 128,
+        "kernel_size": 1,
+        "stride": 1,
+        "padding": 0,
+        "groups": 1,
+        "bias": false,
+        "weight": "block2_out_proj_W.npy",
+        "weight_shape": [
+          128,
+          256,
+          1
+        ],
+        "bias_file": null,
+        "bias_shape": [],
+        "quant": {
+          "activation": {
+            "enabled": false,
+            "scheme": "none",
+            "bits": 0
+          },
+          "weight": {
+            "enabled": false,
+            "scheme": "none",
+            "bits": 0,
+            "axis": 0
+          }
+        }
+      },
+      "dw_conv": {
+        "enabled": false
+      }
+    },
+    {
+      "index": 3,
+      "type": "slim_mamba_block",
+      "d_model": 128,
+      "d_inner": 256,
+      "d_conv": 4,
+      "use_gate": true,
+      "use_dwconv": false,
+      "norm": {
+        "name": "block3.norm",
+        "type": "rmsnorm",
+        "impl": "refactor.core.mamba_slim.RMSNorm",
+        "dim": 128,
+        "eps": 1e-05,
+        "weight": "block3_norm_W.npy"
+      },
+      "in_proj": {
+        "name": "block3.in_proj",
+        "type": "conv1d",
+        "impl": "refactor.core.mamba_slim._Pointwise1x1",
+        "in_channels": 128,
+        "out_channels": 512,
+        "kernel_size": 1,
+        "stride": 1,
+        "padding": 0,
+        "groups": 1,
+        "bias": false,
+        "weight": "block3_in_proj_W.npy",
+        "weight_shape": [
+          512,
+          128,
+          1
+        ],
+        "bias_file": null,
+        "bias_shape": [],
+        "quant": {
+          "activation": {
+            "enabled": false,
+            "scheme": "none",
+            "bits": 0
+          },
+          "weight": {
+            "enabled": false,
+            "scheme": "none",
+            "bits": 0,
+            "axis": 0
+          }
+        }
+      },
+      "ssm": {
+        "type": "selective_scan_ic",
+        "dim": 256,
+        "dt_proj": {
+          "name": "block3.ssm.dt_proj",
+          "type": "conv1d",
+          "impl": "torch.nn.modules.conv.Conv1d",
+          "in_channels": 256,
+          "out_channels": 256,
+          "kernel_size": 1,
+          "stride": 1,
+          "padding": 0,
+          "groups": 1,
+          "bias": true,
+          "weight": "block3_dt_proj_W.npy",
+          "weight_shape": [
+            256,
+            256,
+            1
+          ],
+          "bias_file": "block3_dt_proj_B.npy",
+          "bias_shape": [
+            256
+          ],
+          "quant": {
+            "activation": {
+              "enabled": false,
+              "scheme": "none",
+              "bits": 0
+            },
+            "weight": {
+              "enabled": false,
+              "scheme": "none",
+              "bits": 0,
+              "axis": 0
+            }
+          }
+        }
+      },
+      "out_proj": {
+        "name": "block3.out_proj",
+        "type": "conv1d",
+        "impl": "refactor.core.mamba_slim._Pointwise1x1",
+        "in_channels": 256,
+        "out_channels": 128,
+        "kernel_size": 1,
+        "stride": 1,
+        "padding": 0,
+        "groups": 1,
+        "bias": false,
+        "weight": "block3_out_proj_W.npy",
+        "weight_shape": [
+          128,
+          256,
+          1
+        ],
+        "bias_file": null,
+        "bias_shape": [],
+        "quant": {
+          "activation": {
+            "enabled": false,
+            "scheme": "none",
+            "bits": 0
+          },
+          "weight": {
+            "enabled": false,
+            "scheme": "none",
+            "bits": 0,
+            "axis": 0
+          }
+        }
+      },
+      "dw_conv": {
+        "enabled": false
+      }
+    }
+  ],
+  "final_norm": {
+    "name": "backbone.final_norm",
+    "type": "rmsnorm",
+    "impl": "refactor.core.mamba_slim.RMSNorm",
+    "dim": 128,
+    "eps": 1e-05,
+    "weight": "final_norm_W.npy"
+  },
+  "output_head": {
+    "kind": "flat",
+    "agg_pool": "",
+    "flat": {
+      "name": "backbone.output_flat",
+      "type": "conv1d",
+      "impl": "torch.nn.modules.conv.Conv1d",
+      "in_channels": 128,
+      "out_channels": 64,
+      "kernel_size": 1,
+      "stride": 1,
+      "padding": 0,
+      "groups": 1,
+      "bias": true,
+      "weight": "output_flat_W.npy",
+      "weight_shape": [
+        64,
+        128,
+        1
+      ],
+      "bias_file": "output_flat_B.npy",
+      "bias_shape": [
+        64
+      ],
+      "quant": {
+        "activation": {
+          "enabled": false,
+          "scheme": "none",
+          "bits": 0
+        },
+        "weight": {
+          "enabled": false,
+          "scheme": "none",
+          "bits": 0,
+          "axis": 0
+        }
+      }
+    },
+    "pool": {
+      "name": "backbone.output_pool",
+      "type": "conv1d",
+      "impl": "refactor.core.mamba_slim._Pointwise1x1",
+      "in_channels": 128,
+      "out_channels": 64,
+      "kernel_size": 1,
+      "stride": 1,
+      "padding": 0,
+      "groups": 1,
+      "bias": true,
+      "weight": "output_pool_W.npy",
+      "weight_shape": [
+        64,
+        128,
+        1
+      ],
+      "bias_file": "output_pool_B.npy",
+      "bias_shape": [
+        64
+      ],
+      "quant": {
+        "activation": {
+          "enabled": false,
+          "scheme": "none",
+          "bits": 0
+        },
+        "weight": {
+          "enabled": false,
+          "scheme": "none",
+          "bits": 0,
+          "axis": 0
+        }
+      }
+    }
+  }
+}

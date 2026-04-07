@@ -1,0 +1,13 @@
+{
+  "block_auto_mode": 1,
+  "block_start_pulse_cycles": 1,
+  "h_depth": 32,
+  "u_depth": 64,
+  "notes": [
+    "Current top-level golden is block-local and ends at out_proj output before any residual add outside this RTL block.",
+    "Compare h->in_proj->u/z SRAM first, then dt/lam/ssm/gate, then y.",
+    "Golden uses aligned 4-array weight banking plus row-tile scale_q15 mems.",
+    "Current RTL-default path uses ties-to-even/clamp with identity scale on in_proj/dt/out_proj.",
+    "For cpp-bittrue style ties-to-even/clamp/per-channel-scale comparison, see logs/final_compare_cpp_export_hw_cppish.json."
+  ]
+}

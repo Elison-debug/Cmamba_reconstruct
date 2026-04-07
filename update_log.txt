@@ -1,0 +1,89 @@
+# CMamba for Wireless Positioning on LuViRA Dataset
+
+My primary work during this period involved completely restructuring the previous cmamba project and rewriting a mamba core with hardware implementation/quantization as the goal. 
+Since channel mixing proved extremely difficult to implement in hardware, I ran an A/B test removing it. 
+The results showed a slight decrease in accuracy, but it remained entirely acceptable. 
+
+The simplified EMA-type SSM with input conditions achieves Mamba's overall architecture of “branch projection → selective scanning → gating → residuals,”
+ but does not implement the official Mamba features of “learnable high-order SSM (A/B/C/D + discretization) + low-rank dt (dt_rank) + 
+ efficient parallel scan/CUDA kernels + streaming/persistent state.”
+
+However, my current simplified version outperforms the full cmamba implementation, which I believe is one of its key advantages.
+
+Additionally, I identified the cause of the periodic circular distribution in previous trajectory predictions: 
+it stemmed from the sinc/cos position mapping function I had adopted early on to enhance training performance.
+After removal, the prediction is completely normal.
+
+Additionally, I identified the reason for grid101's poor performance earlier—it is entirely due to its robust nature. 
+
+There is no other data nearing grid101, so the model failed to learn its features.
+
+Afterward, I discovered that I had performed two instances of patching within the regression head and the Mamba model, which doubled the computational load. This also resulted in repeated data loading into memory and CPU decoding.
+
+Therefore, I have improved the current data format by exporting it as a tensor using PyTorch and utilizing JSON files to annotate data groupings and indices.
+
+
+Therefore, the current training and testing workflow involves selecting data grouped as train/test/eval based on the target, then loading all required data in one go using caching in frams_lazy. after that, data batches are selected based on indices.
+
+By loading data just once, all training epochs can share the same data. These measures significantly accelerate training speed and reduce GPU memory usage.
+
+Training and inference scripts now run smoothly on my laptop, and can perform inference at a fast pace on csj's laptop (MX330).
+
+Next, I proceeded with the data distribution analysis of the results. Through this step, I identified numerous issues with the previous outcomes and made several minor adjustments, such as adding heatmap distributions and stabilizing the entire training process.
+
+Next, I began scripting the quantitative section. I wrote two backend implementations in Python and C++, ensuring their consistent behavior to prepare for subsequent steps.
+
+I have now completed the pseudo-quantization portion. I systematically replaced each component of the model layer by layer and incorporated PTQ and QAT into the training script to determine the accuracy loss. Fortunately, the accuracy loss is currently minimal.Therefore, I haven't used ptq yet.
+
+The current issue is that I haven't yet determined how to implement the quantization for the RMSNorm function, as its hardware implementation is quite complex. Additionally, while reviewing some papers, I noticed they employ rotation-assisted PTQ.
+
+LightMamba 的量化总思路
+
+线性层(含所有 proj)走旋转辅助 PTQ：在投影前/后插入 Hadamard(正交)变换，把“分散在不同通道”的激活离群值均摊掉，再做低比特量化；W4A4 也能稳住精度。注意这套“旋转+量化+(尽量)融合”的等价性对线性层成立。
+ar5iv
+
+SSM/SelectiveScan 里大量逐点运算(exp、sigmoid/SiLU、按元素乘加)不满足旋转等价，不能旋转；他们改用Power-of-Two(PoT)量化，让重量化用移位替代乘法，显著降低逐点运算开销。
+
+Currently, my training script still utilizes PyTorch's conv function, which only accepts floating-point inputs. My next step is to complete the majority of the bit-true script for subsequent hardware implementation comparisons. Additionally, I am considering incorporating HLS to assist our hardware design, as we cannot yet determine the quantization results for inference, making it difficult to achieve rapid iteration on the Verilog code.
+
+This is also why I'm introducing C++ scripts into my quant backend now—to prepare for the full C++ implementation later on.
+
+
+
+你当前的 mamba_slim 是一个“输入条件的 EMA 型 SSM 简化版”，做到了 Mamba 的“分支投影 → 选择性扫描 → 门控 → 残差”的整体形态，但没有实现官方 Mamba 的“可学习高阶 SSM（A/B/C/D + 离散化）+ 低秩 dt（dt_rank）+ 高效并行 scan/CUDA kernels + 流式/持久状态”等关键机制。
+量化开关与 1x1/1d Conv 的替换路径已经搭好，但 SelectiveScanIC 内部与官方差异较大（没有真正的 SSM 参数化），且 dt_rank/d_state 未被使用。
+与官方 Mamba 的主要差异
+
+SSM 实现方式
+你：一阶 EMA 递推 s_t = λ s_{t-1} + (1-λ) u_t；λ 由 dt_proj(u_t) 经过 sigmoid 得到，逐步 for 循环更新，维度等于 inner（refactor/core/cmamba_slim.py:145–172）。
+官方：显式 SSM 参数 A/B/C/D（如对角 A、HiPPO 初始化、离散化、delta 偏置），并用“选择性扫描”高效并行化（CUDA/Kernel/scan），无 Python 逐步循环。
+参数化与秩约束
+你：dt_proj 是 1x1 Conv（refactor/core/cmamba_slim.py:154–158），d_state 和 dt_rank 没有介入实际计算（refactor/core/cmamba_slim.py:61–92, 93–139）。
+官方：dt_rank 用于低秩时间尺度/混合；d_state 决定 SSM 状态维度，与 d_model/inner 解耦。
+分支与卷积位置
+你：in_proj(D→2*inner) 后 split(u,z)，可选对 u 进行 DWConv，再 SiLU(u) → SSM；门控用 SiLU(z)（refactor/core/cmamba_slim.py:175–248）。这是“Mamba-like”的常见简化。
+官方：也有短卷积（DWConv）作为 pre-mixing，但实现细节常在块前/后更一致地处理，且还包含 x_proj/dt_proj、偏置策略与初始化技巧。
+位置编码
+你：支持 SinCos PE（可关）（refactor/core/cmamba_slim.py:292–312, 317–323）。
+官方：通常不需要显式 PE（基于 SSM 的归纳偏置）。
+扫描/并行与流式
+你：Python for 循环在时序维上扫描（refactor/core/cmamba_slim.py:167–172），无 kernel 并行；MambaRegressor.reset_state() 空实现（refactor/core/mamba_regressor.py:104–106）。
+官方：CUDA/并行 scan；内置自回归/流式接口，持久化状态，长序列推理更高效。
+SSM 细节
+你：无 A/B/C/D、无离散化（Biliner/Tustin）、无 dt 最小值/偏置、无对数初始化等训练稳定性技巧。
+官方：有上述细节，且常配合正则与数值稳定技巧。
+头/回归头与任务包装
+你：时序预测包装（patch embedding → num_patches → 预测头），任务定制明显（refactor/core/cmamba_slim.py:260–337）。
+官方：通用序列建模模块，不包含任务特化头。
+未实现/可补充点
+
+真正的 SSM 参数化与并行 selective scan
+引入 d_state 维度的状态 s ∈ R^{B, d_state, ...}，可学习 A/B/C/D，离散化（dt）和稳定化初始化；去掉 Python for 循环，改为 kernel/scan 或至少年份卷积等并行近似。
+dt_rank/d_state 生效
+用低秩 dt_rank 生成 delta（或相关混合参数）；从 x_proj 派生 dt/B/C，而不仅是 1x1 dt_proj。
+流式推理 API
+在 block/SSM 中实现 step(x_t, state) 与持久化 state；MambaRegressor.reset_state() 做真实的状态清零。
+数值稳定细节
+dt 的 softplus/偏置/下界、A 的对数参数化与负值约束、D 分支（skip/残差）等。
+短卷积位置与归一化
+视训练表现，考虑把 DWConv 放到 in_proj 前后做统一 pre-mix；补充 dropout/范数（官方常用 RMSNorm/LayerNorm + dropout）。

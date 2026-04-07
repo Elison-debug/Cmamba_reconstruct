@@ -1,0 +1,155 @@
+{
+  "version": 2,
+  "type": "mamba_regressor",
+  "model": {
+    "input_dim": 2100,
+    "seq_len": 2,
+    "proj_dim": 64,
+    "d_model": 128,
+    "n_layer": 4,
+    "patch_len": 2,
+    "stride": 2,
+    "forecast_len": 1,
+    "output_dim": 2
+  },
+  "quant": {
+    "rounding": "ties_to_even",
+    "saturate": true,
+    "act_bits": 8,
+    "weight_bits": 8
+  },
+  "bittrue": {
+    "version": "bittrue_v1",
+    "weights": {
+      "scheme": "symmetric",
+      "dtype": "int8",
+      "bits": 8,
+      "granularity": "per_channel",
+      "zero_point": "fixed_zero"
+    },
+    "activations": {
+      "scheme": "asymmetric",
+      "dtype": "int8",
+      "bits": 8,
+      "granularity": "per_tensor",
+      "zero_point": "learned_or_calibrated"
+    },
+    "bias": {
+      "scheme": "integer",
+      "dtype": "int32",
+      "bits": 32,
+      "granularity": "per_channel",
+      "zero_point": "fixed_zero"
+    },
+    "accumulators": {
+      "dtype": "int32",
+      "bits": 32,
+      "rounding": "ties_to_even",
+      "saturation": "clamp"
+    },
+    "requant": {
+      "dtype": "int8",
+      "bits": 8,
+      "rounding": "ties_to_even",
+      "saturation": "clamp"
+    },
+    "sigmoid_lut": {
+      "enabled": true,
+      "xmin": -8.0,
+      "xmax": 8.0,
+      "entries": 4096,
+      "interpolation": "linear"
+    },
+    "silu_lut": {
+      "enabled": true,
+      "xmin": -8.0,
+      "xmax": 8.0,
+      "entries": 4096,
+      "interpolation": "linear"
+    },
+    "rmsnorm": {
+      "mode": "float_reference",
+      "eps": 1e-05
+    },
+    "notes": [
+      "Training/QAT stays in refactor.core and refactor.quant.",
+      "This config is for deployment-side bit-true inference only.",
+      "The current baseline keeps RMSNorm in float_reference mode.",
+      "Exported bit-true packages should embed a copy of this config."
+    ]
+  },
+  "proj": {
+    "name": "proj",
+    "type": "conv1d",
+    "impl": "refactor.core.mamba_regressor._Pointwise1x1",
+    "in_channels": 2100,
+    "out_channels": 64,
+    "kernel_size": 1,
+    "stride": 1,
+    "padding": 0,
+    "groups": 1,
+    "bias": true,
+    "weight": "proj_W.npy",
+    "weight_shape": [
+      64,
+      2100,
+      1
+    ],
+    "bias_file": "proj_B.npy",
+    "bias_shape": [
+      64
+    ],
+    "quant": {
+      "activation": {
+        "enabled": false,
+        "scheme": "none",
+        "bits": 0
+      },
+      "weight": {
+        "enabled": false,
+        "scheme": "none",
+        "bits": 0,
+        "axis": 0
+      }
+    }
+  },
+  "backbone": {
+    "type": "mamba_slim_backbone",
+    "file": "backbone.json"
+  },
+  "head": {
+    "name": "head",
+    "type": "conv1d",
+    "impl": "refactor.core.mamba_regressor._Pointwise1x1",
+    "in_channels": 64,
+    "out_channels": 2,
+    "kernel_size": 1,
+    "stride": 1,
+    "padding": 0,
+    "groups": 1,
+    "bias": true,
+    "weight": "head_W.npy",
+    "weight_shape": [
+      2,
+      64,
+      1
+    ],
+    "bias_file": "head_B.npy",
+    "bias_shape": [
+      2
+    ],
+    "quant": {
+      "activation": {
+        "enabled": false,
+        "scheme": "none",
+        "bits": 0
+      },
+      "weight": {
+        "enabled": false,
+        "scheme": "none",
+        "bits": 0,
+        "axis": 0
+      }
+    }
+  }
+}

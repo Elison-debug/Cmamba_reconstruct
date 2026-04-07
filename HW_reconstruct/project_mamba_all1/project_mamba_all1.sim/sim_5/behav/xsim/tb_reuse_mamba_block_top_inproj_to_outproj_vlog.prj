@@ -1,0 +1,43 @@
+# compile verilog/system verilog design source files
+verilog xil_defaultlib  \
+"../../../../project_mamba_all1.gen/sources_1/ip/s_buffer/sim/s_buffer.v" \
+"../../../../project_mamba_all1.gen/sources_1/ip/bias2sigmoid_fifo/sim/bias2sigmoid_fifo.v" \
+
+sv xil_defaultlib  \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/axis_vec_join2.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/bias_add_regslice_ip.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/ew_update_vec4.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/ewa_vec4.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/ewm_gate_sbuf_vec4.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/ewm_vec4.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/pulse_to_stream_adapter.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/reuse_array4x4.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/reuse_ht_sram_sp.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/reuse_in_proj_scheduler.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/reuse_inproj_weight_sram.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/reuse_mac_fabric_manager.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/reuse_mamba_block_top.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/reuse_out_proj_scheduler_stub.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/reuse_outproj_multi_bank_wbuf_dp.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/reuse_outproj_weight_sram.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/reuse_pipeline_4array_top.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/reuse_pipeline_4array_with_reduction.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/reuse_pt_capture.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/reuse_reduction_accumulator.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/reuse_shared_mac_fabric.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/reuse_silu_vec4.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/reuse_ssm_core.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/reuse_ssm_dt_scheduler.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/reuse_vec_out_sram.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/reuse_z_stream_reader.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/sigmoid4_vec.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/slim_multi_bank_wbuf_dp.sv" \
+"../../../../../hardware_reconstruct/rtl_reuse_shared/vec_fifo_axis_ip.sv" \
+"../../../../../hardware_reconstruct/tb/tb_reuse_mamba_block_top_inproj_to_outproj.sv" \
+
+# compile glbl module
+verilog xil_defaultlib "glbl.v"
+
+# Do not sort compile order
+nosort

@@ -23,7 +23,7 @@ module tb_top_mac_plus_bias_fifo_sigmoid_ew_gate;
   localparam int PIPE_LAT   = 4;
 
   localparam int ADDR_BITS  = 11;
-  localparam string LUT_FILE = "D:/Mamba/Cmamba_reconstruct/sigmoid_lut_q016_2048.hex";
+  localparam string LUT_FILE = "sigmoid_lut_q016_2048.hex";
   localparam int S_ADDR_W   = 6;
   localparam int G_FRAC_BITS = 8;
 

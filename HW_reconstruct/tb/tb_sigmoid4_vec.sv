@@ -7,7 +7,7 @@ module tb_sigmoid4_vec;
   localparam int OUT_W     = 16;
   localparam int ADDR_BITS = 11;
 
-  localparam string LUT_FILE = "D:/Mamba/Cmamba_reconstruct/sigmoid_lut_q016_2048.hex";
+  localparam string LUT_FILE = "sigmoid_lut_q016_2048.hex";
 
   localparam logic signed [IN_W-1:0] X_MIN = -16'sd1024;
   localparam logic signed [IN_W-1:0] X_MAX =  16'sd1023;

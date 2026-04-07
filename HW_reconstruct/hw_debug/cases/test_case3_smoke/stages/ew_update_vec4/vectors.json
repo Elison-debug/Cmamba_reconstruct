@@ -1,0 +1,193 @@
+{
+  "state_depth": 64,
+  "vector_count": 128,
+  "format": {
+    "lam_q016": "packed 4x16b, unsigned Q0.16, lane0 in LSB",
+    "u_q88": "packed 4x16b, signed Q8.8, lane0 in LSB",
+    "s_prev_q88": "packed 4x16b, signed Q8.8, lane0 in LSB",
+    "s_new_q88": "packed 4x16b, signed Q8.8, lane0 in LSB",
+    "s_addr": "8-bit hex per line"
+  },
+  "notes": [
+    "Golden model matches ew_update_vec4.sv semantics: lam>>8, two EWM truncations, one EWA wrap, write to s_addr+1.",
+    "Bypass semantics are modeled using last write address/data."
+  ],
+  "sample_rows": [
+    {
+      "token": 0,
+      "read_addr": 0,
+      "write_addr": 1,
+      "write_data": [
+        64512,
+        64678,
+        64930,
+        64942
+      ]
+    },
+    {
+      "token": 1,
+      "read_addr": 5,
+      "write_addr": 6,
+      "write_data": [
+        64791,
+        65157,
+        74,
+        65352
+      ]
+    },
+    {
+      "token": 2,
+      "read_addr": 10,
+      "write_addr": 11,
+      "write_data": [
+        65206,
+        237,
+        65269,
+        64934
+      ]
+    },
+    {
+      "token": 3,
+      "read_addr": 15,
+      "write_addr": 16,
+      "write_data": [
+        220,
+        64820,
+        65300,
+        65318
+      ]
+    },
+    {
+      "token": 4,
+      "read_addr": 20,
+      "write_addr": 21,
+      "write_data": [
+        65252,
+        65409,
+        82,
+        301
+      ]
+    },
+    {
+      "token": 5,
+      "read_addr": 25,
+      "write_addr": 26,
+      "write_data": [
+        240,
+        203,
+        537,
+        955
+      ]
+    },
+    {
+      "token": 6,
+      "read_addr": 30,
+      "write_addr": 31,
+      "write_data": [
+        899,
+        63,
+        65321,
+        577
+      ]
+    },
+    {
+      "token": 7,
+      "read_addr": 35,
+      "write_addr": 36,
+      "write_data": [
+        453,
+        291,
+        213,
+        736
+      ]
+    },
+    {
+      "token": 8,
+      "read_addr": 40,
+      "write_addr": 41,
+      "write_data": [
+        615,
+        653,
+        776,
+        65194
+      ]
+    },
+    {
+      "token": 9,
+      "read_addr": 45,
+      "write_addr": 46,
+      "write_data": [
+        913,
+        65266,
+        64641,
+        64939
+      ]
+    },
+    {
+      "token": 10,
+      "read_addr": 50,
+      "write_addr": 51,
+      "write_data": [
+        64827,
+        65265,
+        65004,
+        65502
+      ]
+    },
+    {
+      "token": 11,
+      "read_addr": 55,
+      "write_addr": 56,
+      "write_data": [
+        65395,
+        496,
+        65503,
+        665
+      ]
+    },
+    {
+      "token": 12,
+      "read_addr": 60,
+      "write_addr": 61,
+      "write_data": [
+        563,
+        65073,
+        65076,
+        65164
+      ]
+    },
+    {
+      "token": 13,
+      "read_addr": 1,
+      "write_addr": 2,
+      "write_data": [
+        64600,
+        65164,
+        65110,
+        18
+      ]
+    },
+    {
+      "token": 14,
+      "read_addr": 6,
+      "write_addr": 7,
+      "write_data": [
+        65417,
+        65389,
+        86,
+        176
+      ]
+    },
+    {
+      "token": 15,
+      "read_addr": 11,
+      "write_addr": 12,
+      "write_data": [
+        34,
+        232,
+        65299,
+        109
+      ]
+    }
+  ]
+}

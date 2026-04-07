@@ -1,0 +1,16 @@
+{
+  "case_dir": "E:\\course\\master\\mamba\\Cmamba_reconstruct\\HW_reconstruct\\hw_debug\\cases\\test_case2_smoke",
+  "stage": "sigmoid4_vec",
+  "rtl_dir": "E:\\course\\master\\mamba\\Cmamba_reconstruct\\HW_reconstruct\\hw_debug\\cases\\test_case2_smoke\\rtl_out\\sigmoid4_vec",
+  "match": true,
+  "files": [
+    {
+      "match": true,
+      "lines": 512,
+      "golden_file": "E:\\course\\master\\mamba\\Cmamba_reconstruct\\HW_reconstruct\\hw_debug\\cases\\test_case2_smoke\\stages\\sigmoid4_vec\\out_q016.mem",
+      "rtl_file": "E:\\course\\master\\mamba\\Cmamba_reconstruct\\HW_reconstruct\\hw_debug\\cases\\test_case2_smoke\\rtl_out\\sigmoid4_vec\\out_q016.mem",
+      "file": "out_q016.mem"
+    }
+  ],
+  "first_fail": null
+}
