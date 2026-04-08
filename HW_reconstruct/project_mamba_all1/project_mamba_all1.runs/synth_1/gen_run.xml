@@ -465,10 +465,10 @@
     <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2024"/>
     <Step Id="synth_design"/>
   </Strategy>
-  <BlockFileSet Type="BlockSrcs" Name="bias2sigmoid_fifo"/>
   <BlockFileSet Type="BlockSrcs" Name="slim_WBUF_bank_dp"/>
-  <BlockFileSet Type="BlockSrcs" Name="inproj_vec_out_sram_ip"/>
+  <BlockFileSet Type="BlockSrcs" Name="bias2sigmoid_fifo"/>
   <BlockFileSet Type="BlockSrcs" Name="bias_ROM"/>
+  <BlockFileSet Type="BlockSrcs" Name="inproj_vec_out_sram_ip"/>
   <BlockFileSet Type="BlockSrcs" Name="s_buffer"/>
   <BlockFileSet Type="BlockSrcs" Name="inproj_ht_sram_ip"/>
   <BlockFileSet Type="BlockSrcs" Name="outproj_WBUF_bank_dp"/>

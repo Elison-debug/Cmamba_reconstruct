@@ -121,16 +121,17 @@ module reuse_mamba_board_shell #(
     wire signed [TILE_SIZE*DATA_WIDTH-1:0] u_rd_data_flat;
     wire signed [TILE_SIZE*DATA_WIDTH-1:0] z_rd_data_flat;
 
-    wire                           block_start_mux;
+    reg                            core_block_start_pulse;
+
     wire                           rst_n_int;
 
     assign rst_n_int      = ext_reset_n & ~core_soft_reset_pulse;
-    assign block_start_mux = core_start_pulse & preload_h_done;
     assign dma_error      = 1'b0;
     assign irq            = (irq_enable[0] & block_done) |
                             (irq_enable[1] & preload_h_done) |
                             (irq_enable[2] & dma_error);
     assign m_axis_y_tlast = m_axis_y_tvalid & m_axis_y_tready;
+
 
     reuse_mamba_axi_lite_regs #(
         .ADDR_W(AXIL_ADDR_W)
@@ -194,6 +195,30 @@ module reuse_mamba_board_shell #(
         .h_wr_data    (h_wr_data_flat)
     );
 
+    reg h_preloaded;
+
+    always @(posedge sys_clk) begin
+        if (!rst_n_int) begin
+            core_block_start_pulse <= 1'b0;
+            
+            h_preloaded            <= 1'b0;
+        end else begin
+            core_block_start_pulse <= 1'b0;
+
+            // h preload完成后，锁存成状态
+            if (preload_h_start_pulse)
+                h_preloaded <= 1'b0;
+            else if (preload_h_done)
+                h_preloaded <= 1'b1;
+
+            // 启动运行：要求 h 已经 preload 完成
+            if (core_start_pulse && h_preloaded  && !block_busy) begin
+                core_block_start_pulse <= 1'b1;
+            end
+        end
+    end
+
+
 
     reuse_mamba_block_wrapper #(
         .TILE_SIZE   (TILE_SIZE),
@@ -216,10 +241,10 @@ module reuse_mamba_board_shell #(
         .ext_reset_n     (rst_n_int),
         .core_rst_n_o    (core_rst_n_o),
         .block_auto_mode (block_auto_mode),
-        .block_start     (block_start_mux),
+        .block_start     (core_block_start_pulse),
         .block_busy      (block_busy),
         .block_done      (block_done),
-        .s_axis_tvalid   (block_start_mux),
+        .s_axis_tvalid   (core_block_start_pulse),
         .s_axis_tready   (),
         .g_axis_tvalid   (s_axis_g_tvalid),
         .g_axis_tready   (s_axis_g_tready),
@@ -228,7 +253,7 @@ module reuse_mamba_board_shell #(
         .y_axis_tready   (m_axis_y_tready),
         .y_axis_tdata    (m_axis_y_tdata),
         .inproj_enable   (1'b1),
-        .inproj_start    (block_start_mux),
+        .inproj_start    (core_block_start_pulse),
         .inproj_busy     (inproj_busy),
         .inproj_done     (inproj_done),
         .h_wr_en         (h_wr_en),

@@ -2,8 +2,7 @@
 verilog xil_defaultlib  --include "../../../../project_mamba_all1.gen/sources_1/bd/design_1/ipshared/ec67/hdl" --include "../../../../project_mamba_all1.gen/sources_1/bd/design_1/ipshared/a317/hdl" --include "../../../../project_mamba_all1.gen/sources_1/bd/design_1/ipshared/f0b6/hdl/verilog" --include "../../../../project_mamba_all1.gen/sources_1/bd/design_1/ipshared/c783/hdl/verilog" --include "../../../../../hw_debug/vivado_runs/reuse_mamba_block_top_hw_debug" --include "../../../../../hw_debug/vivado_runs/reuse_ssm_dt_scheduler_hw_debug" --include "../../../../../hw_debug/vivado_runs/reuse_ssm_core_hw_debug" --include "../../../../" --include "E:/Xilinx/Vivado/2024.1/data/xilinx_vip/include" \
 "../../../../project_mamba_all1.gen/sources_1/ip/s_buffer/sim/s_buffer.v" \
 "../../../../project_mamba_all1.gen/sources_1/ip/bias2sigmoid_fifo/sim/bias2sigmoid_fifo.v" \
-"../../../../../rtl_reuse_shared/reuse_mamba_board_shell_with_g_loader.v" \
-"../../../../../rtl_reuse_shared/reuse_mamba_g_stream_loader.v" \
+"../../../../../rtl_reuse_shared/reuse_mamba_board_shell.v" \
 "../../../../../rtl_reuse_shared/reuse_mamba_h_stream_loader.v" \
 
 sv xil_defaultlib  --include "../../../../project_mamba_all1.gen/sources_1/bd/design_1/ipshared/ec67/hdl" --include "../../../../project_mamba_all1.gen/sources_1/bd/design_1/ipshared/a317/hdl" --include "../../../../project_mamba_all1.gen/sources_1/bd/design_1/ipshared/f0b6/hdl/verilog" --include "../../../../project_mamba_all1.gen/sources_1/bd/design_1/ipshared/c783/hdl/verilog" --include "../../../../../hw_debug/vivado_runs/reuse_mamba_block_top_hw_debug" --include "../../../../../hw_debug/vivado_runs/reuse_ssm_dt_scheduler_hw_debug" --include "../../../../../hw_debug/vivado_runs/reuse_ssm_core_hw_debug" --include "../../../../" --include "E:/Xilinx/Vivado/2024.1/data/xilinx_vip/include" \
@@ -43,7 +42,7 @@ sv xil_defaultlib  --include "../../../../project_mamba_all1.gen/sources_1/bd/de
 "../../../../../rtl_reuse_shared/sigmoid4_vec.sv" \
 "../../../../../rtl_reuse_shared/slim_multi_bank_wbuf_dp.sv" \
 "../../../../../rtl_reuse_shared/vec_fifo_axis_ip.sv" \
-"../../../../../tb/tb_reuse_mamba_board_shell_min_v7.sv" \
+"../../../../../tb/tb_reuse_mamba_board_shell.sv" \
 
 # compile glbl module
 verilog xil_defaultlib "glbl.v"

@@ -4,7 +4,9 @@
 // h is preloaded through AXIS into the existing H SRAM path.
 // g is first captured from AXIS into a small local buffer, then
 // replayed to the inner core so the core sees a deterministic
-// stream aligned with block_start.
+// stream aligned with block_start.()this is only for testing g_
+// related logic in the core, and can be removed later to directly
+// use core results for g to save resources.
 //---------------------------------------------------------------
 module reuse_mamba_board_shell #(
     parameter integer TILE_SIZE   = 4,

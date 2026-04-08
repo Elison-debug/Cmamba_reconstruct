@@ -141,8 +141,8 @@ module reuse_mamba_axi_lite_regs #(
             if (wr_fire) begin
                 unique case (awaddr_q)
                     REG_CTRL: begin
-                        reg_tmp32 = apply_wstrb({31'd0, block_auto_mode}, wdata_q, wstrb_q);
-                        block_auto_mode <= reg_tmp32[1];
+                        reg_tmp32 = apply_wstrb({30'd0, block_auto_mode,1'b0}, wdata_q, wstrb_q);
+                        block_auto_mode <= !reg_tmp32[1];
                         if (wdata_q[0]) start_pulse <= 1'b1;
                         if (wdata_q[2]) preload_h_start_pulse <= 1'b1;
                         if (wdata_q[3]) soft_reset_pulse <= 1'b1;
