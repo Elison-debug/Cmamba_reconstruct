@@ -1,6 +1,6 @@
 -------------------------------------
 | Tool Version : Vivado v.2024.1
-| Date         : Sun Apr  5 23:19:11 2026
+| Date         : Thu Apr  9 00:01:36 2026
 | Host         : 13600kf
 | Design       : design_1
 | Device       : xczu9eg-ffvb1156-2-E-
@@ -12,22 +12,23 @@ For more information on clockInfo.txt clock routing debug file see https://suppo
 Running Pre-CRP Checker
 ***********************
 Number of global clocks: 1
-	Number of BUFGCE: 1
+	Number of BUFGCE: 0
 	Number of BUFGCE_HDIO: 0
 	Number of BUFG_CTRL: 0
 	Number of BUFGCE_DIV: 0
 	Number of BUFG_GT: 0
-	Number of BUFG_PS: 0
+	Number of BUFG_PS: 1
 	Number of BUFG_FABRIC: 0
 Pre-CRP Checker took 0 secs
 
 ********************************
 Clock Net Route Info (CRP Input)
 ********************************
-Clock 1: sys_clk_IBUF_BUFG
-	Clock source type: BUFGCE
-	Clock source region: X3Y2
-	initial rect ((1, 0), (3, 3))
+Clock 1: design_1_i/zynq_ultra_ps_e_0/inst/pl_clk0
+	Clock source type: BUFG_PS
+	Clock source region: X1Y2
+	Clock regions with locked loads: X1Y0 
+	initial rect ((0, 0), (3, 5))
 
 
 
