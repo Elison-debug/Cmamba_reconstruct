@@ -18,7 +18,9 @@ module reuse_mamba_board_shell #(
     parameter LUT_FILE            = "sigmoid_lut_q016_2048.hex",
     parameter integer S_ADDR_W    = 6,
     parameter integer G_FRAC_BITS = 8,
-    parameter integer AXIL_ADDR_W = 12
+    parameter integer AXIL_ADDR_W = 12,
+    parameter integer G_DEPTH     = 64,
+    parameter integer G_ADDR_W    = 6
 ) (
     (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME sys_clk, ASSOCIATED_BUSIF s_axi:s_axis_h:s_axis_g:m_axis_y, ASSOCIATED_RESET ext_reset_n, FREQ_HZ 99990005" *)
     (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 sys_clk CLK" *)
@@ -200,25 +202,20 @@ module reuse_mamba_board_shell #(
     always @(posedge sys_clk) begin
         if (!rst_n_int) begin
             core_block_start_pulse <= 1'b0;
-            
             h_preloaded            <= 1'b0;
         end else begin
             core_block_start_pulse <= 1'b0;
 
-            // h preload完成后，锁存成状态
             if (preload_h_start_pulse)
                 h_preloaded <= 1'b0;
             else if (preload_h_done)
                 h_preloaded <= 1'b1;
 
-            // 启动运行：要求 h 已经 preload 完成
             if (core_start_pulse && h_preloaded  && !block_busy) begin
                 core_block_start_pulse <= 1'b1;
             end
         end
     end
-
-
 
     reuse_mamba_block_wrapper #(
         .TILE_SIZE   (TILE_SIZE),

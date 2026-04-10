@@ -1,0 +1,15 @@
+{
+  "name": "test_mamba",
+  "type": "HOST",
+  "platform": "E:\\course\\smamba\\vitis_hw\\platform\\export\\platform\\platform.xpfm",
+  "domain": "standalone_psu_cortexa53_0",
+  "cpuInstance": "psu_cortexa53_0",
+  "cpuType": "cortex-a53",
+  "os": "standalone",
+  "configuration": {
+    "componentType": "HOST",
+    "hostToolchainConfigurations": []
+  },
+  "domainRealName": "standalone_psu_cortexa53_0",
+  "applicationFlow": "EMBEDDED"
+}

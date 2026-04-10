@@ -3,12 +3,12 @@
 # SW Build 5076996 on Wed May 22 18:37:14 MDT 2024
 # IP Build 5075265 on Wed May 22 21:45:21 MDT 2024
 # SharedData Build 5076995 on Wed May 22 18:29:18 MDT 2024
-# Start of session at: Wed Apr  8 23:25:41 2026
-# Process ID: 90256
-# Current directory: E:/course/master/mamba/Cmamba_reconstruct
+# Start of session at: Fri Apr 10 14:28:01 2026
+# Process ID: 112064
+# Current directory: E:/course/smamba
 # Command line: vivado.exe HW_reconstruct\project_mamba_all1\project_mamba_all1.xpr
-# Log file: E:/course/master/mamba/Cmamba_reconstruct/vivado.log
-# Journal file: E:/course/master/mamba/Cmamba_reconstruct\vivado.jou
+# Log file: E:/course/smamba/vivado.log
+# Journal file: E:/course/smamba\vivado.jou
 # Running On        :13600kf
 # Platform          :Windows Server 2016 or Windows 10
 # Operating System  :26200
@@ -19,25 +19,97 @@
 # Host memory       :34163 MB
 # Swap memory       :34163 MB
 # Total Virtual     :68327 MB
-# Available Virtual :16448 MB
+# Available Virtual :13102 MB
 #-----------------------------------------------------------
 start_gui
 open_project HW_reconstruct/project_mamba_all1/project_mamba_all1.xpr
 update_compile_order -fileset sources_1
-write_hw_platform -fixed -include_bit -force -file E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/mamba_BD_wrapper.xsa
-open_bd_design {E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/bd/design_1/design_1.bd}
-startgroup
-set_property -dict [list \
-  CONFIG.PSU__DISPLAYPORT__PERIPHERAL__ENABLE {0} \
-  CONFIG.PSU__SATA__PERIPHERAL__ENABLE {0} \
-] [get_bd_cells zynq_ultra_ps_e_0]
-endgroup
-validate_bd_design
-save_bd_design
+update_compile_order -fileset sim_3
+# Disabling source management mode.  This is to allow the top design properties to be set without GUI intervention.
+set_property source_mgmt_mode None [current_project]
+set_property top reuse_mamba_board_shell [current_fileset]
+set_property top_lib xil_defaultlib [current_fileset]
+set_property top_file E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_mamba_board_shell.v [current_fileset]
+# Re-enabling previously disabled source management mode.
+set_property source_mgmt_mode All [current_project]
+update_compile_order -fileset sources_1
+# Disabling source management mode.  This is to allow the top design properties to be set without GUI intervention.
+set_property source_mgmt_mode None [current_project]
+set_property top reuse_mamba_board_shell [get_filesets sim_3]
+set_property top_lib xil_defaultlib [get_filesets sim_3]
+set_property top_file E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_mamba_board_shell.v [get_filesets sim_3]
+# Re-enabling previously disabled source management mode.
+set_property source_mgmt_mode All [current_project]
+launch_simulation -simset [get_filesets sim_3 ]
+open_wave_config E:/course/smamba/HW_reconstruct/project_mamba_all1/tb_reuse_in_proj_scheduler_behav.wcfg
+source reuse_mamba_board_shell.tcl
+current_wave_config {tb_reuse_in_proj_scheduler_behav.wcfg}
+add_wave {{/reuse_mamba_board_shell/u_core/u_core}} 
+restart
+run all
+run all
+restart
+run all
+run all
+run all
+run all
+run all
+run 5 us
+close_sim
+synth_design -top reuse_mamba_board_shell -part xczu9eg-ffvb1156-2-e -lint 
+set_property SOURCE_SET sources_1 [get_filesets sim_3]
+add_files -fileset sim_3 -norecurse -scan_for_includes E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell.sv
+update_compile_order -fileset sim_3
+export_ip_user_files -of_objects  [get_files E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell.v] -no_script -reset -force -quiet
+remove_files  -fileset sim_3 E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell.v
+# Disabling source management mode.  This is to allow the top design properties to be set without GUI intervention.
+set_property source_mgmt_mode None [current_project]
+set_property top tb_reuse_mamba_board_shell [get_filesets sim_3]
+set_property top_lib xil_defaultlib [get_filesets sim_3]
+# Re-enabling previously disabled source management mode.
+set_property source_mgmt_mode All [current_project]
+update_compile_order -fileset sim_3
+launch_simulation -simset [get_filesets sim_3 ]
+export_ip_user_files -of_objects  [get_files E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell.v] -no_script -reset -force -quiet
+remove_files  -fileset sim_1 E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell.v
+export_ip_user_files -of_objects  [get_files E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell.v] -no_script -reset -force -quiet
+remove_files  -fileset sim_2 E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell.v
+reset_simulation -simset sim_3 -mode behavioral
+launch_simulation -simset [get_filesets sim_3 ]
+open_wave_config E:/course/smamba/HW_reconstruct/project_mamba_all1/tb_reuse_in_proj_scheduler_behav.wcfg
+source tb_reuse_mamba_board_shell.tcl
+run all
+current_wave_config {tb_reuse_in_proj_scheduler_behav.wcfg}
+add_wave {{/tb_reuse_mamba_board_shell/dut/u_core/u_core}} 
+restart
+run all
+close_sim
+report_ip_status -name ip_status 
+reset_simulation -simset sim_3 -mode behavioral
+launch_simulation -simset [get_filesets sim_3 ]
+open_wave_config E:/course/smamba/HW_reconstruct/project_mamba_all1/tb_reuse_in_proj_scheduler_behav.wcfg
+source tb_reuse_mamba_board_shell.tcl
+current_wave_config {tb_reuse_in_proj_scheduler_behav.wcfg}
+add_wave {{/tb_reuse_mamba_board_shell/dut/u_core/u_core}} 
+restart
+run 5 us
+run all
+save_wave_config {E:/course/smamba/HW_reconstruct/project_mamba_all1/tb_reuse_in_proj_scheduler_behav.wcfg}
+close_sim
+update_module_reference [get_ips  design_1_reuse_mamba_board_sh_0_1]
+generate_target all [get_files  E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/bd/design_1/design_1.bd]
+catch { config_ip_cache -export [get_ips -all design_1_smartconnect_0_0] }
+catch { config_ip_cache -export [get_ips -all design_1_smartconnect_0_1] }
+export_ip_user_files -of_objects [get_files E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/bd/design_1/design_1.bd] -no_script -sync -force -quiet
+export_simulation -of_objects [get_files E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/bd/design_1/design_1.bd] -directory E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.ip_user_files/sim_scripts -ip_user_files_dir E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.ip_user_files -ipstatic_source_dir E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.ip_user_files/ipstatic -lib_map_path [list {modelsim=E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.cache/compile_simlib/modelsim} {questa=E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.cache/compile_simlib/questa} {riviera=E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.cache/compile_simlib/riviera} {activehdl=E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.cache/compile_simlib/activehdl}] -use_ip_compiled_libs -force -quiet
+synth_design -rtl -rtl_skip_mlo -name rtl_1
+report_methodology -name ultrafast_methodology_1 -file E:/course/smamba/HW_reconstruct/reports/methodology_report.txt
 reset_run synth_1
-reset_run design_1_zynq_ultra_ps_e_0_0_synth_1
-reset_run design_1_smartconnect_0_0_synth_1
-reset_run design_1_smartconnect_0_1_synth_1
-launch_runs impl_1 -to_step write_bitstream -jobs 20
-write_hw_platform -fixed -include_bit -force -file E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/design_1_wrapper.xsa
-open_bd_design {E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/bd/design_1/design_1.bd}
+launch_runs synth_1 -jobs 20
+wait_on_run synth_1
+synth_design -top reuse_mamba_board_shell -part xczu9eg-ffvb1156-2-e -lint 
+open_run synth_1 -name synth_1
+create_dataflow_design
+synth_design -top reuse_mamba_board_shell -part xczu9eg-ffvb1156-2-e -lint 
+current_design rtl_1
+launch_simulation -simset [get_filesets sim_3 ] -mode post-synthesis -type functional

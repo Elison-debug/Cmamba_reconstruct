@@ -53,9 +53,9 @@ module tb_reuse_mamba_block_top_hw_debug;
       if (dut.dt_u_rd_en || dut.u_dt_sched.xt_axis_TVALID || dut.dt_mac_valid ||
           dut.u_ssm_core.sigmoid_out_valid || dut.u_ssm_core.s_out_valid) begin
         $display(
-            "[%0t] DTDBG blk=%0d dt_rd_en=%0b dt_rd_addr=%0d dt_rd=%0d,%0d,%0d,%0d xt_v=%0b xt=%0d,%0d,%0d,%0d dt_v=%0b dt=%0d,%0d,%0d,%0d lam_v=%0b lam=%0d,%0d,%0d,%0d ssm_v=%0b ssm=%0d,%0d,%0d,%0d",
+            "[%0t] DTDBG flow=%0d dt_rd_en=%0b dt_rd_addr=%0d dt_rd=%0d,%0d,%0d,%0d xt_v=%0b xt=%0d,%0d,%0d,%0d dt_v=%0b dt=%0d,%0d,%0d,%0d lam_v=%0b lam=%0d,%0d,%0d,%0d ssm_v=%0b ssm=%0d,%0d,%0d,%0d",
             $time,
-            dut.blk_st,
+            {dut.block_done_reg, dut.dt_run_active, dut.block_active},
             dut.dt_u_rd_en,
             dut.dt_u_rd_addr,
             dut.dt_u_rd_data[0], dut.dt_u_rd_data[1], dut.dt_u_rd_data[2], dut.dt_u_rd_data[3],
@@ -742,7 +742,7 @@ module tb_reuse_mamba_block_top_hw_debug;
                  $time,
                  outproj_dbg_count + 1,
                  dut.u_out_proj.state,
-                 dut.u_out_proj.row_tile_linear,
+                 dut.u_out_proj.row_idx,
                  dut.u_out_proj.data_cnt,
                  dut.u_out_proj.tile_cnt,
                  dut.u_out_proj.valid_in,
@@ -1094,9 +1094,9 @@ module tb_reuse_mamba_block_top_hw_debug;
         post_inproj_cycles <= post_inproj_cycles + 1;
         if (post_inproj_cycles < 120) begin
           $display(
-              "[%0t] POST blk=%0d in_done=%0b u_auto_en=%0b u_auto_addr=%0d z_auto_en=%0b z_auto_addr=%0d u_busy=%0b u_done=%0b u_v=%0b z_busy=%0b z_done=%0b z_v=%0b silu_v=%0b uact_v=%0b uact_we=%0b uact_cnt=%0d uact_done=%0b dt_rd_en=%0b dt_rd_addr=%0d dt_rd0=%0d dt_v=%0b dt0=%0d lam_v=%0b lam0=%0d ssm_v=%0b ssm0=%0d",
+              "[%0t] POST flow=%0d in_done=%0b u_auto_en=%0b u_auto_addr=%0d z_auto_en=%0b z_auto_addr=%0d u_busy=%0b u_done=%0b u_v=%0b z_busy=%0b z_done=%0b z_v=%0b silu_v=%0b uact_v=%0b uact_we=%0b uact_cnt=%0d uact_done=%0b dt_rd_en=%0b dt_rd_addr=%0d dt_rd0=%0d dt_v=%0b dt0=%0d lam_v=%0b lam0=%0d ssm_v=%0b ssm0=%0d",
               $time,
-              dut.blk_st,
+              {dut.block_done_reg, dut.dt_run_active, dut.block_active},
               inproj_done,
               dut.u_auto_rd_en,
               dut.u_auto_rd_addr,
@@ -1133,9 +1133,9 @@ module tb_reuse_mamba_block_top_hw_debug;
             dut.silu_valid || dut.dt_mac_valid || dut.u_ssm_core.sigmoid_out_valid ||
             dut.u_ssm_core.s_out_valid || dut.uact_wr_en || dut.uact_fill_done) begin
           $display(
-              "[%0t] TOP blk=%0d in_done=%0b u_busy=%0b u_v=%0b uact_v=%0b uact_we=%0b uact_cnt=%0d uact_done=%0b z_v=%0b silu_v=%0b dt_v=%0b lam_v=%0b ssm_v=%0b dt_ready=%0b",
+              "[%0t] TOP flow=%0d in_done=%0b u_busy=%0b u_v=%0b uact_v=%0b uact_we=%0b uact_cnt=%0d uact_done=%0b z_v=%0b silu_v=%0b dt_v=%0b lam_v=%0b ssm_v=%0b dt_ready=%0b",
               $time,
-              dut.blk_st,
+              {dut.block_done_reg, dut.dt_run_active, dut.block_active},
               inproj_done,
               dut.u_stream_busy,
               dut.u_stream_valid,

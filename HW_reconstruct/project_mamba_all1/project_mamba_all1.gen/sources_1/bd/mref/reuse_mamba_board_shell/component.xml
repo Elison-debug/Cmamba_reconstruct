@@ -371,7 +371,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>e6209b6d</spirit:value>
+            <spirit:value>a9a10838</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -384,7 +384,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>e6209b6d</spirit:value>
+            <spirit:value>a9a10838</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -978,6 +978,16 @@
         <spirit:displayName>Axil Addr W</spirit:displayName>
         <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.AXIL_ADDR_W">12</spirit:value>
       </spirit:modelParameter>
+      <spirit:modelParameter spirit:dataType="integer">
+        <spirit:name>G_DEPTH</spirit:name>
+        <spirit:displayName>G Depth</spirit:displayName>
+        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.G_DEPTH">64</spirit:value>
+      </spirit:modelParameter>
+      <spirit:modelParameter spirit:dataType="integer">
+        <spirit:name>G_ADDR_W</spirit:name>
+        <spirit:displayName>G Addr W</spirit:displayName>
+        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.G_ADDR_W">6</spirit:value>
+      </spirit:modelParameter>
     </spirit:modelParameters>
   </spirit:model>
   <spirit:choices>
@@ -995,7 +1005,7 @@
       <spirit:file>
         <spirit:name>xgui/reuse_mamba_board_shell_v1_0.tcl</spirit:name>
         <spirit:fileType>tclSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_7456e063</spirit:userFileType>
+        <spirit:userFileType>CHECKSUM_b255cf68</spirit:userFileType>
         <spirit:userFileType>XGUI_VERSION_2</spirit:userFileType>
       </spirit:file>
     </spirit:fileSet>
@@ -1083,6 +1093,16 @@
       <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.AXIL_ADDR_W">12</spirit:value>
     </spirit:parameter>
     <spirit:parameter>
+      <spirit:name>G_DEPTH</spirit:name>
+      <spirit:displayName>G Depth</spirit:displayName>
+      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.G_DEPTH">64</spirit:value>
+    </spirit:parameter>
+    <spirit:parameter>
+      <spirit:name>G_ADDR_W</spirit:name>
+      <spirit:displayName>G Addr W</spirit:displayName>
+      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.G_ADDR_W">6</spirit:value>
+    </spirit:parameter>
+    <spirit:parameter>
       <spirit:name>Component_Name</spirit:name>
       <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.Component_Name" spirit:order="1">reuse_mamba_board_shell_v1_0</spirit:value>
     </spirit:parameter>
@@ -1103,7 +1123,7 @@
         <xilinx:designToolContext>IPI</xilinx:designToolContext>
       </xilinx:designToolContexts>
       <xilinx:coreRevision>1</xilinx:coreRevision>
-      <xilinx:coreCreationDateTime>2026-04-08T17:27:39Z</xilinx:coreCreationDateTime>
+      <xilinx:coreCreationDateTime>2026-04-10T13:18:48Z</xilinx:coreCreationDateTime>
     </xilinx:coreExtensions>
     <xilinx:packagingInfo>
       <xilinx:xilinxVersion>2024.1</xilinx:xilinxVersion>

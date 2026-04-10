@@ -70,9 +70,7 @@ module reuse_in_proj_scheduler #(
     input  logic signed [ACC_WIDTH-1:0]   fabric_reduced_mat_3 [TILE_SIZE-1:0][TILE_SIZE-1:0],
     input  logic                          fabric_valid_out
 );
-    localparam int ROW_GROUPS    = OUT_DIM / (TILE_SIZE * 4); // 32 groups, each covers 16 rows
-    localparam int ROWS_PER_GRP  = 4;                         // 4 output tiles per group
-    localparam int ROW_TILES     = OUT_DIM / TILE_SIZE;       // 128 4-row tiles
+    localparam int ROW_TILES     = OUT_DIM / TILE_SIZE;
     localparam int K_GROUPS      = IN_DIM / (TILE_SIZE * 4);  // 8 groups, each covers 16 input dims
     localparam int PHYS_K_BLOCKS = IN_DIM / TILE_SIZE;        // 32 physical 4-dim tiles
     localparam int TILE_CYCLE    = K_GROUPS + 3;             // 8 valid + 3 stagger drain
@@ -83,12 +81,8 @@ module reuse_in_proj_scheduler #(
     typedef enum logic [2:0] { IDLE, RUN_PIPELINE, WAIT_DONE, WRITE, DONE_S } state_t;
     state_t state, next_state;
 
-    logic [$clog2(ROW_GROUPS)-1:0] row_group_idx;
-    logic [1:0]                    row_subtile_idx;
-    logic [$clog2(ROW_TILES)-1:0]  row_tile_linear;
-    logic [$clog2(ROW_GROUPS)-1:0] write_row_group_idx;
-    logic [1:0]                    write_row_subtile_idx;
-    logic [$clog2(ROW_TILES)-1:0]  write_row_tile_linear;
+    logic [$clog2(ROW_TILES)-1:0]  row_idx;
+    logic [$clog2(ROW_TILES)-1:0]  write_row_idx;
     logic [$clog2(K_GROUPS+1)-1:0] data_cnt;
     logic [$clog2(TILE_CYCLE+2)-1:0] tile_cnt, tile_cnt_d;
     logic [1:0]                    drain_cnt;
@@ -158,8 +152,6 @@ module reuse_in_proj_scheduler #(
     logic [SCALE_W-1:0]           out_scale_vec [TILE_SIZE-1:0];
     logic                         valid_in;
 
-    assign row_tile_linear       = row_group_idx * ROWS_PER_GRP + row_subtile_idx;
-    assign write_row_tile_linear = write_row_group_idx * ROWS_PER_GRP + write_row_subtile_idx;
 
     reuse_inproj_weight_sram #(
         .N_BANK (N_BANK),
@@ -244,7 +236,7 @@ module reuse_in_proj_scheduler #(
     assign h_rd_en           = enable && valid_in;
     assign fabric_valid_in   = valid_in_d2;
     assign scale_rd_en       = enable && (state == RUN_PIPELINE) && (data_cnt == '0);
-    assign scale_rd_addr     = row_tile_linear[SCALE_ADDR_W-1:0];
+    assign scale_rd_addr     = row_idx[SCALE_ADDR_W-1:0];
 
     reuse_packed_scale_mem #(
         .DEPTH  (SCALE_DEPTH),
@@ -275,7 +267,7 @@ module reuse_in_proj_scheduler #(
             h_rd_addr2 = data_cnt * 4 + 2;
             h_rd_addr3 = data_cnt * 4 + 3;
 
-            aligned_addr = row_tile_linear * K_GROUPS + data_cnt;
+            aligned_addr = row_idx * K_GROUPS + data_cnt;
             w_bank_sel[0] = 0;
             w_bank_sel[1] = 1;
             w_bank_sel[2] = 2;
@@ -376,14 +368,14 @@ module reuse_in_proj_scheduler #(
             out_wr_data[i] = $signed(out_wr_data_u[i]);
         end
 
-        if (write_row_tile_linear >= U_DEPTH)
-            out_wr_addr = write_row_tile_linear - U_DEPTH;
+        if (write_row_idx >= U_DEPTH)
+            out_wr_addr = write_row_idx - U_DEPTH;
         else
-            out_wr_addr = write_row_tile_linear[U_ADDR_W-1:0];
+            out_wr_addr = write_row_idx[U_ADDR_W-1:0];
     end
 
-    assign u_wr_en = (state == WRITE) && (write_row_tile_linear < U_DEPTH);
-    assign z_wr_en = (state == WRITE) && (write_row_tile_linear >= U_DEPTH);
+    assign u_wr_en = (state == WRITE) && (write_row_idx < U_DEPTH);
+    assign z_wr_en = (state == WRITE) && (write_row_idx >= U_DEPTH);
 
     always_comb begin
         fabric_A0_mat = A0_mat_reg;
@@ -416,7 +408,7 @@ module reuse_in_proj_scheduler #(
                     next_state = WRITE;
             end
             WRITE: begin
-                if (row_group_idx == ROW_GROUPS-1 && row_subtile_idx == ROWS_PER_GRP-1)
+                if (row_idx == ROW_TILES-1)
                     next_state = DONE_S;
                 else
                     next_state = RUN_PIPELINE;
@@ -432,10 +424,8 @@ module reuse_in_proj_scheduler #(
     always_ff @(posedge clk) begin
         if (!rst_n) begin
             state         <= IDLE;
-            row_group_idx <= '0;
-            row_subtile_idx <= '0;
-            write_row_group_idx <= '0;
-            write_row_subtile_idx <= '0;
+            row_idx <= '0;
+            write_row_idx <= '0;
             data_cnt      <= '0;
             tile_cnt      <= '0;
             tile_cnt_d    <= '0;
@@ -494,8 +484,7 @@ module reuse_in_proj_scheduler #(
                 data_cnt       <= '0;
                 tile_cnt       <= '0;
                 drain_cnt      <= 2'd3;
-                write_row_group_idx <= '0;
-                write_row_subtile_idx <= '0;
+                write_row_idx <= '0;
                 seen_valid     <= 1'b0;
                 en_sel_reg     <= '0;
                 phase_reg      <= '0;
@@ -562,8 +551,7 @@ module reuse_in_proj_scheduler #(
             end
 
             if (state == WAIT_DONE && next_state == WRITE) begin
-                write_row_group_idx   <= row_group_idx;
-                write_row_subtile_idx <= row_subtile_idx;
+                write_row_idx <= row_idx;
             end
 
             if (fetch_fire_d1) begin
@@ -642,13 +630,8 @@ module reuse_in_proj_scheduler #(
                 drain_cnt  <= 2'd3;
                 out_phase_active <= 1'b0;
                 out_phase_cnt    <= '0;
-                if (row_subtile_idx == ROWS_PER_GRP-1) begin
-                    row_subtile_idx <= '0;
-                    if (row_group_idx != ROW_GROUPS-1)
-                        row_group_idx <= row_group_idx + 1'b1;
-                end else begin
-                    row_subtile_idx <= row_subtile_idx + 1'b1;
-                end
+                if (row_idx != ROW_TILES-1)
+                    row_idx <= row_idx + 1'b1;
             end
         end
     end

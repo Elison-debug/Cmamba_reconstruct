@@ -52,7 +52,7 @@
 
 (* X_CORE_INFO = "reuse_mamba_board_shell,Vivado 2024.1" *)
 (* CHECK_LICENSE_TYPE = "design_1_reuse_mamba_board_sh_0_1,reuse_mamba_board_shell,{}" *)
-(* CORE_GENERATION_INFO = "design_1_reuse_mamba_board_sh_0_1,reuse_mamba_board_shell,{x_ipProduct=Vivado 2024.1,x_ipVendor=xilinx.com,x_ipLibrary=module_ref,x_ipName=reuse_mamba_board_shell,x_ipVersion=1.0,x_ipCoreRevision=1,x_ipLanguage=VERILOG,x_ipSimLanguage=MIXED,TILE_SIZE=4,DATA_WIDTH=16,ACC_WIDTH=32,FRAC_BITS=8,N_BANK=6,WDEPTH=1024,WADDR_W=10,DATA_W=256,XT_ADDR_W=6,D=256,PIPE_LAT=4,ADDR_BITS=11,LUT_FILE=sigmoid_lut_q016_2048.hex,S_ADDR_W=6,G_FRAC_BITS=8,AXIL_ADDR_W=12}" *)
+(* CORE_GENERATION_INFO = "design_1_reuse_mamba_board_sh_0_1,reuse_mamba_board_shell,{x_ipProduct=Vivado 2024.1,x_ipVendor=xilinx.com,x_ipLibrary=module_ref,x_ipName=reuse_mamba_board_shell,x_ipVersion=1.0,x_ipCoreRevision=1,x_ipLanguage=VERILOG,x_ipSimLanguage=MIXED,TILE_SIZE=4,DATA_WIDTH=16,ACC_WIDTH=32,FRAC_BITS=8,N_BANK=6,WDEPTH=1024,WADDR_W=10,DATA_W=256,XT_ADDR_W=6,D=256,PIPE_LAT=4,ADDR_BITS=11,LUT_FILE=sigmoid_lut_q016_2048.hex,S_ADDR_W=6,G_FRAC_BITS=8,AXIL_ADDR_W=12,G_DEPTH=64,G_ADDR_W=6}" *)
 (* IP_DEFINITION_SOURCE = "module_ref" *)
 (* DowngradeIPIdentifiedWarnings = "yes" *)
 module design_1_reuse_mamba_board_sh_0_1 (
@@ -179,7 +179,9 @@ output wire m_axis_y_tlast;
     .LUT_FILE("sigmoid_lut_q016_2048.hex"),
     .S_ADDR_W(6),
     .G_FRAC_BITS(8),
-    .AXIL_ADDR_W(12)
+    .AXIL_ADDR_W(12),
+    .G_DEPTH(64),
+    .G_ADDR_W(6)
   ) inst (
     .sys_clk(sys_clk),
     .ext_reset_n(ext_reset_n),

@@ -178,7 +178,9 @@ output wire m_axis_y_tlast;
     .LUT_FILE("sigmoid_lut_q016_2048.hex"),
     .S_ADDR_W(6),
     .G_FRAC_BITS(8),
-    .AXIL_ADDR_W(12)
+    .AXIL_ADDR_W(12),
+    .G_DEPTH(64),
+    .G_ADDR_W(6)
   ) inst (
     .sys_clk(sys_clk),
     .ext_reset_n(ext_reset_n),

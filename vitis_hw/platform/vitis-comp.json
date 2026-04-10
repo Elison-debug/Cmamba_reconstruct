@@ -1,0 +1,43 @@
+{
+  "name": "platform",
+  "type": "PLATFORM",
+  "configuration": {
+    "description": "",
+    "xsa": "E:\\course\\master\\mamba\\Cmamba_reconstruct\\HW_reconstruct\\project_mamba_all1\\design_1_wrapper.xsa",
+    "xsaPathInPlatform": "platform\\hw\\design_1_wrapper.xsa",
+    "emulationXsa": "",
+    "emulationXsaPathInPlatform": "",
+    "isCustomFSBL": true,
+    "fsblPath": "",
+    "pmufwElf": "",
+    "flow": "EMBEDDED",
+    "processorsMap": {
+      "psu_cortexa53_0": "psu_cortexa53",
+      "psu_cortexa53_1": "psu_cortexa53",
+      "psu_cortexa53_2": "psu_cortexa53",
+      "psu_cortexa53_3": "psu_cortexa53",
+      "psu_cortexr5_0": "psu_cortexr5",
+      "psu_cortexr5_1": "psu_cortexr5",
+      "psu_pmu_0": "psu_pmu"
+    },
+    "supportedFamily": "zynquplus",
+    "componentType": "PLATFORM",
+    "domains": [
+      {
+        "name": "standalone_psu_cortexa53_0",
+        "displayName": "standalone_psu_cortexa53_0",
+        "processor": "psu_cortexa53_0",
+        "cpuType": "cortex-a53",
+        "cpuInstance": "psu_cortexa53_0",
+        "os": "standalone",
+        "appTemplate": "empty_application",
+        "isBootDomain": false,
+        "qemuData": "E:\\course\\master\\mamba\\vitis_hw\\platform\\resources\\standalone_psu_cortexa53_0\\qemu",
+        "qemuArgsFile": "E:\\course\\master\\mamba\\vitis_hw\\platform\\resources\\standalone_psu_cortexa53_0\\qemu\\qemu_args.txt",
+        "pmcQemuArgsFile": "E:\\course\\master\\mamba\\vitis_hw\\platform\\resources\\standalone_psu_cortexa53_0\\qemu\\pmu_args.txt",
+        "isBSPGenReq": false
+      }
+    ],
+    "emptyToolchainConfiguration": []
+  }
+}

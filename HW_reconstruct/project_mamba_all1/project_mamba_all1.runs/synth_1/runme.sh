@@ -25,7 +25,7 @@ else
 fi
 export LD_LIBRARY_PATH
 
-HD_PWD='E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1'
+HD_PWD='E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1'
 cd "$HD_PWD"
 
 HD_LOG=runme.log
@@ -41,4 +41,4 @@ EAStep()
      fi
 }
 
-EAStep vivado -log design_1_wrapper.vds -m64 -product Vivado -mode batch -messageDb vivado.pb -notrace -source design_1_wrapper.tcl
+EAStep vivado -log reuse_mamba_board_shell.vds -m64 -product Vivado -mode batch -messageDb vivado.pb -notrace -source reuse_mamba_board_shell.tcl

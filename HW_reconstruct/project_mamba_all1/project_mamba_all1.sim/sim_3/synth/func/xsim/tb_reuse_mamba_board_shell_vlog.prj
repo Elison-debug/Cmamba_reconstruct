@@ -1,0 +1,9 @@
+# compile verilog/system verilog design source files
+verilog xil_defaultlib  --include "../../../../../project_mamba_all1.gen/sources_1/bd/design_1/ipshared/ec67/hdl" --include "../../../../../project_mamba_all1.gen/sources_1/bd/design_1/ipshared/a317/hdl" --include "../../../../../project_mamba_all1.gen/sources_1/bd/design_1/ipshared/f0b6/hdl/verilog" --include "../../../../../project_mamba_all1.gen/sources_1/bd/design_1/ipshared/c783/hdl/verilog" --include "../../../../../../hw_debug/vivado_runs/reuse_mamba_block_top_hw_debug" --include "../../../../../../hw_debug/vivado_runs/reuse_ssm_dt_scheduler_hw_debug" --include "../../../../../../hw_debug/vivado_runs/reuse_ssm_core_hw_debug" --include "../../../../../" --include "E:/Xilinx/Vivado/2024.1/data/xilinx_vip/include" \
+"tb_reuse_mamba_board_shell_func_synth.v" \
+
+sv xil_defaultlib  --include "../../../../../project_mamba_all1.gen/sources_1/bd/design_1/ipshared/ec67/hdl" --include "../../../../../project_mamba_all1.gen/sources_1/bd/design_1/ipshared/a317/hdl" --include "../../../../../project_mamba_all1.gen/sources_1/bd/design_1/ipshared/f0b6/hdl/verilog" --include "../../../../../project_mamba_all1.gen/sources_1/bd/design_1/ipshared/c783/hdl/verilog" --include "../../../../../../hw_debug/vivado_runs/reuse_mamba_block_top_hw_debug" --include "../../../../../../hw_debug/vivado_runs/reuse_ssm_dt_scheduler_hw_debug" --include "../../../../../../hw_debug/vivado_runs/reuse_ssm_core_hw_debug" --include "../../../../../" --include "E:/Xilinx/Vivado/2024.1/data/xilinx_vip/include" \
+"../../../../../../tb/tb_reuse_mamba_board_shell.sv" \
+
+# Do not sort compile order
+nosort

@@ -69,24 +69,19 @@ module reuse_mamba_block_top #(
 );
     localparam int SSM_TILE_COUNT = 64;
 
-    typedef enum logic [3:0] {
-        BLK_IDLE,
-        BLK_START_INPROJ,
-        BLK_WAIT_INPROJ,
-        BLK_WAIT_UACT,
-        BLK_ISSUE_DT,
-        BLK_WAIT_DT_BUSY,
-        BLK_WAIT_OUTPROJ,
-        BLK_DONE
-    } blk_st_t;
-
-    blk_st_t blk_st;
     logic inproj_start_int;
     logic inproj_enable_int;
     logic s_axis_TVALID_int;
-    logic y_fire;
     logic [7:0] dt_issue_count;
-    logic       dt_seen_busy;
+    logic       block_active;
+    logic       block_done_reg;
+    logic       dt_run_active;
+    logic       dt_started;
+    logic       z_stream_start_int;
+    logic       pcap_start_int;
+    logic       outproj_started;
+    logic       pcap_done_d;
+    logic       uact_fill_active;
 
     logic dt_busy, out_busy;
     logic [1:0] dt_mode, in_mode, out_mode;
@@ -197,95 +192,83 @@ module reuse_mamba_block_top #(
     logic                         outproj_enable_int;
     logic                         outproj_start_int;
     logic                         outproj_done_int;
-    logic                         outproj_done_seen;
 
-    assign block_busy = (blk_st != BLK_IDLE && blk_st != BLK_DONE);
-    assign block_done = (blk_st == BLK_DONE);
+    assign block_busy = block_auto_mode ? block_active : 1'b0;
+    assign block_done = block_auto_mode ? block_done_reg : 1'b0;
     assign inproj_enable_int = block_auto_mode ? 1'b1 : inproj_enable;
     assign outproj_enable_int = block_auto_mode ? 1'b1 : outproj_enable;
-    assign s_axis_TVALID_int = block_auto_mode ? (blk_st == BLK_ISSUE_DT) : s_axis_TVALID;
-    assign y_fire = y_axis_TVALID && y_axis_TREADY;
-    assign pcap_start = block_auto_mode ? inproj_done : 1'b0;
-    assign outproj_start_int = block_auto_mode ? pcap_done : 1'b0;
+    assign s_axis_TVALID_int = block_auto_mode ? (dt_run_active && (dt_issue_count < SSM_TILE_COUNT)) : s_axis_TVALID;
+    assign pcap_start = block_auto_mode ? pcap_start_int : 1'b0;
     assign uact_fill_done = (uact_wr_count == 7'd64);
 
     always_ff @(posedge clk) begin
         if (!rst_n) begin
-            blk_st           <= BLK_IDLE;
-            inproj_start_int <= 1'b0;
-            dt_issue_count   <= '0;
-            dt_seen_busy     <= 1'b0;
-            outproj_done_seen<= 1'b0;
+            inproj_start_int   <= 1'b0;
+            dt_issue_count     <= '0;
+            block_active       <= 1'b0;
+            block_done_reg     <= 1'b0;
+            dt_run_active      <= 1'b0;
+            dt_started         <= 1'b0;
+            z_stream_start_int <= 1'b0;
+            pcap_start_int     <= 1'b0;
+            outproj_started    <= 1'b0;
+            outproj_start_int  <= 1'b0;
+            pcap_done_d        <= 1'b0;
+            uact_fill_active   <= 1'b0;
         end else begin
-            inproj_start_int <= 1'b0;
-            if (!block_auto_mode || blk_st == BLK_IDLE)
-                outproj_done_seen <= 1'b0;
-            else if (outproj_done_int)
-                outproj_done_seen <= 1'b1;
+            inproj_start_int   <= 1'b0;
+            z_stream_start_int <= 1'b0;
+            pcap_start_int     <= 1'b0;
+            outproj_start_int  <= 1'b0;
+            pcap_done_d        <= pcap_done;
 
             if (!block_auto_mode) begin
-                blk_st         <= BLK_IDLE;
-                dt_issue_count <= '0;
-                dt_seen_busy   <= 1'b0;
+                dt_issue_count  <= '0;
+                block_active    <= 1'b0;
+                block_done_reg  <= 1'b0;
+                dt_run_active   <= 1'b0;
+                dt_started      <= 1'b0;
+                outproj_started <= 1'b0;
+                uact_fill_active<= 1'b0;
             end else begin
-                case (blk_st)
-                    BLK_IDLE: begin
-                        dt_issue_count <= '0;
-                        dt_seen_busy   <= 1'b0;
-                        outproj_done_seen <= 1'b0;
-                        if (block_start) begin
-                            inproj_start_int <= 1'b1;
-                            blk_st <= BLK_START_INPROJ;
-                        end
-                    end
+                if (block_start && !block_active) begin
+                    inproj_start_int <= 1'b1;
+                    dt_issue_count   <= '0;
+                    block_active     <= 1'b1;
+                    block_done_reg   <= 1'b0;
+                    dt_run_active    <= 1'b0;
+                    dt_started       <= 1'b0;
+                    outproj_started  <= 1'b0;
+                    uact_fill_active <= 1'b0;
+                end
 
-                    BLK_START_INPROJ: begin
-                        blk_st <= BLK_WAIT_INPROJ;
-                    end
+                if (inproj_done)
+                    uact_fill_active <= 1'b1;
+                else if (uact_fill_done)
+                    uact_fill_active <= 1'b0;
 
-                    BLK_WAIT_INPROJ: begin
-                        if (inproj_done)
-                            blk_st <= BLK_WAIT_UACT;
-                    end
+                if (s_axis_TVALID_int && s_axis_TREADY)
+                    dt_issue_count <= dt_issue_count + 1'b1;
 
-                    BLK_WAIT_UACT: begin
-                        if (uact_fill_done)
-                            blk_st <= BLK_ISSUE_DT;
-                    end
+                if (block_active && uact_fill_done && !dt_started) begin
+                    dt_started         <= 1'b1;
+                    dt_run_active      <= 1'b1;
+                    z_stream_start_int <= 1'b1;
+                    pcap_start_int     <= 1'b1;
+                end
 
-                    BLK_ISSUE_DT: begin
-                        if (s_axis_TREADY) begin
-                            dt_issue_count <= dt_issue_count + 1'b1;
-                            dt_seen_busy   <= 1'b0;
-                            blk_st <= BLK_WAIT_DT_BUSY;
-                        end
-                    end
+                if (dt_run_active && (dt_issue_count == SSM_TILE_COUNT) && !dt_busy)
+                    dt_run_active <= 1'b0;
 
-                    BLK_WAIT_DT_BUSY: begin
-                        if (dt_busy) begin
-                            dt_seen_busy <= 1'b1;
-                        end else if (dt_seen_busy) begin
-                            if (dt_issue_count < SSM_TILE_COUNT)
-                                blk_st <= BLK_ISSUE_DT;
-                            else if (outproj_done_int || outproj_done_seen)
-                                blk_st <= BLK_DONE;
-                            else
-                                blk_st <= BLK_WAIT_OUTPROJ;
-                        end
-                    end
+                if (block_active && pcap_done && !pcap_done_d && !outproj_started) begin
+                    outproj_start_int <= 1'b1;
+                    outproj_started   <= 1'b1;
+                end
 
-                    BLK_WAIT_OUTPROJ: begin
-                        if (outproj_done_int || outproj_done_seen)
-                            blk_st <= BLK_DONE;
-                    end
-
-                    BLK_DONE: begin
-                        if (!block_start)
-                            blk_st <= BLK_IDLE;
-                    end
-
-                    default: blk_st <= BLK_IDLE;
-                endcase
+                if (block_active && outproj_done_int) begin
+                    block_active   <= 1'b0;
+                    block_done_reg <= 1'b1;
+                end
             end
         end
     end
@@ -294,7 +277,7 @@ module reuse_mamba_block_top #(
         if (!rst_n) begin
             uact_wr_count <= '0;
         end else begin
-            if (!block_auto_mode || blk_st == BLK_IDLE || blk_st == BLK_START_INPROJ || blk_st == BLK_WAIT_INPROJ) begin
+            if (!block_auto_mode || !uact_fill_active) begin
                 uact_wr_count <= '0;
             end else if (uact_wr_en && (uact_wr_count < 7'd64)) begin
                 uact_wr_count <= uact_wr_count + 1'b1;
@@ -547,7 +530,7 @@ module reuse_mamba_block_top #(
         .clk     (clk),
         .rst_n   (rst_n),
         .enable  (block_auto_mode),
-        .start   (inproj_done),
+        .start   (z_stream_start_int),
         .busy    (z_stream_busy),
         .done    (z_stream_done),
         .z_rd_en (z_gate_rd_en),
@@ -576,19 +559,11 @@ module reuse_mamba_block_top #(
     );
 
     always_comb begin
-        if (block_auto_mode) begin
-            g_axis_int_valid = silu_valid;
-            silu_ready       = g_axis_int_ready;
-            g_axis_TREADY    = 1'b0;
-            for (int i = 0; i < TILE_SIZE; i++)
-                g_axis_int_data[i] = silu_vec[i];
-        end else begin
-            g_axis_int_valid = g_axis_TVALID;
-            silu_ready       = 1'b0;
-            g_axis_TREADY    = g_axis_int_ready;
-            for (int i = 0; i < TILE_SIZE; i++)
-                g_axis_int_data[i] = g_axis_TDATA[i];
-        end
+        g_axis_int_valid = silu_valid;
+        silu_ready       = g_axis_int_ready;
+        g_axis_TREADY    = 1'b0;
+        for (int i = 0; i < TILE_SIZE; i++)
+            g_axis_int_data[i] = silu_vec[i];
     end
 
     reuse_mac_fabric_manager #(

@@ -1,0 +1,43 @@
+#-----------------------------------------------------------
+# Vivado v2024.1 (64-bit)
+# SW Build 5076996 on Wed May 22 18:37:14 MDT 2024
+# IP Build 5075265 on Wed May 22 21:45:21 MDT 2024
+# SharedData Build 5076995 on Wed May 22 18:29:18 MDT 2024
+# Start of session at: Wed Apr  8 23:25:41 2026
+# Process ID: 90256
+# Current directory: E:/course/master/mamba/Cmamba_reconstruct
+# Command line: vivado.exe HW_reconstruct\project_mamba_all1\project_mamba_all1.xpr
+# Log file: E:/course/master/mamba/Cmamba_reconstruct/vivado.log
+# Journal file: E:/course/master/mamba/Cmamba_reconstruct\vivado.jou
+# Running On        :13600kf
+# Platform          :Windows Server 2016 or Windows 10
+# Operating System  :26200
+# Processor Detail  :13th Gen Intel(R) Core(TM) i5-13600KF
+# CPU Frequency     :3494 MHz
+# CPU Physical cores:14
+# CPU Logical cores :20
+# Host memory       :34163 MB
+# Swap memory       :34163 MB
+# Total Virtual     :68327 MB
+# Available Virtual :16448 MB
+#-----------------------------------------------------------
+start_gui
+open_project HW_reconstruct/project_mamba_all1/project_mamba_all1.xpr
+update_compile_order -fileset sources_1
+write_hw_platform -fixed -include_bit -force -file E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/mamba_BD_wrapper.xsa
+open_bd_design {E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/bd/design_1/design_1.bd}
+startgroup
+set_property -dict [list \
+  CONFIG.PSU__DISPLAYPORT__PERIPHERAL__ENABLE {0} \
+  CONFIG.PSU__SATA__PERIPHERAL__ENABLE {0} \
+] [get_bd_cells zynq_ultra_ps_e_0]
+endgroup
+validate_bd_design
+save_bd_design
+reset_run synth_1
+reset_run design_1_zynq_ultra_ps_e_0_0_synth_1
+reset_run design_1_smartconnect_0_0_synth_1
+reset_run design_1_smartconnect_0_1_synth_1
+launch_runs impl_1 -to_step write_bitstream -jobs 20
+write_hw_platform -fixed -include_bit -force -file E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/design_1_wrapper.xsa
+open_bd_design {E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/bd/design_1/design_1.bd}
