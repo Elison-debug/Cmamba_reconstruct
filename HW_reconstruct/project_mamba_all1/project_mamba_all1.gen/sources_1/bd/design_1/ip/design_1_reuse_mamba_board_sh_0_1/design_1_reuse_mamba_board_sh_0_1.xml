@@ -53,7 +53,7 @@
         </spirit:parameter>
         <spirit:parameter>
           <spirit:name>CLK_DOMAIN</spirit:name>
-          <spirit:value spirit:resolve="generated" spirit:id="BUSIFPARAM_VALUE.SYS_CLK.CLK_DOMAIN">design_1_zynq_ultra_ps_e_0_0_pl_clk0</spirit:value>
+          <spirit:value spirit:resolve="generated" spirit:id="BUSIFPARAM_VALUE.SYS_CLK.CLK_DOMAIN"/>
           <spirit:vendorExtensions>
             <xilinx:parameterInfo>
               <xilinx:parameterUsage>none</xilinx:parameterUsage>
@@ -277,7 +277,7 @@
         </spirit:parameter>
         <spirit:parameter>
           <spirit:name>FREQ_HZ</spirit:name>
-          <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="BUSIFPARAM_VALUE.S_AXI.FREQ_HZ">99990005</spirit:value>
+          <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="BUSIFPARAM_VALUE.S_AXI.FREQ_HZ">100000000</spirit:value>
           <spirit:vendorExtensions>
             <xilinx:parameterInfo>
               <xilinx:parameterUsage>none</xilinx:parameterUsage>
@@ -484,7 +484,7 @@
         </spirit:parameter>
         <spirit:parameter>
           <spirit:name>CLK_DOMAIN</spirit:name>
-          <spirit:value spirit:resolve="generated" spirit:id="BUSIFPARAM_VALUE.S_AXI.CLK_DOMAIN">design_1_zynq_ultra_ps_e_0_0_pl_clk0</spirit:value>
+          <spirit:value spirit:resolve="generated" spirit:id="BUSIFPARAM_VALUE.S_AXI.CLK_DOMAIN"/>
           <spirit:vendorExtensions>
             <xilinx:parameterInfo>
               <xilinx:parameterUsage>none</xilinx:parameterUsage>
@@ -652,7 +652,7 @@
         </spirit:parameter>
         <spirit:parameter>
           <spirit:name>FREQ_HZ</spirit:name>
-          <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="BUSIFPARAM_VALUE.S_AXIS_H.FREQ_HZ">99990005</spirit:value>
+          <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="BUSIFPARAM_VALUE.S_AXIS_H.FREQ_HZ">100000000</spirit:value>
           <spirit:vendorExtensions>
             <xilinx:parameterInfo>
               <xilinx:parameterUsage>none</xilinx:parameterUsage>
@@ -670,7 +670,7 @@
         </spirit:parameter>
         <spirit:parameter>
           <spirit:name>CLK_DOMAIN</spirit:name>
-          <spirit:value spirit:resolve="generated" spirit:id="BUSIFPARAM_VALUE.S_AXIS_H.CLK_DOMAIN">design_1_zynq_ultra_ps_e_0_0_pl_clk0</spirit:value>
+          <spirit:value spirit:resolve="generated" spirit:id="BUSIFPARAM_VALUE.S_AXIS_H.CLK_DOMAIN"/>
           <spirit:vendorExtensions>
             <xilinx:parameterInfo>
               <xilinx:parameterUsage>none</xilinx:parameterUsage>
@@ -811,7 +811,7 @@
         </spirit:parameter>
         <spirit:parameter>
           <spirit:name>FREQ_HZ</spirit:name>
-          <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="BUSIFPARAM_VALUE.S_AXIS_G.FREQ_HZ">99990005</spirit:value>
+          <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="BUSIFPARAM_VALUE.S_AXIS_G.FREQ_HZ">100000000</spirit:value>
           <spirit:vendorExtensions>
             <xilinx:parameterInfo>
               <xilinx:parameterUsage>none</xilinx:parameterUsage>
@@ -829,7 +829,7 @@
         </spirit:parameter>
         <spirit:parameter>
           <spirit:name>CLK_DOMAIN</spirit:name>
-          <spirit:value spirit:resolve="generated" spirit:id="BUSIFPARAM_VALUE.S_AXIS_G.CLK_DOMAIN">design_1_zynq_ultra_ps_e_0_0_pl_clk0</spirit:value>
+          <spirit:value spirit:resolve="generated" spirit:id="BUSIFPARAM_VALUE.S_AXIS_G.CLK_DOMAIN"/>
           <spirit:vendorExtensions>
             <xilinx:parameterInfo>
               <xilinx:parameterUsage>none</xilinx:parameterUsage>
@@ -970,7 +970,7 @@
         </spirit:parameter>
         <spirit:parameter>
           <spirit:name>FREQ_HZ</spirit:name>
-          <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="BUSIFPARAM_VALUE.M_AXIS_Y.FREQ_HZ">99990005</spirit:value>
+          <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="BUSIFPARAM_VALUE.M_AXIS_Y.FREQ_HZ">100000000</spirit:value>
           <spirit:vendorExtensions>
             <xilinx:parameterInfo>
               <xilinx:parameterUsage>none</xilinx:parameterUsage>
@@ -988,7 +988,7 @@
         </spirit:parameter>
         <spirit:parameter>
           <spirit:name>CLK_DOMAIN</spirit:name>
-          <spirit:value spirit:resolve="generated" spirit:id="BUSIFPARAM_VALUE.M_AXIS_Y.CLK_DOMAIN">design_1_zynq_ultra_ps_e_0_0_pl_clk0</spirit:value>
+          <spirit:value spirit:resolve="generated" spirit:id="BUSIFPARAM_VALUE.M_AXIS_Y.CLK_DOMAIN"/>
           <spirit:vendorExtensions>
             <xilinx:parameterInfo>
               <xilinx:parameterUsage>none</xilinx:parameterUsage>
@@ -1062,90 +1062,6 @@
     </spirit:memoryMap>
   </spirit:memoryMaps>
   <spirit:model>
-    <spirit:views>
-      <spirit:view>
-        <spirit:name>xilinx_anylanguagebehavioralsimulation</spirit:name>
-        <spirit:displayName>Simulation</spirit:displayName>
-        <spirit:envIdentifier>:vivado.xilinx.com:simulation</spirit:envIdentifier>
-        <spirit:modelName>reuse_mamba_board_shell</spirit:modelName>
-        <spirit:parameters>
-          <spirit:parameter>
-            <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:cd3470f9</spirit:value>
-          </spirit:parameter>
-        </spirit:parameters>
-      </spirit:view>
-      <spirit:view>
-        <spirit:name>xilinx_anylanguagesynthesis</spirit:name>
-        <spirit:displayName>Synthesis</spirit:displayName>
-        <spirit:envIdentifier>:vivado.xilinx.com:synthesis</spirit:envIdentifier>
-        <spirit:modelName>reuse_mamba_board_shell</spirit:modelName>
-        <spirit:parameters>
-          <spirit:parameter>
-            <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:81a87b79</spirit:value>
-          </spirit:parameter>
-        </spirit:parameters>
-      </spirit:view>
-      <spirit:view>
-        <spirit:name>xilinx_synthesisconstraints</spirit:name>
-        <spirit:displayName>Synthesis Constraints</spirit:displayName>
-        <spirit:envIdentifier>:vivado.xilinx.com:synthesis.constraints</spirit:envIdentifier>
-        <spirit:fileSetRef>
-          <spirit:localName>xilinx_synthesisconstraints_view_fileset</spirit:localName>
-        </spirit:fileSetRef>
-        <spirit:parameters>
-          <spirit:parameter>
-            <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Fri Apr 10 13:19:45 UTC 2026</spirit:value>
-          </spirit:parameter>
-          <spirit:parameter>
-            <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:81a87b79</spirit:value>
-          </spirit:parameter>
-        </spirit:parameters>
-      </spirit:view>
-      <spirit:view>
-        <spirit:name>xilinx_verilogsimulationwrapper</spirit:name>
-        <spirit:displayName>Verilog Simulation Wrapper</spirit:displayName>
-        <spirit:envIdentifier>verilogSource:vivado.xilinx.com:simulation.wrapper</spirit:envIdentifier>
-        <spirit:language>verilog</spirit:language>
-        <spirit:modelName>design_1_reuse_mamba_board_sh_0_1</spirit:modelName>
-        <spirit:fileSetRef>
-          <spirit:localName>xilinx_verilogsimulationwrapper_view_fileset</spirit:localName>
-        </spirit:fileSetRef>
-        <spirit:parameters>
-          <spirit:parameter>
-            <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Fri Apr 10 13:19:45 UTC 2026</spirit:value>
-          </spirit:parameter>
-          <spirit:parameter>
-            <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:cd3470f9</spirit:value>
-          </spirit:parameter>
-        </spirit:parameters>
-      </spirit:view>
-      <spirit:view>
-        <spirit:name>xilinx_verilogsynthesiswrapper</spirit:name>
-        <spirit:displayName>Verilog Synthesis Wrapper</spirit:displayName>
-        <spirit:envIdentifier>verilogSource:vivado.xilinx.com:synthesis.wrapper</spirit:envIdentifier>
-        <spirit:language>verilog</spirit:language>
-        <spirit:modelName>design_1_reuse_mamba_board_sh_0_1</spirit:modelName>
-        <spirit:fileSetRef>
-          <spirit:localName>xilinx_verilogsynthesiswrapper_view_fileset</spirit:localName>
-        </spirit:fileSetRef>
-        <spirit:parameters>
-          <spirit:parameter>
-            <spirit:name>GENtimestamp</spirit:name>
-            <spirit:value>Fri Apr 10 13:19:45 UTC 2026</spirit:value>
-          </spirit:parameter>
-          <spirit:parameter>
-            <spirit:name>outputProductCRC</spirit:name>
-            <spirit:value>9:81a87b79</spirit:value>
-          </spirit:parameter>
-        </spirit:parameters>
-      </spirit:view>
-    </spirit:views>
     <spirit:ports>
       <spirit:port>
         <spirit:name>sys_clk</spirit:name>
@@ -1154,8 +1070,7 @@
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>wire</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+              <spirit:viewNameRef>dummy_view</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
         </spirit:wire>
@@ -1167,8 +1082,7 @@
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>wire</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+              <spirit:viewNameRef>dummy_view</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
         </spirit:wire>
@@ -1180,8 +1094,7 @@
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>wire</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+              <spirit:viewNameRef>dummy_view</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
         </spirit:wire>
@@ -1197,8 +1110,7 @@
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>wire</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+              <spirit:viewNameRef>dummy_view</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
           <spirit:driver>
@@ -1213,8 +1125,7 @@
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>wire</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+              <spirit:viewNameRef>dummy_view</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
           <spirit:driver>
@@ -1229,8 +1140,7 @@
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>wire</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+              <spirit:viewNameRef>dummy_view</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
         </spirit:wire>
@@ -1246,8 +1156,7 @@
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>wire</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+              <spirit:viewNameRef>dummy_view</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
           <spirit:driver>
@@ -1266,8 +1175,7 @@
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>wire</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+              <spirit:viewNameRef>dummy_view</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
           <spirit:driver>
@@ -1282,8 +1190,7 @@
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>wire</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+              <spirit:viewNameRef>dummy_view</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
           <spirit:driver>
@@ -1298,8 +1205,7 @@
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>wire</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+              <spirit:viewNameRef>dummy_view</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
         </spirit:wire>
@@ -1315,8 +1221,7 @@
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>wire</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+              <spirit:viewNameRef>dummy_view</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
         </spirit:wire>
@@ -1328,8 +1233,7 @@
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>wire</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+              <spirit:viewNameRef>dummy_view</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
         </spirit:wire>
@@ -1341,8 +1245,7 @@
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>wire</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+              <spirit:viewNameRef>dummy_view</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
           <spirit:driver>
@@ -1361,8 +1264,7 @@
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>wire</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+              <spirit:viewNameRef>dummy_view</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
           <spirit:driver>
@@ -1377,8 +1279,7 @@
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>wire</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+              <spirit:viewNameRef>dummy_view</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
           <spirit:driver>
@@ -1393,8 +1294,7 @@
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>wire</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+              <spirit:viewNameRef>dummy_view</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
         </spirit:wire>
@@ -1410,8 +1310,7 @@
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>wire</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+              <spirit:viewNameRef>dummy_view</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
         </spirit:wire>
@@ -1427,8 +1326,7 @@
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>wire</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+              <spirit:viewNameRef>dummy_view</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
         </spirit:wire>
@@ -1440,8 +1338,7 @@
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>wire</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+              <spirit:viewNameRef>dummy_view</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
         </spirit:wire>
@@ -1453,8 +1350,7 @@
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>wire</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+              <spirit:viewNameRef>dummy_view</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
           <spirit:driver>
@@ -1469,8 +1365,7 @@
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>wire</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+              <spirit:viewNameRef>dummy_view</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
         </spirit:wire>
@@ -1482,8 +1377,7 @@
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>wire</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+              <spirit:viewNameRef>dummy_view</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
         </spirit:wire>
@@ -1499,8 +1393,7 @@
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>wire</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+              <spirit:viewNameRef>dummy_view</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
           <spirit:driver>
@@ -1515,8 +1408,7 @@
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>wire</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+              <spirit:viewNameRef>dummy_view</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
           <spirit:driver>
@@ -1531,8 +1423,7 @@
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>wire</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+              <spirit:viewNameRef>dummy_view</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
         </spirit:wire>
@@ -1544,8 +1435,7 @@
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>wire</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+              <spirit:viewNameRef>dummy_view</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
         </spirit:wire>
@@ -1561,8 +1451,7 @@
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>wire</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+              <spirit:viewNameRef>dummy_view</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
           <spirit:driver>
@@ -1577,8 +1466,7 @@
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>wire</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+              <spirit:viewNameRef>dummy_view</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
           <spirit:driver>
@@ -1593,8 +1481,7 @@
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>wire</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+              <spirit:viewNameRef>dummy_view</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
         </spirit:wire>
@@ -1606,8 +1493,7 @@
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>wire</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+              <spirit:viewNameRef>dummy_view</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
           <spirit:driver>
@@ -1626,8 +1512,7 @@
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>wire</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+              <spirit:viewNameRef>dummy_view</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
         </spirit:wire>
@@ -1639,8 +1524,7 @@
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>wire</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+              <spirit:viewNameRef>dummy_view</spirit:viewNameRef>
             </spirit:wireTypeDef>
           </spirit:wireTypeDefs>
         </spirit:wire>
@@ -1722,6 +1606,101 @@
         <spirit:displayName>G Frac Bits</spirit:displayName>
         <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.G_FRAC_BITS">8</spirit:value>
       </spirit:modelParameter>
+      <spirit:modelParameter spirit:dataType="string">
+        <spirit:name>INPROJ_BANK0_INIT_FILE</spirit:name>
+        <spirit:displayName>Inproj Bank0 Init File</spirit:displayName>
+        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.INPROJ_BANK0_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank0.mem</spirit:value>
+      </spirit:modelParameter>
+      <spirit:modelParameter spirit:dataType="string">
+        <spirit:name>INPROJ_BANK1_INIT_FILE</spirit:name>
+        <spirit:displayName>Inproj Bank1 Init File</spirit:displayName>
+        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.INPROJ_BANK1_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank1.mem</spirit:value>
+      </spirit:modelParameter>
+      <spirit:modelParameter spirit:dataType="string">
+        <spirit:name>INPROJ_BANK2_INIT_FILE</spirit:name>
+        <spirit:displayName>Inproj Bank2 Init File</spirit:displayName>
+        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.INPROJ_BANK2_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank2.mem</spirit:value>
+      </spirit:modelParameter>
+      <spirit:modelParameter spirit:dataType="string">
+        <spirit:name>INPROJ_BANK3_INIT_FILE</spirit:name>
+        <spirit:displayName>Inproj Bank3 Init File</spirit:displayName>
+        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.INPROJ_BANK3_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank3.mem</spirit:value>
+      </spirit:modelParameter>
+      <spirit:modelParameter spirit:dataType="string">
+        <spirit:name>INPROJ_BANK4_INIT_FILE</spirit:name>
+        <spirit:displayName>Inproj Bank4 Init File</spirit:displayName>
+        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.INPROJ_BANK4_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank4.mem</spirit:value>
+      </spirit:modelParameter>
+      <spirit:modelParameter spirit:dataType="string">
+        <spirit:name>INPROJ_BANK5_INIT_FILE</spirit:name>
+        <spirit:displayName>Inproj Bank5 Init File</spirit:displayName>
+        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.INPROJ_BANK5_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank5.mem</spirit:value>
+      </spirit:modelParameter>
+      <spirit:modelParameter spirit:dataType="string">
+        <spirit:name>INPROJ_SCALE_INIT_FILE</spirit:name>
+        <spirit:displayName>Inproj Scale Init File</spirit:displayName>
+        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.INPROJ_SCALE_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_scale_q15.mem</spirit:value>
+      </spirit:modelParameter>
+      <spirit:modelParameter spirit:dataType="string">
+        <spirit:name>DT_BANK0_INIT_FILE</spirit:name>
+        <spirit:displayName>Dt Bank0 Init File</spirit:displayName>
+        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.DT_BANK0_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank0.mem</spirit:value>
+      </spirit:modelParameter>
+      <spirit:modelParameter spirit:dataType="string">
+        <spirit:name>DT_BANK1_INIT_FILE</spirit:name>
+        <spirit:displayName>Dt Bank1 Init File</spirit:displayName>
+        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.DT_BANK1_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank1.mem</spirit:value>
+      </spirit:modelParameter>
+      <spirit:modelParameter spirit:dataType="string">
+        <spirit:name>DT_BANK2_INIT_FILE</spirit:name>
+        <spirit:displayName>Dt Bank2 Init File</spirit:displayName>
+        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.DT_BANK2_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank2.mem</spirit:value>
+      </spirit:modelParameter>
+      <spirit:modelParameter spirit:dataType="string">
+        <spirit:name>DT_BANK3_INIT_FILE</spirit:name>
+        <spirit:displayName>Dt Bank3 Init File</spirit:displayName>
+        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.DT_BANK3_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank3.mem</spirit:value>
+      </spirit:modelParameter>
+      <spirit:modelParameter spirit:dataType="string">
+        <spirit:name>DT_SCALE_INIT_FILE</spirit:name>
+        <spirit:displayName>Dt Scale Init File</spirit:displayName>
+        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.DT_SCALE_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_scale_q15.mem</spirit:value>
+      </spirit:modelParameter>
+      <spirit:modelParameter spirit:dataType="string">
+        <spirit:name>OUTPROJ_BANK0_INIT_FILE</spirit:name>
+        <spirit:displayName>Outproj Bank0 Init File</spirit:displayName>
+        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.OUTPROJ_BANK0_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank0.mem</spirit:value>
+      </spirit:modelParameter>
+      <spirit:modelParameter spirit:dataType="string">
+        <spirit:name>OUTPROJ_BANK1_INIT_FILE</spirit:name>
+        <spirit:displayName>Outproj Bank1 Init File</spirit:displayName>
+        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.OUTPROJ_BANK1_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank1.mem</spirit:value>
+      </spirit:modelParameter>
+      <spirit:modelParameter spirit:dataType="string">
+        <spirit:name>OUTPROJ_BANK2_INIT_FILE</spirit:name>
+        <spirit:displayName>Outproj Bank2 Init File</spirit:displayName>
+        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.OUTPROJ_BANK2_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank2.mem</spirit:value>
+      </spirit:modelParameter>
+      <spirit:modelParameter spirit:dataType="string">
+        <spirit:name>OUTPROJ_BANK3_INIT_FILE</spirit:name>
+        <spirit:displayName>Outproj Bank3 Init File</spirit:displayName>
+        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.OUTPROJ_BANK3_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank3.mem</spirit:value>
+      </spirit:modelParameter>
+      <spirit:modelParameter spirit:dataType="string">
+        <spirit:name>OUTPROJ_BANK4_INIT_FILE</spirit:name>
+        <spirit:displayName>Outproj Bank4 Init File</spirit:displayName>
+        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.OUTPROJ_BANK4_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank4.mem</spirit:value>
+      </spirit:modelParameter>
+      <spirit:modelParameter spirit:dataType="string">
+        <spirit:name>OUTPROJ_BANK5_INIT_FILE</spirit:name>
+        <spirit:displayName>Outproj Bank5 Init File</spirit:displayName>
+        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.OUTPROJ_BANK5_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank5.mem</spirit:value>
+      </spirit:modelParameter>
+      <spirit:modelParameter spirit:dataType="string">
+        <spirit:name>OUTPROJ_SCALE_INIT_FILE</spirit:name>
+        <spirit:displayName>Outproj Scale Init File</spirit:displayName>
+        <spirit:value spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.OUTPROJ_SCALE_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_scale_q15.mem</spirit:value>
+      </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="integer">
         <spirit:name>AXIL_ADDR_W</spirit:name>
         <spirit:displayName>Axil Addr W</spirit:displayName>
@@ -1748,34 +1727,6 @@
       <spirit:enumeration>EDGE_FALLING</spirit:enumeration>
     </spirit:choice>
   </spirit:choices>
-  <spirit:fileSets>
-    <spirit:fileSet>
-      <spirit:name>xilinx_synthesisconstraints_view_fileset</spirit:name>
-      <spirit:file>
-        <spirit:name>design_1_reuse_mamba_board_sh_0_1_ooc.xdc</spirit:name>
-        <spirit:userFileType>xdc</spirit:userFileType>
-        <spirit:userFileType>USED_IN_implementation</spirit:userFileType>
-        <spirit:userFileType>USED_IN_out_of_context</spirit:userFileType>
-        <spirit:userFileType>USED_IN_synthesis</spirit:userFileType>
-      </spirit:file>
-    </spirit:fileSet>
-    <spirit:fileSet>
-      <spirit:name>xilinx_verilogsimulationwrapper_view_fileset</spirit:name>
-      <spirit:file>
-        <spirit:name>sim/design_1_reuse_mamba_board_sh_0_1.v</spirit:name>
-        <spirit:fileType>verilogSource</spirit:fileType>
-        <spirit:logicalName>xil_defaultlib</spirit:logicalName>
-      </spirit:file>
-    </spirit:fileSet>
-    <spirit:fileSet>
-      <spirit:name>xilinx_verilogsynthesiswrapper_view_fileset</spirit:name>
-      <spirit:file>
-        <spirit:name>synth/design_1_reuse_mamba_board_sh_0_1.v</spirit:name>
-        <spirit:fileType>verilogSource</spirit:fileType>
-        <spirit:logicalName>xil_defaultlib</spirit:logicalName>
-      </spirit:file>
-    </spirit:fileSet>
-  </spirit:fileSets>
   <spirit:description>xilinx.com:module_ref:reuse_mamba_board_shell:1.0</spirit:description>
   <spirit:parameters>
     <spirit:parameter>
@@ -1854,6 +1805,101 @@
       <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.G_FRAC_BITS">8</spirit:value>
     </spirit:parameter>
     <spirit:parameter>
+      <spirit:name>INPROJ_BANK0_INIT_FILE</spirit:name>
+      <spirit:displayName>Inproj Bank0 Init File</spirit:displayName>
+      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.INPROJ_BANK0_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank0.mem</spirit:value>
+    </spirit:parameter>
+    <spirit:parameter>
+      <spirit:name>INPROJ_BANK1_INIT_FILE</spirit:name>
+      <spirit:displayName>Inproj Bank1 Init File</spirit:displayName>
+      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.INPROJ_BANK1_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank1.mem</spirit:value>
+    </spirit:parameter>
+    <spirit:parameter>
+      <spirit:name>INPROJ_BANK2_INIT_FILE</spirit:name>
+      <spirit:displayName>Inproj Bank2 Init File</spirit:displayName>
+      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.INPROJ_BANK2_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank2.mem</spirit:value>
+    </spirit:parameter>
+    <spirit:parameter>
+      <spirit:name>INPROJ_BANK3_INIT_FILE</spirit:name>
+      <spirit:displayName>Inproj Bank3 Init File</spirit:displayName>
+      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.INPROJ_BANK3_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank3.mem</spirit:value>
+    </spirit:parameter>
+    <spirit:parameter>
+      <spirit:name>INPROJ_BANK4_INIT_FILE</spirit:name>
+      <spirit:displayName>Inproj Bank4 Init File</spirit:displayName>
+      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.INPROJ_BANK4_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank4.mem</spirit:value>
+    </spirit:parameter>
+    <spirit:parameter>
+      <spirit:name>INPROJ_BANK5_INIT_FILE</spirit:name>
+      <spirit:displayName>Inproj Bank5 Init File</spirit:displayName>
+      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.INPROJ_BANK5_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank5.mem</spirit:value>
+    </spirit:parameter>
+    <spirit:parameter>
+      <spirit:name>INPROJ_SCALE_INIT_FILE</spirit:name>
+      <spirit:displayName>Inproj Scale Init File</spirit:displayName>
+      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.INPROJ_SCALE_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_scale_q15.mem</spirit:value>
+    </spirit:parameter>
+    <spirit:parameter>
+      <spirit:name>DT_BANK0_INIT_FILE</spirit:name>
+      <spirit:displayName>Dt Bank0 Init File</spirit:displayName>
+      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.DT_BANK0_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank0.mem</spirit:value>
+    </spirit:parameter>
+    <spirit:parameter>
+      <spirit:name>DT_BANK1_INIT_FILE</spirit:name>
+      <spirit:displayName>Dt Bank1 Init File</spirit:displayName>
+      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.DT_BANK1_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank1.mem</spirit:value>
+    </spirit:parameter>
+    <spirit:parameter>
+      <spirit:name>DT_BANK2_INIT_FILE</spirit:name>
+      <spirit:displayName>Dt Bank2 Init File</spirit:displayName>
+      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.DT_BANK2_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank2.mem</spirit:value>
+    </spirit:parameter>
+    <spirit:parameter>
+      <spirit:name>DT_BANK3_INIT_FILE</spirit:name>
+      <spirit:displayName>Dt Bank3 Init File</spirit:displayName>
+      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.DT_BANK3_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank3.mem</spirit:value>
+    </spirit:parameter>
+    <spirit:parameter>
+      <spirit:name>DT_SCALE_INIT_FILE</spirit:name>
+      <spirit:displayName>Dt Scale Init File</spirit:displayName>
+      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.DT_SCALE_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_scale_q15.mem</spirit:value>
+    </spirit:parameter>
+    <spirit:parameter>
+      <spirit:name>OUTPROJ_BANK0_INIT_FILE</spirit:name>
+      <spirit:displayName>Outproj Bank0 Init File</spirit:displayName>
+      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.OUTPROJ_BANK0_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank0.mem</spirit:value>
+    </spirit:parameter>
+    <spirit:parameter>
+      <spirit:name>OUTPROJ_BANK1_INIT_FILE</spirit:name>
+      <spirit:displayName>Outproj Bank1 Init File</spirit:displayName>
+      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.OUTPROJ_BANK1_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank1.mem</spirit:value>
+    </spirit:parameter>
+    <spirit:parameter>
+      <spirit:name>OUTPROJ_BANK2_INIT_FILE</spirit:name>
+      <spirit:displayName>Outproj Bank2 Init File</spirit:displayName>
+      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.OUTPROJ_BANK2_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank2.mem</spirit:value>
+    </spirit:parameter>
+    <spirit:parameter>
+      <spirit:name>OUTPROJ_BANK3_INIT_FILE</spirit:name>
+      <spirit:displayName>Outproj Bank3 Init File</spirit:displayName>
+      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.OUTPROJ_BANK3_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank3.mem</spirit:value>
+    </spirit:parameter>
+    <spirit:parameter>
+      <spirit:name>OUTPROJ_BANK4_INIT_FILE</spirit:name>
+      <spirit:displayName>Outproj Bank4 Init File</spirit:displayName>
+      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.OUTPROJ_BANK4_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank4.mem</spirit:value>
+    </spirit:parameter>
+    <spirit:parameter>
+      <spirit:name>OUTPROJ_BANK5_INIT_FILE</spirit:name>
+      <spirit:displayName>Outproj Bank5 Init File</spirit:displayName>
+      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.OUTPROJ_BANK5_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank5.mem</spirit:value>
+    </spirit:parameter>
+    <spirit:parameter>
+      <spirit:name>OUTPROJ_SCALE_INIT_FILE</spirit:name>
+      <spirit:displayName>Outproj Scale Init File</spirit:displayName>
+      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.OUTPROJ_SCALE_INIT_FILE">e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_scale_q15.mem</spirit:value>
+    </spirit:parameter>
+    <spirit:parameter>
       <spirit:name>AXIL_ADDR_W</spirit:name>
       <spirit:displayName>Axil Addr W</spirit:displayName>
       <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.AXIL_ADDR_W">12</spirit:value>
@@ -1882,8 +1928,8 @@
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.EXT_RESET_N.POLARITY" xilinx:valuePermission="bd_and_user"/>
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.IRQ.PortWidth" xilinx:valuePermission="bd_and_user"/>
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.IRQ.SENSITIVITY" xilinx:valuePermission="bd_and_user"/>
-        <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.M_AXIS_Y.CLK_DOMAIN" xilinx:valueSource="default_prop" xilinx:valuePermission="bd_and_user"/>
-        <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.M_AXIS_Y.FREQ_HZ" xilinx:valueSource="constant" xilinx:valuePermission="bd_and_user"/>
+        <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.M_AXIS_Y.CLK_DOMAIN" xilinx:valuePermission="bd_and_user"/>
+        <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.M_AXIS_Y.FREQ_HZ" xilinx:valuePermission="bd_and_user"/>
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.M_AXIS_Y.HAS_TKEEP" xilinx:valueSource="constant" xilinx:valuePermission="bd_and_user"/>
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.M_AXIS_Y.HAS_TLAST" xilinx:valueSource="constant" xilinx:valuePermission="bd_and_user"/>
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.M_AXIS_Y.HAS_TREADY" xilinx:valueSource="constant" xilinx:valuePermission="bd_and_user"/>
@@ -1897,7 +1943,7 @@
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.SYS_CLK.ASSOCIATED_BUSIF" xilinx:valuePermission="bd_and_user"/>
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.SYS_CLK.ASSOCIATED_PORT" xilinx:valuePermission="bd_and_user"/>
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.SYS_CLK.ASSOCIATED_RESET" xilinx:valuePermission="bd_and_user"/>
-        <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.SYS_CLK.CLK_DOMAIN" xilinx:valueSource="default_prop" xilinx:valuePermission="bd_and_user"/>
+        <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.SYS_CLK.CLK_DOMAIN" xilinx:valuePermission="bd_and_user"/>
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.SYS_CLK.FREQ_HZ" xilinx:valuePermission="bd_and_user"/>
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.SYS_CLK.FREQ_TOLERANCE_HZ" xilinx:valuePermission="bd_and_user"/>
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.SYS_CLK.PHASE" xilinx:valuePermission="bd_and_user"/>
@@ -1905,9 +1951,9 @@
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXI.ARUSER_WIDTH" xilinx:valueSource="constant" xilinx:valuePermission="bd"/>
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXI.AWUSER_WIDTH" xilinx:valueSource="constant" xilinx:valuePermission="bd"/>
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXI.BUSER_WIDTH" xilinx:valueSource="constant" xilinx:valuePermission="bd"/>
-        <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXI.CLK_DOMAIN" xilinx:valueSource="default_prop" xilinx:valuePermission="bd_and_user"/>
+        <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXI.CLK_DOMAIN" xilinx:valuePermission="bd_and_user"/>
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXI.DATA_WIDTH" xilinx:valueSource="constant" xilinx:valuePermission="bd"/>
-        <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXI.FREQ_HZ" xilinx:valueSource="constant" xilinx:valuePermission="bd_and_user"/>
+        <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXI.FREQ_HZ" xilinx:valuePermission="bd_and_user"/>
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXI.HAS_BRESP" xilinx:valueSource="constant" xilinx:valuePermission="bd"/>
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXI.HAS_BURST" xilinx:valueSource="constant" xilinx:valuePermission="bd"/>
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXI.HAS_CACHE" xilinx:valueSource="constant" xilinx:valuePermission="bd"/>
@@ -1920,19 +1966,19 @@
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXI.ID_WIDTH" xilinx:valueSource="constant" xilinx:valuePermission="bd"/>
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXI.MAX_BURST_LENGTH" xilinx:valueSource="auto" xilinx:valuePermission="bd_and_user"/>
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXI.NUM_READ_OUTSTANDING" xilinx:valueSource="auto" xilinx:valuePermission="bd_and_user"/>
-        <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXI.NUM_READ_THREADS" xilinx:valueSource="user_prop" xilinx:valuePermission="bd_and_user"/>
+        <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXI.NUM_READ_THREADS" xilinx:valuePermission="bd_and_user"/>
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXI.NUM_WRITE_OUTSTANDING" xilinx:valueSource="auto" xilinx:valuePermission="bd_and_user"/>
-        <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXI.NUM_WRITE_THREADS" xilinx:valueSource="user_prop" xilinx:valuePermission="bd_and_user"/>
+        <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXI.NUM_WRITE_THREADS" xilinx:valuePermission="bd_and_user"/>
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXI.PHASE" xilinx:valuePermission="bd_and_user"/>
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXI.PROTOCOL" xilinx:valueSource="constant" xilinx:valuePermission="bd"/>
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXI.READ_WRITE_MODE" xilinx:valueSource="constant" xilinx:valuePermission="bd"/>
-        <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXI.RUSER_BITS_PER_BYTE" xilinx:valueSource="user_prop" xilinx:valuePermission="bd_and_user"/>
+        <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXI.RUSER_BITS_PER_BYTE" xilinx:valuePermission="bd_and_user"/>
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXI.RUSER_WIDTH" xilinx:valueSource="constant" xilinx:valuePermission="bd"/>
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXI.SUPPORTS_NARROW_BURST" xilinx:valueSource="auto" xilinx:valuePermission="bd_and_user"/>
-        <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXI.WUSER_BITS_PER_BYTE" xilinx:valueSource="user_prop" xilinx:valuePermission="bd_and_user"/>
+        <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXI.WUSER_BITS_PER_BYTE" xilinx:valuePermission="bd_and_user"/>
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXI.WUSER_WIDTH" xilinx:valueSource="constant" xilinx:valuePermission="bd"/>
-        <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXIS_G.CLK_DOMAIN" xilinx:valueSource="default_prop" xilinx:valuePermission="bd_and_user"/>
-        <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXIS_G.FREQ_HZ" xilinx:valueSource="constant" xilinx:valuePermission="bd_and_user"/>
+        <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXIS_G.CLK_DOMAIN" xilinx:valuePermission="bd_and_user"/>
+        <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXIS_G.FREQ_HZ" xilinx:valuePermission="bd_and_user"/>
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXIS_G.HAS_TKEEP" xilinx:valueSource="constant" xilinx:valuePermission="bd_and_user"/>
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXIS_G.HAS_TLAST" xilinx:valueSource="constant" xilinx:valuePermission="bd_and_user"/>
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXIS_G.HAS_TREADY" xilinx:valueSource="constant" xilinx:valuePermission="bd_and_user"/>
@@ -1943,8 +1989,8 @@
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXIS_G.TDEST_WIDTH" xilinx:valueSource="constant" xilinx:valuePermission="bd_and_user"/>
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXIS_G.TID_WIDTH" xilinx:valueSource="constant" xilinx:valuePermission="bd_and_user"/>
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXIS_G.TUSER_WIDTH" xilinx:valueSource="constant" xilinx:valuePermission="bd_and_user"/>
-        <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXIS_H.CLK_DOMAIN" xilinx:valueSource="default_prop" xilinx:valuePermission="bd_and_user"/>
-        <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXIS_H.FREQ_HZ" xilinx:valueSource="constant" xilinx:valuePermission="bd_and_user"/>
+        <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXIS_H.CLK_DOMAIN" xilinx:valuePermission="bd_and_user"/>
+        <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXIS_H.FREQ_HZ" xilinx:valuePermission="bd_and_user"/>
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXIS_H.HAS_TKEEP" xilinx:valueSource="constant" xilinx:valuePermission="bd_and_user"/>
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXIS_H.HAS_TLAST" xilinx:valueSource="constant" xilinx:valuePermission="bd_and_user"/>
         <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.S_AXIS_H.HAS_TREADY" xilinx:valueSource="constant" xilinx:valuePermission="bd_and_user"/>

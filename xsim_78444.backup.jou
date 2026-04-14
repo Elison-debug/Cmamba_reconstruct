@@ -1,0 +1,25 @@
+#-----------------------------------------------------------
+# xsim v2024.1 (64-bit)
+# SW Build 5076996 on Wed May 22 18:37:14 MDT 2024
+# IP Build 5075265 on Wed May 22 21:45:21 MDT 2024
+# SharedData Build 5076995 on Wed May 22 18:29:18 MDT 2024
+# Start of session at: Mon Apr 13 23:55:28 2026
+# Process ID: 78444
+# Current directory: E:/course/smamba
+# Command line: xsim.exe -log tmp_weight_bank_func_xsim.log -mode tcl -source {xsim.dir/tb_reuse_weight_bank_storage_consistency_func/xsim_script.tcl}
+# Log file: E:/course/smamba/tmp_weight_bank_func_xsim.log
+# Journal file: E:/course/smamba\xsim.jou
+# Running On        :13600kf
+# Platform          :Windows Server 2016 or Windows 10
+# Operating System  :26200
+# Processor Detail  :13th Gen Intel(R) Core(TM) i5-13600KF
+# CPU Frequency     :3494 MHz
+# CPU Physical cores:14
+# CPU Logical cores :20
+# Host memory       :34163 MB
+# Swap memory       :41100 MB
+# Total Virtual     :75264 MB
+# Available Virtual :2789 MB
+#-----------------------------------------------------------
+source xsim.dir/tb_reuse_weight_bank_storage_consistency_func/xsim_script.tcl
+run -all

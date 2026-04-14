@@ -1,0 +1,25 @@
+#-----------------------------------------------------------
+# xsim v2024.1 (64-bit)
+# SW Build 5076996 on Wed May 22 18:37:14 MDT 2024
+# IP Build 5075265 on Wed May 22 21:45:21 MDT 2024
+# SharedData Build 5076995 on Wed May 22 18:29:18 MDT 2024
+# Start of session at: Tue Apr 14 01:44:53 2026
+# Process ID: 101164
+# Current directory: E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.sim/sim_3/behav/xsim
+# Command line: xsim.exe -log simulate_runall.log -mode tcl -source {xsim.dir/tb_reuse_mamba_board_shell_ps_behav/xsim_script.tcl}
+# Log file: E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.sim/sim_3/behav/xsim/simulate_runall.log
+# Journal file: E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.sim/sim_3/behav/xsim\xsim.jou
+# Running On        :13600kf
+# Platform          :Windows Server 2016 or Windows 10
+# Operating System  :26200
+# Processor Detail  :13th Gen Intel(R) Core(TM) i5-13600KF
+# CPU Frequency     :3494 MHz
+# CPU Physical cores:14
+# CPU Logical cores :20
+# Host memory       :34163 MB
+# Swap memory       :46510 MB
+# Total Virtual     :80674 MB
+# Available Virtual :8557 MB
+#-----------------------------------------------------------
+source xsim.dir/tb_reuse_mamba_board_shell_ps_behav/xsim_script.tcl
+source tb_reuse_mamba_board_shell_ps_runall.tcl

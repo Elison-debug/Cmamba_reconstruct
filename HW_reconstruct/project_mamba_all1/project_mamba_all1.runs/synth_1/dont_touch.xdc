@@ -14,9 +14,3 @@ set_property KEEP_HIERARCHY SOFT [get_cells -hier -filter {REF_NAME==bias_ROM ||
 
 # IP: ip/inproj_vec_out_sram_ip/inproj_vec_out_sram_ip.xci
 set_property KEEP_HIERARCHY SOFT [get_cells -hier -filter {REF_NAME==inproj_vec_out_sram_ip || ORIG_REF_NAME==inproj_vec_out_sram_ip} -quiet] -quiet
-
-# IP: ip/outproj_WBUF_bank_dp/outproj_WBUF_bank_dp.xci
-set_property KEEP_HIERARCHY SOFT [get_cells -hier -filter {REF_NAME==outproj_WBUF_bank_dp || ORIG_REF_NAME==outproj_WBUF_bank_dp} -quiet] -quiet
-
-# IP: ip/slim_WBUF_bank_dp/slim_WBUF_bank_dp.xci
-set_property KEEP_HIERARCHY SOFT [get_cells -hier -filter {REF_NAME==slim_WBUF_bank_dp || ORIG_REF_NAME==slim_WBUF_bank_dp} -quiet] -quiet

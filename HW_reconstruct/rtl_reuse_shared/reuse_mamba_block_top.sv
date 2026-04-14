@@ -27,7 +27,26 @@ module reuse_mamba_block_top #(
     parameter int ADDR_BITS  = 11,
     parameter string LUT_FILE = "sigmoid_lut_q016_2048.hex",
     parameter int S_ADDR_W   = 6,
-    parameter int G_FRAC_BITS = 8
+    parameter int G_FRAC_BITS = 8,
+    parameter string INPROJ_BANK0_INIT_FILE = "",
+    parameter string INPROJ_BANK1_INIT_FILE = "",
+    parameter string INPROJ_BANK2_INIT_FILE = "",
+    parameter string INPROJ_BANK3_INIT_FILE = "",
+    parameter string INPROJ_BANK4_INIT_FILE = "",
+    parameter string INPROJ_BANK5_INIT_FILE = "",
+    parameter string INPROJ_SCALE_INIT_FILE = "",
+    parameter string DT_BANK0_INIT_FILE = "",
+    parameter string DT_BANK1_INIT_FILE = "",
+    parameter string DT_BANK2_INIT_FILE = "",
+    parameter string DT_BANK3_INIT_FILE = "",
+    parameter string DT_SCALE_INIT_FILE = "",
+    parameter string OUTPROJ_BANK0_INIT_FILE = "",
+    parameter string OUTPROJ_BANK1_INIT_FILE = "",
+    parameter string OUTPROJ_BANK2_INIT_FILE = "",
+    parameter string OUTPROJ_BANK3_INIT_FILE = "",
+    parameter string OUTPROJ_BANK4_INIT_FILE = "",
+    parameter string OUTPROJ_BANK5_INIT_FILE = "",
+    parameter string OUTPROJ_SCALE_INIT_FILE = ""
 )(
     input  logic clk,
     input  logic rst_n,
@@ -286,15 +305,20 @@ module reuse_mamba_block_top #(
     end
 
     reuse_ssm_dt_scheduler #(
-        .TILE_SIZE (TILE_SIZE),
-        .DATA_WIDTH(DATA_WIDTH),
-        .ACC_WIDTH (ACC_WIDTH),
-        .FRAC_BITS (FRAC_BITS),
-        .N_BANK    (N_BANK),
-        .WDEPTH    (WDEPTH),
-        .WADDR_W   (WADDR_W),
-        .DATA_W    (DATA_W),
-        .XT_ADDR_W (XT_ADDR_W)
+        .TILE_SIZE          (TILE_SIZE),
+        .DATA_WIDTH         (DATA_WIDTH),
+        .ACC_WIDTH          (ACC_WIDTH),
+        .FRAC_BITS          (FRAC_BITS),
+        .N_BANK             (N_BANK),
+        .WDEPTH             (WDEPTH),
+        .WADDR_W            (WADDR_W),
+        .DATA_W             (DATA_W),
+        .XT_ADDR_W          (XT_ADDR_W),
+        .DT_BANK0_INIT_FILE (DT_BANK0_INIT_FILE),
+        .DT_BANK1_INIT_FILE (DT_BANK1_INIT_FILE),
+        .DT_BANK2_INIT_FILE (DT_BANK2_INIT_FILE),
+        .DT_BANK3_INIT_FILE (DT_BANK3_INIT_FILE),
+        .DT_SCALE_INIT_FILE (DT_SCALE_INIT_FILE)
     ) u_dt_sched (
         .clk(clk),
         .rst_n(rst_n),
@@ -334,9 +358,16 @@ module reuse_mamba_block_top #(
     end
 
     reuse_in_proj_scheduler #(
-        .TILE_SIZE (TILE_SIZE),
-        .DATA_WIDTH(DATA_WIDTH),
-        .ACC_WIDTH (ACC_WIDTH)
+        .TILE_SIZE              (TILE_SIZE),
+        .DATA_WIDTH             (DATA_WIDTH),
+        .ACC_WIDTH              (ACC_WIDTH),
+        .INPROJ_BANK0_INIT_FILE (INPROJ_BANK0_INIT_FILE),
+        .INPROJ_BANK1_INIT_FILE (INPROJ_BANK1_INIT_FILE),
+        .INPROJ_BANK2_INIT_FILE (INPROJ_BANK2_INIT_FILE),
+        .INPROJ_BANK3_INIT_FILE (INPROJ_BANK3_INIT_FILE),
+        .INPROJ_BANK4_INIT_FILE (INPROJ_BANK4_INIT_FILE),
+        .INPROJ_BANK5_INIT_FILE (INPROJ_BANK5_INIT_FILE),
+        .INPROJ_SCALE_INIT_FILE (INPROJ_SCALE_INIT_FILE)
     ) u_in_proj (
         .clk(clk),
         .rst_n(rst_n),
@@ -439,9 +470,16 @@ module reuse_mamba_block_top #(
     );
 
     reuse_out_proj_scheduler #(
-        .TILE_SIZE (TILE_SIZE),
-        .DATA_WIDTH(DATA_WIDTH),
-        .ACC_WIDTH (ACC_WIDTH)
+        .TILE_SIZE               (TILE_SIZE),
+        .DATA_WIDTH              (DATA_WIDTH),
+        .ACC_WIDTH               (ACC_WIDTH),
+        .OUTPROJ_BANK0_INIT_FILE (OUTPROJ_BANK0_INIT_FILE),
+        .OUTPROJ_BANK1_INIT_FILE (OUTPROJ_BANK1_INIT_FILE),
+        .OUTPROJ_BANK2_INIT_FILE (OUTPROJ_BANK2_INIT_FILE),
+        .OUTPROJ_BANK3_INIT_FILE (OUTPROJ_BANK3_INIT_FILE),
+        .OUTPROJ_BANK4_INIT_FILE (OUTPROJ_BANK4_INIT_FILE),
+        .OUTPROJ_BANK5_INIT_FILE (OUTPROJ_BANK5_INIT_FILE),
+        .OUTPROJ_SCALE_INIT_FILE (OUTPROJ_SCALE_INIT_FILE)
     ) u_out_proj (
         .clk(clk),
         .rst_n(rst_n),

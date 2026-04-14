@@ -1,6 +1,12 @@
 `timescale 1ns/1ps
 //---------------------------------------------------------------
 // Board-facing shell for ZCU102 bring-up.
+//
+// Deployment note:
+//   Fixed model weights/scales are expected to be bound through the
+//   *_INIT_FILE parameters below. This keeps the board shell simple for
+//   near-term bring-up while still allowing multi-block deployment by
+//   giving each instantiated block a different set of .mem files.
 //---------------------------------------------------------------
 module reuse_mamba_board_shell #(
     parameter integer TILE_SIZE   = 4,
@@ -18,6 +24,25 @@ module reuse_mamba_board_shell #(
     parameter LUT_FILE            = "sigmoid_lut_q016_2048.hex",
     parameter integer S_ADDR_W    = 6,
     parameter integer G_FRAC_BITS = 8,
+    parameter INPROJ_BANK0_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank0.mem",
+    parameter INPROJ_BANK1_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank1.mem",
+    parameter INPROJ_BANK2_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank2.mem",
+    parameter INPROJ_BANK3_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank3.mem",
+    parameter INPROJ_BANK4_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank4.mem",
+    parameter INPROJ_BANK5_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank5.mem",
+    parameter INPROJ_SCALE_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_scale_q15.mem",
+    parameter DT_BANK0_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank0.mem",
+    parameter DT_BANK1_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank1.mem",
+    parameter DT_BANK2_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank2.mem",
+    parameter DT_BANK3_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank3.mem",
+    parameter DT_SCALE_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_scale_q15.mem",
+    parameter OUTPROJ_BANK0_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank0.mem",
+    parameter OUTPROJ_BANK1_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank1.mem",
+    parameter OUTPROJ_BANK2_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank2.mem",
+    parameter OUTPROJ_BANK3_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank3.mem",
+    parameter OUTPROJ_BANK4_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank4.mem",
+    parameter OUTPROJ_BANK5_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank5.mem",
+    parameter OUTPROJ_SCALE_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_scale_q15.mem",
     parameter integer AXIL_ADDR_W = 12,
     parameter integer G_DEPTH     = 64,
     parameter integer G_ADDR_W    = 6
@@ -232,7 +257,26 @@ module reuse_mamba_board_shell #(
         .ADDR_BITS   (ADDR_BITS),
         .LUT_FILE    (LUT_FILE),
         .S_ADDR_W    (S_ADDR_W),
-        .G_FRAC_BITS (G_FRAC_BITS)
+        .G_FRAC_BITS (G_FRAC_BITS),
+        .INPROJ_BANK0_INIT_FILE (INPROJ_BANK0_INIT_FILE),
+        .INPROJ_BANK1_INIT_FILE (INPROJ_BANK1_INIT_FILE),
+        .INPROJ_BANK2_INIT_FILE (INPROJ_BANK2_INIT_FILE),
+        .INPROJ_BANK3_INIT_FILE (INPROJ_BANK3_INIT_FILE),
+        .INPROJ_BANK4_INIT_FILE (INPROJ_BANK4_INIT_FILE),
+        .INPROJ_BANK5_INIT_FILE (INPROJ_BANK5_INIT_FILE),
+        .INPROJ_SCALE_INIT_FILE (INPROJ_SCALE_INIT_FILE),
+        .DT_BANK0_INIT_FILE     (DT_BANK0_INIT_FILE),
+        .DT_BANK1_INIT_FILE     (DT_BANK1_INIT_FILE),
+        .DT_BANK2_INIT_FILE     (DT_BANK2_INIT_FILE),
+        .DT_BANK3_INIT_FILE     (DT_BANK3_INIT_FILE),
+        .DT_SCALE_INIT_FILE     (DT_SCALE_INIT_FILE),
+        .OUTPROJ_BANK0_INIT_FILE(OUTPROJ_BANK0_INIT_FILE),
+        .OUTPROJ_BANK1_INIT_FILE(OUTPROJ_BANK1_INIT_FILE),
+        .OUTPROJ_BANK2_INIT_FILE(OUTPROJ_BANK2_INIT_FILE),
+        .OUTPROJ_BANK3_INIT_FILE(OUTPROJ_BANK3_INIT_FILE),
+        .OUTPROJ_BANK4_INIT_FILE(OUTPROJ_BANK4_INIT_FILE),
+        .OUTPROJ_BANK5_INIT_FILE(OUTPROJ_BANK5_INIT_FILE),
+        .OUTPROJ_SCALE_INIT_FILE(OUTPROJ_SCALE_INIT_FILE)
     ) u_core (
         .sys_clk         (sys_clk),
         .ext_reset_n     (rst_n_int),

@@ -1,9 +1,10 @@
+`timescale 1ns/1ps
 //---------------------------------------------------------------
 // File: reuse_ip_blackboxes.sv
 // Function:
-//   Placeholder declarations for vendor/generated IP blocks that
-//   are referenced by the reuse-oriented RTL but do not have local
-//   synthesizable RTL sources in this repository.
+//   Behavioral stand-ins for vendor/generated IP blocks.
+//   These models are used only for functional simulation so the
+//   board-shell path does not propagate X from empty black boxes.
 //---------------------------------------------------------------
 
 module bias_ROM (
@@ -12,6 +13,20 @@ module bias_ROM (
     input  logic [5:0]  addra,
     output logic [63:0] douta
 );
+    localparam int DEPTH = 64;
+    logic [63:0] mem [0:DEPTH-1];
+    logic [63:0] dout_d1;
+
+    initial begin
+        for (int i = 0; i < DEPTH; i++)
+            mem[i] = '0;
+    end
+
+    always_ff @(posedge clka) begin
+        if (ena)
+            dout_d1 <= mem[addra];
+        douta <= dout_d1;
+    end
 endmodule
 
 module bias2sigmoid_fifo (
@@ -61,18 +76,34 @@ module s_buffer (
     input  logic [63:0] dinb,
     output logic [63:0] doutb
 );
-endmodule
+    localparam int DEPTH = 64;
+    logic [63:0] mem [0:DEPTH-1];
+    logic [63:0] douta_r;
+    logic [63:0] doutb_r;
 
-module slim_WBUF_bank_dp (
-    input  logic         clka,
-    input  logic         ena,
-    input  logic [9:0]   addra,
-    output logic [255:0] douta,
-    input  logic         clkb,
-    input  logic         enb,
-    input  logic [9:0]   addrb,
-    output logic [255:0] doutb
-);
+    initial begin
+        for (int i = 0; i < DEPTH; i++)
+            mem[i] = '0;
+    end
+
+    always_ff @(posedge clka) begin
+        if (ena) begin
+            if (|wea)
+                mem[addra] <= dina;
+            douta_r <= mem[addra];
+        end
+    end
+
+    always_ff @(posedge clkb) begin
+        if (enb) begin
+            if (web)
+                mem[addrb] <= dinb;
+            doutb_r <= mem[addrb];
+        end
+    end
+
+    assign douta = douta_r;
+    assign doutb = doutb_r;
 endmodule
 
 module u_xt_rom (
@@ -83,6 +114,21 @@ module u_xt_rom (
     input  logic [63:0] dina,
     output logic [63:0] douta
 );
+    localparam int DEPTH = 64;
+    logic [63:0] mem [0:DEPTH-1];
+
+    initial begin
+        for (int i = 0; i < DEPTH; i++)
+            mem[i] = '0;
+    end
+
+    always_ff @(posedge clka) begin
+        if (ena) begin
+            if (wea)
+                mem[addra] <= dina;
+            douta <= mem[addra];
+        end
+    end
 endmodule
 
 module inproj_ht_sram_ip (
@@ -99,6 +145,29 @@ module inproj_ht_sram_ip (
     input  logic [63:0] dinb,
     output logic [63:0] doutb
 );
+    localparam int DEPTH = 32;
+    logic [63:0] mem [0:DEPTH-1];
+
+    initial begin
+        for (int i = 0; i < DEPTH; i++)
+            mem[i] = '0;
+    end
+
+    always_ff @(posedge clka) begin
+        if (ena) begin
+            if (wea)
+                mem[addra] <= dina;
+            douta <= mem[addra];
+        end
+    end
+
+    always_ff @(posedge clkb) begin
+        if (enb) begin
+            if (web)
+                mem[addrb] <= dinb;
+            doutb <= mem[addrb];
+        end
+    end
 endmodule
 
 module inproj_vec_out_sram_ip (
@@ -115,4 +184,27 @@ module inproj_vec_out_sram_ip (
     input  logic [63:0] dinb,
     output logic [63:0] doutb
 );
+    localparam int DEPTH = 64;
+    logic [63:0] mem [0:DEPTH-1];
+
+    initial begin
+        for (int i = 0; i < DEPTH; i++)
+            mem[i] = '0;
+    end
+
+    always_ff @(posedge clka) begin
+        if (ena) begin
+            if (wea)
+                mem[addra] <= dina;
+            douta <= mem[addra];
+        end
+    end
+
+    always_ff @(posedge clkb) begin
+        if (enb) begin
+            if (web)
+                mem[addrb] <= dinb;
+            doutb <= mem[addrb];
+        end
+    end
 endmodule

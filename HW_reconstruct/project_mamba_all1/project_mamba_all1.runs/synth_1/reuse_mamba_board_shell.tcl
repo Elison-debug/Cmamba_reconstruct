@@ -57,8 +57,8 @@ if {$::dispatch::connected} {
 
 OPTRACE "synth_1" START { ROLLUP_AUTO }
 set_param checkpoint.writeSynthRtdsInDcp 1
-set_param synth.incrementalSynthesisCache E:/course/smamba/.Xil/Vivado-112064-13600kf/incrSyn
-set_param bd.open.in_stealth_mode 2
+set_param synth.incrementalSynthesisCache E:/course/smamba/.Xil/Vivado-27120-13600kf/incrSyn
+set_msg_config -id {Common 17-41} -limit 10000000
 set_msg_config -id {HDL 9-1061} -limit 100000
 set_msg_config -id {HDL 9-1654} -limit 100000
 set_msg_config -id {HDL-1065} -limit 10000
@@ -98,13 +98,11 @@ read_verilog -library xil_defaultlib -sv {
   E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_ht_sram_sp.sv
   E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_in_proj_scheduler.sv
   E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_inproj_weight_sram.sv
-  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_ip_blackboxes.sv
   E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_mac_fabric_manager.sv
   E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_mamba_axi_lite_regs.sv
   E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_mamba_block_top.sv
   E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_mamba_block_wrapper.sv
   E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_out_proj_scheduler.sv
-  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_outproj_multi_bank_wbuf_dp.sv
   E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_outproj_weight_sram.sv
   E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_packed_scale_mem.sv
   E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_pipeline_4array_top.sv
@@ -117,6 +115,7 @@ read_verilog -library xil_defaultlib -sv {
   E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_ssm_dt_scheduler.sv
   E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_vec_out_sram.sv
   E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_vec_out_sram_ip.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_weight_bank_rom.sv
   E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_z_stream_reader.sv
   E:/course/smamba/HW_reconstruct/rtl_reuse_shared/sigmoid4_vec.sv
   E:/course/smamba/HW_reconstruct/rtl_reuse_shared/slim_multi_bank_wbuf_dp.sv
@@ -138,12 +137,6 @@ set_property used_in_implementation false [get_files -all e:/course/smamba/HW_re
 
 read_ip -quiet E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/inproj_vec_out_sram_ip/inproj_vec_out_sram_ip.xci
 set_property used_in_implementation false [get_files -all e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/inproj_vec_out_sram_ip/inproj_vec_out_sram_ip_ooc.xdc]
-
-read_ip -quiet E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/outproj_WBUF_bank_dp/outproj_WBUF_bank_dp.xci
-set_property used_in_implementation false [get_files -all e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/outproj_WBUF_bank_dp/outproj_WBUF_bank_dp_ooc.xdc]
-
-read_ip -quiet E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/slim_WBUF_bank_dp/slim_WBUF_bank_dp.xci
-set_property used_in_implementation false [get_files -all e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/slim_WBUF_bank_dp/slim_WBUF_bank_dp_ooc.xdc]
 
 read_ip -quiet E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/inproj_ht_sram_ip/inproj_ht_sram_ip.xci
 set_property used_in_implementation false [get_files -all e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/inproj_ht_sram_ip/inproj_ht_sram_ip_ooc.xdc]

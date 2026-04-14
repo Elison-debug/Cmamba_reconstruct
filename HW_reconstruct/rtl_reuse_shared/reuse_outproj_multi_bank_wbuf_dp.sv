@@ -5,13 +5,19 @@
 //   6-bank dual-port WBUF subsystem for out_proj matrix tiles.
 //   - Stores all 2048 (32x64) tiles of W_out
 //   - Uses same bank mapping interface as slim_multi_bank_wbuf_dp
-//   - Synthesis uses outproj_WBUF_bank_dp, simulation uses mem_sim
+//   - Synthesis uses ROM-backed banks, simulation uses explicit per-bank arrays
 // ====================================================================
 module reuse_outproj_multi_bank_wbuf_dp #(
     parameter int N_BANK  = 6,
     parameter int DEPTH   = 342,
     parameter int ADDR_W  = $clog2(DEPTH),
-    parameter int DATA_W  = 256
+    parameter int DATA_W  = 256,
+    parameter string BANK0_INIT_FILE = "",
+    parameter string BANK1_INIT_FILE = "",
+    parameter string BANK2_INIT_FILE = "",
+    parameter string BANK3_INIT_FILE = "",
+    parameter string BANK4_INIT_FILE = "",
+    parameter string BANK5_INIT_FILE = ""
 )(
     input  logic                       clk,
     input  logic                       rst_n,
@@ -38,22 +44,67 @@ module reuse_outproj_multi_bank_wbuf_dp #(
 `ifdef SYNTHESIS
     generate
         for (genvar i = 0; i < N_BANK; i++) begin : WBUF_BANK
-            outproj_WBUF_bank_dp u_bank (
-                .clka  (clk),
-                .ena   (enA_bank[i]),
-                .addra (addrA_bank[i]),
-                .douta (doutA_bank[i]),
-                .clkb  (clk),
-                .enb   (enB_bank[i]),
-                .addrb (addrB_bank[i]),
-                .doutb (doutB_bank[i])
-            );
+            if (i == 0) begin : g_bank0
+                reuse_weight_bank_rom #(.DEPTH(DEPTH), .ADDR_W(ADDR_W), .DATA_W(DATA_W), .INIT_FILE(BANK0_INIT_FILE)) u_bank (
+                    .clk(clk), .en_a(enA_bank[i]), .addr_a(addrA_bank[i]), .dout_a(doutA_bank[i]),
+                    .en_b(enB_bank[i]), .addr_b(addrB_bank[i]), .dout_b(doutB_bank[i]));
+            end else if (i == 1) begin : g_bank1
+                reuse_weight_bank_rom #(.DEPTH(DEPTH), .ADDR_W(ADDR_W), .DATA_W(DATA_W), .INIT_FILE(BANK1_INIT_FILE)) u_bank (
+                    .clk(clk), .en_a(enA_bank[i]), .addr_a(addrA_bank[i]), .dout_a(doutA_bank[i]),
+                    .en_b(enB_bank[i]), .addr_b(addrB_bank[i]), .dout_b(doutB_bank[i]));
+            end else if (i == 2) begin : g_bank2
+                reuse_weight_bank_rom #(.DEPTH(DEPTH), .ADDR_W(ADDR_W), .DATA_W(DATA_W), .INIT_FILE(BANK2_INIT_FILE)) u_bank (
+                    .clk(clk), .en_a(enA_bank[i]), .addr_a(addrA_bank[i]), .dout_a(doutA_bank[i]),
+                    .en_b(enB_bank[i]), .addr_b(addrB_bank[i]), .dout_b(doutB_bank[i]));
+            end else if (i == 3) begin : g_bank3
+                reuse_weight_bank_rom #(.DEPTH(DEPTH), .ADDR_W(ADDR_W), .DATA_W(DATA_W), .INIT_FILE(BANK3_INIT_FILE)) u_bank (
+                    .clk(clk), .en_a(enA_bank[i]), .addr_a(addrA_bank[i]), .dout_a(doutA_bank[i]),
+                    .en_b(enB_bank[i]), .addr_b(addrB_bank[i]), .dout_b(doutB_bank[i]));
+            end else if (i == 4) begin : g_bank4
+                reuse_weight_bank_rom #(.DEPTH(DEPTH), .ADDR_W(ADDR_W), .DATA_W(DATA_W), .INIT_FILE(BANK4_INIT_FILE)) u_bank (
+                    .clk(clk), .en_a(enA_bank[i]), .addr_a(addrA_bank[i]), .dout_a(doutA_bank[i]),
+                    .en_b(enB_bank[i]), .addr_b(addrB_bank[i]), .dout_b(doutB_bank[i]));
+            end else begin : g_bank5
+                reuse_weight_bank_rom #(.DEPTH(DEPTH), .ADDR_W(ADDR_W), .DATA_W(DATA_W), .INIT_FILE(BANK5_INIT_FILE)) u_bank (
+                    .clk(clk), .en_a(enA_bank[i]), .addr_a(addrA_bank[i]), .dout_a(doutA_bank[i]),
+                    .en_b(enB_bank[i]), .addr_b(addrB_bank[i]), .dout_b(doutB_bank[i]));
+            end
         end
     endgenerate
 `else
-    logic [DATA_W-1:0] mem_sim [N_BANK][DEPTH];
+    logic [DATA_W-1:0] mem_sim0 [0:DEPTH-1];
+    logic [DATA_W-1:0] mem_sim1 [0:DEPTH-1];
+    logic [DATA_W-1:0] mem_sim2 [0:DEPTH-1];
+    logic [DATA_W-1:0] mem_sim3 [0:DEPTH-1];
+    logic [DATA_W-1:0] mem_sim4 [0:DEPTH-1];
+    logic [DATA_W-1:0] mem_sim5 [0:DEPTH-1];
     logic [DATA_W-1:0] doutA_r [N_BANK];
     logic [DATA_W-1:0] doutB_r [N_BANK];
+
+    initial begin : init_mem_sim
+        for (int addr = 0; addr < DEPTH; addr++) begin
+            mem_sim0[addr] = '0; mem_sim1[addr] = '0; mem_sim2[addr] = '0;
+            mem_sim3[addr] = '0; mem_sim4[addr] = '0; mem_sim5[addr] = '0;
+        end
+        if (BANK0_INIT_FILE != "") $readmemh(BANK0_INIT_FILE, mem_sim0);
+        if (BANK1_INIT_FILE != "") $readmemh(BANK1_INIT_FILE, mem_sim1);
+        if (BANK2_INIT_FILE != "") $readmemh(BANK2_INIT_FILE, mem_sim2);
+        if (BANK3_INIT_FILE != "") $readmemh(BANK3_INIT_FILE, mem_sim3);
+        if (BANK4_INIT_FILE != "") $readmemh(BANK4_INIT_FILE, mem_sim4);
+        if (BANK5_INIT_FILE != "") $readmemh(BANK5_INIT_FILE, mem_sim5);
+    end
+
+    function automatic [DATA_W-1:0] mem_read_sim(input int bank_idx, input [ADDR_W-1:0] addr_idx);
+        case (bank_idx)
+            0: mem_read_sim = mem_sim0[addr_idx];
+            1: mem_read_sim = mem_sim1[addr_idx];
+            2: mem_read_sim = mem_sim2[addr_idx];
+            3: mem_read_sim = mem_sim3[addr_idx];
+            4: mem_read_sim = mem_sim4[addr_idx];
+            5: mem_read_sim = mem_sim5[addr_idx];
+            default: mem_read_sim = '0;
+        endcase
+    endfunction
 
     always_ff @(posedge clk) begin
         if (!rst_n) begin
@@ -63,10 +114,8 @@ module reuse_outproj_multi_bank_wbuf_dp #(
             end
         end else begin
             for (int bi = 0; bi < N_BANK; bi++) begin
-                if (enA_bank[bi])
-                    doutA_r[bi] <= mem_sim[bi][addrA_bank[bi]];
-                if (enB_bank[bi])
-                    doutB_r[bi] <= mem_sim[bi][addrB_bank[bi]];
+                if (enA_bank[bi]) doutA_r[bi] <= mem_read_sim(bi, addrA_bank[bi]);
+                if (enB_bank[bi]) doutB_r[bi] <= mem_read_sim(bi, addrB_bank[bi]);
             end
         end
     end
@@ -98,12 +147,10 @@ module reuse_outproj_multi_bank_wbuf_dp #(
     always_comb begin
         enA_bank = '0;
         enB_bank = '0;
-
         for (int bi = 0; bi < N_BANK; bi++) begin
             addrA_bank[bi] = '0;
             addrB_bank[bi] = '0;
         end
-
         for (int j = 0; j < 4; j++) begin
             if (en_sel[j]) begin
                 b = bank_sel[j];
@@ -125,10 +172,7 @@ module reuse_outproj_multi_bank_wbuf_dp #(
                 dout_sel[j] = '0;
             end else begin
                 b = bank_sel_q[j];
-                if (port_sel_q[j] == 1'b0)
-                    dout_sel[j] = doutA_bank[b];
-                else
-                    dout_sel[j] = doutB_bank[b];
+                dout_sel[j] = (port_sel_q[j] == 1'b0) ? doutA_bank[b] : doutB_bank[b];
             end
         end
     end
