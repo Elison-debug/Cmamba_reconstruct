@@ -300,46 +300,46 @@ module tb_reuse_mamba_block_top_hw_debug;
     end
   endtask
 
-  task automatic init_weight_mems_from_case();
-    begin
-      for (int addr = 0; addr < WDEPTH; addr++) begin
-        dut.u_in_proj.u_w_sram.u_weight.mem_sim[0][addr] = inproj_bank0_mem[addr];
-        dut.u_in_proj.u_w_sram.u_weight.mem_sim[1][addr] = inproj_bank1_mem[addr];
-        dut.u_in_proj.u_w_sram.u_weight.mem_sim[2][addr] = inproj_bank2_mem[addr];
-        dut.u_in_proj.u_w_sram.u_weight.mem_sim[3][addr] = inproj_bank3_mem[addr];
-        dut.u_in_proj.u_w_sram.u_weight.mem_sim[4][addr] = inproj_bank4_mem[addr];
-        dut.u_in_proj.u_w_sram.u_weight.mem_sim[5][addr] = inproj_bank5_mem[addr];
+ task automatic init_weight_mems_from_case();
+   begin
+     for (int addr = 0; addr < WDEPTH; addr++) begin
+       dut.u_in_proj.u_w_sram.u_weight.mem_sim0[addr] = inproj_bank0_mem[addr];
+       dut.u_in_proj.u_w_sram.u_weight.mem_sim1[addr] = inproj_bank1_mem[addr];
+       dut.u_in_proj.u_w_sram.u_weight.mem_sim2[addr] = inproj_bank2_mem[addr];
+       dut.u_in_proj.u_w_sram.u_weight.mem_sim3[addr] = inproj_bank3_mem[addr];
+       dut.u_in_proj.u_w_sram.u_weight.mem_sim4[addr] = inproj_bank4_mem[addr];
+       dut.u_in_proj.u_w_sram.u_weight.mem_sim5[addr] = inproj_bank5_mem[addr];
 
-        dut.u_dt_sched.dt_wbuf_mem_sim[0][addr] = dt_bank0_mem[addr];
-        dut.u_dt_sched.dt_wbuf_mem_sim[1][addr] = dt_bank1_mem[addr];
-        dut.u_dt_sched.dt_wbuf_mem_sim[2][addr] = dt_bank2_mem[addr];
-        dut.u_dt_sched.dt_wbuf_mem_sim[3][addr] = dt_bank3_mem[addr];
-      end
-      for (int addr = 0; addr < 128; addr++) begin
-        dut.u_in_proj.u_scale_mem.mem[addr] = inproj_scale_mem[addr];
-      end
-      for (int addr = 0; addr < 64; addr++) begin
-        dut.u_dt_sched.u_scale_mem.mem[addr] = dt_scale_mem[addr];
-      end
-      $display("[%0t] FILE  inproj bank0 addr0 = %h", $time, inproj_bank0_mem[0]);
-      $display("[%0t] SRAM  inproj bank0 addr0 = %h", $time, dut.u_in_proj.u_w_sram.u_weight.mem_sim[0][0]);
-      $display("[%0t] FILE  dt     bank0 addr0 = %h", $time, dt_bank0_mem[0]);
-      $display("[%0t] SRAM  dt     bank0 addr0 = %h", $time, dut.u_dt_sched.dt_wbuf_mem_sim[0][0]);
-      for (int addr = 0; addr < OUT_WDEPTH; addr++) begin
-        dut.u_out_proj.u_w_sram.u_weight.mem_sim[0][addr] = outproj_bank0_mem[addr];
-        dut.u_out_proj.u_w_sram.u_weight.mem_sim[1][addr] = outproj_bank1_mem[addr];
-        dut.u_out_proj.u_w_sram.u_weight.mem_sim[2][addr] = outproj_bank2_mem[addr];
-        dut.u_out_proj.u_w_sram.u_weight.mem_sim[3][addr] = outproj_bank3_mem[addr];
-        dut.u_out_proj.u_w_sram.u_weight.mem_sim[4][addr] = outproj_bank4_mem[addr];
-        dut.u_out_proj.u_w_sram.u_weight.mem_sim[5][addr] = outproj_bank5_mem[addr];
-      end
-      for (int addr = 0; addr < 32; addr++) begin
-        dut.u_out_proj.u_scale_mem.mem[addr] = outproj_scale_mem[addr];
-      end
-      $display("[%0t] FILE  outproj bank0 addr0 = %h", $time, outproj_bank0_mem[0]);
-      $display("[%0t] SRAM  outproj bank0 addr0 = %h", $time, dut.u_out_proj.u_w_sram.u_weight.mem_sim[0][0]);
-    end
-  endtask
+       dut.u_dt_sched.dt_wbuf_mem_sim0[addr] = dt_bank0_mem[addr];
+       dut.u_dt_sched.dt_wbuf_mem_sim1[addr] = dt_bank1_mem[addr];
+       dut.u_dt_sched.dt_wbuf_mem_sim2[addr] = dt_bank2_mem[addr];
+       dut.u_dt_sched.dt_wbuf_mem_sim3[addr] = dt_bank3_mem[addr];
+     end
+     for (int addr = 0; addr < 128; addr++) begin
+       dut.u_in_proj.u_scale_mem.mem[addr] = inproj_scale_mem[addr];
+     end
+     for (int addr = 0; addr < 64; addr++) begin
+       dut.u_dt_sched.u_scale_mem.mem[addr] = dt_scale_mem[addr];
+     end
+     $display("[%0t] FILE  inproj bank0 addr0 = %h", $time, inproj_bank0_mem[0]);
+     $display("[%0t] SRAM  inproj bank0 addr0 = %h", $time, dut.u_in_proj.u_w_sram.u_weight.mem_sim0[0]);
+     $display("[%0t] FILE  dt     bank0 addr0 = %h", $time, dt_bank0_mem[0]);
+     $display("[%0t] SRAM  dt     bank0 addr0 = %h", $time, dut.u_dt_sched.dt_wbuf_mem_sim0[0]);
+     for (int addr = 0; addr < OUT_WDEPTH; addr++) begin
+       dut.u_out_proj.u_w_sram.u_weight.mem_sim0[addr] = outproj_bank0_mem[addr];
+       dut.u_out_proj.u_w_sram.u_weight.mem_sim1[addr] = outproj_bank1_mem[addr];
+       dut.u_out_proj.u_w_sram.u_weight.mem_sim2[addr] = outproj_bank2_mem[addr];
+       dut.u_out_proj.u_w_sram.u_weight.mem_sim3[addr] = outproj_bank3_mem[addr];
+       dut.u_out_proj.u_w_sram.u_weight.mem_sim4[addr] = outproj_bank4_mem[addr];
+       dut.u_out_proj.u_w_sram.u_weight.mem_sim5[addr] = outproj_bank5_mem[addr];
+     end
+     for (int addr = 0; addr < 32; addr++) begin
+       dut.u_out_proj.u_scale_mem.mem[addr] = outproj_scale_mem[addr];
+     end
+     $display("[%0t] FILE  outproj bank0 addr0 = %h", $time, outproj_bank0_mem[0]);
+     $display("[%0t] SRAM  outproj bank0 addr0 = %h", $time, dut.u_out_proj.u_w_sram.u_weight.mem_sim0[0]);
+   end
+ endtask
 
   task automatic write_h_from_case();
     begin
@@ -364,14 +364,14 @@ module tb_reuse_mamba_block_top_hw_debug;
           unpack_lane64(h_wr_data_mem[0], 2),
           unpack_lane64(h_wr_data_mem[0], 3)
       );
-      $display(
-          "[%0t] H    sram row0 data=%0d,%0d,%0d,%0d",
-          $time,
-          $signed(dut.u_in_proj.u_h_sram.mem_sim[0][0*DATA_WIDTH +: DATA_WIDTH]),
-          $signed(dut.u_in_proj.u_h_sram.mem_sim[0][1*DATA_WIDTH +: DATA_WIDTH]),
-          $signed(dut.u_in_proj.u_h_sram.mem_sim[0][2*DATA_WIDTH +: DATA_WIDTH]),
-          $signed(dut.u_in_proj.u_h_sram.mem_sim[0][3*DATA_WIDTH +: DATA_WIDTH])
-      );
+     $display(
+         "[%0t] H    sram row0 data=%0d,%0d,%0d,%0d",
+         $time,
+         $signed(dut.u_in_proj.u_h_sram.u_ht_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][0*DATA_WIDTH +: DATA_WIDTH]),
+         $signed(dut.u_in_proj.u_h_sram.u_ht_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][1*DATA_WIDTH +: DATA_WIDTH]),
+         $signed(dut.u_in_proj.u_h_sram.u_ht_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][2*DATA_WIDTH +: DATA_WIDTH]),
+         $signed(dut.u_in_proj.u_h_sram.u_ht_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][3*DATA_WIDTH +: DATA_WIDTH])
+     );
     end
   endtask
 
@@ -404,18 +404,18 @@ module tb_reuse_mamba_block_top_hw_debug;
       $display(
           "[%0t] U/Z  SRAM   row0 u=%0d,%0d,%0d,%0d z=%0d,%0d,%0d,%0d",
           $time,
-          $signed(dut.u_in_proj.u_u_sram.mem_sim[0][0*DATA_WIDTH +: DATA_WIDTH]),
-          $signed(dut.u_in_proj.u_u_sram.mem_sim[0][1*DATA_WIDTH +: DATA_WIDTH]),
-          $signed(dut.u_in_proj.u_u_sram.mem_sim[0][2*DATA_WIDTH +: DATA_WIDTH]),
-          $signed(dut.u_in_proj.u_u_sram.mem_sim[0][3*DATA_WIDTH +: DATA_WIDTH]),
-          $signed(dut.u_in_proj.u_z_sram.mem_sim[0][0*DATA_WIDTH +: DATA_WIDTH]),
-          $signed(dut.u_in_proj.u_z_sram.mem_sim[0][1*DATA_WIDTH +: DATA_WIDTH]),
-          $signed(dut.u_in_proj.u_z_sram.mem_sim[0][2*DATA_WIDTH +: DATA_WIDTH]),
-          $signed(dut.u_in_proj.u_z_sram.mem_sim[0][3*DATA_WIDTH +: DATA_WIDTH])
+          $signed(dut.u_in_proj.u_u_sram.u_vec_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][0*DATA_WIDTH +: DATA_WIDTH]),
+          $signed(dut.u_in_proj.u_u_sram.u_vec_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][1*DATA_WIDTH +: DATA_WIDTH]),
+          $signed(dut.u_in_proj.u_u_sram.u_vec_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][2*DATA_WIDTH +: DATA_WIDTH]),
+          $signed(dut.u_in_proj.u_u_sram.u_vec_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][3*DATA_WIDTH +: DATA_WIDTH]),
+          $signed(dut.u_in_proj.u_z_sram.u_vec_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][0*DATA_WIDTH +: DATA_WIDTH]),
+          $signed(dut.u_in_proj.u_z_sram.u_vec_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][1*DATA_WIDTH +: DATA_WIDTH]),
+          $signed(dut.u_in_proj.u_z_sram.u_vec_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][2*DATA_WIDTH +: DATA_WIDTH]),
+          $signed(dut.u_in_proj.u_z_sram.u_vec_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][3*DATA_WIDTH +: DATA_WIDTH])
       );
       for (int addr = 0; addr < U_DEPTH; addr++) begin
         for (int lane = 0; lane < TILE_SIZE; lane++) begin
-          got_u = $signed(dut.u_in_proj.u_u_sram.mem_sim[addr][lane*DATA_WIDTH +: DATA_WIDTH]);
+          got_u = $signed(dut.u_in_proj.u_u_sram.u_vec_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[addr][lane*DATA_WIDTH +: DATA_WIDTH]);
           exp_u = unpack_lane64(u_golden_mem[addr], lane);
           if (got_u !== exp_u) begin
             if (!first_u_mismatch_seen) begin
@@ -426,7 +426,7 @@ module tb_reuse_mamba_block_top_hw_debug;
             u_ok++;
           end
 
-          got_z = $signed(dut.u_in_proj.u_z_sram.mem_sim[addr][lane*DATA_WIDTH +: DATA_WIDTH]);
+          got_z = $signed(dut.u_in_proj.u_z_sram.u_vec_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[addr][lane*DATA_WIDTH +: DATA_WIDTH]);
           exp_z = unpack_lane64(z_golden_mem[addr], lane);
           if (got_z !== exp_z) begin
             if (!first_z_mismatch_seen) begin
@@ -461,14 +461,14 @@ module tb_reuse_mamba_block_top_hw_debug;
       $display(
           "[%0t] P    SRAM   row0=%0d,%0d,%0d,%0d",
           $time,
-          $signed(dut.u_p_sram.mem_sim[0][0*DATA_WIDTH +: DATA_WIDTH]),
-          $signed(dut.u_p_sram.mem_sim[0][1*DATA_WIDTH +: DATA_WIDTH]),
-          $signed(dut.u_p_sram.mem_sim[0][2*DATA_WIDTH +: DATA_WIDTH]),
-          $signed(dut.u_p_sram.mem_sim[0][3*DATA_WIDTH +: DATA_WIDTH])
+          $signed(dut.u_p_sram.u_ht_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][0*DATA_WIDTH +: DATA_WIDTH]),
+          $signed(dut.u_p_sram.u_ht_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][1*DATA_WIDTH +: DATA_WIDTH]),
+          $signed(dut.u_p_sram.u_ht_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][2*DATA_WIDTH +: DATA_WIDTH]),
+          $signed(dut.u_p_sram.u_ht_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][3*DATA_WIDTH +: DATA_WIDTH])
       );
       for (int addr = 0; addr < U_DEPTH; addr++) begin
         for (int lane = 0; lane < TILE_SIZE; lane++) begin
-          got_p = $signed(dut.u_p_sram.mem_sim[addr][lane*DATA_WIDTH +: DATA_WIDTH]);
+          got_p = $signed(dut.u_p_sram.u_ht_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[addr][lane*DATA_WIDTH +: DATA_WIDTH]);
           exp_p = unpack_lane64(gate_y_golden_mem[addr], lane);
           if (got_p !== exp_p) begin
             p_mem_errors++;
@@ -505,14 +505,14 @@ module tb_reuse_mamba_block_top_hw_debug;
       $display(
           "[%0t] Y    SRAM   row0=%0d,%0d,%0d,%0d",
           $time,
-          $signed(dut.u_out_proj.u_y_sram.mem_sim[0][0*DATA_WIDTH +: DATA_WIDTH]),
-          $signed(dut.u_out_proj.u_y_sram.mem_sim[0][1*DATA_WIDTH +: DATA_WIDTH]),
-          $signed(dut.u_out_proj.u_y_sram.mem_sim[0][2*DATA_WIDTH +: DATA_WIDTH]),
-          $signed(dut.u_out_proj.u_y_sram.mem_sim[0][3*DATA_WIDTH +: DATA_WIDTH])
+          $signed(dut.u_out_proj.u_y_sram.u_vec_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][0*DATA_WIDTH +: DATA_WIDTH]),
+          $signed(dut.u_out_proj.u_y_sram.u_vec_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][1*DATA_WIDTH +: DATA_WIDTH]),
+          $signed(dut.u_out_proj.u_y_sram.u_vec_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][2*DATA_WIDTH +: DATA_WIDTH]),
+          $signed(dut.u_out_proj.u_y_sram.u_vec_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][3*DATA_WIDTH +: DATA_WIDTH])
       );
       for (int addr = 0; addr < Y_DEPTH; addr++) begin
         for (int lane = 0; lane < TILE_SIZE; lane++) begin
-          got_y = $signed(dut.u_out_proj.u_y_sram.mem_sim[addr][lane*DATA_WIDTH +: DATA_WIDTH]);
+          got_y = $signed(dut.u_out_proj.u_y_sram.u_vec_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[addr][lane*DATA_WIDTH +: DATA_WIDTH]);
           exp_y = unpack_lane64(y_golden_mem[addr], lane);
           if (got_y !== exp_y) begin
             y_mem_errors++;
@@ -1058,22 +1058,22 @@ module tb_reuse_mamba_block_top_hw_debug;
       if (dut.uact_fill_done && !uact_dump_done) begin
         $display("[%0t] UACT SRAM row0=%0d,%0d,%0d,%0d",
                  $time,
-                 $signed(dut.u_uact_sram.mem_sim[0][0*DATA_WIDTH +: DATA_WIDTH]),
-                 $signed(dut.u_uact_sram.mem_sim[0][1*DATA_WIDTH +: DATA_WIDTH]),
-                 $signed(dut.u_uact_sram.mem_sim[0][2*DATA_WIDTH +: DATA_WIDTH]),
-                 $signed(dut.u_uact_sram.mem_sim[0][3*DATA_WIDTH +: DATA_WIDTH]));
+                 $signed(dut.u_uact_sram.u_ht_ip.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][0*DATA_WIDTH +: DATA_WIDTH]),
+                 $signed(dut.u_uact_sram.u_ht_ip.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][1*DATA_WIDTH +: DATA_WIDTH]),
+                 $signed(dut.u_uact_sram.u_ht_ip.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][2*DATA_WIDTH +: DATA_WIDTH]),
+                 $signed(dut.u_uact_sram.u_ht_ip.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][3*DATA_WIDTH +: DATA_WIDTH]));
         $display("[%0t] UACT SRAM row1=%0d,%0d,%0d,%0d",
                  $time,
-                 $signed(dut.u_uact_sram.mem_sim[1][0*DATA_WIDTH +: DATA_WIDTH]),
-                 $signed(dut.u_uact_sram.mem_sim[1][1*DATA_WIDTH +: DATA_WIDTH]),
-                 $signed(dut.u_uact_sram.mem_sim[1][2*DATA_WIDTH +: DATA_WIDTH]),
-                 $signed(dut.u_uact_sram.mem_sim[1][3*DATA_WIDTH +: DATA_WIDTH]));
+                 $signed(dut.u_uact_sram.u_ht_ip.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[1][0*DATA_WIDTH +: DATA_WIDTH]),
+                 $signed(dut.u_uact_sram.u_ht_ip.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[1][1*DATA_WIDTH +: DATA_WIDTH]),
+                 $signed(dut.u_uact_sram.u_ht_ip.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[1][2*DATA_WIDTH +: DATA_WIDTH]),
+                 $signed(dut.u_uact_sram.u_ht_ip.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[1][3*DATA_WIDTH +: DATA_WIDTH]));
         $display("[%0t] UACT SRAM row63=%0d,%0d,%0d,%0d",
                  $time,
-                 $signed(dut.u_uact_sram.mem_sim[63][0*DATA_WIDTH +: DATA_WIDTH]),
-                 $signed(dut.u_uact_sram.mem_sim[63][1*DATA_WIDTH +: DATA_WIDTH]),
-                 $signed(dut.u_uact_sram.mem_sim[63][2*DATA_WIDTH +: DATA_WIDTH]),
-                 $signed(dut.u_uact_sram.mem_sim[63][3*DATA_WIDTH +: DATA_WIDTH]));
+                 $signed(dut.u_uact_sram.u_ht_ip.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[63][0*DATA_WIDTH +: DATA_WIDTH]),
+                 $signed(dut.u_uact_sram.u_ht_ip.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[63][1*DATA_WIDTH +: DATA_WIDTH]),
+                 $signed(dut.u_uact_sram.u_ht_ip.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[63][2*DATA_WIDTH +: DATA_WIDTH]),
+                 $signed(dut.u_uact_sram.u_ht_ip.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[63][3*DATA_WIDTH +: DATA_WIDTH]));
         uact_dump_done <= 1'b1;
       end
       if (dut.dt_u_rd_en && !dt_read_dump_done) begin

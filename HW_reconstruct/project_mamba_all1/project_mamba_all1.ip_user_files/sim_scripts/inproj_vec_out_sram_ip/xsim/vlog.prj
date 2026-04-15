@@ -1,0 +1,7 @@
+verilog xil_defaultlib --include "E:/Xilinx/Vivado/2024.1/data/xilinx_vip/include" \
+"../../../../project_mamba_all1.gen/sources_1/ip/inproj_vec_out_sram_ip/sim/inproj_vec_out_sram_ip.v" \
+
+verilog xil_defaultlib "glbl.v"
+
+# Do not sort compile order
+nosort

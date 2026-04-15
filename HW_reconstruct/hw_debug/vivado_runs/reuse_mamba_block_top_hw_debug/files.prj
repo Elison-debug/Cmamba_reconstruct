@@ -33,6 +33,8 @@ sv work "E:\course\smamba\HW_reconstruct\rtl_reuse_shared\reuse_ssm_dt_scheduler
 sv work "E:\course\smamba\HW_reconstruct\rtl_reuse_shared\reuse_top_mac_plus_bias_fifo_sigmoid_ew_gate.sv"
 sv work "E:\course\smamba\HW_reconstruct\rtl_reuse_shared\reuse_vec_out_sram.sv"
 sv work "E:\course\smamba\HW_reconstruct\rtl_reuse_shared\reuse_vec_out_sram_ip.sv"
+sv work "E:\course\smamba\HW_reconstruct\rtl_reuse_shared\reuse_weight_bank_rom.sv"
+sv work "E:\course\smamba\HW_reconstruct\rtl_reuse_shared\reuse_weight_bank_storage_consistency_dut.sv"
 sv work "E:\course\smamba\HW_reconstruct\rtl_reuse_shared\reuse_z_stream_reader.sv"
 sv work "E:\course\smamba\HW_reconstruct\rtl_reuse_shared\sigmoid4_vec.sv"
 sv work "E:\course\smamba\HW_reconstruct\rtl_reuse_shared\slim_multi_bank_wbuf_dp.sv"

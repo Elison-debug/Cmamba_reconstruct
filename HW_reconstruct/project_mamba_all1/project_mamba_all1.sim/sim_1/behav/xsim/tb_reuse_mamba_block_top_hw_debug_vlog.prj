@@ -1,9 +1,12 @@
 # compile verilog/system verilog design source files
-verilog xil_defaultlib  --include "../../../../../hw_debug/vivado_runs/reuse_mamba_block_top_hw_debug" --include "../../../../../hw_debug/vivado_runs/reuse_ssm_dt_scheduler_hw_debug" --include "../../../../../hw_debug/vivado_runs/reuse_ssm_core_hw_debug" \
+verilog xil_defaultlib  --include "../../../../project_mamba_all1.gen/sources_1/bd/design_1/ipshared/ec67/hdl" --include "../../../../project_mamba_all1.gen/sources_1/bd/design_1/ipshared/a317/hdl" --include "../../../../project_mamba_all1.gen/sources_1/bd/design_1/ipshared/f0b6/hdl/verilog" --include "../../../../project_mamba_all1.gen/sources_1/bd/design_1/ipshared/c783/hdl/verilog" --include "../../../../../hw_debug/vivado_runs/reuse_mamba_block_top_hw_debug" --include "../../../../../hw_debug/vivado_runs/reuse_ssm_dt_scheduler_hw_debug" --include "../../../../../hw_debug/vivado_runs/reuse_ssm_core_hw_debug" --include "../../../../" --include "E:/Xilinx/Vivado/2024.1/data/xilinx_vip/include" \
 "../../../../project_mamba_all1.gen/sources_1/ip/s_buffer/sim/s_buffer.v" \
 "../../../../project_mamba_all1.gen/sources_1/ip/bias2sigmoid_fifo/sim/bias2sigmoid_fifo.v" \
+"../../../../project_mamba_all1.gen/sources_1/ip/bias_ROM/sim/bias_ROM.v" \
+"../../../../project_mamba_all1.gen/sources_1/ip/inproj_ht_sram_ip/sim/inproj_ht_sram_ip.v" \
+"../../../../project_mamba_all1.gen/sources_1/ip/inproj_vec_out_sram_ip/sim/inproj_vec_out_sram_ip.v" \
 
-sv xil_defaultlib  --include "../../../../../hw_debug/vivado_runs/reuse_mamba_block_top_hw_debug" --include "../../../../../hw_debug/vivado_runs/reuse_ssm_dt_scheduler_hw_debug" --include "../../../../../hw_debug/vivado_runs/reuse_ssm_core_hw_debug" \
+sv xil_defaultlib  --include "../../../../project_mamba_all1.gen/sources_1/bd/design_1/ipshared/ec67/hdl" --include "../../../../project_mamba_all1.gen/sources_1/bd/design_1/ipshared/a317/hdl" --include "../../../../project_mamba_all1.gen/sources_1/bd/design_1/ipshared/f0b6/hdl/verilog" --include "../../../../project_mamba_all1.gen/sources_1/bd/design_1/ipshared/c783/hdl/verilog" --include "../../../../../hw_debug/vivado_runs/reuse_mamba_block_top_hw_debug" --include "../../../../../hw_debug/vivado_runs/reuse_ssm_dt_scheduler_hw_debug" --include "../../../../../hw_debug/vivado_runs/reuse_ssm_core_hw_debug" --include "../../../../" --include "E:/Xilinx/Vivado/2024.1/data/xilinx_vip/include" \
 "../../../../../rtl_reuse_shared/axis_vec_join2.sv" \
 "../../../../../rtl_reuse_shared/bias_add_regslice_ip.sv" \
 "../../../../../rtl_reuse_shared/ew_update_vec4.sv" \
@@ -12,16 +15,18 @@ sv xil_defaultlib  --include "../../../../../hw_debug/vivado_runs/reuse_mamba_bl
 "../../../../../rtl_reuse_shared/ewm_vec4.sv" \
 "../../../../../rtl_reuse_shared/pe_unit_pipe.sv" \
 "../../../../../rtl_reuse_shared/pulse_to_stream_adapter.sv" \
+"../../../../../rtl_reuse_shared/requant_round_sat_engine.sv" \
 "../../../../../rtl_reuse_shared/reuse_array4x4.sv" \
+"../../../../../rtl_reuse_shared/reuse_ht_multi_copy_ip.sv" \
 "../../../../../rtl_reuse_shared/reuse_ht_sram.sv" \
 "../../../../../rtl_reuse_shared/reuse_ht_sram_sp.sv" \
 "../../../../../rtl_reuse_shared/reuse_in_proj_scheduler.sv" \
 "../../../../../rtl_reuse_shared/reuse_inproj_weight_sram.sv" \
 "../../../../../rtl_reuse_shared/reuse_mac_fabric_manager.sv" \
 "../../../../../rtl_reuse_shared/reuse_mamba_block_top.sv" \
-"../../../../../rtl_reuse_shared/reuse_out_proj_scheduler_stub.sv" \
-"../../../../../rtl_reuse_shared/reuse_outproj_multi_bank_wbuf_dp.sv" \
+"../../../../../rtl_reuse_shared/reuse_out_proj_scheduler.sv" \
 "../../../../../rtl_reuse_shared/reuse_outproj_weight_sram.sv" \
+"../../../../../rtl_reuse_shared/reuse_packed_scale_mem.sv" \
 "../../../../../rtl_reuse_shared/reuse_pipeline_4array_top.sv" \
 "../../../../../rtl_reuse_shared/reuse_pipeline_4array_with_reduction.sv" \
 "../../../../../rtl_reuse_shared/reuse_pt_capture.sv" \
@@ -31,6 +36,7 @@ sv xil_defaultlib  --include "../../../../../hw_debug/vivado_runs/reuse_mamba_bl
 "../../../../../rtl_reuse_shared/reuse_ssm_core.sv" \
 "../../../../../rtl_reuse_shared/reuse_ssm_dt_scheduler.sv" \
 "../../../../../rtl_reuse_shared/reuse_vec_out_sram.sv" \
+"../../../../../rtl_reuse_shared/reuse_vec_out_sram_ip.sv" \
 "../../../../../rtl_reuse_shared/reuse_z_stream_reader.sv" \
 "../../../../../rtl_reuse_shared/sigmoid4_vec.sv" \
 "../../../../../rtl_reuse_shared/slim_multi_bank_wbuf_dp.sv" \

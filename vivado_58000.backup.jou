@@ -1,0 +1,81 @@
+#-----------------------------------------------------------
+# Vivado v2024.1 (64-bit)
+# SW Build 5076996 on Wed May 22 18:37:14 MDT 2024
+# IP Build 5075265 on Wed May 22 21:45:21 MDT 2024
+# SharedData Build 5076995 on Wed May 22 18:29:18 MDT 2024
+# Start of session at: Tue Apr 14 02:54:07 2026
+# Process ID: 58000
+# Current directory: E:/course/smamba
+# Command line: vivado.exe HW_reconstruct\project_mamba_all1\project_mamba_all1.xpr
+# Log file: E:/course/smamba/vivado.log
+# Journal file: E:/course/smamba\vivado.jou
+# Running On        :13600kf
+# Platform          :Windows Server 2016 or Windows 10
+# Operating System  :26200
+# Processor Detail  :13th Gen Intel(R) Core(TM) i5-13600KF
+# CPU Frequency     :3494 MHz
+# CPU Physical cores:14
+# CPU Logical cores :20
+# Host memory       :34163 MB
+# Swap memory       :45814 MB
+# Total Virtual     :79978 MB
+# Available Virtual :12334 MB
+#-----------------------------------------------------------
+start_gui
+open_project HW_reconstruct/project_mamba_all1/project_mamba_all1.xpr
+update_compile_order -fileset sources_1
+launch_simulation -simset [get_filesets sim_3 ]
+open_wave_config E:/course/smamba/HW_reconstruct/project_mamba_all1/tb_reuse_in_proj_scheduler_behav.wcfg
+source tb_reuse_mamba_board_shell_ps.tcl
+current_wave_config {tb_reuse_in_proj_scheduler_behav.wcfg}
+add_wave {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_ssm_core/u_bias_add/u_bias_rom/inst/\native_mem_module.blk_mem_gen_v8_4_8_inst /memory}} 
+run all
+current_wave_config {tb_reuse_in_proj_scheduler_behav.wcfg}
+add_wave {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_h_sram/u_ht_ip/u_copy0/inst/\native_mem_module.blk_mem_gen_v8_4_8_inst /memory}} 
+close_sim
+file mkdir E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sim_3/new
+set_property SOURCE_SET sources_1 [get_filesets sim_3]
+close [ open E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sim_3/new/tb_test.sv w ]
+add_files -fileset sim_3 E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sim_3/new/tb_test.sv
+update_compile_order -fileset sim_3
+# Disabling source management mode.  This is to allow the top design properties to be set without GUI intervention.
+set_property source_mgmt_mode None [current_project]
+set_property top tb_test [get_filesets sim_3]
+set_property top_lib xil_defaultlib [get_filesets sim_3]
+# Re-enabling previously disabled source management mode.
+set_property source_mgmt_mode All [current_project]
+update_compile_order -fileset sim_3
+reset_simulation -simset sim_3 -mode behavioral
+launch_simulation -simset [get_filesets sim_3 ]
+update_compile_order -fileset sim_3
+update_compile_order -fileset sim_3
+launch_simulation -simset [get_filesets sim_3 ]
+reset_simulation -simset sim_3 -mode behavioral
+launch_simulation -simset [get_filesets sim_3 ]
+reset_simulation -simset sim_3 -mode behavioral
+launch_simulation -simset [get_filesets sim_3 ]
+open_wave_config E:/course/smamba/HW_reconstruct/project_mamba_all1/tb_reuse_in_proj_scheduler_behav.wcfg
+source tb_test.tcl
+close_sim
+current_fileset -simset [ get_filesets sim_1 ]
+launch_simulation
+reset_simulation -simset sim_1 -mode behavioral
+launch_simulation
+reset_simulation -simset sim_1 -mode behavioral
+launch_simulation
+reset_simulation -simset sim_1 -mode behavioral
+launch_simulation
+reset_simulation -simset sim_1 -mode behavioral
+launch_simulation
+source tb_reuse_mamba_block_top_hw_debug.tcl
+close_sim
+launch_simulation
+source tb_reuse_mamba_block_top_hw_debug.tcl
+run all
+current_wave_config {Untitled 2}
+add_wave {{/tb_reuse_mamba_block_top_hw_debug/dut}} 
+restart
+run all
+close_sim
+reset_simulation -simset sim_1 -mode behavioral
+launch_simulation

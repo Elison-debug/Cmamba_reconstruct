@@ -74,35 +74,25 @@ module bias_add_regslice_ip_A #(
     logic              bias_en;
     logic [ADDR_W-1:0] bias_addr;
     logic [63:0]       bias64;
+    logic [63:0]       bias64_ip;
 
-`ifdef SYNTHESIS
-    // NOTE: If your generated IP has different port names, edit here.
+    // Use the generated Vivado IP model in both RTL sim and synthesis.
+    // The ROM itself is configured with 1-cycle read latency, so add one
+    // explicit register stage here to preserve the historical 2-cycle
+    // alignment expected by PIPE_LAT=2.
     bias_ROM u_bias_rom (
         .clka  (clk),
         .ena   (bias_en),
         .addra (bias_addr),
-        .douta (bias64)
+        .douta (bias64_ip)
     );
-`else
-    // 仿真行为版 ROM：公开 mem_sim 供 TB 初始化，读出总延迟 2 拍（与 IP 一致）
-    logic [63:0] mem_sim [TILE_DEPTH];
-    logic [63:0] bias64_d1;
-    initial begin
-        for (int i = 0; i < TILE_DEPTH; i++) mem_sim[i] = '0;
-    end
-    always_ff @(posedge clk) begin
-        if (!rst_n)
-            bias64_d1 <= '0;
-        else if (bias_en)
-            bias64_d1 <= mem_sim[bias_addr];
-    end
+
     always_ff @(posedge clk) begin
         if (!rst_n)
             bias64 <= '0;
         else
-            bias64 <= bias64_d1; // 再打一拍，总延迟=2
+            bias64 <= bias64_ip;
     end
-`endif
 
     // Read request on accept_in
     always_ff @(posedge clk) begin
@@ -193,3 +183,4 @@ module bias_add_regslice_ip_A #(
     assign out_valid = hold_valid;
 
 endmodule
+

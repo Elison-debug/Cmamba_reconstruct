@@ -21,36 +21,6 @@ module reuse_vec_out_sram #(
     input  logic [ADDR_W-1:0] rd2_addr,
     output logic signed [DATA_WIDTH-1:0] rd2_data [TILE_SIZE-1:0]
 );
-`ifndef SYNTHESIS
-    logic [TILE_SIZE*DATA_WIDTH-1:0] mem_sim [DEPTH];
-    logic [TILE_SIZE*DATA_WIDTH-1:0] q;
-    logic [TILE_SIZE*DATA_WIDTH-1:0] q2;
-
-    always_ff @(posedge clk) begin
-        if (!rst_n) begin
-            for (int i = 0; i < DEPTH; i++)
-                mem_sim[i] <= '0;
-            q <= '0;
-            q2 <= '0;
-        end else begin
-            if (wr_en) begin
-                for (int i = 0; i < TILE_SIZE; i++)
-                    mem_sim[wr_addr][i*DATA_WIDTH +: DATA_WIDTH] <= wr_data[i];
-            end
-            if (rd_en)
-                q <= mem_sim[rd_addr];
-            if (rd2_en)
-                q2 <= mem_sim[rd2_addr];
-        end
-    end
-
-    always_comb begin
-        for (int i = 0; i < TILE_SIZE; i++) begin
-            rd_data[i] = q[i*DATA_WIDTH +: DATA_WIDTH];
-            rd2_data[i] = q2[i*DATA_WIDTH +: DATA_WIDTH];
-        end
-    end
-`else
     logic [TILE_SIZE*DATA_WIDTH-1:0] q;
     logic [TILE_SIZE*DATA_WIDTH-1:0] q2;
     logic [TILE_SIZE*DATA_WIDTH-1:0] wr_pack;
@@ -82,5 +52,5 @@ module reuse_vec_out_sram #(
             rd2_data[i] = q2[i*DATA_WIDTH +: DATA_WIDTH];
         end
     end
-`endif
 endmodule
+

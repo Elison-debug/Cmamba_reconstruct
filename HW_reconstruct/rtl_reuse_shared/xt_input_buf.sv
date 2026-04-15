@@ -19,39 +19,32 @@ module xt_input_buf #(
     // 64-bit packed ROM data (4 × 16-bit)
     logic [63:0] rom_dout;
 
-    // ---------------- ROM Instance / SIM Model ----------------
-`ifdef SYNTHESIS
+    // ---------------- ROM Instance ----------------
+    // Use the generated Vivado ROM in both RTL sim and synthesis.
+    // The IP provides 1-cycle latency; keep one explicit register here so
+    // the total observed latency remains 2 cycles as assumed by the buffer
+    // contract used elsewhere in the design.
+    logic [63:0] rom_dout_ip;
+    logic [63:0] rom_dout_d1;
+
     u_xt_rom X_T_ROM (
         .clka  (clk),
         .ena   (en),
         .addra (addr),
-        .wea   (1'b0),          // 🔒 写使能固定为0
-        .dina  ('0),            // 🔒 写数据固定为0
-        .douta (rom_dout)
+        .wea   (1'b0),
+        .dina  ('0),
+        .douta (rom_dout_ip)
     );
-    // rst_n 主要用于仿真模型，综合时保留一条“使用”路径以避免未用告警
-    (* keep = "true" *) logic rst_n_keep;
-    assign rst_n_keep = rst_n;
-`else
-    // 行为仿真模型：公开 mem_sim 供 TB 初始化，读出总延迟 2 拍（与 IP 对齐）
-    localparam int XT_DEPTH = (1 << ADDR_W);
-    logic [63:0] mem_sim [XT_DEPTH];
-    logic [63:0] rom_dout_d1;
-    // 初始化 mem，避免未写地址为 X；rom_dout 由 always_ff 唯一驱动
-    initial begin
-        for (int i = 0; i < XT_DEPTH; i++) mem_sim[i] = '0;
-    end
+
     always_ff @(posedge clk) begin
         if (!rst_n) begin
             rom_dout_d1 <= '0;
             rom_dout    <= '0;
         end else begin
-            rom_dout    <= rom_dout_d1; // stage2
-            if (en)
-                rom_dout_d1 <= mem_sim[addr]; // stage1
+            rom_dout_d1 <= rom_dout_ip;
+            rom_dout    <= rom_dout_d1;
         end
     end
-`endif
 
     // ---------------- Split 64-bit → 4 × 16-bit ----------------
     always_comb begin
@@ -71,3 +64,4 @@ module xt_input_buf #(
     end
 
 endmodule
+
