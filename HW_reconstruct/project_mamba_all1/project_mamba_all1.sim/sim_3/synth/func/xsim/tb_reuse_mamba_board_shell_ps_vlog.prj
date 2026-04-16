@@ -1,9 +1,0 @@
-# compile verilog/system verilog design source files
-verilog xil_defaultlib  --include "../../../../../../hw_debug/vivado_runs/reuse_mamba_block_top_hw_debug" --include "../../../../../../hw_debug/vivado_runs/reuse_ssm_dt_scheduler_hw_debug" --include "../../../../../../hw_debug/vivado_runs/reuse_ssm_core_hw_debug" --include "../../../../../" \
-"tb_reuse_mamba_board_shell_ps_func_synth.v" \
-
-sv xil_defaultlib  --include "../../../../../../hw_debug/vivado_runs/reuse_mamba_block_top_hw_debug" --include "../../../../../../hw_debug/vivado_runs/reuse_ssm_dt_scheduler_hw_debug" --include "../../../../../../hw_debug/vivado_runs/reuse_ssm_core_hw_debug" --include "../../../../../" \
-"../../../../../../tb/tb_reuse_mamba_board_shell_ps.sv" \
-
-# Do not sort compile order
-nosort

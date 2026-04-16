@@ -166,3 +166,56 @@ cython_debug/
 /eval_bittrue_out
 /test_out*
 /eval_out*
+
+# =========================
+# Vivado generated junk
+# =========================
+.Xil/
+*.jou
+*.log
+*.str
+*.pb
+*.wdb
+*.wcfg
+*.tmp
+*.bak
+*.backup
+
+# Vivado auto-generated directories
+*.cache/
+*.hw/
+*.ip_user_files/
+*.runs/
+*.sim/
+*.gen/
+
+# XSim
+xsim.dir/
+
+# Reports / generated binaries
+*.rpt
+*.dcp
+*.bit
+*.bin
+*.ltx
+*.mcs
+
+# WebTalk
+webtalk/
+*.webtalk
+
+# =========================
+# Vitis / SDK generated
+# =========================
+.sdk/
+.vitis/
+workspace/
+Debug/
+Release/
+_remote/
+
+# =========================
+# Python / misc if needed
+# =========================
+__pycache__/
+*.pyc
