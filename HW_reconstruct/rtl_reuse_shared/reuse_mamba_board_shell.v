@@ -1,6 +1,12 @@
 `timescale 1ns/1ps
 //---------------------------------------------------------------
 // Board-facing shell for ZCU102 bring-up.
+//
+// Deployment note:
+//   Fixed model weights/scales are expected to be bound through the
+//   *_INIT_FILE parameters below. This keeps the board shell simple for
+//   near-term bring-up while still allowing multi-block deployment by
+//   giving each instantiated block a different set of .mem files.
 //---------------------------------------------------------------
 module reuse_mamba_board_shell #(
     parameter integer TILE_SIZE   = 4,
@@ -18,7 +24,28 @@ module reuse_mamba_board_shell #(
     parameter LUT_FILE            = "sigmoid_lut_q016_2048.hex",
     parameter integer S_ADDR_W    = 6,
     parameter integer G_FRAC_BITS = 8,
-    parameter integer AXIL_ADDR_W = 12
+    parameter INPROJ_BANK0_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank0.mem",
+    parameter INPROJ_BANK1_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank1.mem",
+    parameter INPROJ_BANK2_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank2.mem",
+    parameter INPROJ_BANK3_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank3.mem",
+    parameter INPROJ_BANK4_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank4.mem",
+    parameter INPROJ_BANK5_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank5.mem",
+    parameter INPROJ_SCALE_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_scale_q15.mem",
+    parameter DT_BANK0_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank0.mem",
+    parameter DT_BANK1_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank1.mem",
+    parameter DT_BANK2_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank2.mem",
+    parameter DT_BANK3_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank3.mem",
+    parameter DT_SCALE_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_scale_q15.mem",
+    parameter OUTPROJ_BANK0_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank0.mem",
+    parameter OUTPROJ_BANK1_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank1.mem",
+    parameter OUTPROJ_BANK2_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank2.mem",
+    parameter OUTPROJ_BANK3_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank3.mem",
+    parameter OUTPROJ_BANK4_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank4.mem",
+    parameter OUTPROJ_BANK5_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank5.mem",
+    parameter OUTPROJ_SCALE_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_scale_q15.mem",
+    parameter integer AXIL_ADDR_W = 12,
+    parameter integer G_DEPTH     = 64,
+    parameter integer G_ADDR_W    = 6
 ) (
     (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME sys_clk, ASSOCIATED_BUSIF s_axi:s_axis_h:s_axis_g:m_axis_y, ASSOCIATED_RESET ext_reset_n, FREQ_HZ 99990005" *)
     (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 sys_clk CLK" *)
@@ -114,6 +141,7 @@ module reuse_mamba_board_shell #(
     wire                           preload_h_busy;
     wire                           preload_h_done;
     wire                           dma_error;
+    wire                           g_axis_tready_unused;
 
     wire                           h_wr_en;
     wire [4:0]                     h_wr_addr;
@@ -121,16 +149,20 @@ module reuse_mamba_board_shell #(
     wire signed [TILE_SIZE*DATA_WIDTH-1:0] u_rd_data_flat;
     wire signed [TILE_SIZE*DATA_WIDTH-1:0] z_rd_data_flat;
 
-    wire                           block_start_mux;
+    reg                            core_block_start_pulse;
+
     wire                           rst_n_int;
 
     assign rst_n_int      = ext_reset_n & ~core_soft_reset_pulse;
-    assign block_start_mux = core_start_pulse & preload_h_done;
     assign dma_error      = 1'b0;
+    // Legacy g-stream debug input is intentionally ignored in board-shell dataflow mode.
+    // Keep AXIS port for BD compatibility, but always advertise ready and drive zeros into core.
+    assign s_axis_g_tready = 1'b1;
     assign irq            = (irq_enable[0] & block_done) |
                             (irq_enable[1] & preload_h_done) |
                             (irq_enable[2] & dma_error);
     assign m_axis_y_tlast = m_axis_y_tvalid & m_axis_y_tready;
+
 
     reuse_mamba_axi_lite_regs #(
         .ADDR_W(AXIL_ADDR_W)
@@ -194,6 +226,25 @@ module reuse_mamba_board_shell #(
         .h_wr_data    (h_wr_data_flat)
     );
 
+    reg h_preloaded;
+
+    always @(posedge sys_clk) begin
+        if (!rst_n_int) begin
+            core_block_start_pulse <= 1'b0;
+            h_preloaded            <= 1'b0;
+        end else begin
+            core_block_start_pulse <= 1'b0;
+
+            if (preload_h_start_pulse)
+                h_preloaded <= 1'b0;
+            else if (preload_h_done)
+                h_preloaded <= 1'b1;
+
+            if (core_start_pulse && h_preloaded  && !block_busy) begin
+                core_block_start_pulse <= 1'b1;
+            end
+        end
+    end
 
     reuse_mamba_block_wrapper #(
         .TILE_SIZE   (TILE_SIZE),
@@ -210,25 +261,44 @@ module reuse_mamba_board_shell #(
         .ADDR_BITS   (ADDR_BITS),
         .LUT_FILE    (LUT_FILE),
         .S_ADDR_W    (S_ADDR_W),
-        .G_FRAC_BITS (G_FRAC_BITS)
+        .G_FRAC_BITS (G_FRAC_BITS),
+        .INPROJ_BANK0_INIT_FILE (INPROJ_BANK0_INIT_FILE),
+        .INPROJ_BANK1_INIT_FILE (INPROJ_BANK1_INIT_FILE),
+        .INPROJ_BANK2_INIT_FILE (INPROJ_BANK2_INIT_FILE),
+        .INPROJ_BANK3_INIT_FILE (INPROJ_BANK3_INIT_FILE),
+        .INPROJ_BANK4_INIT_FILE (INPROJ_BANK4_INIT_FILE),
+        .INPROJ_BANK5_INIT_FILE (INPROJ_BANK5_INIT_FILE),
+        .INPROJ_SCALE_INIT_FILE (INPROJ_SCALE_INIT_FILE),
+        .DT_BANK0_INIT_FILE     (DT_BANK0_INIT_FILE),
+        .DT_BANK1_INIT_FILE     (DT_BANK1_INIT_FILE),
+        .DT_BANK2_INIT_FILE     (DT_BANK2_INIT_FILE),
+        .DT_BANK3_INIT_FILE     (DT_BANK3_INIT_FILE),
+        .DT_SCALE_INIT_FILE     (DT_SCALE_INIT_FILE),
+        .OUTPROJ_BANK0_INIT_FILE(OUTPROJ_BANK0_INIT_FILE),
+        .OUTPROJ_BANK1_INIT_FILE(OUTPROJ_BANK1_INIT_FILE),
+        .OUTPROJ_BANK2_INIT_FILE(OUTPROJ_BANK2_INIT_FILE),
+        .OUTPROJ_BANK3_INIT_FILE(OUTPROJ_BANK3_INIT_FILE),
+        .OUTPROJ_BANK4_INIT_FILE(OUTPROJ_BANK4_INIT_FILE),
+        .OUTPROJ_BANK5_INIT_FILE(OUTPROJ_BANK5_INIT_FILE),
+        .OUTPROJ_SCALE_INIT_FILE(OUTPROJ_SCALE_INIT_FILE)
     ) u_core (
         .sys_clk         (sys_clk),
         .ext_reset_n     (rst_n_int),
         .core_rst_n_o    (core_rst_n_o),
         .block_auto_mode (block_auto_mode),
-        .block_start     (block_start_mux),
+        .block_start     (core_block_start_pulse),
         .block_busy      (block_busy),
         .block_done      (block_done),
-        .s_axis_tvalid   (block_start_mux),
+        .s_axis_tvalid   (core_block_start_pulse),
         .s_axis_tready   (),
-        .g_axis_tvalid   (s_axis_g_tvalid),
-        .g_axis_tready   (s_axis_g_tready),
-        .g_axis_tdata    (s_axis_g_tdata),
+        .g_axis_tvalid   (1'b0),
+        .g_axis_tready   (g_axis_tready_unused),
+        .g_axis_tdata    ({(TILE_SIZE*DATA_WIDTH){1'b0}}),
         .y_axis_tvalid   (m_axis_y_tvalid),
         .y_axis_tready   (m_axis_y_tready),
         .y_axis_tdata    (m_axis_y_tdata),
         .inproj_enable   (1'b1),
-        .inproj_start    (block_start_mux),
+        .inproj_start    (core_block_start_pulse),
         .inproj_busy     (inproj_busy),
         .inproj_done     (inproj_done),
         .h_wr_en         (h_wr_en),

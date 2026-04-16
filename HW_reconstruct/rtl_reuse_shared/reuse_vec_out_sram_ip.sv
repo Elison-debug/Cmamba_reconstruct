@@ -19,33 +19,65 @@ module reuse_vec_out_sram_ip #(
     input  logic [ADDR_W-1:0] rd2_addr,
     output logic [DATA_W-1:0] rd2_data
 );
-    inproj_vec_out_sram_ip u_copy0 (
-        .clka (clk),
-        .ena  (wr_en),
-        .wea  (wr_en),
-        .addra(wr_addr),
-        .dina (wr_data),
-        .douta(),
-        .clkb (clk),
-        .enb  (rd_en),
-        .web  (1'b0),
-        .addrb(rd_addr),
-        .dinb ('0),
-        .doutb(rd_data)
-    );
+    if (ADDR_W == 5) begin : g_vec_ip_32
+        inproj_ht_sram_ip u_copy0 (
+            .clka (clk),
+            .ena  (wr_en),
+            .wea  (wr_en),
+            .addra(wr_addr),
+            .dina (wr_data),
+            .douta(),
+            .clkb (clk),
+            .enb  (rd_en),
+            .web  (1'b0),
+            .addrb(rd_addr),
+            .dinb ('0),
+            .doutb(rd_data)
+        );
 
-    inproj_vec_out_sram_ip u_copy1 (
-        .clka (clk),
-        .ena  (wr_en),
-        .wea  (wr_en),
-        .addra(wr_addr),
-        .dina (wr_data),
-        .douta(),
-        .clkb (clk),
-        .enb  (rd2_en),
-        .web  (1'b0),
-        .addrb(rd2_addr),
-        .dinb ('0),
-        .doutb(rd2_data)
-    );
+        inproj_ht_sram_ip u_copy1 (
+            .clka (clk),
+            .ena  (wr_en),
+            .wea  (wr_en),
+            .addra(wr_addr),
+            .dina (wr_data),
+            .douta(),
+            .clkb (clk),
+            .enb  (rd2_en),
+            .web  (1'b0),
+            .addrb(rd2_addr),
+            .dinb ('0),
+            .doutb(rd2_data)
+        );
+    end else begin : g_vec_ip_64
+        inproj_vec_out_sram_ip u_copy0 (
+            .clka (clk),
+            .ena  (wr_en),
+            .wea  (wr_en),
+            .addra(wr_addr),
+            .dina (wr_data),
+            .douta(),
+            .clkb (clk),
+            .enb  (rd_en),
+            .web  (1'b0),
+            .addrb(rd_addr),
+            .dinb ('0),
+            .doutb(rd_data)
+        );
+
+        inproj_vec_out_sram_ip u_copy1 (
+            .clka (clk),
+            .ena  (wr_en),
+            .wea  (wr_en),
+            .addra(wr_addr),
+            .dina (wr_data),
+            .douta(),
+            .clkb (clk),
+            .enb  (rd2_en),
+            .web  (1'b0),
+            .addrb(rd2_addr),
+            .dinb ('0),
+            .doutb(rd2_data)
+        );
+    end
 endmodule

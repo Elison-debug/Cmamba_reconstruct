@@ -1,0 +1,66 @@
+from __future__ import annotations
+
+import argparse
+import json
+from pathlib import Path
+
+import numpy as np
+
+from refactor.bittrue.eval_hw_like_full import _forward_full_cppish, _forward_full_hw_like
+
+
+def _tensor_stats(a: np.ndarray, b: np.ndarray) -> dict:
+    d = np.abs(a.astype(np.float32) - b.astype(np.float32))
+    flat = d.reshape(-1)
+    idx = int(np.argmax(flat))
+    return {
+        "shape": list(a.shape),
+        "mae": float(np.mean(flat)),
+        "max_abs": float(np.max(flat)),
+        "max_abs_flat_index": idx,
+    }
+
+
+def main() -> None:
+    p = argparse.ArgumentParser(description="Debug dt/ssm chain mismatch between cpp-like and hw-like semantics.")
+    p.add_argument("--export_json", type=str, required=True)
+    p.add_argument("--case_dir", type=str, required=True)
+    p.add_argument("--sample_idx", type=int, default=0)
+    args = p.parse_args()
+
+    export_json = Path(args.export_json)
+    case_dir = Path(args.case_dir)
+    samples = np.load(case_dir / "float" / "samples.npy").astype(np.float32)
+    sample_idx = int(args.sample_idx)
+    x = samples[sample_idx]
+
+    _, cpp_traces = _forward_full_cppish(export_json, x)
+    _, hw_traces = _forward_full_hw_like(export_json, x)
+    cpp_map = {t["stage"]: t for t in cpp_traces}
+    hw_map = {t["stage"]: t for t in hw_traces}
+
+    cpp_b0 = cpp_map["block0"]
+    hw_b0 = hw_map["block0"]
+
+    report = {
+        "sample_idx": sample_idx,
+        "block0": {
+            "x_norm": _tensor_stats(cpp_b0["x_norm"], hw_b0["x_norm"]),
+            "u_act": _tensor_stats(cpp_b0["u_act"], hw_b0["u_act"]),
+            "dt": _tensor_stats(cpp_b0["dt"], hw_b0["dt"]),
+            "ssm_out": _tensor_stats(cpp_b0["ssm_out"], hw_b0["ssm_out"]),
+            "y_blk": _tensor_stats(cpp_b0["y_blk"], hw_b0["y_blk"]),
+            "x_next": _tensor_stats(cpp_b0["x_next"], hw_b0["x_next"]),
+        },
+    }
+
+    out = case_dir / "logs" / f"dt_chain_debug_sample{sample_idx}.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(report, indent=2), encoding="utf-8")
+    print(json.dumps(report, indent=2))
+    print(f"[saved] {out}")
+
+
+if __name__ == "__main__":
+    main()
+

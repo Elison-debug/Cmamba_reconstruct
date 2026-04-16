@@ -22,63 +22,125 @@ module reuse_ht_multi_copy_ip #(
     output logic [DATA_W-1:0]   rd_data2,
     output logic [DATA_W-1:0]   rd_data3
 );
-    inproj_ht_sram_ip u_copy0 (
-        .clka (clk),
-        .ena  (wr_en),
-        .wea  (wr_en),
-        .addra(wr_addr),
-        .dina (wr_data),
-        .douta(),
-        .clkb (clk),
-        .enb  (rd_en),
-        .web  (1'b0),
-        .addrb(rd_addr0),
-        .dinb ('0),
-        .doutb(rd_data0)
-    );
+    if (ADDR_W == 5) begin : g_ht_ip_32
+        inproj_ht_sram_ip u_copy0 (
+            .clka (clk),
+            .ena  (wr_en),
+            .wea  (wr_en),
+            .addra(wr_addr),
+            .dina (wr_data),
+            .douta(),
+            .clkb (clk),
+            .enb  (rd_en),
+            .web  (1'b0),
+            .addrb(rd_addr0),
+            .dinb ('0),
+            .doutb(rd_data0)
+        );
 
-    inproj_ht_sram_ip u_copy1 (
-        .clka (clk),
-        .ena  (wr_en),
-        .wea  (wr_en),
-        .addra(wr_addr),
-        .dina (wr_data),
-        .douta(),
-        .clkb (clk),
-        .enb  (rd_en),
-        .web  (1'b0),
-        .addrb(rd_addr1),
-        .dinb ('0),
-        .doutb(rd_data1)
-    );
+        inproj_ht_sram_ip u_copy1 (
+            .clka (clk),
+            .ena  (wr_en),
+            .wea  (wr_en),
+            .addra(wr_addr),
+            .dina (wr_data),
+            .douta(),
+            .clkb (clk),
+            .enb  (rd_en),
+            .web  (1'b0),
+            .addrb(rd_addr1),
+            .dinb ('0),
+            .doutb(rd_data1)
+        );
 
-    inproj_ht_sram_ip u_copy2 (
-        .clka (clk),
-        .ena  (wr_en),
-        .wea  (wr_en),
-        .addra(wr_addr),
-        .dina (wr_data),
-        .douta(),
-        .clkb (clk),
-        .enb  (rd_en),
-        .web  (1'b0),
-        .addrb(rd_addr2),
-        .dinb ('0),
-        .doutb(rd_data2)
-    );
+        inproj_ht_sram_ip u_copy2 (
+            .clka (clk),
+            .ena  (wr_en),
+            .wea  (wr_en),
+            .addra(wr_addr),
+            .dina (wr_data),
+            .douta(),
+            .clkb (clk),
+            .enb  (rd_en),
+            .web  (1'b0),
+            .addrb(rd_addr2),
+            .dinb ('0),
+            .doutb(rd_data2)
+        );
 
-    inproj_ht_sram_ip u_copy3 (
-        .clka (clk),
-        .ena  (wr_en),
-        .wea  (wr_en),
-        .addra(wr_addr),
-        .dina (wr_data),
-        .douta(),
-        .clkb (clk),
-        .enb  (rd_en),
-        .web  (1'b0),
-        .addrb(rd_addr3),
-        .dinb ('0),
-        .doutb(rd_data3)
-    );
+        inproj_ht_sram_ip u_copy3 (
+            .clka (clk),
+            .ena  (wr_en),
+            .wea  (wr_en),
+            .addra(wr_addr),
+            .dina (wr_data),
+            .douta(),
+            .clkb (clk),
+            .enb  (rd_en),
+            .web  (1'b0),
+            .addrb(rd_addr3),
+            .dinb ('0),
+            .doutb(rd_data3)
+        );
+    end else begin : g_ht_ip_64
+        inproj_vec_out_sram_ip u_copy0 (
+            .clka (clk),
+            .ena  (wr_en),
+            .wea  (wr_en),
+            .addra(wr_addr),
+            .dina (wr_data),
+            .douta(),
+            .clkb (clk),
+            .enb  (rd_en),
+            .web  (1'b0),
+            .addrb(rd_addr0),
+            .dinb ('0),
+            .doutb(rd_data0)
+        );
+
+        inproj_vec_out_sram_ip u_copy1 (
+            .clka (clk),
+            .ena  (wr_en),
+            .wea  (wr_en),
+            .addra(wr_addr),
+            .dina (wr_data),
+            .douta(),
+            .clkb (clk),
+            .enb  (rd_en),
+            .web  (1'b0),
+            .addrb(rd_addr1),
+            .dinb ('0),
+            .doutb(rd_data1)
+        );
+
+        inproj_vec_out_sram_ip u_copy2 (
+            .clka (clk),
+            .ena  (wr_en),
+            .wea  (wr_en),
+            .addra(wr_addr),
+            .dina (wr_data),
+            .douta(),
+            .clkb (clk),
+            .enb  (rd_en),
+            .web  (1'b0),
+            .addrb(rd_addr2),
+            .dinb ('0),
+            .doutb(rd_data2)
+        );
+
+        inproj_vec_out_sram_ip u_copy3 (
+            .clka (clk),
+            .ena  (wr_en),
+            .wea  (wr_en),
+            .addra(wr_addr),
+            .dina (wr_data),
+            .douta(),
+            .clkb (clk),
+            .enb  (rd_en),
+            .web  (1'b0),
+            .addrb(rd_addr3),
+            .dinb ('0),
+            .doutb(rd_data3)
+        );
+    end
 endmodule
