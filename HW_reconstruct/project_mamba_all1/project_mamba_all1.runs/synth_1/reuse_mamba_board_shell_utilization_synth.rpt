@@ -1,7 +1,7 @@
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
 ---------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2024.1 (win64) Build 5076996 Wed May 22 18:37:14 MDT 2024
-| Date         : Thu Apr 16 03:45:20 2026
+| Date         : Thu Apr 16 08:49:58 2026
 | Host         : 13600kf running 64-bit major release  (build 9200)
 | Command      : report_utilization -file reuse_mamba_board_shell_utilization_synth.rpt -pb reuse_mamba_board_shell_utilization_synth.pb
 | Design       : reuse_mamba_board_shell
@@ -159,7 +159,7 @@ Warning! For any ECO changes, please run place_design if there are unplaced inst
 +----------+-------+---------------------+
 | FDRE     | 14147 |            Register |
 | LUT6     |  5304 |                 CLB |
-| LUT2     |  3530 |                 CLB |
+| LUT2     |  3531 |                 CLB |
 | LUT3     |  1988 |                 CLB |
 | LUT4     |  1108 |                 CLB |
 | LUT5     |  1015 |                 CLB |
@@ -184,8 +184,8 @@ Warning! For any ECO changes, please run place_design if there are unplaced inst
 +------------------------+------+
 |        Ref Name        | Used |
 +------------------------+------+
-| inproj_ht_sram_ip      |    9 |
-| inproj_vec_out_sram_ip |    6 |
+| inproj_vec_out_sram_ip |    9 |
+| inproj_ht_sram_ip      |    6 |
 | bias2sigmoid_fifo      |    4 |
 | s_buffer               |    1 |
 | bias_ROM               |    1 |

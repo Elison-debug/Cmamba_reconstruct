@@ -25,7 +25,7 @@ else
 fi
 export LD_LIBRARY_PATH
 
-HD_PWD='E:/course/smamba_test/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/bias_ROM_synth_1'
+HD_PWD='E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/bias_ROM_synth_1'
 cd "$HD_PWD"
 
 HD_LOG=runme.log

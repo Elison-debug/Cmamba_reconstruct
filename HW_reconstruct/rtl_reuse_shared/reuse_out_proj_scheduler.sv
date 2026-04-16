@@ -182,21 +182,16 @@ module reuse_out_proj_scheduler #(
         .dout_sel(w_dout_sel)
     );
 
-    localparam int IP_DEPTH  = 64;
-    localparam int IP_ADDR_W = 6;
-
-    wire [IP_ADDR_W-1:0] wr_addr_ip  = {{(IP_ADDR_W-Y_ADDR_W){1'b0}}, y_wr_addr};
-
     reuse_vec_out_sram #(
         .TILE_SIZE (TILE_SIZE),
         .DATA_WIDTH(DATA_WIDTH),
-        .DEPTH     (IP_DEPTH),
-        .ADDR_W    (IP_ADDR_W)
+        .DEPTH     (Y_DEPTH),
+        .ADDR_W    (Y_ADDR_W)
     ) u_y_sram (
         .clk(clk),
         .rst_n(rst_n),
         .wr_en(y_wr_en),
-        .wr_addr(wr_addr_ip),
+        .wr_addr(y_wr_addr),
         .wr_data(y_wr_data),
         .rd_en(1'b0),
         .rd_addr('0),

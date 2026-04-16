@@ -56,10 +56,8 @@ if {$::dispatch::connected} {
 }
 
 OPTRACE "synth_1" START { ROLLUP_AUTO }
-set_param bd.open.in_stealth_mode 2
 set_msg_config -id {HDL 9-1061} -limit 100000
 set_msg_config -id {HDL 9-1654} -limit 100000
-set_msg_config -id {HDL-1065} -limit 10000
 OPTRACE "Creating in-memory project" START { }
 create_project -in_memory -part xczu9eg-ffvb1156-2-e
 
@@ -78,6 +76,7 @@ set_property ip_cache_permissions {read write} [current_project]
 OPTRACE "Creating in-memory project" END { }
 OPTRACE "Adding files" START { }
 add_files E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/inproj_vec_out_sram_ip/INIT_COE.coe
+add_files E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/inproj_ht_sram_ip/INIT_COE.coe
 read_mem E:/course/smamba/HW_reconstruct/hw_debug/vivado_runs/reuse_mamba_block_top_hw_debug/sigmoid_lut_q016_2048.hex
 read_verilog -library xil_defaultlib -sv {
   E:/course/smamba/HW_reconstruct/rtl_reuse_shared/axis_vec_join2.sv
@@ -122,13 +121,6 @@ read_verilog -library xil_defaultlib {
   E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_mamba_h_stream_loader.v
   E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_mamba_board_shell.v
 }
-read_ip -quiet E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/s_buffer/s_buffer.xci
-set_property used_in_implementation false [get_files -all e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/s_buffer/s_buffer_ooc.xdc]
-
-read_ip -quiet E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/bias2sigmoid_fifo/bias2sigmoid_fifo.xci
-set_property used_in_implementation false [get_files -all e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias2sigmoid_fifo/bias2sigmoid_fifo.xdc]
-set_property used_in_implementation false [get_files -all e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias2sigmoid_fifo/bias2sigmoid_fifo_ooc.xdc]
-
 read_ip -quiet E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/inproj_ht_sram_ip/inproj_ht_sram_ip.xci
 set_property used_in_implementation false [get_files -all e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/inproj_ht_sram_ip/inproj_ht_sram_ip_ooc.xdc]
 
@@ -137,6 +129,13 @@ set_property used_in_implementation false [get_files -all e:/course/smamba/HW_re
 
 read_ip -quiet E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/inproj_vec_out_sram_ip/inproj_vec_out_sram_ip.xci
 set_property used_in_implementation false [get_files -all e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/inproj_vec_out_sram_ip/inproj_vec_out_sram_ip_ooc.xdc]
+
+read_ip -quiet E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/s_buffer/s_buffer.xci
+set_property used_in_implementation false [get_files -all e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/s_buffer/s_buffer_ooc.xdc]
+
+read_ip -quiet E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/bias2sigmoid_fifo/bias2sigmoid_fifo.xci
+set_property used_in_implementation false [get_files -all e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias2sigmoid_fifo/bias2sigmoid_fifo.xdc]
+set_property used_in_implementation false [get_files -all e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias2sigmoid_fifo/bias2sigmoid_fifo_ooc.xdc]
 
 OPTRACE "Adding files" END { }
 # Mark all dcp files as not used in implementation to prevent them from being
@@ -150,8 +149,6 @@ foreach dcp [get_files -quiet -all -filter file_type=="Design\ Checkpoint"] {
 read_xdc E:/course/smamba/HW_reconstruct/minimal_timing.xdc
 set_property used_in_implementation false [get_files E:/course/smamba/HW_reconstruct/minimal_timing.xdc]
 
-read_xdc dont_touch.xdc
-set_property used_in_implementation false [get_files dont_touch.xdc]
 set_param ips.enableIPCacheLiteLoad 1
 
 read_checkpoint -auto_incremental -incremental E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/utils_1/imports/synth_1/reuse_mamba_block_top.dcp

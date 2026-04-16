@@ -4,7 +4,7 @@
 
 set TIME_start [clock seconds] 
 namespace eval ::optrace {
-  variable script "E:/course/smamba_test/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/bias_ROM_synth_1/bias_ROM.tcl"
+  variable script "E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/bias_ROM_synth_1/bias_ROM.tcl"
   variable category "vivado_synth"
 }
 
@@ -56,7 +56,6 @@ if {$::dispatch::connected} {
 }
 
 OPTRACE "bias_ROM_synth_1" START { ROLLUP_AUTO }
-set_msg_config -id {Common 17-41} -limit 10000000
 set_msg_config -id {HDL 9-1061} -limit 100000
 set_msg_config -id {HDL 9-1654} -limit 100000
 set_param project.vivado.isBlockSynthRun true
@@ -68,18 +67,18 @@ set_param project.singleFileAddWarning.threshold 0
 set_param project.compositeFile.enableAutoGeneration 0
 set_param synth.vivado.isSynthRun true
 set_msg_config -source 4 -id {IP_Flow 19-2162} -severity warning -new_severity info
-set_property webtalk.parent_dir E:/course/smamba_test/HW_reconstruct/project_mamba_all1/project_mamba_all1.cache/wt [current_project]
-set_property parent.project_path E:/course/smamba_test/HW_reconstruct/project_mamba_all1/project_mamba_all1.xpr [current_project]
+set_property webtalk.parent_dir E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.cache/wt [current_project]
+set_property parent.project_path E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.xpr [current_project]
 set_property XPM_LIBRARIES {XPM_CDC XPM_MEMORY} [current_project]
 set_property default_lib xil_defaultlib [current_project]
 set_property target_language Verilog [current_project]
 set_property board_part xilinx.com:zcu102:part0:3.4 [current_project]
-set_property ip_output_repo e:/course/smamba_test/HW_reconstruct/project_mamba_all1/project_mamba_all1.cache/ip [current_project]
+set_property ip_output_repo e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.cache/ip [current_project]
 set_property ip_cache_permissions {read write} [current_project]
 OPTRACE "Creating in-memory project" END { }
 OPTRACE "Adding files" START { }
-read_ip -quiet E:/course/smamba_test/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/bias_ROM/bias_ROM.xci
-set_property used_in_implementation false [get_files -all e:/course/smamba_test/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias_ROM/bias_ROM_ooc.xdc]
+read_ip -quiet E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/bias_ROM/bias_ROM.xci
+set_property used_in_implementation false [get_files -all e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias_ROM/bias_ROM_ooc.xdc]
 
 OPTRACE "Adding files" END { }
 # Mark all dcp files as not used in implementation to prevent them from being
@@ -95,7 +94,7 @@ set_property used_in_implementation false [get_files dont_touch.xdc]
 set_param ips.enableIPCacheLiteLoad 1
 OPTRACE "Configure IP Cache" START { }
 
-set cacheID [config_ip_cache -export -no_bom  -dir E:/course/smamba_test/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/bias_ROM_synth_1 -new_name bias_ROM -ip [get_ips bias_ROM]]
+set cacheID [config_ip_cache -export -no_bom  -dir E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/bias_ROM_synth_1 -new_name bias_ROM -ip [get_ips bias_ROM]]
 
 OPTRACE "Configure IP Cache" END { }
 if { $cacheID == "" } {
@@ -150,32 +149,32 @@ generate_parallel_reports -reports { "report_utilization -file bias_ROM_utilizat
 OPTRACE "synth reports" END { }
 
 if { [catch {
-  file copy -force E:/course/smamba_test/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/bias_ROM_synth_1/bias_ROM.dcp e:/course/smamba_test/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias_ROM/bias_ROM.dcp
+  file copy -force E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/bias_ROM_synth_1/bias_ROM.dcp e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias_ROM/bias_ROM.dcp
 } _RESULT ] } { 
   send_msg_id runtcl-3 status "ERROR: Unable to successfully create or copy the sub-design checkpoint file."
   error "ERROR: Unable to successfully create or copy the sub-design checkpoint file."
 }
 
 if { [catch {
-  write_verilog -force -mode synth_stub e:/course/smamba_test/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias_ROM/bias_ROM_stub.v
+  write_verilog -force -mode synth_stub e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias_ROM/bias_ROM_stub.v
 } _RESULT ] } { 
   puts "CRITICAL WARNING: Unable to successfully create a Verilog synthesis stub for the sub-design. This may lead to errors in top level synthesis of the design. Error reported: $_RESULT"
 }
 
 if { [catch {
-  write_vhdl -force -mode synth_stub e:/course/smamba_test/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias_ROM/bias_ROM_stub.vhdl
+  write_vhdl -force -mode synth_stub e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias_ROM/bias_ROM_stub.vhdl
 } _RESULT ] } { 
   puts "CRITICAL WARNING: Unable to successfully create a VHDL synthesis stub for the sub-design. This may lead to errors in top level synthesis of the design. Error reported: $_RESULT"
 }
 
 if { [catch {
-  write_verilog -force -mode funcsim e:/course/smamba_test/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias_ROM/bias_ROM_sim_netlist.v
+  write_verilog -force -mode funcsim e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias_ROM/bias_ROM_sim_netlist.v
 } _RESULT ] } { 
   puts "CRITICAL WARNING: Unable to successfully create the Verilog functional simulation sub-design file. Post-Synthesis Functional Simulation with this file may not be possible or may give incorrect results. Error reported: $_RESULT"
 }
 
 if { [catch {
-  write_vhdl -force -mode funcsim e:/course/smamba_test/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias_ROM/bias_ROM_sim_netlist.vhdl
+  write_vhdl -force -mode funcsim e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias_ROM/bias_ROM_sim_netlist.vhdl
 } _RESULT ] } { 
   puts "CRITICAL WARNING: Unable to successfully create the VHDL functional simulation sub-design file. Post-Synthesis Functional Simulation with this file may not be possible or may give incorrect results. Error reported: $_RESULT"
 }
@@ -185,32 +184,32 @@ if { [catch {
 
 
 if { [catch {
-  file copy -force E:/course/smamba_test/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/bias_ROM_synth_1/bias_ROM.dcp e:/course/smamba_test/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias_ROM/bias_ROM.dcp
+  file copy -force E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/bias_ROM_synth_1/bias_ROM.dcp e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias_ROM/bias_ROM.dcp
 } _RESULT ] } { 
   send_msg_id runtcl-3 status "ERROR: Unable to successfully create or copy the sub-design checkpoint file."
   error "ERROR: Unable to successfully create or copy the sub-design checkpoint file."
 }
 
 if { [catch {
-  file rename -force E:/course/smamba_test/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/bias_ROM_synth_1/bias_ROM_stub.v e:/course/smamba_test/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias_ROM/bias_ROM_stub.v
+  file rename -force E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/bias_ROM_synth_1/bias_ROM_stub.v e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias_ROM/bias_ROM_stub.v
 } _RESULT ] } { 
   puts "CRITICAL WARNING: Unable to successfully create a Verilog synthesis stub for the sub-design. This may lead to errors in top level synthesis of the design. Error reported: $_RESULT"
 }
 
 if { [catch {
-  file rename -force E:/course/smamba_test/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/bias_ROM_synth_1/bias_ROM_stub.vhdl e:/course/smamba_test/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias_ROM/bias_ROM_stub.vhdl
+  file rename -force E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/bias_ROM_synth_1/bias_ROM_stub.vhdl e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias_ROM/bias_ROM_stub.vhdl
 } _RESULT ] } { 
   puts "CRITICAL WARNING: Unable to successfully create a VHDL synthesis stub for the sub-design. This may lead to errors in top level synthesis of the design. Error reported: $_RESULT"
 }
 
 if { [catch {
-  file rename -force E:/course/smamba_test/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/bias_ROM_synth_1/bias_ROM_sim_netlist.v e:/course/smamba_test/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias_ROM/bias_ROM_sim_netlist.v
+  file rename -force E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/bias_ROM_synth_1/bias_ROM_sim_netlist.v e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias_ROM/bias_ROM_sim_netlist.v
 } _RESULT ] } { 
   puts "CRITICAL WARNING: Unable to successfully create the Verilog functional simulation sub-design file. Post-Synthesis Functional Simulation with this file may not be possible or may give incorrect results. Error reported: $_RESULT"
 }
 
 if { [catch {
-  file rename -force E:/course/smamba_test/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/bias_ROM_synth_1/bias_ROM_sim_netlist.vhdl e:/course/smamba_test/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias_ROM/bias_ROM_sim_netlist.vhdl
+  file rename -force E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/bias_ROM_synth_1/bias_ROM_sim_netlist.vhdl e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias_ROM/bias_ROM_sim_netlist.vhdl
 } _RESULT ] } { 
   puts "CRITICAL WARNING: Unable to successfully create the VHDL functional simulation sub-design file. Post-Synthesis Functional Simulation with this file may not be possible or may give incorrect results. Error reported: $_RESULT"
 }
@@ -218,15 +217,15 @@ if { [catch {
 close [open .end.used_ip_cache.rst w]
 }; # end if cacheID 
 
-if {[file isdir E:/course/smamba_test/HW_reconstruct/project_mamba_all1/project_mamba_all1.ip_user_files/ip/bias_ROM]} {
+if {[file isdir E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.ip_user_files/ip/bias_ROM]} {
   catch { 
-    file copy -force e:/course/smamba_test/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias_ROM/bias_ROM_stub.v E:/course/smamba_test/HW_reconstruct/project_mamba_all1/project_mamba_all1.ip_user_files/ip/bias_ROM
+    file copy -force e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias_ROM/bias_ROM_stub.v E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.ip_user_files/ip/bias_ROM
   }
 }
 
-if {[file isdir E:/course/smamba_test/HW_reconstruct/project_mamba_all1/project_mamba_all1.ip_user_files/ip/bias_ROM]} {
+if {[file isdir E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.ip_user_files/ip/bias_ROM]} {
   catch { 
-    file copy -force e:/course/smamba_test/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias_ROM/bias_ROM_stub.vhdl E:/course/smamba_test/HW_reconstruct/project_mamba_all1/project_mamba_all1.ip_user_files/ip/bias_ROM
+    file copy -force e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias_ROM/bias_ROM_stub.vhdl E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.ip_user_files/ip/bias_ROM
   }
 }
 file delete __synthesis_is_running__

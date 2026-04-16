@@ -1,0 +1,53 @@
+# compile verilog/system verilog design source files
+verilog xil_defaultlib  --include "../../../../../hw_debug/vivado_runs/reuse_mamba_block_top_hw_debug" --include "../../../../../hw_debug/vivado_runs/reuse_ssm_dt_scheduler_hw_debug" --include "../../../../../hw_debug/vivado_runs/reuse_ssm_core_hw_debug" --include "../../../../" \
+"../../../../project_mamba_all1.gen/sources_1/ip/s_buffer/s_buffer_sim_netlist.v" \
+"../../../../project_mamba_all1.gen/sources_1/ip/bias2sigmoid_fifo/bias2sigmoid_fifo_sim_netlist.v" \
+"../../../../project_mamba_all1.gen/sources_1/ip/bias_ROM/bias_ROM_sim_netlist.v" \
+"../../../../project_mamba_all1.gen/sources_1/ip/inproj_vec_out_sram_ip/inproj_vec_out_sram_ip_sim_netlist.v" \
+"../../../../project_mamba_all1.gen/sources_1/ip/inproj_ht_sram_ip/sim/inproj_ht_sram_ip.v" \
+"../../../../../rtl_reuse_shared/reuse_mamba_board_shell.v" \
+"../../../../../rtl_reuse_shared/reuse_mamba_h_stream_loader.v" \
+
+sv xil_defaultlib  --include "../../../../../hw_debug/vivado_runs/reuse_mamba_block_top_hw_debug" --include "../../../../../hw_debug/vivado_runs/reuse_ssm_dt_scheduler_hw_debug" --include "../../../../../hw_debug/vivado_runs/reuse_ssm_core_hw_debug" --include "../../../../" \
+"../../../../../rtl_reuse_shared/axis_vec_join2.sv" \
+"../../../../../rtl_reuse_shared/bias_add_regslice_ip.sv" \
+"../../../../../rtl_reuse_shared/ew_update_vec4.sv" \
+"../../../../../rtl_reuse_shared/ewa_vec4.sv" \
+"../../../../../rtl_reuse_shared/ewm_gate_sbuf_vec4.sv" \
+"../../../../../rtl_reuse_shared/ewm_vec4.sv" \
+"../../../../../rtl_reuse_shared/pe_unit_pipe.sv" \
+"../../../../../rtl_reuse_shared/pulse_to_stream_adapter.sv" \
+"../../../../../rtl_reuse_shared/requant_round_sat_engine.sv" \
+"../../../../../rtl_reuse_shared/reuse_array4x4.sv" \
+"../../../../../rtl_reuse_shared/reuse_ht_sram.sv" \
+"../../../../../rtl_reuse_shared/reuse_ht_sram_sp.sv" \
+"../../../../../rtl_reuse_shared/reuse_in_proj_scheduler.sv" \
+"../../../../../rtl_reuse_shared/reuse_inproj_weight_sram.sv" \
+"../../../../../rtl_reuse_shared/reuse_mac_fabric_manager.sv" \
+"../../../../../rtl_reuse_shared/reuse_mamba_axi_lite_regs.sv" \
+"../../../../../rtl_reuse_shared/reuse_mamba_block_top.sv" \
+"../../../../../rtl_reuse_shared/reuse_mamba_block_wrapper.sv" \
+"../../../../../rtl_reuse_shared/reuse_out_proj_scheduler.sv" \
+"../../../../../rtl_reuse_shared/reuse_outproj_weight_sram.sv" \
+"../../../../../rtl_reuse_shared/reuse_packed_scale_mem.sv" \
+"../../../../../rtl_reuse_shared/reuse_pipeline_4array_top.sv" \
+"../../../../../rtl_reuse_shared/reuse_pipeline_4array_with_reduction.sv" \
+"../../../../../rtl_reuse_shared/reuse_pt_capture.sv" \
+"../../../../../rtl_reuse_shared/reuse_reduction_accumulator.sv" \
+"../../../../../rtl_reuse_shared/reuse_shared_mac_fabric.sv" \
+"../../../../../rtl_reuse_shared/reuse_silu_vec4.sv" \
+"../../../../../rtl_reuse_shared/reuse_ssm_core.sv" \
+"../../../../../rtl_reuse_shared/reuse_ssm_dt_scheduler.sv" \
+"../../../../../rtl_reuse_shared/reuse_vec_out_sram.sv" \
+"../../../../../rtl_reuse_shared/reuse_vec_out_sram_ip.sv" \
+"../../../../../rtl_reuse_shared/reuse_z_stream_reader.sv" \
+"../../../../../rtl_reuse_shared/sigmoid4_vec.sv" \
+"../../../../../rtl_reuse_shared/slim_multi_bank_wbuf_dp.sv" \
+"../../../../../rtl_reuse_shared/vec_fifo_axis_ip.sv" \
+"../../../../../tb/tb_reuse_mamba_board_shell_ps.sv" \
+
+# compile glbl module
+verilog xil_defaultlib "glbl.v"
+
+# Do not sort compile order
+nosort

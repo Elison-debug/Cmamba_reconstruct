@@ -3,12 +3,12 @@
 # SW Build 5076996 on Wed May 22 18:37:14 MDT 2024
 # IP Build 5075265 on Wed May 22 21:45:21 MDT 2024
 # SharedData Build 5076995 on Wed May 22 18:29:18 MDT 2024
-# Start of session at: Wed Apr  8 19:35:35 2026
-# Process ID: 83068
-# Current directory: E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/design_1_axi_dma_0_1_synth_1
+# Start of session at: Thu Apr 16 06:39:45 2026
+# Process ID: 127848
+# Current directory: E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/design_1_axi_dma_0_1_synth_1
 # Command line: vivado.exe -log design_1_axi_dma_0_1.vds -product Vivado -mode batch -messageDb vivado.pb -notrace -source design_1_axi_dma_0_1.tcl
-# Log file: E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/design_1_axi_dma_0_1_synth_1/design_1_axi_dma_0_1.vds
-# Journal file: E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/design_1_axi_dma_0_1_synth_1\vivado.jou
+# Log file: E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/design_1_axi_dma_0_1_synth_1/design_1_axi_dma_0_1.vds
+# Journal file: E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/design_1_axi_dma_0_1_synth_1\vivado.jou
 # Running On        :13600kf
 # Platform          :Windows Server 2016 or Windows 10
 # Operating System  :26200
@@ -17,12 +17,11 @@
 # CPU Physical cores:14
 # CPU Logical cores :20
 # Host memory       :34163 MB
-# Swap memory       :34163 MB
-# Total Virtual     :68327 MB
-# Available Virtual :18378 MB
+# Swap memory       :44911 MB
+# Total Virtual     :79075 MB
+# Available Virtual :12442 MB
 #-----------------------------------------------------------
 source design_1_axi_dma_0_1.tcl -notrace
-create_project: Time (s): cpu = 00:00:03 ; elapsed = 00:00:06 . Memory (MB): peak = 445.949 ; gain = 112.461
 INFO: [IP_Flow 19-6924] IPCACHE: Running cache check for IP inst: design_1_axi_dma_0_1
 Command: synth_design -top design_1_axi_dma_0_1 -part xczu9eg-ffvb1156-2-e -incremental_mode off -mode out_of_context
 Starting synth_design
@@ -31,11 +30,11 @@ INFO: [Common 17-349] Got license for feature 'Synthesis' and/or device 'xczu9eg
 INFO: [Device 21-403] Loading part xczu9eg-ffvb1156-2-e
 INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 2 processes.
 INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
-INFO: [Synth 8-7075] Helper process launched with PID 95260
+INFO: [Synth 8-7075] Helper process launched with PID 56008
 ---------------------------------------------------------------------------------
-Starting RTL Elaboration : Time (s): cpu = 00:00:06 ; elapsed = 00:00:08 . Memory (MB): peak = 1879.652 ; gain = 403.180
+Starting RTL Elaboration : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 1878.805 ; gain = 403.047
 ---------------------------------------------------------------------------------
-INFO: [Synth 8-638] synthesizing module 'design_1_axi_dma_0_1' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ip/design_1_axi_dma_0_1/synth/design_1_axi_dma_0_1.vhd:128]
+INFO: [Synth 8-638] synthesizing module 'design_1_axi_dma_0_1' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ip/design_1_axi_dma_0_1/synth/design_1_axi_dma_0_1.vhd:128]
 	Parameter C_S_AXI_LITE_ADDR_WIDTH bound to: 10 - type: integer 
 	Parameter C_S_AXI_LITE_DATA_WIDTH bound to: 32 - type: integer 
 	Parameter C_DLYTMR_RESOLUTION bound to: 125 - type: integer 
@@ -68,104 +67,104 @@ INFO: [Synth 8-638] synthesizing module 'design_1_axi_dma_0_1' [e:/course/master
 	Parameter C_INCLUDE_S2MM_DRE bound to: 0 - type: integer 
 	Parameter C_INCREASE_THROUGHPUT bound to: 0 - type: integer 
 	Parameter C_FAMILY bound to: zynquplus - type: string 
-INFO: [Synth 8-3491] module 'axi_dma' declared at 'e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:21804' bound to instance 'U0' of component 'axi_dma' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ip/design_1_axi_dma_0_1/synth/design_1_axi_dma_0_1.vhd:374]
-INFO: [Synth 8-638] synthesizing module 'axi_dma' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:22149]
-INFO: [Synth 8-638] synthesizing module 'axi_dma_rst_module' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:1592]
-INFO: [Synth 8-638] synthesizing module 'cdc_sync' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/2a4f/hdl/lib_cdc_v1_0_rfs.vhd:106]
+INFO: [Synth 8-3491] module 'axi_dma' declared at 'e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:21804' bound to instance 'U0' of component 'axi_dma' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ip/design_1_axi_dma_0_1/synth/design_1_axi_dma_0_1.vhd:374]
+INFO: [Synth 8-638] synthesizing module 'axi_dma' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:22149]
+INFO: [Synth 8-638] synthesizing module 'axi_dma_rst_module' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:1592]
+INFO: [Synth 8-638] synthesizing module 'cdc_sync' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/2a4f/hdl/lib_cdc_v1_0_rfs.vhd:106]
 	Parameter INIT bound to: 1'b0 
-INFO: [Synth 8-113] binding component instance 'CROSS_PLEVEL_IN2SCNDRY_IN_cdc_to' to cell 'FDR' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/2a4f/hdl/lib_cdc_v1_0_rfs.vhd:514]
+INFO: [Synth 8-113] binding component instance 'CROSS_PLEVEL_IN2SCNDRY_IN_cdc_to' to cell 'FDR' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/2a4f/hdl/lib_cdc_v1_0_rfs.vhd:514]
 	Parameter INIT bound to: 1'b0 
-INFO: [Synth 8-113] binding component instance 'CROSS_PLEVEL_IN2SCNDRY_s_level_out_d2' to cell 'FDR' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/2a4f/hdl/lib_cdc_v1_0_rfs.vhd:545]
+INFO: [Synth 8-113] binding component instance 'CROSS_PLEVEL_IN2SCNDRY_s_level_out_d2' to cell 'FDR' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/2a4f/hdl/lib_cdc_v1_0_rfs.vhd:545]
 	Parameter INIT bound to: 1'b0 
-INFO: [Synth 8-113] binding component instance 'CROSS_PLEVEL_IN2SCNDRY_s_level_out_d3' to cell 'FDR' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/2a4f/hdl/lib_cdc_v1_0_rfs.vhd:554]
+INFO: [Synth 8-113] binding component instance 'CROSS_PLEVEL_IN2SCNDRY_s_level_out_d3' to cell 'FDR' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/2a4f/hdl/lib_cdc_v1_0_rfs.vhd:554]
 	Parameter INIT bound to: 1'b0 
-INFO: [Synth 8-113] binding component instance 'CROSS_PLEVEL_IN2SCNDRY_s_level_out_d4' to cell 'FDR' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/2a4f/hdl/lib_cdc_v1_0_rfs.vhd:564]
+INFO: [Synth 8-113] binding component instance 'CROSS_PLEVEL_IN2SCNDRY_s_level_out_d4' to cell 'FDR' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/2a4f/hdl/lib_cdc_v1_0_rfs.vhd:564]
 	Parameter INIT bound to: 1'b0 
-INFO: [Synth 8-113] binding component instance 'CROSS_PLEVEL_IN2SCNDRY_s_level_out_d5' to cell 'FDR' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/2a4f/hdl/lib_cdc_v1_0_rfs.vhd:574]
+INFO: [Synth 8-113] binding component instance 'CROSS_PLEVEL_IN2SCNDRY_s_level_out_d5' to cell 'FDR' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/2a4f/hdl/lib_cdc_v1_0_rfs.vhd:574]
 	Parameter INIT bound to: 1'b0 
-INFO: [Synth 8-113] binding component instance 'CROSS_PLEVEL_IN2SCNDRY_s_level_out_d6' to cell 'FDR' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/2a4f/hdl/lib_cdc_v1_0_rfs.vhd:584]
-INFO: [Synth 8-256] done synthesizing module 'cdc_sync' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/2a4f/hdl/lib_cdc_v1_0_rfs.vhd:106]
-INFO: [Synth 8-638] synthesizing module 'axi_dma_reset' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:601]
-INFO: [Synth 8-256] done synthesizing module 'axi_dma_reset' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:601]
-INFO: [Synth 8-256] done synthesizing module 'axi_dma_rst_module' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:1592]
-INFO: [Synth 8-638] synthesizing module 'axi_dma_reg_module' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:8426]
-INFO: [Synth 8-638] synthesizing module 'axi_dma_lite_if' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:2057]
-INFO: [Synth 8-256] done synthesizing module 'axi_dma_lite_if' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:2057]
-INFO: [Synth 8-638] synthesizing module 'axi_dma_register' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:3599]
-INFO: [Synth 8-256] done synthesizing module 'axi_dma_register' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:3599]
-INFO: [Synth 8-638] synthesizing module 'axi_dma_register_s2mm' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:4844]
-INFO: [Synth 8-256] done synthesizing module 'axi_dma_register_s2mm' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:4844]
-INFO: [Synth 8-256] done synthesizing module 'axi_dma_reg_module' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:8426]
-INFO: [Synth 8-638] synthesizing module 'axi_dma_mm2s_mngr' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:15157]
-INFO: [Synth 8-638] synthesizing module 'axi_dma_smple_sm' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:11957]
-INFO: [Synth 8-256] done synthesizing module 'axi_dma_smple_sm' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:11957]
-INFO: [Synth 8-638] synthesizing module 'axi_dma_mm2s_cmdsts_if' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:13942]
-INFO: [Synth 8-256] done synthesizing module 'axi_dma_mm2s_cmdsts_if' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:13942]
-INFO: [Synth 8-638] synthesizing module 'axi_dma_mm2s_sts_mngr' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:14256]
-INFO: [Synth 8-256] done synthesizing module 'axi_dma_mm2s_sts_mngr' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:14256]
-INFO: [Synth 8-256] done synthesizing module 'axi_dma_mm2s_mngr' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:15157]
-INFO: [Synth 8-638] synthesizing module 'axi_dma_sofeof_gen' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:11427]
-INFO: [Synth 8-256] done synthesizing module 'axi_dma_sofeof_gen' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:11427]
-INFO: [Synth 8-638] synthesizing module 'axi_dma_s2mm_mngr' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:20537]
-INFO: [Synth 8-638] synthesizing module 'axi_dma_s2mm_cmdsts_if' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:18804]
-INFO: [Synth 8-256] done synthesizing module 'axi_dma_s2mm_cmdsts_if' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:18804]
-INFO: [Synth 8-638] synthesizing module 'axi_dma_s2mm_sts_mngr' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:19233]
-INFO: [Synth 8-256] done synthesizing module 'axi_dma_s2mm_sts_mngr' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:19233]
-INFO: [Synth 8-256] done synthesizing module 'axi_dma_s2mm_mngr' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:20537]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:55201]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_mm2s_full_wrap' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:53340]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_reset' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:147]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_reset' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:147]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_cmd_status' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:2665]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_fifo' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_fifo' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_fifo__parameterized0' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_fifo__parameterized0' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_cmd_status' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:2665]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_rd_status_cntl' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:13671]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_rd_status_cntl' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:13671]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_pcc' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:7365]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_strb_gen2' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:4297]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_strb_gen2' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:4297]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_strb_gen2__parameterized0' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:4297]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_strb_gen2__parameterized0' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:4297]
-INFO: [Synth 8-226] default block is never used [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:9439]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_pcc' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:7365]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_addr_cntl' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:9943]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_fifo__parameterized1' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
-INFO: [Synth 8-638] synthesizing module 'srl_fifo_f' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:777]
-INFO: [Synth 8-638] synthesizing module 'srl_fifo_rbu_f' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:538]
-INFO: [Synth 8-638] synthesizing module 'cntr_incr_decr_addn_f' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:134]
-INFO: [Synth 8-256] done synthesizing module 'cntr_incr_decr_addn_f' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:134]
-INFO: [Synth 8-638] synthesizing module 'dynshreg_f' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:329]
-INFO: [Synth 8-256] done synthesizing module 'dynshreg_f' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:329]
-INFO: [Synth 8-256] done synthesizing module 'srl_fifo_rbu_f' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:538]
-INFO: [Synth 8-256] done synthesizing module 'srl_fifo_f' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:777]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_fifo__parameterized1' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_addr_cntl' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:9943]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_rddata_cntl' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:12116]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_rdmux' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:10618]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_rdmux' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:10618]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_fifo__parameterized2' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
-INFO: [Synth 8-638] synthesizing module 'srl_fifo_f__parameterized0' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:777]
-INFO: [Synth 8-638] synthesizing module 'srl_fifo_rbu_f__parameterized0' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:538]
-INFO: [Synth 8-638] synthesizing module 'dynshreg_f__parameterized0' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:329]
-INFO: [Synth 8-256] done synthesizing module 'dynshreg_f__parameterized0' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:329]
-INFO: [Synth 8-256] done synthesizing module 'srl_fifo_rbu_f__parameterized0' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:538]
-INFO: [Synth 8-256] done synthesizing module 'srl_fifo_f__parameterized0' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:777]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_fifo__parameterized2' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_rddata_cntl' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:12116]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_rd_sf' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:20097]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_fifo__parameterized3' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
-INFO: [Synth 8-638] synthesizing module 'srl_fifo_f__parameterized1' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:777]
-INFO: [Synth 8-638] synthesizing module 'srl_fifo_rbu_f__parameterized1' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:538]
-INFO: [Synth 8-638] synthesizing module 'dynshreg_f__parameterized1' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:329]
-INFO: [Synth 8-256] done synthesizing module 'dynshreg_f__parameterized1' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:329]
-INFO: [Synth 8-256] done synthesizing module 'srl_fifo_rbu_f__parameterized1' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:538]
-INFO: [Synth 8-256] done synthesizing module 'srl_fifo_f__parameterized1' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:777]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_fifo__parameterized3' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_sfifo_autord' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1275]
-INFO: [Synth 8-638] synthesizing module 'sync_fifo_fg' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/0a12/hdl/lib_fifo_v1_0_rfs.vhd:2232]
+INFO: [Synth 8-113] binding component instance 'CROSS_PLEVEL_IN2SCNDRY_s_level_out_d6' to cell 'FDR' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/2a4f/hdl/lib_cdc_v1_0_rfs.vhd:584]
+INFO: [Synth 8-256] done synthesizing module 'cdc_sync' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/2a4f/hdl/lib_cdc_v1_0_rfs.vhd:106]
+INFO: [Synth 8-638] synthesizing module 'axi_dma_reset' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:601]
+INFO: [Synth 8-256] done synthesizing module 'axi_dma_reset' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:601]
+INFO: [Synth 8-256] done synthesizing module 'axi_dma_rst_module' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:1592]
+INFO: [Synth 8-638] synthesizing module 'axi_dma_reg_module' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:8426]
+INFO: [Synth 8-638] synthesizing module 'axi_dma_lite_if' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:2057]
+INFO: [Synth 8-256] done synthesizing module 'axi_dma_lite_if' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:2057]
+INFO: [Synth 8-638] synthesizing module 'axi_dma_register' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:3599]
+INFO: [Synth 8-256] done synthesizing module 'axi_dma_register' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:3599]
+INFO: [Synth 8-638] synthesizing module 'axi_dma_register_s2mm' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:4844]
+INFO: [Synth 8-256] done synthesizing module 'axi_dma_register_s2mm' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:4844]
+INFO: [Synth 8-256] done synthesizing module 'axi_dma_reg_module' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:8426]
+INFO: [Synth 8-638] synthesizing module 'axi_dma_mm2s_mngr' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:15157]
+INFO: [Synth 8-638] synthesizing module 'axi_dma_smple_sm' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:11957]
+INFO: [Synth 8-256] done synthesizing module 'axi_dma_smple_sm' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:11957]
+INFO: [Synth 8-638] synthesizing module 'axi_dma_mm2s_cmdsts_if' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:13942]
+INFO: [Synth 8-256] done synthesizing module 'axi_dma_mm2s_cmdsts_if' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:13942]
+INFO: [Synth 8-638] synthesizing module 'axi_dma_mm2s_sts_mngr' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:14256]
+INFO: [Synth 8-256] done synthesizing module 'axi_dma_mm2s_sts_mngr' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:14256]
+INFO: [Synth 8-256] done synthesizing module 'axi_dma_mm2s_mngr' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:15157]
+INFO: [Synth 8-638] synthesizing module 'axi_dma_sofeof_gen' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:11427]
+INFO: [Synth 8-256] done synthesizing module 'axi_dma_sofeof_gen' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:11427]
+INFO: [Synth 8-638] synthesizing module 'axi_dma_s2mm_mngr' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:20537]
+INFO: [Synth 8-638] synthesizing module 'axi_dma_s2mm_cmdsts_if' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:18804]
+INFO: [Synth 8-256] done synthesizing module 'axi_dma_s2mm_cmdsts_if' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:18804]
+INFO: [Synth 8-638] synthesizing module 'axi_dma_s2mm_sts_mngr' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:19233]
+INFO: [Synth 8-256] done synthesizing module 'axi_dma_s2mm_sts_mngr' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:19233]
+INFO: [Synth 8-256] done synthesizing module 'axi_dma_s2mm_mngr' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:20537]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:55201]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_mm2s_full_wrap' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:53340]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_reset' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:147]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_reset' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:147]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_cmd_status' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:2665]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_fifo' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_fifo' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_fifo__parameterized0' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_fifo__parameterized0' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_cmd_status' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:2665]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_rd_status_cntl' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:13671]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_rd_status_cntl' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:13671]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_pcc' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:7365]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_strb_gen2' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:4297]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_strb_gen2' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:4297]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_strb_gen2__parameterized0' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:4297]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_strb_gen2__parameterized0' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:4297]
+INFO: [Synth 8-226] default block is never used [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:9439]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_pcc' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:7365]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_addr_cntl' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:9943]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_fifo__parameterized1' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
+INFO: [Synth 8-638] synthesizing module 'srl_fifo_f' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:777]
+INFO: [Synth 8-638] synthesizing module 'srl_fifo_rbu_f' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:538]
+INFO: [Synth 8-638] synthesizing module 'cntr_incr_decr_addn_f' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:134]
+INFO: [Synth 8-256] done synthesizing module 'cntr_incr_decr_addn_f' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:134]
+INFO: [Synth 8-638] synthesizing module 'dynshreg_f' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:329]
+INFO: [Synth 8-256] done synthesizing module 'dynshreg_f' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:329]
+INFO: [Synth 8-256] done synthesizing module 'srl_fifo_rbu_f' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:538]
+INFO: [Synth 8-256] done synthesizing module 'srl_fifo_f' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:777]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_fifo__parameterized1' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_addr_cntl' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:9943]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_rddata_cntl' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:12116]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_rdmux' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:10618]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_rdmux' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:10618]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_fifo__parameterized2' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
+INFO: [Synth 8-638] synthesizing module 'srl_fifo_f__parameterized0' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:777]
+INFO: [Synth 8-638] synthesizing module 'srl_fifo_rbu_f__parameterized0' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:538]
+INFO: [Synth 8-638] synthesizing module 'dynshreg_f__parameterized0' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:329]
+INFO: [Synth 8-256] done synthesizing module 'dynshreg_f__parameterized0' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:329]
+INFO: [Synth 8-256] done synthesizing module 'srl_fifo_rbu_f__parameterized0' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:538]
+INFO: [Synth 8-256] done synthesizing module 'srl_fifo_f__parameterized0' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:777]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_fifo__parameterized2' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_rddata_cntl' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:12116]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_rd_sf' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:20097]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_fifo__parameterized3' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
+INFO: [Synth 8-638] synthesizing module 'srl_fifo_f__parameterized1' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:777]
+INFO: [Synth 8-638] synthesizing module 'srl_fifo_rbu_f__parameterized1' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:538]
+INFO: [Synth 8-638] synthesizing module 'dynshreg_f__parameterized1' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:329]
+INFO: [Synth 8-256] done synthesizing module 'dynshreg_f__parameterized1' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:329]
+INFO: [Synth 8-256] done synthesizing module 'srl_fifo_rbu_f__parameterized1' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:538]
+INFO: [Synth 8-256] done synthesizing module 'srl_fifo_f__parameterized1' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:777]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_fifo__parameterized3' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_sfifo_autord' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1275]
+INFO: [Synth 8-638] synthesizing module 'sync_fifo_fg' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/0a12/hdl/lib_fifo_v1_0_rfs.vhd:2232]
 	Parameter FIFO_MEMORY_TYPE bound to: block - type: string 
 	Parameter FIFO_WRITE_DEPTH bound to: 128 - type: integer 
 	Parameter WRITE_DATA_WIDTH bound to: 75 - type: integer 
@@ -181,7 +180,7 @@ INFO: [Synth 8-638] synthesizing module 'sync_fifo_fg' [e:/course/master/mamba/C
 	Parameter DOUT_RESET_VALUE bound to: 0 - type: string 
 	Parameter ECC_MODE bound to: no_ecc - type: string 
 	Parameter WAKEUP_TIME bound to: 0 - type: integer 
-INFO: [Synth 8-3491] module 'xpm_fifo_sync' declared at 'E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1975' bound to instance 'xpm_fifo_sync_inst' of component 'xpm_fifo_sync' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/0a12/hdl/lib_fifo_v1_0_rfs.vhd:2609]
+INFO: [Synth 8-3491] module 'xpm_fifo_sync' declared at 'E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1975' bound to instance 'xpm_fifo_sync_inst' of component 'xpm_fifo_sync' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/0a12/hdl/lib_fifo_v1_0_rfs.vhd:2609]
 INFO: [Synth 8-6157] synthesizing module 'xpm_fifo_sync' [E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1975]
 INFO: [Synth 8-6157] synthesizing module 'xpm_fifo_base' [E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:53]
 INFO: [Synth 8-6157] synthesizing module 'xpm_counter_updn' [E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1879]
@@ -205,72 +204,72 @@ INFO: [Synth 8-6157] synthesizing module 'xpm_counter_updn__parameterized3' [E:/
 INFO: [Synth 8-6155] done synthesizing module 'xpm_counter_updn__parameterized3' (0#1) [E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1879]
 INFO: [Synth 8-6155] done synthesizing module 'xpm_fifo_base' (0#1) [E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:53]
 INFO: [Synth 8-6155] done synthesizing module 'xpm_fifo_sync' (0#1) [E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1975]
-INFO: [Synth 8-256] done synthesizing module 'sync_fifo_fg' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/0a12/hdl/lib_fifo_v1_0_rfs.vhd:2232]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_sfifo_autord' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1275]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_rd_sf' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:20097]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_skid_buf' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:19395]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_skid_buf' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:19395]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_mm2s_full_wrap' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:53340]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_s2mm_full_wrap' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:49783]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_cmd_status__parameterized0' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:2665]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_fifo__parameterized4' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_fifo__parameterized4' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_cmd_status__parameterized0' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:2665]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_wr_status_cntl' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:17611]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_fifo__parameterized5' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
-INFO: [Synth 8-638] synthesizing module 'srl_fifo_f__parameterized2' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:777]
-INFO: [Synth 8-638] synthesizing module 'srl_fifo_rbu_f__parameterized2' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:538]
-INFO: [Synth 8-638] synthesizing module 'cntr_incr_decr_addn_f__parameterized0' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:134]
-INFO: [Synth 8-256] done synthesizing module 'cntr_incr_decr_addn_f__parameterized0' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:134]
-INFO: [Synth 8-638] synthesizing module 'dynshreg_f__parameterized2' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:329]
-INFO: [Synth 8-256] done synthesizing module 'dynshreg_f__parameterized2' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:329]
-INFO: [Synth 8-256] done synthesizing module 'srl_fifo_rbu_f__parameterized2' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:538]
-INFO: [Synth 8-256] done synthesizing module 'srl_fifo_f__parameterized2' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:777]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_fifo__parameterized5' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_fifo__parameterized6' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
-INFO: [Synth 8-638] synthesizing module 'srl_fifo_f__parameterized3' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:777]
-INFO: [Synth 8-638] synthesizing module 'srl_fifo_rbu_f__parameterized3' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:538]
-INFO: [Synth 8-638] synthesizing module 'dynshreg_f__parameterized3' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:329]
-INFO: [Synth 8-256] done synthesizing module 'dynshreg_f__parameterized3' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:329]
-INFO: [Synth 8-256] done synthesizing module 'srl_fifo_rbu_f__parameterized3' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:538]
-INFO: [Synth 8-256] done synthesizing module 'srl_fifo_f__parameterized3' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:777]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_fifo__parameterized6' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_wr_status_cntl' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:17611]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_ibttcc' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:25596]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_ibttcc' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:25596]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_s2mm_realign' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:46815]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_fifo__parameterized7' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
-INFO: [Synth 8-638] synthesizing module 'srl_fifo_f__parameterized4' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:777]
-INFO: [Synth 8-638] synthesizing module 'srl_fifo_rbu_f__parameterized4' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:538]
-INFO: [Synth 8-638] synthesizing module 'dynshreg_f__parameterized4' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:329]
-INFO: [Synth 8-256] done synthesizing module 'dynshreg_f__parameterized4' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:329]
-INFO: [Synth 8-256] done synthesizing module 'srl_fifo_rbu_f__parameterized4' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:538]
-INFO: [Synth 8-256] done synthesizing module 'srl_fifo_f__parameterized4' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:777]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_fifo__parameterized7' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_s2mm_scatter' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:44927]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_mssai_skid_buf' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:43984]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_ms_strb_set' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:42426]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_ms_strb_set' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:42426]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_mssai_skid_buf' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:43984]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_slice' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:44672]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_slice' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:44672]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_fifo__parameterized8' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
-INFO: [Synth 8-638] synthesizing module 'srl_fifo_f__parameterized5' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:777]
-INFO: [Synth 8-638] synthesizing module 'srl_fifo_rbu_f__parameterized5' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:538]
-INFO: [Synth 8-638] synthesizing module 'cntr_incr_decr_addn_f__parameterized1' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:134]
-INFO: [Synth 8-256] done synthesizing module 'cntr_incr_decr_addn_f__parameterized1' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:134]
-INFO: [Synth 8-638] synthesizing module 'dynshreg_f__parameterized5' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:329]
-INFO: [Synth 8-256] done synthesizing module 'dynshreg_f__parameterized5' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:329]
-INFO: [Synth 8-256] done synthesizing module 'srl_fifo_rbu_f__parameterized5' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:538]
-INFO: [Synth 8-256] done synthesizing module 'srl_fifo_f__parameterized5' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:777]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_fifo__parameterized8' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_s2mm_scatter' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:44927]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_s2mm_realign' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:46815]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_indet_btt' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:28289]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_stbs_set_nodre' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:24080]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_stbs_set_nodre' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:24080]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_sfifo_autord__parameterized0' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1275]
-INFO: [Synth 8-638] synthesizing module 'sync_fifo_fg__parameterized0' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/0a12/hdl/lib_fifo_v1_0_rfs.vhd:2232]
+INFO: [Synth 8-256] done synthesizing module 'sync_fifo_fg' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/0a12/hdl/lib_fifo_v1_0_rfs.vhd:2232]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_sfifo_autord' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1275]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_rd_sf' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:20097]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_skid_buf' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:19395]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_skid_buf' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:19395]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_mm2s_full_wrap' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:53340]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_s2mm_full_wrap' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:49783]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_cmd_status__parameterized0' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:2665]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_fifo__parameterized4' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_fifo__parameterized4' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_cmd_status__parameterized0' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:2665]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_wr_status_cntl' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:17611]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_fifo__parameterized5' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
+INFO: [Synth 8-638] synthesizing module 'srl_fifo_f__parameterized2' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:777]
+INFO: [Synth 8-638] synthesizing module 'srl_fifo_rbu_f__parameterized2' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:538]
+INFO: [Synth 8-638] synthesizing module 'cntr_incr_decr_addn_f__parameterized0' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:134]
+INFO: [Synth 8-256] done synthesizing module 'cntr_incr_decr_addn_f__parameterized0' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:134]
+INFO: [Synth 8-638] synthesizing module 'dynshreg_f__parameterized2' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:329]
+INFO: [Synth 8-256] done synthesizing module 'dynshreg_f__parameterized2' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:329]
+INFO: [Synth 8-256] done synthesizing module 'srl_fifo_rbu_f__parameterized2' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:538]
+INFO: [Synth 8-256] done synthesizing module 'srl_fifo_f__parameterized2' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:777]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_fifo__parameterized5' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_fifo__parameterized6' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
+INFO: [Synth 8-638] synthesizing module 'srl_fifo_f__parameterized3' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:777]
+INFO: [Synth 8-638] synthesizing module 'srl_fifo_rbu_f__parameterized3' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:538]
+INFO: [Synth 8-638] synthesizing module 'dynshreg_f__parameterized3' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:329]
+INFO: [Synth 8-256] done synthesizing module 'dynshreg_f__parameterized3' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:329]
+INFO: [Synth 8-256] done synthesizing module 'srl_fifo_rbu_f__parameterized3' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:538]
+INFO: [Synth 8-256] done synthesizing module 'srl_fifo_f__parameterized3' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:777]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_fifo__parameterized6' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_wr_status_cntl' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:17611]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_ibttcc' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:25596]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_ibttcc' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:25596]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_s2mm_realign' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:46815]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_fifo__parameterized7' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
+INFO: [Synth 8-638] synthesizing module 'srl_fifo_f__parameterized4' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:777]
+INFO: [Synth 8-638] synthesizing module 'srl_fifo_rbu_f__parameterized4' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:538]
+INFO: [Synth 8-638] synthesizing module 'dynshreg_f__parameterized4' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:329]
+INFO: [Synth 8-256] done synthesizing module 'dynshreg_f__parameterized4' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:329]
+INFO: [Synth 8-256] done synthesizing module 'srl_fifo_rbu_f__parameterized4' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:538]
+INFO: [Synth 8-256] done synthesizing module 'srl_fifo_f__parameterized4' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:777]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_fifo__parameterized7' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_s2mm_scatter' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:44927]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_mssai_skid_buf' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:43984]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_ms_strb_set' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:42426]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_ms_strb_set' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:42426]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_mssai_skid_buf' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:43984]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_slice' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:44672]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_slice' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:44672]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_fifo__parameterized8' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
+INFO: [Synth 8-638] synthesizing module 'srl_fifo_f__parameterized5' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:777]
+INFO: [Synth 8-638] synthesizing module 'srl_fifo_rbu_f__parameterized5' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:538]
+INFO: [Synth 8-638] synthesizing module 'cntr_incr_decr_addn_f__parameterized1' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:134]
+INFO: [Synth 8-256] done synthesizing module 'cntr_incr_decr_addn_f__parameterized1' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:134]
+INFO: [Synth 8-638] synthesizing module 'dynshreg_f__parameterized5' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:329]
+INFO: [Synth 8-256] done synthesizing module 'dynshreg_f__parameterized5' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:329]
+INFO: [Synth 8-256] done synthesizing module 'srl_fifo_rbu_f__parameterized5' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:538]
+INFO: [Synth 8-256] done synthesizing module 'srl_fifo_f__parameterized5' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:777]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_fifo__parameterized8' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_s2mm_scatter' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:44927]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_s2mm_realign' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:46815]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_indet_btt' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:28289]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_stbs_set_nodre' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:24080]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_stbs_set_nodre' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:24080]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_sfifo_autord__parameterized0' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1275]
+INFO: [Synth 8-638] synthesizing module 'sync_fifo_fg__parameterized0' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/0a12/hdl/lib_fifo_v1_0_rfs.vhd:2232]
 	Parameter FIFO_MEMORY_TYPE bound to: auto - type: string 
 	Parameter FIFO_WRITE_DEPTH bound to: 16 - type: integer 
 	Parameter WRITE_DATA_WIDTH bound to: 10 - type: integer 
@@ -286,7 +285,7 @@ INFO: [Synth 8-638] synthesizing module 'sync_fifo_fg__parameterized0' [e:/cours
 	Parameter DOUT_RESET_VALUE bound to: 0 - type: string 
 	Parameter ECC_MODE bound to: no_ecc - type: string 
 	Parameter WAKEUP_TIME bound to: 0 - type: integer 
-INFO: [Synth 8-3491] module 'xpm_fifo_sync' declared at 'E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1975' bound to instance 'xpm_fifo_sync_inst' of component 'xpm_fifo_sync' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/0a12/hdl/lib_fifo_v1_0_rfs.vhd:2609]
+INFO: [Synth 8-3491] module 'xpm_fifo_sync' declared at 'E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1975' bound to instance 'xpm_fifo_sync_inst' of component 'xpm_fifo_sync' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/0a12/hdl/lib_fifo_v1_0_rfs.vhd:2609]
 INFO: [Synth 8-6157] synthesizing module 'xpm_fifo_sync__parameterized1' [E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1975]
 INFO: [Synth 8-6157] synthesizing module 'xpm_fifo_base__parameterized0' [E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:53]
 INFO: [Synth 8-6157] synthesizing module 'xpm_counter_updn__parameterized4' [E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1879]
@@ -305,10 +304,10 @@ INFO: [Synth 8-6157] synthesizing module 'xpm_counter_updn__parameterized7' [E:/
 INFO: [Synth 8-6155] done synthesizing module 'xpm_counter_updn__parameterized7' (0#1) [E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1879]
 INFO: [Synth 8-6155] done synthesizing module 'xpm_fifo_base__parameterized0' (0#1) [E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:53]
 INFO: [Synth 8-6155] done synthesizing module 'xpm_fifo_sync__parameterized1' (0#1) [E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1975]
-INFO: [Synth 8-256] done synthesizing module 'sync_fifo_fg__parameterized0' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/0a12/hdl/lib_fifo_v1_0_rfs.vhd:2232]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_sfifo_autord__parameterized0' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1275]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_sfifo_autord__parameterized1' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1275]
-INFO: [Synth 8-638] synthesizing module 'sync_fifo_fg__parameterized1' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/0a12/hdl/lib_fifo_v1_0_rfs.vhd:2232]
+INFO: [Synth 8-256] done synthesizing module 'sync_fifo_fg__parameterized0' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/0a12/hdl/lib_fifo_v1_0_rfs.vhd:2232]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_sfifo_autord__parameterized0' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1275]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_sfifo_autord__parameterized1' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1275]
+INFO: [Synth 8-638] synthesizing module 'sync_fifo_fg__parameterized1' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/0a12/hdl/lib_fifo_v1_0_rfs.vhd:2232]
 	Parameter FIFO_MEMORY_TYPE bound to: block - type: string 
 	Parameter FIFO_WRITE_DEPTH bound to: 128 - type: integer 
 	Parameter WRITE_DATA_WIDTH bound to: 74 - type: integer 
@@ -324,7 +323,7 @@ INFO: [Synth 8-638] synthesizing module 'sync_fifo_fg__parameterized1' [e:/cours
 	Parameter DOUT_RESET_VALUE bound to: 0 - type: string 
 	Parameter ECC_MODE bound to: no_ecc - type: string 
 	Parameter WAKEUP_TIME bound to: 0 - type: integer 
-INFO: [Synth 8-3491] module 'xpm_fifo_sync' declared at 'E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1975' bound to instance 'xpm_fifo_sync_inst' of component 'xpm_fifo_sync' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/0a12/hdl/lib_fifo_v1_0_rfs.vhd:2609]
+INFO: [Synth 8-3491] module 'xpm_fifo_sync' declared at 'E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1975' bound to instance 'xpm_fifo_sync_inst' of component 'xpm_fifo_sync' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/0a12/hdl/lib_fifo_v1_0_rfs.vhd:2609]
 INFO: [Synth 8-6157] synthesizing module 'xpm_fifo_sync__parameterized3' [E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1975]
 INFO: [Synth 8-6157] synthesizing module 'xpm_fifo_base__parameterized1' [E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:53]
 INFO: [Synth 8-6157] synthesizing module 'xpm_memory_base__parameterized1' [E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_memory/hdl/xpm_memory.sv:54]
@@ -334,90 +333,90 @@ INFO: [Synth 8-226] default block is never used [E:/Xilinx/Vivado/2024.1/data/ip
 INFO: [Synth 8-226] default block is never used [E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1309]
 INFO: [Synth 8-6155] done synthesizing module 'xpm_fifo_base__parameterized1' (0#1) [E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:53]
 INFO: [Synth 8-6155] done synthesizing module 'xpm_fifo_sync__parameterized3' (0#1) [E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1975]
-INFO: [Synth 8-256] done synthesizing module 'sync_fifo_fg__parameterized1' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/0a12/hdl/lib_fifo_v1_0_rfs.vhd:2232]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_sfifo_autord__parameterized1' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1275]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_skid_buf__parameterized0' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:19395]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_skid_buf__parameterized0' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:19395]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_indet_btt' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:28289]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_addr_cntl__parameterized0' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:9943]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_addr_cntl__parameterized0' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:9943]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_wrdata_cntl' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:15587]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_fifo__parameterized9' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
-INFO: [Synth 8-638] synthesizing module 'srl_fifo_f__parameterized6' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:777]
-INFO: [Synth 8-638] synthesizing module 'srl_fifo_rbu_f__parameterized6' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:538]
-INFO: [Synth 8-638] synthesizing module 'dynshreg_f__parameterized6' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:329]
-INFO: [Synth 8-256] done synthesizing module 'dynshreg_f__parameterized6' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:329]
-INFO: [Synth 8-256] done synthesizing module 'srl_fifo_rbu_f__parameterized6' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:538]
-INFO: [Synth 8-256] done synthesizing module 'srl_fifo_f__parameterized6' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:777]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_fifo__parameterized9' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_wrdata_cntl' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:15587]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_skid2mm_buf' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:18899]
-INFO: [Synth 8-638] synthesizing module 'axi_datamover_wr_demux' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:14036]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_wr_demux' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:14036]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_skid2mm_buf' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:18899]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover_s2mm_full_wrap' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:49783]
-INFO: [Synth 8-256] done synthesizing module 'axi_datamover' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:55201]
-INFO: [Synth 8-256] done synthesizing module 'axi_dma' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:22149]
-INFO: [Synth 8-256] done synthesizing module 'design_1_axi_dma_0_1' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ip/design_1_axi_dma_0_1/synth/design_1_axi_dma_0_1.vhd:128]
-WARNING: [Synth 8-6014] Unused sequential element awaddr_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:2151]
-WARNING: [Synth 8-6014] Unused sequential element wdata_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:2153]
-WARNING: [Synth 8-6014] Unused sequential element GEN_SYNC_WRITE.axi2ip_wrdata_i_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:2306]
-WARNING: [Synth 8-6014] Unused sequential element GEN_SYNC_WRITE.awready_i_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:2138]
-WARNING: [Synth 8-6014] Unused sequential element GEN_SYNC_WRITE.rdy1_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:2267]
-WARNING: [Synth 8-6014] Unused sequential element GEN_SYNC_READ.arvalid_re_d1_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:3049]
-WARNING: [Synth 8-6014] Unused sequential element sg_ftch_error_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:3987]
-WARNING: [Synth 8-6014] Unused sequential element sg_updt_error_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:3988]
-WARNING: [Synth 8-6014] Unused sequential element sg_ftch_error_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:5635]
-WARNING: [Synth 8-6014] Unused sequential element sg_updt_error_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:5636]
-WARNING: [Synth 8-3848] Net mm2s_desc_flush in module/entity axi_dma_mm2s_mngr does not have driver. [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:15074]
-WARNING: [Synth 8-6014] Unused sequential element GEN_S2MM_DMA_CONTROL.s2mm_desc_flush_i_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:20668]
-WARNING: [Synth 8-6014] Unused sequential element sig_cmd_stat_rst_int_reg_n_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:185]
-WARNING: [Synth 8-6014] Unused sequential element sig_mmap_rst_reg_n_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:188]
-WARNING: [Synth 8-6014] Unused sequential element sig_stream_rst_reg_n_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:191]
-WARNING: [Synth 8-6014] Unused sequential element sig_inhibit_rdy_n_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1987]
-WARNING: [Synth 8-6014] Unused sequential element sig_inhibit_rdy_n_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1987]
-WARNING: [Synth 8-6014] Unused sequential element sig_input_reg_full_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:7997]
-WARNING: [Synth 8-6014] Unused sequential element sig_xfer_reg_full_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:8308]
-WARNING: [Synth 8-6014] Unused sequential element sig_next_tag_reg_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:10353]
-WARNING: [Synth 8-6014] Unused sequential element sig_next_cmd_cmplt_reg_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:10360]
-WARNING: [Synth 8-6014] Unused sequential element sig_next_dre_src_align_reg_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:12817]
-WARNING: [Synth 8-6014] Unused sequential element sig_next_dre_dest_align_reg_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:12818]
-WARNING: [Synth 8-6014] Unused sequential element sig_coelsc_reg_empty_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:13156]
+INFO: [Synth 8-256] done synthesizing module 'sync_fifo_fg__parameterized1' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/0a12/hdl/lib_fifo_v1_0_rfs.vhd:2232]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_sfifo_autord__parameterized1' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1275]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_skid_buf__parameterized0' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:19395]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_skid_buf__parameterized0' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:19395]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_indet_btt' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:28289]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_addr_cntl__parameterized0' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:9943]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_addr_cntl__parameterized0' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:9943]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_wrdata_cntl' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:15587]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_fifo__parameterized9' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
+INFO: [Synth 8-638] synthesizing module 'srl_fifo_f__parameterized6' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:777]
+INFO: [Synth 8-638] synthesizing module 'srl_fifo_rbu_f__parameterized6' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:538]
+INFO: [Synth 8-638] synthesizing module 'dynshreg_f__parameterized6' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:329]
+INFO: [Synth 8-256] done synthesizing module 'dynshreg_f__parameterized6' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:329]
+INFO: [Synth 8-256] done synthesizing module 'srl_fifo_rbu_f__parameterized6' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:538]
+INFO: [Synth 8-256] done synthesizing module 'srl_fifo_f__parameterized6' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/1e5a/hdl/lib_srl_fifo_v1_0_rfs.vhd:777]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_fifo__parameterized9' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1859]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_wrdata_cntl' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:15587]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_skid2mm_buf' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:18899]
+INFO: [Synth 8-638] synthesizing module 'axi_datamover_wr_demux' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:14036]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_wr_demux' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:14036]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_skid2mm_buf' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:18899]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover_s2mm_full_wrap' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:49783]
+INFO: [Synth 8-256] done synthesizing module 'axi_datamover' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:55201]
+INFO: [Synth 8-256] done synthesizing module 'axi_dma' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:22149]
+INFO: [Synth 8-256] done synthesizing module 'design_1_axi_dma_0_1' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ip/design_1_axi_dma_0_1/synth/design_1_axi_dma_0_1.vhd:128]
+WARNING: [Synth 8-6014] Unused sequential element awaddr_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:2151]
+WARNING: [Synth 8-6014] Unused sequential element wdata_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:2153]
+WARNING: [Synth 8-6014] Unused sequential element GEN_SYNC_WRITE.axi2ip_wrdata_i_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:2306]
+WARNING: [Synth 8-6014] Unused sequential element GEN_SYNC_WRITE.awready_i_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:2138]
+WARNING: [Synth 8-6014] Unused sequential element GEN_SYNC_WRITE.rdy1_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:2267]
+WARNING: [Synth 8-6014] Unused sequential element GEN_SYNC_READ.arvalid_re_d1_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:3049]
+WARNING: [Synth 8-6014] Unused sequential element sg_ftch_error_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:3987]
+WARNING: [Synth 8-6014] Unused sequential element sg_updt_error_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:3988]
+WARNING: [Synth 8-6014] Unused sequential element sg_ftch_error_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:5635]
+WARNING: [Synth 8-6014] Unused sequential element sg_updt_error_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:5636]
+WARNING: [Synth 8-3848] Net mm2s_desc_flush in module/entity axi_dma_mm2s_mngr does not have driver. [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:15074]
+WARNING: [Synth 8-6014] Unused sequential element GEN_S2MM_DMA_CONTROL.s2mm_desc_flush_i_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:20668]
+WARNING: [Synth 8-6014] Unused sequential element sig_cmd_stat_rst_int_reg_n_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:185]
+WARNING: [Synth 8-6014] Unused sequential element sig_mmap_rst_reg_n_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:188]
+WARNING: [Synth 8-6014] Unused sequential element sig_stream_rst_reg_n_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:191]
+WARNING: [Synth 8-6014] Unused sequential element sig_inhibit_rdy_n_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1987]
+WARNING: [Synth 8-6014] Unused sequential element sig_inhibit_rdy_n_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1987]
+WARNING: [Synth 8-6014] Unused sequential element sig_input_reg_full_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:7997]
+WARNING: [Synth 8-6014] Unused sequential element sig_xfer_reg_full_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:8308]
+WARNING: [Synth 8-6014] Unused sequential element sig_next_tag_reg_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:10353]
+WARNING: [Synth 8-6014] Unused sequential element sig_next_cmd_cmplt_reg_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:10360]
+WARNING: [Synth 8-6014] Unused sequential element sig_next_dre_src_align_reg_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:12817]
+WARNING: [Synth 8-6014] Unused sequential element sig_next_dre_dest_align_reg_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:12818]
+WARNING: [Synth 8-6014] Unused sequential element sig_coelsc_reg_empty_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:13156]
 WARNING: [Synth 8-6014] Unused sequential element gen_rd_b.gen_doutb_pipe.enb_pipe_reg[0] was removed.  [E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_memory/hdl/xpm_memory.sv:3077]
 WARNING: [Synth 8-6014] Unused sequential element gdvld.data_valid_std_reg was removed.  [E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:550]
 WARNING: [Synth 8-6014] Unused sequential element gen_pntr_flags_cc.gae_cc_std.ram_aempty_i_reg was removed.  [E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:982]
 WARNING: [Synth 8-6014] Unused sequential element gen_fwft.empty_fwft_fb_reg was removed.  [E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1404]
-WARNING: [Synth 8-6014] Unused sequential element hold_ff_q_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1493]
-WARNING: [Synth 8-6014] Unused sequential element sig_inhibit_rdy_n_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1987]
-WARNING: [Synth 8-6014] Unused sequential element sig_input_reg_full_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:26239]
-WARNING: [Synth 8-6014] Unused sequential element sig_psm_ld_calc2_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:26443]
-WARNING: [Synth 8-6014] Unused sequential element sig_child_cmd_reg_empty_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:26899]
-WARNING: [Synth 8-6014] Unused sequential element sig_first_child_xfer_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:27444]
-WARNING: [Synth 8-6014] Unused sequential element sig_xfer_is_seq_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:27943]
-WARNING: [Synth 8-6014] Unused sequential element sig_xfer_reg_empty_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:28036]
-WARNING: [Synth 8-6014] Unused sequential element sig_xfer_reg_full_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:28037]
-WARNING: [Synth 8-6014] Unused sequential element sig_sm_ld_scatter_cmd_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:47314]
+WARNING: [Synth 8-6014] Unused sequential element hold_ff_q_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1493]
+WARNING: [Synth 8-6014] Unused sequential element sig_inhibit_rdy_n_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1987]
+WARNING: [Synth 8-6014] Unused sequential element sig_input_reg_full_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:26239]
+WARNING: [Synth 8-6014] Unused sequential element sig_psm_ld_calc2_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:26443]
+WARNING: [Synth 8-6014] Unused sequential element sig_child_cmd_reg_empty_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:26899]
+WARNING: [Synth 8-6014] Unused sequential element sig_first_child_xfer_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:27444]
+WARNING: [Synth 8-6014] Unused sequential element sig_xfer_is_seq_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:27943]
+WARNING: [Synth 8-6014] Unused sequential element sig_xfer_reg_empty_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:28036]
+WARNING: [Synth 8-6014] Unused sequential element sig_xfer_reg_full_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:28037]
+WARNING: [Synth 8-6014] Unused sequential element sig_sm_ld_scatter_cmd_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:47314]
 WARNING: [Synth 8-6014] Unused sequential element gen_rd_b.gen_doutb_pipe.enb_pipe_reg[0] was removed.  [E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_memory/hdl/xpm_memory.sv:3077]
 WARNING: [Synth 8-6014] Unused sequential element gdvld.data_valid_std_reg was removed.  [E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:550]
 WARNING: [Synth 8-6014] Unused sequential element gen_pntr_flags_cc.gae_cc_std.ram_aempty_i_reg was removed.  [E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:982]
 WARNING: [Synth 8-6014] Unused sequential element gen_fwft.empty_fwft_fb_reg was removed.  [E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1404]
-WARNING: [Synth 8-6014] Unused sequential element hold_ff_q_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1493]
+WARNING: [Synth 8-6014] Unused sequential element hold_ff_q_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1493]
 WARNING: [Synth 8-6014] Unused sequential element gen_rd_b.gen_doutb_pipe.enb_pipe_reg[0] was removed.  [E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_memory/hdl/xpm_memory.sv:3077]
 WARNING: [Synth 8-6014] Unused sequential element gdvld.data_valid_std_reg was removed.  [E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:550]
 WARNING: [Synth 8-6014] Unused sequential element gen_pntr_flags_cc.gae_cc_std.ram_aempty_i_reg was removed.  [E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:982]
 WARNING: [Synth 8-6014] Unused sequential element gen_fwft.empty_fwft_fb_reg was removed.  [E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_fifo/hdl/xpm_fifo.sv:1404]
-WARNING: [Synth 8-6014] Unused sequential element hold_ff_q_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1493]
-WARNING: [Synth 8-6014] Unused sequential element sig_next_tag_reg_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:10353]
-WARNING: [Synth 8-6014] Unused sequential element sig_next_cmd_cmplt_reg_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:10360]
-WARNING: [Synth 8-6014] Unused sequential element sig_next_last_strb_reg_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:16878]
-WARNING: [Synth 8-6014] Unused sequential element sig_next_eof_reg_reg was removed.  [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:16883]
-WARNING: [Synth 8-3848] Net m_axi_sg_awuser in module/entity axi_dma does not have driver. [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:21994]
-WARNING: [Synth 8-3848] Net m_axi_sg_aruser in module/entity axi_dma does not have driver. [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:22020]
-WARNING: [Synth 8-3848] Net strm_valid in module/entity axi_dma does not have driver. [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:22710]
-WARNING: [Synth 8-3848] Net bd_eq in module/entity axi_dma does not have driver. [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:22703]
-WARNING: [Synth 8-3848] Net m_axis_ftch1_desc_available in module/entity axi_dma does not have driver. [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:22612]
-WARNING: [Synth 8-3848] Net s2mm_desc_info_in in module/entity axi_dma does not have driver. [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:22683]
-WARNING: [Synth 8-3848] Net m_axis_ftch2_desc_available in module/entity axi_dma does not have driver. [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:22612]
+WARNING: [Synth 8-6014] Unused sequential element hold_ff_q_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:1493]
+WARNING: [Synth 8-6014] Unused sequential element sig_next_tag_reg_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:10353]
+WARNING: [Synth 8-6014] Unused sequential element sig_next_cmd_cmplt_reg_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:10360]
+WARNING: [Synth 8-6014] Unused sequential element sig_next_last_strb_reg_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:16878]
+WARNING: [Synth 8-6014] Unused sequential element sig_next_eof_reg_reg was removed.  [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/bf20/hdl/axi_datamover_v5_1_vh_rfs.vhd:16883]
+WARNING: [Synth 8-3848] Net m_axi_sg_awuser in module/entity axi_dma does not have driver. [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:21994]
+WARNING: [Synth 8-3848] Net m_axi_sg_aruser in module/entity axi_dma does not have driver. [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:22020]
+WARNING: [Synth 8-3848] Net strm_valid in module/entity axi_dma does not have driver. [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:22710]
+WARNING: [Synth 8-3848] Net bd_eq in module/entity axi_dma does not have driver. [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:22703]
+WARNING: [Synth 8-3848] Net m_axis_ftch1_desc_available in module/entity axi_dma does not have driver. [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:22612]
+WARNING: [Synth 8-3848] Net s2mm_desc_info_in in module/entity axi_dma does not have driver. [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:22683]
+WARNING: [Synth 8-3848] Net m_axis_ftch2_desc_available in module/entity axi_dma does not have driver. [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ipshared/8830/hdl/axi_dma_v7_1_vh_rfs.vhd:22612]
 WARNING: [Synth 8-7129] Port debeat_saddr_lsb[2] in module axi_datamover_wr_demux is either unconnected or has no load
 WARNING: [Synth 8-7129] Port debeat_saddr_lsb[1] in module axi_datamover_wr_demux is either unconnected or has no load
 WARNING: [Synth 8-7129] Port debeat_saddr_lsb[0] in module axi_datamover_wr_demux is either unconnected or has no load
@@ -520,48 +519,48 @@ WARNING: [Synth 8-7129] Port regcea in module xpm_memory_base__parameterized0 is
 WARNING: [Synth 8-7129] Port injectsbiterra in module xpm_memory_base__parameterized0 is either unconnected or has no load
 INFO: [Common 17-14] Message 'Synth 8-7129' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
 ---------------------------------------------------------------------------------
-Finished RTL Elaboration : Time (s): cpu = 00:00:13 ; elapsed = 00:00:17 . Memory (MB): peak = 2211.320 ; gain = 734.848
+Finished RTL Elaboration : Time (s): cpu = 00:00:10 ; elapsed = 00:00:12 . Memory (MB): peak = 2208.039 ; gain = 732.281
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Handling Custom Attributes
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Handling Custom Attributes : Time (s): cpu = 00:00:13 ; elapsed = 00:00:17 . Memory (MB): peak = 2211.320 ; gain = 734.848
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:10 ; elapsed = 00:00:12 . Memory (MB): peak = 2208.039 ; gain = 732.281
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:13 ; elapsed = 00:00:17 . Memory (MB): peak = 2211.320 ; gain = 734.848
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:10 ; elapsed = 00:00:12 . Memory (MB): peak = 2208.039 ; gain = 732.281
 ---------------------------------------------------------------------------------
-Netlist sorting complete. Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.118 . Memory (MB): peak = 2211.320 ; gain = 0.000
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.085 . Memory (MB): peak = 2208.039 ; gain = 0.000
 INFO: [Netlist 29-17] Analyzing 12 Unisim elements for replacement
 INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
 INFO: [Project 1-570] Preparing netlist for logic optimization
 
 Processing XDC Constraints
 Initializing timing engine
-Parsing XDC File [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ip/design_1_axi_dma_0_1/design_1_axi_dma_0_1_ooc.xdc] for cell 'U0'
-Finished Parsing XDC File [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ip/design_1_axi_dma_0_1/design_1_axi_dma_0_1_ooc.xdc] for cell 'U0'
-Parsing XDC File [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ip/design_1_axi_dma_0_1/design_1_axi_dma_0_1.xdc] for cell 'U0'
-Finished Parsing XDC File [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ip/design_1_axi_dma_0_1/design_1_axi_dma_0_1.xdc] for cell 'U0'
-INFO: [Project 1-236] Implementation specific constraints were found while reading constraint file [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ip/design_1_axi_dma_0_1/design_1_axi_dma_0_1.xdc]. These constraints will be ignored for synthesis but will be used in implementation. Impacted constraints are listed in the file [.Xil/design_1_axi_dma_0_1_propImpl.xdc].
+Parsing XDC File [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ip/design_1_axi_dma_0_1/design_1_axi_dma_0_1_ooc.xdc] for cell 'U0'
+Finished Parsing XDC File [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ip/design_1_axi_dma_0_1/design_1_axi_dma_0_1_ooc.xdc] for cell 'U0'
+Parsing XDC File [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ip/design_1_axi_dma_0_1/design_1_axi_dma_0_1.xdc] for cell 'U0'
+Finished Parsing XDC File [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ip/design_1_axi_dma_0_1/design_1_axi_dma_0_1.xdc] for cell 'U0'
+INFO: [Project 1-236] Implementation specific constraints were found while reading constraint file [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ip/design_1_axi_dma_0_1/design_1_axi_dma_0_1.xdc]. These constraints will be ignored for synthesis but will be used in implementation. Impacted constraints are listed in the file [.Xil/design_1_axi_dma_0_1_propImpl.xdc].
 Resolution: To avoid this warning, move constraints listed in [.Xil/design_1_axi_dma_0_1_propImpl.xdc] to another XDC file and exclude this new file from synthesis with the used_in_synthesis property (File Properties dialog in GUI) and re-run elaboration/synthesis.
-Parsing XDC File [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/design_1_axi_dma_0_1_synth_1/dont_touch.xdc]
-Finished Parsing XDC File [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/design_1_axi_dma_0_1_synth_1/dont_touch.xdc]
-Parsing XDC File [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ip/design_1_axi_dma_0_1/design_1_axi_dma_0_1_clocks.xdc] for cell 'U0'
-Finished Parsing XDC File [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ip/design_1_axi_dma_0_1/design_1_axi_dma_0_1_clocks.xdc] for cell 'U0'
+Parsing XDC File [E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/design_1_axi_dma_0_1_synth_1/dont_touch.xdc]
+Finished Parsing XDC File [E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/design_1_axi_dma_0_1_synth_1/dont_touch.xdc]
+Parsing XDC File [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ip/design_1_axi_dma_0_1/design_1_axi_dma_0_1_clocks.xdc] for cell 'U0'
+Finished Parsing XDC File [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/bd/design_1/ip/design_1_axi_dma_0_1/design_1_axi_dma_0_1_clocks.xdc] for cell 'U0'
 INFO: [Project 1-236] Implementation specific constraints were found while reading constraint file [E:/Xilinx/Vivado/2024.1/data/ip/xpm/xpm_fifo/tcl/xpm_fifo_rst.tcl]. These constraints will be ignored for synthesis but will be used in implementation. Impacted constraints are listed in the file [.Xil/design_1_axi_dma_0_1_propImpl.xdc].
 Resolution: To avoid this warning, move constraints listed in [.Xil/design_1_axi_dma_0_1_propImpl.xdc] to another XDC file and exclude this new file from synthesis with the used_in_synthesis property (File Properties dialog in GUI) and re-run elaboration/synthesis.
 INFO: [Project 1-1714] 3 XPM XDC files have been applied to the design.
 Completed Processing XDC Constraints
 
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.001 . Memory (MB): peak = 2246.664 ; gain = 0.000
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.001 . Memory (MB): peak = 2234.004 ; gain = 0.000
 INFO: [Project 1-111] Unisim Transformation Summary:
   A total of 12 instances were transformed.
   FDR => FDRE: 12 instances
 
-Constraint Validation Runtime : Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.069 . Memory (MB): peak = 2250.512 ; gain = 3.848
+Constraint Validation Runtime : Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.050 . Memory (MB): peak = 2237.531 ; gain = 3.527
 INFO: [Designutils 20-5008] Incremental synthesis strategy off
 ---------------------------------------------------------------------------------
-Finished Constraint Validation : Time (s): cpu = 00:00:23 ; elapsed = 00:00:27 . Memory (MB): peak = 2250.512 ; gain = 774.039
+Finished Constraint Validation : Time (s): cpu = 00:00:18 ; elapsed = 00:00:21 . Memory (MB): peak = 2237.531 ; gain = 761.773
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Loading Part and Timing Information
@@ -569,17 +568,17 @@ Start Loading Part and Timing Information
 Loading part: xczu9eg-ffvb1156-2-e
 INFO: [Synth 8-6742] Reading net delay rules and data
 ---------------------------------------------------------------------------------
-Finished Loading Part and Timing Information : Time (s): cpu = 00:00:23 ; elapsed = 00:00:27 . Memory (MB): peak = 2250.512 ; gain = 774.039
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:18 ; elapsed = 00:00:21 . Memory (MB): peak = 2237.531 ; gain = 761.773
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Applying 'set_property' XDC Constraints
 ---------------------------------------------------------------------------------
-Applied set_property KEEP_HIERARCHY = SOFT for U0. (constraint file  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/design_1_axi_dma_0_1_synth_1/dont_touch.xdc, line 9).
+Applied set_property KEEP_HIERARCHY = SOFT for U0. (constraint file  E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/design_1_axi_dma_0_1_synth_1/dont_touch.xdc, line 9).
 Applied set_property KEEP_HIERARCHY = SOFT for U0/I_PRMRY_DATAMOVER/\GEN_MM2S_FULL.I_MM2S_FULL_WRAPPER /\GEN_INCLUDE_MM2S_SF.I_RD_SF /I_DATA_FIFO/\BLK_MEM.I_SYNC_FIFOGEN_FIFO /\xpm_fifo_instance.xpm_fifo_sync_inst . (constraint file  auto generated constraint).
 Applied set_property KEEP_HIERARCHY = SOFT for U0/I_PRMRY_DATAMOVER/\GEN_S2MM_FULL.I_S2MM_FULL_WRAPPER /\GEN_ENABLE_INDET_BTT_SF.I_INDET_BTT /I_DATA_FIFO/\BLK_MEM.I_SYNC_FIFOGEN_FIFO /\xpm_fifo_instance.xpm_fifo_sync_inst . (constraint file  auto generated constraint).
 Applied set_property KEEP_HIERARCHY = SOFT for U0/I_PRMRY_DATAMOVER/\GEN_S2MM_FULL.I_S2MM_FULL_WRAPPER /\GEN_ENABLE_INDET_BTT_SF.I_INDET_BTT /I_XD_FIFO/\NON_BLK_MEM.I_SYNC_FIFOGEN_FIFO /\xpm_fifo_instance.xpm_fifo_sync_inst . (constraint file  auto generated constraint).
 ---------------------------------------------------------------------------------
-Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:23 ; elapsed = 00:00:27 . Memory (MB): peak = 2250.512 ; gain = 774.039
+Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:18 ; elapsed = 00:00:21 . Memory (MB): peak = 2237.531 ; gain = 761.773
 ---------------------------------------------------------------------------------
 INFO: [Synth 8-802] inferred FSM for state register 'smpl_cs_reg' in module 'axi_dma_smple_sm'
 INFO: [Synth 8-802] inferred FSM for state register 'sig_pcc_sm_state_reg' in module 'axi_datamover_pcc'
@@ -675,7 +674,7 @@ INFO: [Synth 8-5775] Found 'rw_addr_collision' attribute set to 'no' on SDP RAM 
 ---------------------------------------------------------------------------------------------------
 INFO: [Synth 8-3354] encoded FSM with state register 'gen_fwft.curr_fwft_state_reg' using encoding 'sequential' in module 'xpm_fifo_base__parameterized1'
 ---------------------------------------------------------------------------------
-Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:25 ; elapsed = 00:00:30 . Memory (MB): peak = 2250.512 ; gain = 774.039
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:20 ; elapsed = 00:00:22 . Memory (MB): peak = 2237.531 ; gain = 761.773
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start RTL Component Statistics 
@@ -796,7 +795,7 @@ INFO: [Synth 8-3332] Sequential element (I_RST_MODULE/REG_HRD_RST_OUT/GENERATE_L
 INFO: [Synth 8-3332] Sequential element (I_RST_MODULE/REG_HRD_RST_OUT/GENERATE_LEVEL_P_S_CDC.SINGLE_BIT.CROSS_PLEVEL_IN2SCNDRY_s_level_out_d6) is unused and will be removed from module axi_dma.
 INFO: [Synth 8-3332] Sequential element (I_PRMRY_DATAMOVER/GEN_S2MM_FULL.I_S2MM_FULL_WRAPPER/GEN_INCLUDE_IBTTCC.I_S2MM_MSTR_IBTTCC/FSM_onehot_sig_csm_state_reg[3]) is unused and will be removed from module axi_dma.
 ---------------------------------------------------------------------------------
-Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:32 ; elapsed = 00:00:37 . Memory (MB): peak = 2250.512 ; gain = 774.039
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:25 ; elapsed = 00:00:28 . Memory (MB): peak = 2237.531 ; gain = 761.773
 ---------------------------------------------------------------------------------
 INFO: [Synth 8-5775] Found 'rw_addr_collision' attribute set to 'no' on SDP RAM gen_wr_a.gen_word_narrow.mem_reg. Setting write mode to NO_CHANGE 
 INFO: [Synth 8-5775] Found 'rw_addr_collision' attribute set to 'no' on SDP RAM gen_wr_a.gen_word_narrow.mem_reg. Setting write mode to NO_CHANGE 
@@ -831,7 +830,7 @@ Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
 Start Applying XDC Timing Constraints
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Applying XDC Timing Constraints : Time (s): cpu = 00:00:41 ; elapsed = 00:00:47 . Memory (MB): peak = 2540.891 ; gain = 1064.418
+Finished Applying XDC Timing Constraints : Time (s): cpu = 00:00:33 ; elapsed = 00:00:36 . Memory (MB): peak = 2560.555 ; gain = 1084.797
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Timing Optimization
@@ -839,7 +838,7 @@ Start Timing Optimization
 INFO: [Synth 8-5775] Found 'rw_addr_collision' attribute set to 'no' on SDP RAM gen_wr_a.gen_word_narrow.mem_reg. Setting write mode to NO_CHANGE 
 INFO: [Synth 8-5775] Found 'rw_addr_collision' attribute set to 'no' on SDP RAM gen_wr_a.gen_word_narrow.mem_reg. Setting write mode to NO_CHANGE 
 ---------------------------------------------------------------------------------
-Finished Timing Optimization : Time (s): cpu = 00:00:46 ; elapsed = 00:00:52 . Memory (MB): peak = 2649.539 ; gain = 1173.066
+Finished Timing Optimization : Time (s): cpu = 00:00:38 ; elapsed = 00:00:41 . Memory (MB): peak = 2667.809 ; gain = 1192.051
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start ROM, RAM, DSP, Shift Register and Retiming Reporting
@@ -868,7 +867,7 @@ Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
 Start Technology Mapping
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Technology Mapping : Time (s): cpu = 00:00:47 ; elapsed = 00:00:53 . Memory (MB): peak = 2667.625 ; gain = 1191.152
+Finished Technology Mapping : Time (s): cpu = 00:00:39 ; elapsed = 00:00:42 . Memory (MB): peak = 2685.863 ; gain = 1210.105
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start IO Insertion
@@ -888,37 +887,37 @@ Finished Final Netlist Cleanup
 INFO: [Synth 8-3295] tying undriven pin I_AXI_DMA_REG_MODULE/strm_valid_int2_inferred:in0 to constant 0
 INFO: [Synth 8-3295] tying undriven pin I_AXI_DMA_REG_MODULE/strm_valid_int_cdc_to_inferred:in0 to constant 0
 ---------------------------------------------------------------------------------
-Finished IO Insertion : Time (s): cpu = 00:00:50 ; elapsed = 00:00:55 . Memory (MB): peak = 2667.625 ; gain = 1191.152
+Finished IO Insertion : Time (s): cpu = 00:00:41 ; elapsed = 00:00:44 . Memory (MB): peak = 2685.863 ; gain = 1210.105
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Renaming Generated Instances
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Renaming Generated Instances : Time (s): cpu = 00:00:50 ; elapsed = 00:00:55 . Memory (MB): peak = 2667.625 ; gain = 1191.152
+Finished Renaming Generated Instances : Time (s): cpu = 00:00:41 ; elapsed = 00:00:44 . Memory (MB): peak = 2685.863 ; gain = 1210.105
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Rebuilding User Hierarchy
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Rebuilding User Hierarchy : Time (s): cpu = 00:00:50 ; elapsed = 00:00:55 . Memory (MB): peak = 2667.625 ; gain = 1191.152
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:00:41 ; elapsed = 00:00:44 . Memory (MB): peak = 2685.863 ; gain = 1210.105
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Renaming Generated Ports
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Renaming Generated Ports : Time (s): cpu = 00:00:50 ; elapsed = 00:00:55 . Memory (MB): peak = 2667.625 ; gain = 1191.152
+Finished Renaming Generated Ports : Time (s): cpu = 00:00:41 ; elapsed = 00:00:44 . Memory (MB): peak = 2685.863 ; gain = 1210.105
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Handling Custom Attributes
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Handling Custom Attributes : Time (s): cpu = 00:00:50 ; elapsed = 00:00:56 . Memory (MB): peak = 2667.625 ; gain = 1191.152
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:41 ; elapsed = 00:00:44 . Memory (MB): peak = 2685.863 ; gain = 1210.105
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Renaming Generated Nets
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Renaming Generated Nets : Time (s): cpu = 00:00:50 ; elapsed = 00:00:56 . Memory (MB): peak = 2667.625 ; gain = 1191.152
+Finished Renaming Generated Nets : Time (s): cpu = 00:00:41 ; elapsed = 00:00:44 . Memory (MB): peak = 2685.863 ; gain = 1210.105
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start ROM, RAM, DSP, Shift Register and Retiming Reporting
@@ -972,18 +971,18 @@ Report Cell Usage:
 |15    |FDSE     |    78|
 +------+---------+------+
 ---------------------------------------------------------------------------------
-Finished Writing Synthesis Report : Time (s): cpu = 00:00:50 ; elapsed = 00:00:56 . Memory (MB): peak = 2667.625 ; gain = 1191.152
+Finished Writing Synthesis Report : Time (s): cpu = 00:00:41 ; elapsed = 00:00:44 . Memory (MB): peak = 2685.863 ; gain = 1210.105
 ---------------------------------------------------------------------------------
 Synthesis finished with 0 errors, 0 critical warnings and 948 warnings.
-Synthesis Optimization Runtime : Time (s): cpu = 00:00:31 ; elapsed = 00:00:50 . Memory (MB): peak = 2667.625 ; gain = 1151.961
-Synthesis Optimization Complete : Time (s): cpu = 00:00:50 ; elapsed = 00:00:56 . Memory (MB): peak = 2667.625 ; gain = 1191.152
+Synthesis Optimization Runtime : Time (s): cpu = 00:00:27 ; elapsed = 00:00:40 . Memory (MB): peak = 2685.863 ; gain = 1180.613
+Synthesis Optimization Complete : Time (s): cpu = 00:00:42 ; elapsed = 00:00:45 . Memory (MB): peak = 2685.863 ; gain = 1210.105
 INFO: [Project 1-571] Translating synthesized netlist
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.050 . Memory (MB): peak = 2667.625 ; gain = 0.000
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.050 . Memory (MB): peak = 2685.863 ; gain = 0.000
 INFO: [Netlist 29-17] Analyzing 33 Unisim elements for replacement
 INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
 INFO: [Project 1-570] Preparing netlist for logic optimization
 INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2667.625 ; gain = 0.000
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.001 . Memory (MB): peak = 2685.863 ; gain = 0.000
 INFO: [Project 1-111] Unisim Transformation Summary:
   A total of 9 instances were transformed.
   FDR => FDRE: 8 instances
@@ -993,12 +992,12 @@ Synth Design complete | Checksum: 1839b36d
 INFO: [Common 17-83] Releasing license: Synthesis
 313 Infos, 160 Warnings, 0 Critical Warnings and 0 Errors encountered.
 synth_design completed successfully
-synth_design: Time (s): cpu = 00:00:57 ; elapsed = 00:01:12 . Memory (MB): peak = 2667.625 ; gain = 2164.645
-Write ShapeDB Complete: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.002 . Memory (MB): peak = 2667.625 ; gain = 0.000
-INFO: [Common 17-1381] The checkpoint 'E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/design_1_axi_dma_0_1_synth_1/design_1_axi_dma_0_1.dcp' has been generated.
+synth_design: Time (s): cpu = 00:00:47 ; elapsed = 00:00:51 . Memory (MB): peak = 2685.863 ; gain = 2183.488
+Write ShapeDB Complete: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.002 . Memory (MB): peak = 2685.863 ; gain = 0.000
+INFO: [Common 17-1381] The checkpoint 'E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/design_1_axi_dma_0_1_synth_1/design_1_axi_dma_0_1.dcp' has been generated.
 INFO: [Coretcl 2-1648] Added synthesis output to IP cache for IP design_1_axi_dma_0_1, cache-ID = cc20fdf841e64467
 INFO: [Coretcl 2-1174] Renamed 129 cell refs.
-Write ShapeDB Complete: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.003 . Memory (MB): peak = 2667.625 ; gain = 0.000
-INFO: [Common 17-1381] The checkpoint 'E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/design_1_axi_dma_0_1_synth_1/design_1_axi_dma_0_1.dcp' has been generated.
+Write ShapeDB Complete: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.002 . Memory (MB): peak = 2685.863 ; gain = 0.000
+INFO: [Common 17-1381] The checkpoint 'E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/design_1_axi_dma_0_1_synth_1/design_1_axi_dma_0_1.dcp' has been generated.
 INFO: [Vivado 12-24828] Executing command : report_utilization -file design_1_axi_dma_0_1_utilization_synth.rpt -pb design_1_axi_dma_0_1_utilization_synth.pb
-INFO: [Common 17-206] Exiting Vivado at Wed Apr  8 19:37:02 2026...
+INFO: [Common 17-206] Exiting Vivado at Thu Apr 16 06:40:43 2026...

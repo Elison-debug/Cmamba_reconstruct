@@ -141,6 +141,7 @@ module reuse_mamba_board_shell #(
     wire                           preload_h_busy;
     wire                           preload_h_done;
     wire                           dma_error;
+    wire                           g_axis_tready_unused;
 
     wire                           h_wr_en;
     wire [4:0]                     h_wr_addr;
@@ -154,6 +155,9 @@ module reuse_mamba_board_shell #(
 
     assign rst_n_int      = ext_reset_n & ~core_soft_reset_pulse;
     assign dma_error      = 1'b0;
+    // Legacy g-stream debug input is intentionally ignored in board-shell dataflow mode.
+    // Keep AXIS port for BD compatibility, but always advertise ready and drive zeros into core.
+    assign s_axis_g_tready = 1'b1;
     assign irq            = (irq_enable[0] & block_done) |
                             (irq_enable[1] & preload_h_done) |
                             (irq_enable[2] & dma_error);
@@ -287,9 +291,9 @@ module reuse_mamba_board_shell #(
         .block_done      (block_done),
         .s_axis_tvalid   (core_block_start_pulse),
         .s_axis_tready   (),
-        .g_axis_tvalid   (s_axis_g_tvalid),
-        .g_axis_tready   (s_axis_g_tready),
-        .g_axis_tdata    (s_axis_g_tdata),
+        .g_axis_tvalid   (1'b0),
+        .g_axis_tready   (g_axis_tready_unused),
+        .g_axis_tdata    ({(TILE_SIZE*DATA_WIDTH){1'b0}}),
         .y_axis_tvalid   (m_axis_y_tvalid),
         .y_axis_tready   (m_axis_y_tready),
         .y_axis_tdata    (m_axis_y_tdata),

@@ -84,7 +84,7 @@ This is far more than enough for the present kernel size.
 - `Processor System Reset`
 - `AXI Interrupt Controller` or `xlconcat` if needed
 - current compute wrapper:
-  - [reuse_mamba_board_shell.sv](/e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_board_shell.sv)
+  - [reuse_mamba_board_shell.sv](/e:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_mamba_board_shell.sv)
 
 ## DMA Topology
 
@@ -172,9 +172,9 @@ Use 4 KB alignment minimum.
 ## Current RTL Hooks
 
 Implemented shell files:
-- [reuse_mamba_axi_lite_regs.sv](/e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_axi_lite_regs.sv)
-- [reuse_mamba_h_stream_loader.sv](/e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_h_stream_loader.sv)
-- [reuse_mamba_board_shell.sv](/e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_board_shell.sv)
+- [reuse_mamba_axi_lite_regs.sv](/e:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_mamba_axi_lite_regs.sv)
+- [reuse_mamba_h_stream_loader.sv](/e:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_mamba_h_stream_loader.sv)
+- [reuse_mamba_board_shell.sv](/e:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_mamba_board_shell.sv)
 
 What is already wired:
 - AXI4-Lite control/status

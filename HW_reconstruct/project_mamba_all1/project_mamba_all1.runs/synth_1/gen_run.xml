@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<GenRun Id="synth_1" LaunchPart="xczu9eg-ffvb1156-2-e" LaunchTime="1776303754" LaunchIncrCheckpoint="$PSRCDIR/utils_1/imports/synth_1/reuse_mamba_block_top.dcp">
+<GenRun Id="synth_1" LaunchPart="xczu9eg-ffvb1156-2-e" LaunchTime="1776322039" LaunchIncrCheckpoint="$PSRCDIR/utils_1/imports/synth_1/reuse_mamba_block_top.dcp">
   <File Type="PA-TCL" Name="reuse_mamba_board_shell.tcl"/>
   <File Type="RDS-PROPCONSTRS" Name="reuse_mamba_board_shell_drc_synth.rpt"/>
   <File Type="REPORTS-TCL" Name="reuse_mamba_board_shell_reports.tcl"/>
@@ -11,20 +11,6 @@
   <File Type="VDS-TIMING-PB" Name="reuse_mamba_board_shell_timing_summary_synth.pb"/>
   <FileSet Name="sources" Type="DesignSrcs" RelSrcDir="$PSRCDIR/sources_1" RelGenDir="$PGENDIR/sources_1">
     <Filter Type="Srcs"/>
-    <File Path="$PSRCDIR/sources_1/ip/s_buffer/s_buffer.xci">
-      <FileInfo>
-        <Attr Name="UsedIn" Val="synthesis"/>
-        <Attr Name="UsedIn" Val="implementation"/>
-        <Attr Name="UsedIn" Val="simulation"/>
-      </FileInfo>
-    </File>
-    <File Path="$PSRCDIR/sources_1/ip/bias2sigmoid_fifo/bias2sigmoid_fifo.xci">
-      <FileInfo>
-        <Attr Name="UsedIn" Val="synthesis"/>
-        <Attr Name="UsedIn" Val="implementation"/>
-        <Attr Name="UsedIn" Val="simulation"/>
-      </FileInfo>
-    </File>
     <File Path="$PPRDIR/../rtl_reuse_shared/reuse_mamba_h_stream_loader.v">
       <FileInfo>
         <Attr Name="UsedIn" Val="synthesis"/>
@@ -322,14 +308,6 @@
         <Attr Name="UsedIn" Val="simulation"/>
       </FileInfo>
     </File>
-    <File Path="$PGENDIR/sources_1/bd/design_1/hdl/design_1_wrapper.v">
-      <FileInfo>
-        <Attr Name="AutoDisabled" Val="1"/>
-        <Attr Name="UsedIn" Val="synthesis"/>
-        <Attr Name="UsedIn" Val="implementation"/>
-        <Attr Name="UsedIn" Val="simulation"/>
-      </FileInfo>
-    </File>
     <File Path="$PPRDIR/../rtl_reuse_shared/reuse_slim_mac_mem_controller_combined_dp.sv">
       <FileInfo>
         <Attr Name="AutoDisabled" Val="1"/>
@@ -382,6 +360,12 @@
         <Attr Name="UsedIn" Val="simulation"/>
       </FileInfo>
     </File>
+    <File Path="$PSRCDIR/sources_1/ip/inproj_ht_sram_ip/INIT_COE.coe">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
     <Config>
       <Option Name="DesignMode" Val="RTL"/>
       <Option Name="TopModule" Val="reuse_mamba_board_shell"/>
@@ -420,10 +404,12 @@
     <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2024"/>
     <Step Id="synth_design"/>
   </Strategy>
-  <BlockFileSet Type="BlockSrcs" Name="design_1_proc_sys_reset_0_0"/>
   <BlockFileSet Type="BlockSrcs" Name="inproj_ht_sram_ip"/>
+  <BlockFileSet Type="BlockSrcs" Name="design_1_proc_sys_reset_0_0"/>
   <BlockFileSet Type="BlockSrcs" Name="design_1_axi_dma_0_1"/>
+  <BlockFileSet Type="BlockSrcs" Name="s_buffer"/>
   <BlockFileSet Type="BlockSrcs" Name="design_1_zynq_ultra_ps_e_0_0"/>
+  <BlockFileSet Type="BlockSrcs" Name="bias2sigmoid_fifo"/>
   <BlockFileSet Type="BlockSrcs" Name="design_1_axi_dma_0_0"/>
   <BlockFileSet Type="BlockSrcs" Name="inproj_vec_out_sram_ip"/>
   <BlockFileSet Type="BlockSrcs" Name="bias_ROM"/>

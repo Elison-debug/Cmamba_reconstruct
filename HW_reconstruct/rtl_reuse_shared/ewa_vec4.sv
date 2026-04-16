@@ -25,8 +25,7 @@ module ewa_vec4 #(
     assign in_ready = out_ready || !out_valid;
 
     logic [W-1:0] y_next [TILE_SIZE-1:0];
-    logic [W:0]   sum_vec [TILE_SIZE-1:0];
-    logic [15:0]  requant_dummy_scale [TILE_SIZE-1:0];
+    logic signed [W:0] sum_vec [TILE_SIZE-1:0];
 
     always_comb begin
         for (int i=0;i<TILE_SIZE;i++) begin
@@ -40,21 +39,26 @@ module ewa_vec4 #(
         end
     end
 
-    requant_round_sat_engine #(
-        .TILE_SIZE  (TILE_SIZE),
-        .IN_W       (W + 1),
-        .OUT_W      (W),
-        .SHIFT      (0),
-        .SIGNED_IN  (SIGNED_IO),
-        .SIGNED_OUT (SIGNED_IO),
-        .USE_SCALE  (0),
-        .ROUND_MODE (0),
-        .SAT_MODE   (SAT_MODE)
-    ) u_requant (
-        .in_vec  (sum_vec),
-        .scale_vec(requant_dummy_scale),
-        .out_vec (y_next)
-    );
+    always_comb begin
+        for (int i=0;i<TILE_SIZE;i++) begin
+            logic signed [W-1:0] sat_max;
+            logic signed [W-1:0] sat_min;
+            sat_max = {1'b0, {(W-1){1'b1}}};
+            sat_min = {1'b1, {(W-1){1'b0}}};
+            if (SAT_MODE == 0) begin
+                y_next[i] = sum_vec[i][W-1:0];
+            end else if (SIGNED_IO) begin
+                if (sum_vec[i] > $signed(sat_max)) y_next[i] = sat_max;
+                else if (sum_vec[i] < $signed(sat_min)) y_next[i] = sat_min;
+                else y_next[i] = sum_vec[i][W-1:0];
+            end else begin
+                logic [W:0] sum_u;
+                sum_u = $unsigned(sum_vec[i]);
+                if (sum_u[W]) y_next[i] = {W{1'b1}};
+                else y_next[i] = sum_u[W-1:0];
+            end
+        end
+    end
 
     always_ff @(posedge clk) begin
         if (!rst_n) begin

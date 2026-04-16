@@ -248,6 +248,9 @@ module tb_reuse_mamba_board_shell_ps;
                 $error("[%0t] FIRST y mismatch idx=%0d lane=%0d got=%0d exp=%0d",
                        $time, y_stream_idx, lane, got_v, exp_v);
                 first_y_mismatch_seen = 1'b1;
+              end else begin 
+                $display("[%0t] %0d y mismatch idx=%0d lane=%0d got=%0d exp=%0d",
+                       $time,y_stream_errors, y_stream_idx, lane, got_v, exp_v);
               end
             end
           end

@@ -51,20 +51,37 @@ module reuse_ht_sram_sp #(
             wr_pack[i*DATA_WIDTH +: DATA_WIDTH] = wr_data[i];
     end
 
-    inproj_ht_sram_ip u_ht_ip (
-        .clka (clk),
-        .ena  (wr_en),
-        .wea  (wr_en),
-        .addra(wr_addr),
-        .dina (wr_pack),
-        .douta(),
-        .clkb (clk),
-        .enb  (rd_en),
-        .web  (1'b0),
-        .addrb(rd_addr),
-        .dinb ('0),
-        .doutb(q)
-    );
+    if (ADDR_W == 5) begin : g_ht_sp_ip_32
+        inproj_ht_sram_ip u_ht_ip (
+            .clka (clk),
+            .ena  (wr_en),
+            .wea  (wr_en),
+            .addra(wr_addr),
+            .dina (wr_pack),
+            .douta(),
+            .clkb (clk),
+            .enb  (rd_en),
+            .web  (1'b0),
+            .addrb(rd_addr),
+            .dinb ('0),
+            .doutb(q)
+        );
+    end else begin : g_ht_sp_ip_64
+        inproj_vec_out_sram_ip u_ht_ip (
+            .clka (clk),
+            .ena  (wr_en),
+            .wea  (wr_en),
+            .addra(wr_addr),
+            .dina (wr_pack),
+            .douta(),
+            .clkb (clk),
+            .enb  (rd_en),
+            .web  (1'b0),
+            .addrb(rd_addr),
+            .dinb ('0),
+            .doutb(q)
+        );
+    end
 
     always_comb begin
         for (int i = 0; i < TILE_SIZE; i++)
