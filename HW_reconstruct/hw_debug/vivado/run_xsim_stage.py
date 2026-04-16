@@ -158,6 +158,8 @@ def main() -> None:
 
     lut_src = _lut_src(args.case_dir or None)
     shutil.copyfile(lut_src, run_dir / "sigmoid_lut_q016_2048.hex")
+    for mif in PROJ_IP_GEN_DIR.rglob("*.mif"):
+        shutil.copyfile(mif, run_dir / mif.name)
 
     prj = run_dir / "files.prj"
     with open(prj, "w", encoding="utf-8") as f:

@@ -8,9 +8,3 @@ set_property KEEP_HIERARCHY SOFT [get_cells -hier -filter {REF_NAME==s_buffer ||
 
 # IP: ip/bias2sigmoid_fifo/bias2sigmoid_fifo.xci
 set_property KEEP_HIERARCHY SOFT [get_cells -hier -filter {REF_NAME==bias2sigmoid_fifo || ORIG_REF_NAME==bias2sigmoid_fifo} -quiet] -quiet
-
-# IP: ip/bias_ROM/bias_ROM.xci
-set_property KEEP_HIERARCHY SOFT [get_cells -hier -filter {REF_NAME==bias_ROM || ORIG_REF_NAME==bias_ROM} -quiet] -quiet
-
-# IP: ip/inproj_vec_out_sram_ip/inproj_vec_out_sram_ip.xci
-set_property KEEP_HIERARCHY SOFT [get_cells -hier -filter {REF_NAME==inproj_vec_out_sram_ip || ORIG_REF_NAME==inproj_vec_out_sram_ip} -quiet] -quiet

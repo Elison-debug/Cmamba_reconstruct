@@ -3,8 +3,8 @@
 # SW Build 5076996 on Wed May 22 18:37:14 MDT 2024
 # IP Build 5075265 on Wed May 22 21:45:21 MDT 2024
 # SharedData Build 5076995 on Wed May 22 18:29:18 MDT 2024
-# Start of session at: Tue Apr 14 03:44:59 2026
-# Process ID: 21260
+# Start of session at: Thu Apr 16 03:07:20 2026
+# Process ID: 152784
 # Current directory: E:/course/smamba
 # Command line: vivado.exe HW_reconstruct\project_mamba_all1\project_mamba_all1.xpr
 # Log file: E:/course/smamba/vivado.log
@@ -17,19 +17,187 @@
 # CPU Physical cores:14
 # CPU Logical cores :20
 # Host memory       :34163 MB
-# Swap memory       :45814 MB
-# Total Virtual     :79978 MB
-# Available Virtual :14138 MB
+# Swap memory       :37359 MB
+# Total Virtual     :71523 MB
+# Available Virtual :10257 MB
 #-----------------------------------------------------------
 start_gui
 open_project HW_reconstruct/project_mamba_all1/project_mamba_all1.xpr
 update_compile_order -fileset sources_1
-reset_simulation -simset sim_1 -mode behavioral
-launch_simulation
-reset_simulation -simset sim_1 -mode behavioral
-launch_simulation
-reset_simulation -simset sim_1 -mode behavioral
 launch_simulation
 source tb_reuse_mamba_block_top_hw_debug.tcl
 run all
 close_sim
+current_fileset -simset [ get_filesets sim_3 ]
+launch_simulation -simset [get_filesets sim_3 ]
+reset_simulation -simset sim_3 -mode behavioral
+launch_simulation -simset [get_filesets sim_3 ]
+reset_simulation -simset sim_3 -mode behavioral
+launch_simulation -simset [get_filesets sim_3 ]
+reset_simulation -simset sim_3 -mode behavioral
+launch_simulation -simset [get_filesets sim_3 ]
+reset_simulation -simset sim_3 -mode behavioral
+launch_simulation -simset [get_filesets sim_3 ]
+open_wave_config E:/course/smamba/HW_reconstruct/project_mamba_all1/tb_reuse_in_proj_scheduler_behav.wcfg
+source tb_reuse_mamba_board_shell.tcl
+run all
+current_wave_config {tb_reuse_in_proj_scheduler_behav.wcfg}
+add_wave {{/tb_reuse_mamba_board_shell/dut}} 
+restart
+run all
+save_wave_config {E:/course/smamba/HW_reconstruct/project_mamba_all1/tb_reuse_in_proj_scheduler_behav.wcfg}
+close_sim
+# Disabling source management mode.  This is to allow the top design properties to be set without GUI intervention.
+set_property source_mgmt_mode None [current_project]
+set_property top reuse_mamba_board_shell [current_fileset]
+set_property top_lib xil_defaultlib [current_fileset]
+set_property top_file E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_mamba_board_shell.v [current_fileset]
+# Re-enabling previously disabled source management mode.
+set_property source_mgmt_mode All [current_project]
+update_compile_order -fileset sources_1
+update_module_reference design_1_reuse_mamba_board_sh_0_1
+launch_runs synth_1 -jobs 20
+wait_on_run synth_1
+reset_run synth_1
+launch_runs synth_1 -jobs 20
+wait_on_run synth_1
+launch_simulation -simset [get_filesets sim_3 ] -mode post-synthesis -type functional
+set_property SOURCE_SET sources_1 [get_filesets sim_3]
+add_files -fileset sim_3 -norecurse -scan_for_includes E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv
+update_compile_order -fileset sim_3
+# Disabling source management mode.  This is to allow the top design properties to be set without GUI intervention.
+set_property source_mgmt_mode None [current_project]
+set_property top tb_reuse_mamba_board_shell_ps [get_filesets sim_3]
+set_property top_lib xil_defaultlib [get_filesets sim_3]
+# Re-enabling previously disabled source management mode.
+set_property source_mgmt_mode All [current_project]
+update_compile_order -fileset sim_3
+launch_simulation -simset [get_filesets sim_3 ] -mode post-synthesis -type functional
+reset_simulation -simset sim_3 -mode post-synthesis -type functional
+launch_simulation -simset [get_filesets sim_3 ] -mode post-synthesis -type functional
+reset_simulation -simset sim_3 -mode post-synthesis -type functional
+launch_simulation -simset [get_filesets sim_3 ] -mode post-synthesis -type functional
+reset_simulation -simset sim_3 -mode post-synthesis -type functional
+launch_simulation -simset [get_filesets sim_3 ] -mode post-synthesis -type functional
+open_wave_config E:/course/smamba/HW_reconstruct/project_mamba_all1/tb_reuse_in_proj_scheduler_behav.wcfg
+source tb_reuse_mamba_board_shell_ps.tcl
+current_wave_config {tb_reuse_in_proj_scheduler_behav.wcfg}
+add_wave {{/tb_reuse_mamba_board_shell_ps}} 
+run all
+restart
+run all
+run 5 us
+run 5 us
+run 5 us
+current_wave_config {tb_reuse_in_proj_scheduler_behav.wcfg}
+add_wave {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core}} 
+restart
+run all
+run all
+synth_design -rtl -rtl_skip_mlo -name rtl_1
+synth_design -top reuse_mamba_board_shell -part xczu9eg-ffvb1156-2-e -lint 
+current_design synth_1
+current_wave_config {tb_reuse_in_proj_scheduler_behav.wcfg}
+add_wave {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/u_copy0}} 
+current_wave_config {tb_reuse_in_proj_scheduler_behav.wcfg}
+add_wave {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/u_copy0/clkb}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/u_copy0/addra}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/u_copy0/addrb}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/u_copy0/clka}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/u_copy0/dina}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/u_copy0/dinb}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/u_copy0/douta}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/u_copy0/doutb}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/u_copy0/ena}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/u_copy0/enb}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/u_copy0/wea}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/u_copy0/web}} 
+current_wave_config {tb_reuse_in_proj_scheduler_behav.wcfg}
+add_wave {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_u_sram/u_vec_ip}} 
+current_wave_config {tb_reuse_in_proj_scheduler_behav.wcfg}
+add_wave {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/u_copy0/clkb}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/u_copy0/addra}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/u_copy0/addrb}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/u_copy0/clka}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/u_copy0/dina}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/u_copy0/dinb}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/u_copy0/douta}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/u_copy0/doutb}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/u_copy0/ena}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/u_copy0/enb}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/u_copy0/wea}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/u_copy0/web}} 
+current_wave_config {tb_reuse_in_proj_scheduler_behav.wcfg}
+add_wave {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_u_sram/u_vec_ip/u_copy0/clkb}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_u_sram/u_vec_ip/u_copy0/addra}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_u_sram/u_vec_ip/u_copy0/addrb}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_u_sram/u_vec_ip/u_copy0/clka}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_u_sram/u_vec_ip/u_copy0/dina}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_u_sram/u_vec_ip/u_copy0/dinb}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_u_sram/u_vec_ip/u_copy0/douta}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_u_sram/u_vec_ip/u_copy0/doutb}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_u_sram/u_vec_ip/u_copy0/ena}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_u_sram/u_vec_ip/u_copy0/enb}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_u_sram/u_vec_ip/u_copy0/wea}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_u_sram/u_vec_ip/u_copy0/web}} 
+restart
+run all
+launch_simulation -simset [get_filesets sim_3 ]
+launch_simulation -simset [get_filesets sim_3 ]
+open_wave_config E:/course/smamba/HW_reconstruct/project_mamba_all1/tb_reuse_in_proj_scheduler_behav.wcfg
+source tb_reuse_mamba_board_shell_ps.tcl
+current_wave_config {tb_reuse_in_proj_scheduler_behav.wcfg}
+add_wave {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/u_copy0}} 
+current_wave_config {tb_reuse_in_proj_scheduler_behav.wcfg}
+add_wave {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_u_sram/u_vec_ip/u_copy0}} 
+restart
+run all
+current_sim simulation_3
+restart
+current_wave_config {tb_reuse_in_proj_scheduler_behav.wcfg}
+add_wave {{/tb_reuse_mamba_board_shell_ps}} 
+current_wave_config {tb_reuse_in_proj_scheduler_behav.wcfg}
+current_sim simulation_4
+add_wave {{/tb_reuse_mamba_board_shell_ps}} 
+restart
+run all
+current_sim simulation_3
+run all
+current_wave_config {tb_reuse_in_proj_scheduler_behav.wcfg}
+add_wave {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/wr_data}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/x_path_ready}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/xt_v}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/z_gate_rd_addr}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/z_stream_start_int}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/z_stream_start_int_i_2_n_0}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/z_stream_valid}} 
+current_wave_config {tb_reuse_in_proj_scheduler_behav.wcfg}
+add_wave {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/dt_valid_in}} 
+current_wave_config {tb_reuse_in_proj_scheduler_behav.wcfg}
+add_wave {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/dt_valid_out}} 
+current_wave_config {tb_reuse_in_proj_scheduler_behav.wcfg}
+add_wave {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/active_valid_in}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/dt_valid_in}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/dt_valid_out}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/fabric_valid_out}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/in_valid_in}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/in_valid_out}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/out_valid_out}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/silu_valid}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/ssm_p_valid}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_stream_valid}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/uact_valid}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/valid_in}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/z_stream_valid}} 
+current_wave_config {tb_reuse_in_proj_scheduler_behav.wcfg}
+add_wave {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/\\dt_mac_vec[0]_108  }} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/\\dt_mac_vec[1]_109  }} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/\\dt_mac_vec[2]_110  }} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/\\dt_mac_vec[3]_111  }} 
+current_wave_config {tb_reuse_in_proj_scheduler_behav.wcfg}
+add_wave {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/p_wr_en}} 
+current_sim simulation_4
+relaunch_sim
+set_property SOURCE_SET sources_1 [get_filesets sim_3]
+add_files -fileset sim_3 -norecurse -scan_for_includes E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_com_ps.sv
+update_compile_order -fileset sim_3
+# Disabling source management mode.  This is to allow the top design properties to be set without GUI intervention.
+set_property source_mgmt_mode None [current_project]
+# Re-enabling previously disabled source management mode.
+set_property source_mgmt_mode All [current_project]
+# Disabling source management mode.  This is to allow the top design properties to be set without GUI intervention.
+set_property source_mgmt_mode None [current_project]
+set_property top tb_reuse_mamba_board_shell_com_ps [get_filesets sim_3]
+set_property top_lib xil_defaultlib [get_filesets sim_3]
+# Re-enabling previously disabled source management mode.
+set_property source_mgmt_mode All [current_project]
+current_sim simulation_3
+update_compile_order -fileset sim_3
+current_sim simulation_4
+relaunch_sim
+close_sim
+update_compile_order -fileset sim_3
+# Disabling source management mode.  This is to allow the top design properties to be set without GUI intervention.
+set_property source_mgmt_mode None [current_project]
+set_property top tb_reuse_mamba_board_shell_ps [get_filesets sim_3]
+set_property top_lib xil_defaultlib [get_filesets sim_3]
+# Re-enabling previously disabled source management mode.
+set_property source_mgmt_mode All [current_project]
+update_compile_order -fileset sim_3
+relaunch_sim
+relaunch_sim
+save_wave_config {E:/course/smamba/HW_reconstruct/project_mamba_all1/tb_reuse_in_proj_scheduler_behav.wcfg}
+close_sim
+reset_simulation -simset sim_3 -mode behavioral
+reset_simulation -simset sim_3 -mode post-synthesis -type functional
+launch_simulation -simset [get_filesets sim_3 ] -mode post-synthesis -type functional
+reset_simulation -simset sim_3 -mode post-synthesis -type functional
+launch_simulation -simset [get_filesets sim_3 ] -mode post-synthesis -type functional
+reset_simulation -simset sim_3 -mode post-synthesis -type functional
+synth_design -top reuse_mamba_board_shell -part xczu9eg-ffvb1156-2-e -lint 
+report_methodology -name ultrafast_methodology_1
+show_objects -name find_1 [get_cells -hierarchical -filter { IS_BLACKBOX == "TRUE" } ]
+create_dataflow_design
+synth_design -top reuse_mamba_board_shell -part xczu9eg-ffvb1156-2-e -lint 
+synth_design -top reuse_mamba_board_shell -part xczu9eg-ffvb1156-2-e -lint 
+launch_simulation -simset [get_filesets sim_3 ] -mode post-synthesis -type functional
+current_design dfvnl_16_synth_1
+close_design
+launch_simulation -simset [get_filesets sim_3 ] -mode post-synthesis -type functional
+reset_simulation -simset sim_3 -mode post-synthesis -type functional
+launch_simulation -simset [get_filesets sim_3 ] -mode post-synthesis -type functional
+reset_simulation -simset sim_3 -mode behavioral
+reset_simulation -simset sim_3 -mode post-synthesis -type functional
+launch_simulation -simset [get_filesets sim_3 ] -mode post-synthesis -type functional
+open_wave_config E:/course/smamba/HW_reconstruct/project_mamba_all1/tb_reuse_in_proj_scheduler_behav.wcfg
+source tb_reuse_mamba_board_shell_ps.tcl
+current_wave_config {tb_reuse_in_proj_scheduler_behav.wcfg}
+add_wave {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core}} 
+restart
+run all

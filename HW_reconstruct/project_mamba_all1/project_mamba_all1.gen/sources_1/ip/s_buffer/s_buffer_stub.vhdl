@@ -2,10 +2,10 @@
 -- Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
 -- --------------------------------------------------------------------------------
 -- Tool Version: Vivado v.2024.1 (win64) Build 5076996 Wed May 22 18:37:14 MDT 2024
--- Date        : Tue Apr 14 02:32:06 2026
+-- Date        : Fri Apr  3 02:16:10 2026
 -- Host        : 13600kf running 64-bit major release  (build 9200)
 -- Command     : write_vhdl -force -mode synth_stub
---               e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/s_buffer/s_buffer_stub.vhdl
+--               e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/s_buffer/s_buffer_stub.vhdl
 -- Design      : s_buffer
 -- Purpose     : Stub declaration of top-level module interface
 -- Device      : xczu9eg-ffvb1156-2-e

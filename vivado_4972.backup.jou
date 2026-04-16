@@ -1,0 +1,24 @@
+#-----------------------------------------------------------
+# Vivado v2024.1 (64-bit)
+# SW Build 5076996 on Wed May 22 18:37:14 MDT 2024
+# IP Build 5075265 on Wed May 22 21:45:21 MDT 2024
+# SharedData Build 5076995 on Wed May 22 18:29:18 MDT 2024
+# Start of session at: Wed Apr 15 22:09:23 2026
+# Process ID: 4972
+# Current directory: E:/course/smamba
+# Command line: vivado.exe -mode batch -source HW_reconstruct\tools\clear_runtime_ram_init.tcl
+# Log file: E:/course/smamba/vivado.log
+# Journal file: E:/course/smamba\vivado.jou
+# Running On        :13600kf
+# Platform          :Windows Server 2016 or Windows 10
+# Operating System  :26200
+# Processor Detail  :13th Gen Intel(R) Core(TM) i5-13600KF
+# CPU Frequency     :3494 MHz
+# CPU Physical cores:14
+# CPU Logical cores :20
+# Host memory       :34163 MB
+# Swap memory       :34163 MB
+# Total Virtual     :68327 MB
+# Available Virtual :11536 MB
+#-----------------------------------------------------------
+source {HW_reconstruct\tools\clear_runtime_ram_init.tcl}

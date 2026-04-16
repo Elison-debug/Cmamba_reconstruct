@@ -287,22 +287,22 @@ module tb_reuse_mamba_board_shell_ps;
       pcap_dbg_count    <= 0;
       y_dbg_count       <= 0;
     end else begin
-      if (dut.u_core.u_core.dt_mac_valid && dt_dbg_count < 4) begin
-        $display("[%0t] DEBUG dt_mac[%0d] = {%0h,%0h,%0h,%0h}", $time, dt_dbg_count, dut.u_core.u_core.dt_mac_vec[0], dut.u_core.u_core.dt_mac_vec[1], dut.u_core.u_core.dt_mac_vec[2], dut.u_core.u_core.dt_mac_vec[3]);
-        dt_dbg_count <= dt_dbg_count + 1;
-      end
-      if (dut.u_core.u_core.ssm_p_valid && ssm_dbg_count < 4) begin
-        $display("[%0t] DEBUG ssm_p[%0d] = {%0h,%0h,%0h,%0h}", $time, ssm_dbg_count, dut.u_core.u_core.ssm_p_data[0], dut.u_core.u_core.ssm_p_data[1], dut.u_core.u_core.ssm_p_data[2], dut.u_core.u_core.ssm_p_data[3]);
-        ssm_dbg_count <= ssm_dbg_count + 1;
-      end
-      if (dut.u_core.u_core.p_wr_en && pcap_dbg_count < 4) begin
-        $display("[%0t] DEBUG pcap[%0d] = {%0h,%0h,%0h,%0h}", $time, pcap_dbg_count, dut.u_core.u_core.p_wr_data[0], dut.u_core.u_core.p_wr_data[1], dut.u_core.u_core.p_wr_data[2], dut.u_core.u_core.p_wr_data[3]);
-        pcap_dbg_count <= pcap_dbg_count + 1;
-      end
-      if (m_axis_y_tvalid && m_axis_y_tready && y_dbg_count < 4) begin
-        $display("[%0t] DEBUG y[%0d] = {%0h,%0h,%0h,%0h}", $time, y_dbg_count, m_axis_y_tdata[15:0], m_axis_y_tdata[31:16], m_axis_y_tdata[47:32], m_axis_y_tdata[63:48]);
-        y_dbg_count <= y_dbg_count + 1;
-      end
+      //  if (dut.u_core.u_core.u_dt_sched.dt_mac_valid && dt_dbg_count < 4) begin
+      //    $display("[%0t] DEBUG dt_mac[%0d] = {%0h,%0h,%0h,%0h}", $time, dt_dbg_count, dut.u_core.u_core.dt_mac_vec[0], dut.u_core.u_core.dt_mac_vec[1], dut.u_core.u_core.dt_mac_vec[2], dut.u_core.u_core.dt_mac_vec[3]);
+      //    dt_dbg_count <= dt_dbg_count + 1;
+      //  end
+//       if (dut.u_core.u_core.ssm_p_valid && ssm_dbg_count < 4) begin
+//         $display("[%0t] DEBUG ssm_p[%0d] = {%0h,%0h,%0h,%0h}", $time, ssm_dbg_count, dut.u_core.u_core.ssm_p_data[0], dut.u_core.u_core.ssm_p_data[1], dut.u_core.u_core.ssm_p_data[2], dut.u_core.u_core.ssm_p_data[3]);
+//         ssm_dbg_count <= ssm_dbg_count + 1;
+//       end
+//       if (dut.u_core.u_core.p_wr_en && pcap_dbg_count < 4) begin
+//         $display("[%0t] DEBUG pcap[%0d] = {%0h,%0h,%0h,%0h}", $time, pcap_dbg_count, dut.u_core.u_core.p_wr_data[0], dut.u_core.u_core.p_wr_data[1], dut.u_core.u_core.p_wr_data[2], dut.u_core.u_core.p_wr_data[3]);
+//         pcap_dbg_count <= pcap_dbg_count + 1;
+//       end
+//       if (m_axis_y_tvalid && m_axis_y_tready && y_dbg_count < 4) begin
+//         $display("[%0t] DEBUG y[%0d] = {%0h,%0h,%0h,%0h}", $time, y_dbg_count, m_axis_y_tdata[15:0], m_axis_y_tdata[31:16], m_axis_y_tdata[47:32], m_axis_y_tdata[63:48]);
+//         y_dbg_count <= y_dbg_count + 1;
+//       end
       if (track_preload && irq)
         preload_irq_seen <= 1'b1;
       if (track_block && irq)

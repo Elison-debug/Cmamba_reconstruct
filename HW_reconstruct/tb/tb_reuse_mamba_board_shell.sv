@@ -112,7 +112,6 @@ module tb_reuse_mamba_board_shell;
 
   // one-driver sticky flags
   logic preload_h_done_seen;
-  logic preload_g_done_seen;
   logic block_done_seen;
   logic block_busy_seen;
   logic track_preload_h, track_preload_g, track_block;
@@ -159,42 +158,42 @@ module tb_reuse_mamba_board_shell;
     end
   endtask
 
-  task automatic init_weight_mems_from_case();
-    begin
-      for (int addr = 0; addr < WDEPTH; addr++) begin
-        `CORE_HIER.u_in_proj.u_w_sram.u_weight.mem_sim[0][addr] = inproj_bank0_mem[addr];
-        `CORE_HIER.u_in_proj.u_w_sram.u_weight.mem_sim[1][addr] = inproj_bank1_mem[addr];
-        `CORE_HIER.u_in_proj.u_w_sram.u_weight.mem_sim[2][addr] = inproj_bank2_mem[addr];
-        `CORE_HIER.u_in_proj.u_w_sram.u_weight.mem_sim[3][addr] = inproj_bank3_mem[addr];
-        `CORE_HIER.u_in_proj.u_w_sram.u_weight.mem_sim[4][addr] = inproj_bank4_mem[addr];
-        `CORE_HIER.u_in_proj.u_w_sram.u_weight.mem_sim[5][addr] = inproj_bank5_mem[addr];
-        `CORE_HIER.u_dt_sched.dt_wbuf_mem_sim[0][addr] = dt_bank0_mem[addr];
-        `CORE_HIER.u_dt_sched.dt_wbuf_mem_sim[1][addr] = dt_bank1_mem[addr];
-        `CORE_HIER.u_dt_sched.dt_wbuf_mem_sim[2][addr] = dt_bank2_mem[addr];
-        `CORE_HIER.u_dt_sched.dt_wbuf_mem_sim[3][addr] = dt_bank3_mem[addr];
-      end
-      for (int addr = 0; addr < OUT_WDEPTH; addr++) begin
-        `CORE_HIER.u_out_proj.u_w_sram.u_weight.mem_sim[0][addr] = outproj_bank0_mem[addr];
-        `CORE_HIER.u_out_proj.u_w_sram.u_weight.mem_sim[1][addr] = outproj_bank1_mem[addr];
-        `CORE_HIER.u_out_proj.u_w_sram.u_weight.mem_sim[2][addr] = outproj_bank2_mem[addr];
-        `CORE_HIER.u_out_proj.u_w_sram.u_weight.mem_sim[3][addr] = outproj_bank3_mem[addr];
-        `CORE_HIER.u_out_proj.u_w_sram.u_weight.mem_sim[4][addr] = outproj_bank4_mem[addr];
-        `CORE_HIER.u_out_proj.u_w_sram.u_weight.mem_sim[5][addr] = outproj_bank5_mem[addr];
-      end
-      for (int addr = 0; addr < 128; addr++) `CORE_HIER.u_in_proj.u_scale_mem.mem[addr] = inproj_scale_mem[addr];
-      for (int addr = 0; addr < 64;  addr++) `CORE_HIER.u_dt_sched.u_scale_mem.mem[addr] = dt_scale_mem[addr];
-      for (int addr = 0; addr < 32;  addr++) `CORE_HIER.u_out_proj.u_scale_mem.mem[addr] = outproj_scale_mem[addr];
-      $display("[%0t] initialized inproj/dt/outproj memories from exported hw_debug case", $time);
-    end
-  endtask
+  // task automatic init_weight_mems_from_case();
+  //   begin
+  //     for (int addr = 0; addr < WDEPTH; addr++) begin
+  //       `CORE_HIER.u_in_proj.u_w_sram.u_weight.mem_sim[0][addr] = inproj_bank0_mem[addr];
+  //       `CORE_HIER.u_in_proj.u_w_sram.u_weight.mem_sim[1][addr] = inproj_bank1_mem[addr];
+  //       `CORE_HIER.u_in_proj.u_w_sram.u_weight.mem_sim[2][addr] = inproj_bank2_mem[addr];
+  //       `CORE_HIER.u_in_proj.u_w_sram.u_weight.mem_sim[3][addr] = inproj_bank3_mem[addr];
+  //       `CORE_HIER.u_in_proj.u_w_sram.u_weight.mem_sim[4][addr] = inproj_bank4_mem[addr];
+  //       `CORE_HIER.u_in_proj.u_w_sram.u_weight.mem_sim[5][addr] = inproj_bank5_mem[addr];
+  //       `CORE_HIER.u_dt_sched.dt_wbuf_mem_sim[0][addr] = dt_bank0_mem[addr];
+  //       `CORE_HIER.u_dt_sched.dt_wbuf_mem_sim[1][addr] = dt_bank1_mem[addr];
+  //       `CORE_HIER.u_dt_sched.dt_wbuf_mem_sim[2][addr] = dt_bank2_mem[addr];
+  //       `CORE_HIER.u_dt_sched.dt_wbuf_mem_sim[3][addr] = dt_bank3_mem[addr];
+  //     end
+  //     for (int addr = 0; addr < OUT_WDEPTH; addr++) begin
+  //       `CORE_HIER.u_out_proj.u_w_sram.u_weight.mem_sim[0][addr] = outproj_bank0_mem[addr];
+  //       `CORE_HIER.u_out_proj.u_w_sram.u_weight.mem_sim[1][addr] = outproj_bank1_mem[addr];
+  //       `CORE_HIER.u_out_proj.u_w_sram.u_weight.mem_sim[2][addr] = outproj_bank2_mem[addr];
+  //       `CORE_HIER.u_out_proj.u_w_sram.u_weight.mem_sim[3][addr] = outproj_bank3_mem[addr];
+  //       `CORE_HIER.u_out_proj.u_w_sram.u_weight.mem_sim[4][addr] = outproj_bank4_mem[addr];
+  //       `CORE_HIER.u_out_proj.u_w_sram.u_weight.mem_sim[5][addr] = outproj_bank5_mem[addr];
+  //     end
+  //     for (int addr = 0; addr < 128; addr++) `CORE_HIER.u_in_proj.u_scale_mem.mem[addr] = inproj_scale_mem[addr];
+  //     for (int addr = 0; addr < 64;  addr++) `CORE_HIER.u_dt_sched.u_scale_mem.mem[addr] = dt_scale_mem[addr];
+  //     for (int addr = 0; addr < 32;  addr++) `CORE_HIER.u_out_proj.u_scale_mem.mem[addr] = outproj_scale_mem[addr];
+  //     $display("[%0t] initialized inproj/dt/outproj memories from exported hw_debug case", $time);
+  //   end
+  // endtask
 
   task automatic sanity_check_weight_mems();
     begin
-      if (`CORE_HIER.u_in_proj.u_w_sram.u_weight.mem_sim[0][0] !== inproj_bank0_mem[0])
+      if (`CORE_HIER.u_in_proj.u_w_sram.u_weight.mem_sim0[0] !== inproj_bank0_mem[0])
         $fatal(1, "inproj bank0 addr0 mismatch");
-      if (`CORE_HIER.u_dt_sched.dt_wbuf_mem_sim[0][0] !== dt_bank0_mem[0])
+      if (`CORE_HIER.u_dt_sched.dt_wbuf_mem_sim0[0] !== dt_bank0_mem[0])
         $fatal(1, "dt bank0 addr0 mismatch");
-      if (`CORE_HIER.u_out_proj.u_w_sram.u_weight.mem_sim[0][0] !== outproj_bank0_mem[0])
+      if (`CORE_HIER.u_out_proj.u_w_sram.u_weight.mem_sim0[0] !== outproj_bank0_mem[0])
         $fatal(1, "outproj bank0 addr0 mismatch");
       if (`CORE_HIER.u_in_proj.u_scale_mem.mem[0] !== inproj_scale_mem[0])
         $fatal(1, "inproj scale addr0 mismatch");
@@ -314,7 +313,6 @@ module tb_reuse_mamba_board_shell;
   always_ff @(posedge sys_clk or negedge ext_reset_n) begin
     if (!ext_reset_n) begin
       preload_h_done_seen <= 1'b0;
-      preload_g_done_seen <= 1'b0;
       block_done_seen     <= 1'b0;
       block_busy_seen     <= 1'b0;
       track_preload_h_d   <= 1'b0;
@@ -325,10 +323,8 @@ module tb_reuse_mamba_board_shell;
       track_preload_g_d <= track_preload_g;
       track_block_d     <= track_block;
       if (track_preload_h && !track_preload_h_d) preload_h_done_seen <= 1'b0;
-      if (track_preload_g && !track_preload_g_d) preload_g_done_seen <= 1'b0;
       if (track_block     && !track_block_d) begin block_done_seen <= 1'b0; block_busy_seen <= 1'b0; end
       if (track_preload_h && dut.preload_h_done) preload_h_done_seen <= 1'b1;
-      //if (track_preload_g && dut.preload_g_done) preload_g_done_seen <= 1'b1;
       if (track_block && dut.block_busy) block_busy_seen <= 1'b1;
       if (track_block && dut.block_done) block_done_seen <= 1'b1;
     end
@@ -349,7 +345,7 @@ module tb_reuse_mamba_board_shell;
     ext_reset_n = 1'b1;
     repeat (5) @(posedge sys_clk);
 
-    init_weight_mems_from_case();
+    //init_weight_mems_from_case();
     sanity_check_weight_mems();
 
     axi_write32(REG_H_ROWS, H_DEPTH);
@@ -368,13 +364,11 @@ module tb_reuse_mamba_board_shell;
 
     repeat (8) @(posedge sys_clk);
     $display("[%0t] launch block start", $time);
-    //track_preload_g = 1'b1;
+
     track_block     = 1'b1;
-    // fork
-    //   send_g_zero_stream_once();
-         axi_write32(REG_CTRL, CTRL_START);  
-    // join
-    // `WAIT_TRUE(preload_g_done_seen, "preload_g_done_seen", 10000);
+
+    axi_write32(REG_CTRL, CTRL_START);  
+
     `WAIT_TRUE(block_busy_seen, "block_busy_seen", 10000);
     $display("[%0t] block running", $time);
 

@@ -3,7 +3,6 @@ verilog xil_defaultlib  --include "../../../../project_mamba_all1.gen/sources_1/
 "../../../../project_mamba_all1.gen/sources_1/ip/s_buffer/sim/s_buffer.v" \
 "../../../../project_mamba_all1.gen/sources_1/ip/bias2sigmoid_fifo/sim/bias2sigmoid_fifo.v" \
 "../../../../project_mamba_all1.gen/sources_1/ip/bias_ROM/sim/bias_ROM.v" \
-"../../../../project_mamba_all1.gen/sources_1/ip/inproj_ht_sram_ip/sim/inproj_ht_sram_ip.v" \
 "../../../../project_mamba_all1.gen/sources_1/ip/inproj_vec_out_sram_ip/sim/inproj_vec_out_sram_ip.v" \
 
 sv xil_defaultlib  --include "../../../../project_mamba_all1.gen/sources_1/bd/design_1/ipshared/ec67/hdl" --include "../../../../project_mamba_all1.gen/sources_1/bd/design_1/ipshared/a317/hdl" --include "../../../../project_mamba_all1.gen/sources_1/bd/design_1/ipshared/f0b6/hdl/verilog" --include "../../../../project_mamba_all1.gen/sources_1/bd/design_1/ipshared/c783/hdl/verilog" --include "../../../../../hw_debug/vivado_runs/reuse_mamba_block_top_hw_debug" --include "../../../../../hw_debug/vivado_runs/reuse_ssm_dt_scheduler_hw_debug" --include "../../../../../hw_debug/vivado_runs/reuse_ssm_core_hw_debug" --include "../../../../" --include "E:/Xilinx/Vivado/2024.1/data/xilinx_vip/include" \
@@ -17,7 +16,6 @@ sv xil_defaultlib  --include "../../../../project_mamba_all1.gen/sources_1/bd/de
 "../../../../../rtl_reuse_shared/pulse_to_stream_adapter.sv" \
 "../../../../../rtl_reuse_shared/requant_round_sat_engine.sv" \
 "../../../../../rtl_reuse_shared/reuse_array4x4.sv" \
-"../../../../../rtl_reuse_shared/reuse_ht_multi_copy_ip.sv" \
 "../../../../../rtl_reuse_shared/reuse_ht_sram.sv" \
 "../../../../../rtl_reuse_shared/reuse_ht_sram_sp.sv" \
 "../../../../../rtl_reuse_shared/reuse_in_proj_scheduler.sv" \

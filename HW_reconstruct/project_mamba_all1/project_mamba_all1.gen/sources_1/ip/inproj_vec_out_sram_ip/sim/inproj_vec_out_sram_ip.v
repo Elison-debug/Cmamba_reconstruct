@@ -114,7 +114,7 @@ output wire [63 : 0] doutb;
     .C_LOAD_INIT_FILE(1),
     .C_INIT_FILE_NAME("inproj_vec_out_sram_ip.mif"),
     .C_INIT_FILE("inproj_vec_out_sram_ip.mem"),
-    .C_USE_DEFAULT_DATA(1),
+    .C_USE_DEFAULT_DATA(0),
     .C_DEFAULT_DATA("0"),
     .C_HAS_RSTA(0),
     .C_RST_PRIORITY_A("CE"),
@@ -124,7 +124,7 @@ output wire [63 : 0] doutb;
     .C_HAS_REGCEA(0),
     .C_USE_BYTE_WEA(0),
     .C_WEA_WIDTH(1),
-    .C_WRITE_MODE_A("WRITE_FIRST"),
+    .C_WRITE_MODE_A("READ_FIRST"),
     .C_WRITE_WIDTH_A(64),
     .C_READ_WIDTH_A(64),
     .C_WRITE_DEPTH_A(64),
@@ -144,8 +144,8 @@ output wire [63 : 0] doutb;
     .C_WRITE_DEPTH_B(64),
     .C_READ_DEPTH_B(64),
     .C_ADDRB_WIDTH(6),
-    .C_HAS_MEM_OUTPUT_REGS_A(1),
-    .C_HAS_MEM_OUTPUT_REGS_B(1),
+    .C_HAS_MEM_OUTPUT_REGS_A(0),
+    .C_HAS_MEM_OUTPUT_REGS_B(0),
     .C_HAS_MUX_OUTPUT_REGS_A(0),
     .C_HAS_MUX_OUTPUT_REGS_B(0),
     .C_MUX_PIPELINE_STAGES(0),
@@ -170,7 +170,7 @@ output wire [63 : 0] doutb;
     .C_DISABLE_WARN_BHV_RANGE(0),
     .C_COUNT_36K_BRAM("2"),
     .C_COUNT_18K_BRAM("0"),
-    .C_EST_POWER_SUMMARY("Estimated Power for IP     :     8.703259 mW")
+    .C_EST_POWER_SUMMARY("Estimated Power for IP     :     8.930215 mW")
   ) inst (
     .clka(clka),
     .rsta(1'D0),

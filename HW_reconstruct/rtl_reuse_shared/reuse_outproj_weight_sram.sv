@@ -3,12 +3,12 @@ module reuse_outproj_weight_sram #(
     parameter int DEPTH   = 342,
     parameter int ADDR_W  = $clog2(DEPTH),
     parameter int DATA_W  = 256,
-    parameter string BANK0_INIT_FILE = "",
-    parameter string BANK1_INIT_FILE = "",
-    parameter string BANK2_INIT_FILE = "",
-    parameter string BANK3_INIT_FILE = "",
-    parameter string BANK4_INIT_FILE = "",
-    parameter string BANK5_INIT_FILE = ""
+    parameter string BANK0_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank0.mem",
+    parameter string BANK1_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank1.mem",
+    parameter string BANK2_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank2.mem",
+    parameter string BANK3_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank3.mem",
+    parameter string BANK4_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank4.mem",
+    parameter string BANK5_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank5.mem"
 )(
     input  logic                       clk,
     input  logic                       rst_n,

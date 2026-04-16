@@ -3,12 +3,12 @@
 # SW Build 5076996 on Wed May 22 18:37:14 MDT 2024
 # IP Build 5075265 on Wed May 22 21:45:21 MDT 2024
 # SharedData Build 5076995 on Wed May 22 18:29:18 MDT 2024
-# Start of session at: Tue Apr 14 02:31:56 2026
-# Process ID: 116020
-# Current directory: E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/inproj_ht_sram_ip_synth_1
+# Start of session at: Wed Apr  8 02:26:01 2026
+# Process ID: 97420
+# Current directory: E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/inproj_ht_sram_ip_synth_1
 # Command line: vivado.exe -log inproj_ht_sram_ip.vds -product Vivado -mode batch -messageDb vivado.pb -notrace -source inproj_ht_sram_ip.tcl
-# Log file: E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/inproj_ht_sram_ip_synth_1/inproj_ht_sram_ip.vds
-# Journal file: E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/inproj_ht_sram_ip_synth_1\vivado.jou
+# Log file: E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/inproj_ht_sram_ip_synth_1/inproj_ht_sram_ip.vds
+# Journal file: E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/inproj_ht_sram_ip_synth_1\vivado.jou
 # Running On        :13600kf
 # Platform          :Windows Server 2016 or Windows 10
 # Operating System  :26200
@@ -17,9 +17,9 @@
 # CPU Physical cores:14
 # CPU Logical cores :20
 # Host memory       :34163 MB
-# Swap memory       :45814 MB
-# Total Virtual     :79978 MB
-# Available Virtual :9570 MB
+# Swap memory       :34163 MB
+# Total Virtual     :68327 MB
+# Available Virtual :17864 MB
 #-----------------------------------------------------------
 source inproj_ht_sram_ip.tcl -notrace
 INFO: [IP_Flow 19-6924] IPCACHE: Running cache check for IP inst: inproj_ht_sram_ip
@@ -30,11 +30,11 @@ INFO: [Common 17-349] Got license for feature 'Synthesis' and/or device 'xczu9eg
 INFO: [Device 21-403] Loading part xczu9eg-ffvb1156-2-e
 INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 2 processes.
 INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
-INFO: [Synth 8-7075] Helper process launched with PID 14368
+INFO: [Synth 8-7075] Helper process launched with PID 40560
 ---------------------------------------------------------------------------------
-Starting RTL Elaboration : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 1878.180 ; gain = 405.949
+Starting RTL Elaboration : Time (s): cpu = 00:00:04 ; elapsed = 00:00:05 . Memory (MB): peak = 1875.121 ; gain = 403.699
 ---------------------------------------------------------------------------------
-INFO: [Synth 8-638] synthesizing module 'inproj_ht_sram_ip' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/inproj_ht_sram_ip/synth/inproj_ht_sram_ip.vhd:76]
+INFO: [Synth 8-638] synthesizing module 'inproj_ht_sram_ip' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/inproj_ht_sram_ip/synth/inproj_ht_sram_ip.vhd:76]
 	Parameter C_FAMILY bound to: zynquplus - type: string 
 	Parameter C_XDEVICEFAMILY bound to: zynquplus - type: string 
 	Parameter C_ELABORATION_DIR bound to: ./ - type: string 
@@ -50,10 +50,10 @@ INFO: [Synth 8-638] synthesizing module 'inproj_ht_sram_ip' [e:/course/smamba/HW
 	Parameter C_BYTE_SIZE bound to: 9 - type: integer 
 	Parameter C_ALGORITHM bound to: 1 - type: integer 
 	Parameter C_PRIM_TYPE bound to: 1 - type: integer 
-	Parameter C_LOAD_INIT_FILE bound to: 1 - type: integer 
-	Parameter C_INIT_FILE_NAME bound to: inproj_ht_sram_ip.mif - type: string 
+	Parameter C_LOAD_INIT_FILE bound to: 0 - type: integer 
+	Parameter C_INIT_FILE_NAME bound to: no_coe_file_loaded - type: string 
 	Parameter C_INIT_FILE bound to: inproj_ht_sram_ip.mem - type: string 
-	Parameter C_USE_DEFAULT_DATA bound to: 1 - type: integer 
+	Parameter C_USE_DEFAULT_DATA bound to: 0 - type: integer 
 	Parameter C_DEFAULT_DATA bound to: 0 - type: string 
 	Parameter C_HAS_RSTA bound to: 0 - type: integer 
 	Parameter C_RST_PRIORITY_A bound to: CE - type: string 
@@ -110,8 +110,8 @@ INFO: [Synth 8-638] synthesizing module 'inproj_ht_sram_ip' [e:/course/smamba/HW
 	Parameter C_COUNT_36K_BRAM bound to: 2 - type: string 
 	Parameter C_COUNT_18K_BRAM bound to: 0 - type: string 
 	Parameter C_EST_POWER_SUMMARY bound to: Estimated Power for IP     :     8.703259 mW - type: string 
-INFO: [Synth 8-3491] module 'blk_mem_gen_v8_4_8' declared at 'e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/inproj_ht_sram_ip/hdl/blk_mem_gen_v8_4_vhsyn_rfs.vhd:195208' bound to instance 'U0' of component 'blk_mem_gen_v8_4_8' [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/inproj_ht_sram_ip/synth/inproj_ht_sram_ip.vhd:249]
-INFO: [Synth 8-256] done synthesizing module 'inproj_ht_sram_ip' (0#1) [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/inproj_ht_sram_ip/synth/inproj_ht_sram_ip.vhd:76]
+INFO: [Synth 8-3491] module 'blk_mem_gen_v8_4_8' declared at 'e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/inproj_ht_sram_ip/hdl/blk_mem_gen_v8_4_vhsyn_rfs.vhd:195208' bound to instance 'U0' of component 'blk_mem_gen_v8_4_8' [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/inproj_ht_sram_ip/synth/inproj_ht_sram_ip.vhd:249]
+INFO: [Synth 8-256] done synthesizing module 'inproj_ht_sram_ip' (0#1) [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/inproj_ht_sram_ip/synth/inproj_ht_sram_ip.vhd:76]
 WARNING: [Synth 8-7129] Port CLKB in module blk_mem_output_block is either unconnected or has no load
 WARNING: [Synth 8-7129] Port SBITERR_I in module blk_mem_output_block is either unconnected or has no load
 WARNING: [Synth 8-7129] Port DBITERR_I in module blk_mem_output_block is either unconnected or has no load
@@ -120,13 +120,13 @@ WARNING: [Synth 8-7129] Port RDADDRECC_I[3] in module blk_mem_output_block is ei
 WARNING: [Synth 8-7129] Port RDADDRECC_I[2] in module blk_mem_output_block is either unconnected or has no load
 WARNING: [Synth 8-7129] Port RDADDRECC_I[1] in module blk_mem_output_block is either unconnected or has no load
 WARNING: [Synth 8-7129] Port RDADDRECC_I[0] in module blk_mem_output_block is either unconnected or has no load
-WARNING: [Synth 8-7129] Port SBITERR in module blk_mem_gen_prim_wrapper_init is either unconnected or has no load
-WARNING: [Synth 8-7129] Port DBITERR in module blk_mem_gen_prim_wrapper_init is either unconnected or has no load
-WARNING: [Synth 8-7129] Port SSRA in module blk_mem_gen_prim_wrapper_init is either unconnected or has no load
-WARNING: [Synth 8-7129] Port SSRB in module blk_mem_gen_prim_wrapper_init is either unconnected or has no load
-WARNING: [Synth 8-7129] Port INJECTSBITERR in module blk_mem_gen_prim_wrapper_init is either unconnected or has no load
-WARNING: [Synth 8-7129] Port INJECTDBITERR in module blk_mem_gen_prim_wrapper_init is either unconnected or has no load
-WARNING: [Synth 8-7129] Port ECCPIPECE in module blk_mem_gen_prim_wrapper_init is either unconnected or has no load
+WARNING: [Synth 8-7129] Port SBITERR in module blk_mem_gen_prim_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port DBITERR in module blk_mem_gen_prim_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port SSRA in module blk_mem_gen_prim_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port SSRB in module blk_mem_gen_prim_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port INJECTSBITERR in module blk_mem_gen_prim_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port INJECTDBITERR in module blk_mem_gen_prim_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port ECCPIPECE in module blk_mem_gen_prim_wrapper is either unconnected or has no load
 WARNING: [Synth 8-7129] Port RSTA[0] in module blk_mem_gen_generic_cstr is either unconnected or has no load
 WARNING: [Synth 8-7129] Port WEA[7] in module blk_mem_gen_generic_cstr is either unconnected or has no load
 WARNING: [Synth 8-7129] Port WEA[6] in module blk_mem_gen_generic_cstr is either unconnected or has no load
@@ -214,36 +214,36 @@ WARNING: [Synth 8-7129] Port S_AXI_WDATA[56] in module blk_mem_gen_v8_4_8_synth 
 WARNING: [Synth 8-7129] Port S_AXI_WDATA[55] in module blk_mem_gen_v8_4_8_synth is either unconnected or has no load
 INFO: [Common 17-14] Message 'Synth 8-7129' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
 ---------------------------------------------------------------------------------
-Finished RTL Elaboration : Time (s): cpu = 00:00:09 ; elapsed = 00:00:10 . Memory (MB): peak = 2248.133 ; gain = 775.902
+Finished RTL Elaboration : Time (s): cpu = 00:00:09 ; elapsed = 00:00:10 . Memory (MB): peak = 2238.293 ; gain = 766.871
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Handling Custom Attributes
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Handling Custom Attributes : Time (s): cpu = 00:00:09 ; elapsed = 00:00:10 . Memory (MB): peak = 2248.133 ; gain = 775.902
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:09 ; elapsed = 00:00:10 . Memory (MB): peak = 2238.293 ; gain = 766.871
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:09 ; elapsed = 00:00:10 . Memory (MB): peak = 2248.133 ; gain = 775.902
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:09 ; elapsed = 00:00:10 . Memory (MB): peak = 2238.293 ; gain = 766.871
 ---------------------------------------------------------------------------------
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.008 . Memory (MB): peak = 2248.133 ; gain = 0.000
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.009 . Memory (MB): peak = 2238.293 ; gain = 0.000
 INFO: [Project 1-570] Preparing netlist for logic optimization
 
 Processing XDC Constraints
 Initializing timing engine
-Parsing XDC File [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/inproj_ht_sram_ip/inproj_ht_sram_ip_ooc.xdc] for cell 'U0'
-Finished Parsing XDC File [e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/inproj_ht_sram_ip/inproj_ht_sram_ip_ooc.xdc] for cell 'U0'
-Parsing XDC File [E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/inproj_ht_sram_ip_synth_1/dont_touch.xdc]
-Finished Parsing XDC File [E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/inproj_ht_sram_ip_synth_1/dont_touch.xdc]
+Parsing XDC File [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/inproj_ht_sram_ip/inproj_ht_sram_ip_ooc.xdc] for cell 'U0'
+Finished Parsing XDC File [e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/inproj_ht_sram_ip/inproj_ht_sram_ip_ooc.xdc] for cell 'U0'
+Parsing XDC File [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/inproj_ht_sram_ip_synth_1/dont_touch.xdc]
+Finished Parsing XDC File [E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/inproj_ht_sram_ip_synth_1/dont_touch.xdc]
 Completed Processing XDC Constraints
 
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2248.133 ; gain = 0.000
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2238.293 ; gain = 0.000
 INFO: [Project 1-111] Unisim Transformation Summary:
 No Unisim elements were transformed.
 
-Constraint Validation Runtime : Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.019 . Memory (MB): peak = 2248.133 ; gain = 0.000
+Constraint Validation Runtime : Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.033 . Memory (MB): peak = 2238.293 ; gain = 0.000
 INFO: [Designutils 20-5008] Incremental synthesis strategy off
 ---------------------------------------------------------------------------------
-Finished Constraint Validation : Time (s): cpu = 00:00:17 ; elapsed = 00:00:18 . Memory (MB): peak = 2248.133 ; gain = 775.902
+Finished Constraint Validation : Time (s): cpu = 00:00:16 ; elapsed = 00:00:18 . Memory (MB): peak = 2238.293 ; gain = 766.871
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Loading Part and Timing Information
@@ -251,17 +251,17 @@ Start Loading Part and Timing Information
 Loading part: xczu9eg-ffvb1156-2-e
 INFO: [Synth 8-6742] Reading net delay rules and data
 ---------------------------------------------------------------------------------
-Finished Loading Part and Timing Information : Time (s): cpu = 00:00:17 ; elapsed = 00:00:18 . Memory (MB): peak = 2248.133 ; gain = 775.902
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:16 ; elapsed = 00:00:18 . Memory (MB): peak = 2238.293 ; gain = 766.871
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Applying 'set_property' XDC Constraints
 ---------------------------------------------------------------------------------
-Applied set_property KEEP_HIERARCHY = SOFT for U0. (constraint file  E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/inproj_ht_sram_ip_synth_1/dont_touch.xdc, line 9).
+Applied set_property KEEP_HIERARCHY = SOFT for U0. (constraint file  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/inproj_ht_sram_ip_synth_1/dont_touch.xdc, line 9).
 ---------------------------------------------------------------------------------
-Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:17 ; elapsed = 00:00:18 . Memory (MB): peak = 2248.133 ; gain = 775.902
+Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:16 ; elapsed = 00:00:18 . Memory (MB): peak = 2238.293 ; gain = 766.871
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:17 ; elapsed = 00:00:18 . Memory (MB): peak = 2248.133 ; gain = 775.902
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:16 ; elapsed = 00:00:19 . Memory (MB): peak = 2238.293 ; gain = 766.871
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start RTL Component Statistics 
@@ -284,25 +284,25 @@ Start Cross Boundary and Area Optimization
 ---------------------------------------------------------------------------------
 WARNING: [Synth 8-7080] Parallel synthesis criteria is not met
 ---------------------------------------------------------------------------------
-Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:18 ; elapsed = 00:00:19 . Memory (MB): peak = 2248.133 ; gain = 775.902
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:17 ; elapsed = 00:00:20 . Memory (MB): peak = 2238.293 ; gain = 766.871
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Applying XDC Timing Constraints
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Applying XDC Timing Constraints : Time (s): cpu = 00:00:25 ; elapsed = 00:00:27 . Memory (MB): peak = 2515.746 ; gain = 1043.516
+Finished Applying XDC Timing Constraints : Time (s): cpu = 00:00:24 ; elapsed = 00:00:28 . Memory (MB): peak = 2508.609 ; gain = 1037.188
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Timing Optimization
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Timing Optimization : Time (s): cpu = 00:00:25 ; elapsed = 00:00:27 . Memory (MB): peak = 2516.156 ; gain = 1043.926
+Finished Timing Optimization : Time (s): cpu = 00:00:24 ; elapsed = 00:00:28 . Memory (MB): peak = 2509.094 ; gain = 1037.672
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Technology Mapping
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Technology Mapping : Time (s): cpu = 00:00:25 ; elapsed = 00:00:27 . Memory (MB): peak = 2525.938 ; gain = 1053.707
+Finished Technology Mapping : Time (s): cpu = 00:00:24 ; elapsed = 00:00:28 . Memory (MB): peak = 2518.887 ; gain = 1047.465
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start IO Insertion
@@ -320,37 +320,37 @@ Start Final Netlist Cleanup
 Finished Final Netlist Cleanup
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished IO Insertion : Time (s): cpu = 00:00:28 ; elapsed = 00:00:29 . Memory (MB): peak = 2540.730 ; gain = 1068.500
+Finished IO Insertion : Time (s): cpu = 00:00:27 ; elapsed = 00:00:31 . Memory (MB): peak = 2534.664 ; gain = 1063.242
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Renaming Generated Instances
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Renaming Generated Instances : Time (s): cpu = 00:00:28 ; elapsed = 00:00:29 . Memory (MB): peak = 2540.730 ; gain = 1068.500
+Finished Renaming Generated Instances : Time (s): cpu = 00:00:27 ; elapsed = 00:00:31 . Memory (MB): peak = 2534.664 ; gain = 1063.242
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Rebuilding User Hierarchy
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Rebuilding User Hierarchy : Time (s): cpu = 00:00:28 ; elapsed = 00:00:29 . Memory (MB): peak = 2540.730 ; gain = 1068.500
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:00:27 ; elapsed = 00:00:31 . Memory (MB): peak = 2534.664 ; gain = 1063.242
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Renaming Generated Ports
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Renaming Generated Ports : Time (s): cpu = 00:00:28 ; elapsed = 00:00:29 . Memory (MB): peak = 2540.730 ; gain = 1068.500
+Finished Renaming Generated Ports : Time (s): cpu = 00:00:27 ; elapsed = 00:00:31 . Memory (MB): peak = 2534.664 ; gain = 1063.242
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Handling Custom Attributes
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Handling Custom Attributes : Time (s): cpu = 00:00:28 ; elapsed = 00:00:29 . Memory (MB): peak = 2540.730 ; gain = 1068.500
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:27 ; elapsed = 00:00:31 . Memory (MB): peak = 2534.664 ; gain = 1063.242
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Renaming Generated Nets
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
-Finished Renaming Generated Nets : Time (s): cpu = 00:00:28 ; elapsed = 00:00:29 . Memory (MB): peak = 2540.730 ; gain = 1068.500
+Finished Renaming Generated Nets : Time (s): cpu = 00:00:27 ; elapsed = 00:00:31 . Memory (MB): peak = 2534.664 ; gain = 1063.242
 ---------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------
 Start Writing Synthesis Report
@@ -369,27 +369,27 @@ Report Cell Usage:
 |1     |RAMB36E2 |     2|
 +------+---------+------+
 ---------------------------------------------------------------------------------
-Finished Writing Synthesis Report : Time (s): cpu = 00:00:28 ; elapsed = 00:00:29 . Memory (MB): peak = 2540.730 ; gain = 1068.500
+Finished Writing Synthesis Report : Time (s): cpu = 00:00:27 ; elapsed = 00:00:31 . Memory (MB): peak = 2534.664 ; gain = 1063.242
 ---------------------------------------------------------------------------------
 Synthesis finished with 0 errors, 0 critical warnings and 183 warnings.
-Synthesis Optimization Runtime : Time (s): cpu = 00:00:14 ; elapsed = 00:00:25 . Memory (MB): peak = 2540.730 ; gain = 1068.500
-Synthesis Optimization Complete : Time (s): cpu = 00:00:28 ; elapsed = 00:00:30 . Memory (MB): peak = 2540.730 ; gain = 1068.500
+Synthesis Optimization Runtime : Time (s): cpu = 00:00:14 ; elapsed = 00:00:26 . Memory (MB): peak = 2534.664 ; gain = 1063.242
+Synthesis Optimization Complete : Time (s): cpu = 00:00:27 ; elapsed = 00:00:31 . Memory (MB): peak = 2534.664 ; gain = 1063.242
 INFO: [Project 1-571] Translating synthesized netlist
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.007 . Memory (MB): peak = 2540.730 ; gain = 0.000
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.007 . Memory (MB): peak = 2534.664 ; gain = 0.000
 INFO: [Project 1-570] Preparing netlist for logic optimization
 INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2540.730 ; gain = 0.000
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2534.664 ; gain = 0.000
 INFO: [Project 1-111] Unisim Transformation Summary:
 No Unisim elements were transformed.
 
-Synth Design complete | Checksum: 6b433b85
+Synth Design complete | Checksum: 6d7d81fa
 INFO: [Common 17-83] Releasing license: Synthesis
 19 Infos, 101 Warnings, 0 Critical Warnings and 0 Errors encountered.
 synth_design completed successfully
-synth_design: Time (s): cpu = 00:00:32 ; elapsed = 00:00:36 . Memory (MB): peak = 2540.730 ; gain = 2038.926
-INFO: [Common 17-1381] The checkpoint 'E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/inproj_ht_sram_ip_synth_1/inproj_ht_sram_ip.dcp' has been generated.
-INFO: [Coretcl 2-1648] Added synthesis output to IP cache for IP inproj_ht_sram_ip, cache-ID = 542749b75c577387
+synth_design: Time (s): cpu = 00:00:32 ; elapsed = 00:00:45 . Memory (MB): peak = 2534.664 ; gain = 2033.855
+INFO: [Common 17-1381] The checkpoint 'E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/inproj_ht_sram_ip_synth_1/inproj_ht_sram_ip.dcp' has been generated.
+INFO: [Coretcl 2-1648] Added synthesis output to IP cache for IP inproj_ht_sram_ip, cache-ID = b6d4d3c3d059b762
 INFO: [Coretcl 2-1174] Renamed 8 cell refs.
-INFO: [Common 17-1381] The checkpoint 'E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/inproj_ht_sram_ip_synth_1/inproj_ht_sram_ip.dcp' has been generated.
+INFO: [Common 17-1381] The checkpoint 'E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/inproj_ht_sram_ip_synth_1/inproj_ht_sram_ip.dcp' has been generated.
 INFO: [Vivado 12-24828] Executing command : report_utilization -file inproj_ht_sram_ip_utilization_synth.rpt -pb inproj_ht_sram_ip_utilization_synth.pb
-INFO: [Common 17-206] Exiting Vivado at Tue Apr 14 02:32:38 2026...
+INFO: [Common 17-206] Exiting Vivado at Wed Apr  8 02:26:52 2026...

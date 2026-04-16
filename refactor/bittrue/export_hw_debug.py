@@ -204,7 +204,7 @@ def _load_scale_vector(qdesc: dict, base_dir: Path) -> np.ndarray:
 
 def _make_activation_scales(qdesc: dict, channels: int, x: np.ndarray) -> np.ndarray:
     if qdesc.get("enabled") and qdesc.get("scheme") == "per_channel_sym":
-        scales = _load_scale_vector(qdesc, x.base_dir if hasattr(x, "base_dir") else Path("."))
+        scales = _load_scale_vector(qdesc, x.base_dir if hasattr(x, "base_dir") else Path(".")) #type: ignore
         if scales.shape[0] == channels:
             return scales.astype(np.float32)
 

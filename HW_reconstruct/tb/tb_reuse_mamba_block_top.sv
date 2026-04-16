@@ -149,52 +149,6 @@ module tb_reuse_mamba_block_top;
       g_axis_TDATA[i] = '0;
   end
 
-  task automatic init_dt_wbuf_pattern();
-    logic [DATA_W-1:0] line_i;
-    int tile_id_i;
-    int element_id_i;
-    int val_i;
-    begin
-      for (int b = 0; b < N_BANK; b++) begin
-        for (int addr = 0; addr < WDEPTH; addr++)
-        begin
-          line_i = '0;
-          tile_id_i = b + addr * N_BANK;
-          for (int w = 0; w < 16; w++) begin
-            element_id_i = tile_id_i * 16 + w;
-            val_i = 1 + element_id_i;
-            line_i[w*DATA_WIDTH +: DATA_WIDTH] = val_i[DATA_WIDTH-1:0];
-          end
-          dut.u_dt_sched.u_wbuf.mem_sim[b][addr] = line_i;
-        end
-      end
-    end
-  endtask
-
-  task automatic init_inproj_wbuf_pattern();
-    logic [DATA_W-1:0] line_i;
-    int tile_id_i;
-    int row_tile_i;
-    int col_tile_i;
-    int val_i;
-    begin
-      for (int b = 0; b < N_BANK; b++) begin
-        for (int addr = 0; addr < WDEPTH; addr++) begin
-          line_i = '0;
-          tile_id_i = b + addr * N_BANK;
-          row_tile_i = tile_id_i / 32;
-          col_tile_i = tile_id_i % 32;
-          for (int r = 0; r < TILE_SIZE; r++) begin
-            val_i = (row_tile_i * TILE_SIZE + r + 1) * (col_tile_i + 1);
-            for (int c = 0; c < TILE_SIZE; c++)
-              line_i[(r*TILE_SIZE+c)*DATA_WIDTH +: DATA_WIDTH] = val_i[DATA_WIDTH-1:0];
-          end
-          dut.u_in_proj.u_w_sram.u_weight.mem_sim[b][addr] = line_i;
-        end
-      end
-    end
-  endtask
-
   task automatic write_h_vector();
     begin
       for (int addr = 0; addr < H_DEPTH; addr++) begin
@@ -347,10 +301,6 @@ module tb_reuse_mamba_block_top;
 
     wait(rst_n);
     repeat (5) @(posedge clk);
-
-    $display("[%0t] init weight memories", $time);
-    init_dt_wbuf_pattern();
-    init_inproj_wbuf_pattern();
 
     $display("[%0t] write h_t SRAM", $time);
     write_h_vector();

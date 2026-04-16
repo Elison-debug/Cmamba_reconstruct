@@ -18,11 +18,11 @@ module reuse_ssm_dt_scheduler #(
     parameter int SCALE_W            = 16,
     parameter int SCALE_FRAC_BITS    = 15,
     parameter bit USE_PER_CHANNEL_SCALE = 0,
-    parameter string DT_BANK0_INIT_FILE = "",
-    parameter string DT_BANK1_INIT_FILE = "",
-    parameter string DT_BANK2_INIT_FILE = "",
-    parameter string DT_BANK3_INIT_FILE = "",
-    parameter string DT_SCALE_INIT_FILE = "",
+    parameter string DT_BANK0_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank0.mem",
+    parameter string DT_BANK1_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank1.mem",
+    parameter string DT_BANK2_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank2.mem",
+    parameter string DT_BANK3_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank3.mem",
+    parameter string DT_SCALE_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_scale_q15.mem",
     parameter int REQUANT_ROUND_MODE = 1,
     parameter int REQUANT_SAT_MODE   = 1
 )(
