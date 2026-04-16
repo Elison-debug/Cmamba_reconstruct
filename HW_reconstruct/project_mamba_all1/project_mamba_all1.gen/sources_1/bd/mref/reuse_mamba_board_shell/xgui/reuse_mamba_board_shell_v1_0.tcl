@@ -9,10 +9,31 @@ proc init_gui { IPINST } {
   ipgui::add_param $IPINST -name "D" -parent ${Page_0}
   ipgui::add_param $IPINST -name "DATA_W" -parent ${Page_0}
   ipgui::add_param $IPINST -name "DATA_WIDTH" -parent ${Page_0}
+  ipgui::add_param $IPINST -name "DT_BANK0_INIT_FILE" -parent ${Page_0}
+  ipgui::add_param $IPINST -name "DT_BANK1_INIT_FILE" -parent ${Page_0}
+  ipgui::add_param $IPINST -name "DT_BANK2_INIT_FILE" -parent ${Page_0}
+  ipgui::add_param $IPINST -name "DT_BANK3_INIT_FILE" -parent ${Page_0}
+  ipgui::add_param $IPINST -name "DT_SCALE_INIT_FILE" -parent ${Page_0}
   ipgui::add_param $IPINST -name "FRAC_BITS" -parent ${Page_0}
+  ipgui::add_param $IPINST -name "G_ADDR_W" -parent ${Page_0}
+  ipgui::add_param $IPINST -name "G_DEPTH" -parent ${Page_0}
   ipgui::add_param $IPINST -name "G_FRAC_BITS" -parent ${Page_0}
+  ipgui::add_param $IPINST -name "INPROJ_BANK0_INIT_FILE" -parent ${Page_0}
+  ipgui::add_param $IPINST -name "INPROJ_BANK1_INIT_FILE" -parent ${Page_0}
+  ipgui::add_param $IPINST -name "INPROJ_BANK2_INIT_FILE" -parent ${Page_0}
+  ipgui::add_param $IPINST -name "INPROJ_BANK3_INIT_FILE" -parent ${Page_0}
+  ipgui::add_param $IPINST -name "INPROJ_BANK4_INIT_FILE" -parent ${Page_0}
+  ipgui::add_param $IPINST -name "INPROJ_BANK5_INIT_FILE" -parent ${Page_0}
+  ipgui::add_param $IPINST -name "INPROJ_SCALE_INIT_FILE" -parent ${Page_0}
   ipgui::add_param $IPINST -name "LUT_FILE" -parent ${Page_0}
   ipgui::add_param $IPINST -name "N_BANK" -parent ${Page_0}
+  ipgui::add_param $IPINST -name "OUTPROJ_BANK0_INIT_FILE" -parent ${Page_0}
+  ipgui::add_param $IPINST -name "OUTPROJ_BANK1_INIT_FILE" -parent ${Page_0}
+  ipgui::add_param $IPINST -name "OUTPROJ_BANK2_INIT_FILE" -parent ${Page_0}
+  ipgui::add_param $IPINST -name "OUTPROJ_BANK3_INIT_FILE" -parent ${Page_0}
+  ipgui::add_param $IPINST -name "OUTPROJ_BANK4_INIT_FILE" -parent ${Page_0}
+  ipgui::add_param $IPINST -name "OUTPROJ_BANK5_INIT_FILE" -parent ${Page_0}
+  ipgui::add_param $IPINST -name "OUTPROJ_SCALE_INIT_FILE" -parent ${Page_0}
   ipgui::add_param $IPINST -name "PIPE_LAT" -parent ${Page_0}
   ipgui::add_param $IPINST -name "S_ADDR_W" -parent ${Page_0}
   ipgui::add_param $IPINST -name "TILE_SIZE" -parent ${Page_0}
@@ -77,6 +98,51 @@ proc validate_PARAM_VALUE.DATA_WIDTH { PARAM_VALUE.DATA_WIDTH } {
 	return true
 }
 
+proc update_PARAM_VALUE.DT_BANK0_INIT_FILE { PARAM_VALUE.DT_BANK0_INIT_FILE } {
+	# Procedure called to update DT_BANK0_INIT_FILE when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.DT_BANK0_INIT_FILE { PARAM_VALUE.DT_BANK0_INIT_FILE } {
+	# Procedure called to validate DT_BANK0_INIT_FILE
+	return true
+}
+
+proc update_PARAM_VALUE.DT_BANK1_INIT_FILE { PARAM_VALUE.DT_BANK1_INIT_FILE } {
+	# Procedure called to update DT_BANK1_INIT_FILE when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.DT_BANK1_INIT_FILE { PARAM_VALUE.DT_BANK1_INIT_FILE } {
+	# Procedure called to validate DT_BANK1_INIT_FILE
+	return true
+}
+
+proc update_PARAM_VALUE.DT_BANK2_INIT_FILE { PARAM_VALUE.DT_BANK2_INIT_FILE } {
+	# Procedure called to update DT_BANK2_INIT_FILE when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.DT_BANK2_INIT_FILE { PARAM_VALUE.DT_BANK2_INIT_FILE } {
+	# Procedure called to validate DT_BANK2_INIT_FILE
+	return true
+}
+
+proc update_PARAM_VALUE.DT_BANK3_INIT_FILE { PARAM_VALUE.DT_BANK3_INIT_FILE } {
+	# Procedure called to update DT_BANK3_INIT_FILE when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.DT_BANK3_INIT_FILE { PARAM_VALUE.DT_BANK3_INIT_FILE } {
+	# Procedure called to validate DT_BANK3_INIT_FILE
+	return true
+}
+
+proc update_PARAM_VALUE.DT_SCALE_INIT_FILE { PARAM_VALUE.DT_SCALE_INIT_FILE } {
+	# Procedure called to update DT_SCALE_INIT_FILE when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.DT_SCALE_INIT_FILE { PARAM_VALUE.DT_SCALE_INIT_FILE } {
+	# Procedure called to validate DT_SCALE_INIT_FILE
+	return true
+}
+
 proc update_PARAM_VALUE.FRAC_BITS { PARAM_VALUE.FRAC_BITS } {
 	# Procedure called to update FRAC_BITS when any of the dependent parameters in the arguments change
 }
@@ -86,12 +152,93 @@ proc validate_PARAM_VALUE.FRAC_BITS { PARAM_VALUE.FRAC_BITS } {
 	return true
 }
 
+proc update_PARAM_VALUE.G_ADDR_W { PARAM_VALUE.G_ADDR_W } {
+	# Procedure called to update G_ADDR_W when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.G_ADDR_W { PARAM_VALUE.G_ADDR_W } {
+	# Procedure called to validate G_ADDR_W
+	return true
+}
+
+proc update_PARAM_VALUE.G_DEPTH { PARAM_VALUE.G_DEPTH } {
+	# Procedure called to update G_DEPTH when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.G_DEPTH { PARAM_VALUE.G_DEPTH } {
+	# Procedure called to validate G_DEPTH
+	return true
+}
+
 proc update_PARAM_VALUE.G_FRAC_BITS { PARAM_VALUE.G_FRAC_BITS } {
 	# Procedure called to update G_FRAC_BITS when any of the dependent parameters in the arguments change
 }
 
 proc validate_PARAM_VALUE.G_FRAC_BITS { PARAM_VALUE.G_FRAC_BITS } {
 	# Procedure called to validate G_FRAC_BITS
+	return true
+}
+
+proc update_PARAM_VALUE.INPROJ_BANK0_INIT_FILE { PARAM_VALUE.INPROJ_BANK0_INIT_FILE } {
+	# Procedure called to update INPROJ_BANK0_INIT_FILE when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.INPROJ_BANK0_INIT_FILE { PARAM_VALUE.INPROJ_BANK0_INIT_FILE } {
+	# Procedure called to validate INPROJ_BANK0_INIT_FILE
+	return true
+}
+
+proc update_PARAM_VALUE.INPROJ_BANK1_INIT_FILE { PARAM_VALUE.INPROJ_BANK1_INIT_FILE } {
+	# Procedure called to update INPROJ_BANK1_INIT_FILE when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.INPROJ_BANK1_INIT_FILE { PARAM_VALUE.INPROJ_BANK1_INIT_FILE } {
+	# Procedure called to validate INPROJ_BANK1_INIT_FILE
+	return true
+}
+
+proc update_PARAM_VALUE.INPROJ_BANK2_INIT_FILE { PARAM_VALUE.INPROJ_BANK2_INIT_FILE } {
+	# Procedure called to update INPROJ_BANK2_INIT_FILE when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.INPROJ_BANK2_INIT_FILE { PARAM_VALUE.INPROJ_BANK2_INIT_FILE } {
+	# Procedure called to validate INPROJ_BANK2_INIT_FILE
+	return true
+}
+
+proc update_PARAM_VALUE.INPROJ_BANK3_INIT_FILE { PARAM_VALUE.INPROJ_BANK3_INIT_FILE } {
+	# Procedure called to update INPROJ_BANK3_INIT_FILE when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.INPROJ_BANK3_INIT_FILE { PARAM_VALUE.INPROJ_BANK3_INIT_FILE } {
+	# Procedure called to validate INPROJ_BANK3_INIT_FILE
+	return true
+}
+
+proc update_PARAM_VALUE.INPROJ_BANK4_INIT_FILE { PARAM_VALUE.INPROJ_BANK4_INIT_FILE } {
+	# Procedure called to update INPROJ_BANK4_INIT_FILE when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.INPROJ_BANK4_INIT_FILE { PARAM_VALUE.INPROJ_BANK4_INIT_FILE } {
+	# Procedure called to validate INPROJ_BANK4_INIT_FILE
+	return true
+}
+
+proc update_PARAM_VALUE.INPROJ_BANK5_INIT_FILE { PARAM_VALUE.INPROJ_BANK5_INIT_FILE } {
+	# Procedure called to update INPROJ_BANK5_INIT_FILE when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.INPROJ_BANK5_INIT_FILE { PARAM_VALUE.INPROJ_BANK5_INIT_FILE } {
+	# Procedure called to validate INPROJ_BANK5_INIT_FILE
+	return true
+}
+
+proc update_PARAM_VALUE.INPROJ_SCALE_INIT_FILE { PARAM_VALUE.INPROJ_SCALE_INIT_FILE } {
+	# Procedure called to update INPROJ_SCALE_INIT_FILE when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.INPROJ_SCALE_INIT_FILE { PARAM_VALUE.INPROJ_SCALE_INIT_FILE } {
+	# Procedure called to validate INPROJ_SCALE_INIT_FILE
 	return true
 }
 
@@ -110,6 +257,69 @@ proc update_PARAM_VALUE.N_BANK { PARAM_VALUE.N_BANK } {
 
 proc validate_PARAM_VALUE.N_BANK { PARAM_VALUE.N_BANK } {
 	# Procedure called to validate N_BANK
+	return true
+}
+
+proc update_PARAM_VALUE.OUTPROJ_BANK0_INIT_FILE { PARAM_VALUE.OUTPROJ_BANK0_INIT_FILE } {
+	# Procedure called to update OUTPROJ_BANK0_INIT_FILE when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.OUTPROJ_BANK0_INIT_FILE { PARAM_VALUE.OUTPROJ_BANK0_INIT_FILE } {
+	# Procedure called to validate OUTPROJ_BANK0_INIT_FILE
+	return true
+}
+
+proc update_PARAM_VALUE.OUTPROJ_BANK1_INIT_FILE { PARAM_VALUE.OUTPROJ_BANK1_INIT_FILE } {
+	# Procedure called to update OUTPROJ_BANK1_INIT_FILE when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.OUTPROJ_BANK1_INIT_FILE { PARAM_VALUE.OUTPROJ_BANK1_INIT_FILE } {
+	# Procedure called to validate OUTPROJ_BANK1_INIT_FILE
+	return true
+}
+
+proc update_PARAM_VALUE.OUTPROJ_BANK2_INIT_FILE { PARAM_VALUE.OUTPROJ_BANK2_INIT_FILE } {
+	# Procedure called to update OUTPROJ_BANK2_INIT_FILE when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.OUTPROJ_BANK2_INIT_FILE { PARAM_VALUE.OUTPROJ_BANK2_INIT_FILE } {
+	# Procedure called to validate OUTPROJ_BANK2_INIT_FILE
+	return true
+}
+
+proc update_PARAM_VALUE.OUTPROJ_BANK3_INIT_FILE { PARAM_VALUE.OUTPROJ_BANK3_INIT_FILE } {
+	# Procedure called to update OUTPROJ_BANK3_INIT_FILE when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.OUTPROJ_BANK3_INIT_FILE { PARAM_VALUE.OUTPROJ_BANK3_INIT_FILE } {
+	# Procedure called to validate OUTPROJ_BANK3_INIT_FILE
+	return true
+}
+
+proc update_PARAM_VALUE.OUTPROJ_BANK4_INIT_FILE { PARAM_VALUE.OUTPROJ_BANK4_INIT_FILE } {
+	# Procedure called to update OUTPROJ_BANK4_INIT_FILE when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.OUTPROJ_BANK4_INIT_FILE { PARAM_VALUE.OUTPROJ_BANK4_INIT_FILE } {
+	# Procedure called to validate OUTPROJ_BANK4_INIT_FILE
+	return true
+}
+
+proc update_PARAM_VALUE.OUTPROJ_BANK5_INIT_FILE { PARAM_VALUE.OUTPROJ_BANK5_INIT_FILE } {
+	# Procedure called to update OUTPROJ_BANK5_INIT_FILE when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.OUTPROJ_BANK5_INIT_FILE { PARAM_VALUE.OUTPROJ_BANK5_INIT_FILE } {
+	# Procedure called to validate OUTPROJ_BANK5_INIT_FILE
+	return true
+}
+
+proc update_PARAM_VALUE.OUTPROJ_SCALE_INIT_FILE { PARAM_VALUE.OUTPROJ_SCALE_INIT_FILE } {
+	# Procedure called to update OUTPROJ_SCALE_INIT_FILE when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.OUTPROJ_SCALE_INIT_FILE { PARAM_VALUE.OUTPROJ_SCALE_INIT_FILE } {
+	# Procedure called to validate OUTPROJ_SCALE_INIT_FILE
 	return true
 }
 
@@ -243,8 +453,113 @@ proc update_MODELPARAM_VALUE.G_FRAC_BITS { MODELPARAM_VALUE.G_FRAC_BITS PARAM_VA
 	set_property value [get_property value ${PARAM_VALUE.G_FRAC_BITS}] ${MODELPARAM_VALUE.G_FRAC_BITS}
 }
 
+proc update_MODELPARAM_VALUE.INPROJ_BANK0_INIT_FILE { MODELPARAM_VALUE.INPROJ_BANK0_INIT_FILE PARAM_VALUE.INPROJ_BANK0_INIT_FILE } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.INPROJ_BANK0_INIT_FILE}] ${MODELPARAM_VALUE.INPROJ_BANK0_INIT_FILE}
+}
+
+proc update_MODELPARAM_VALUE.INPROJ_BANK1_INIT_FILE { MODELPARAM_VALUE.INPROJ_BANK1_INIT_FILE PARAM_VALUE.INPROJ_BANK1_INIT_FILE } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.INPROJ_BANK1_INIT_FILE}] ${MODELPARAM_VALUE.INPROJ_BANK1_INIT_FILE}
+}
+
+proc update_MODELPARAM_VALUE.INPROJ_BANK2_INIT_FILE { MODELPARAM_VALUE.INPROJ_BANK2_INIT_FILE PARAM_VALUE.INPROJ_BANK2_INIT_FILE } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.INPROJ_BANK2_INIT_FILE}] ${MODELPARAM_VALUE.INPROJ_BANK2_INIT_FILE}
+}
+
+proc update_MODELPARAM_VALUE.INPROJ_BANK3_INIT_FILE { MODELPARAM_VALUE.INPROJ_BANK3_INIT_FILE PARAM_VALUE.INPROJ_BANK3_INIT_FILE } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.INPROJ_BANK3_INIT_FILE}] ${MODELPARAM_VALUE.INPROJ_BANK3_INIT_FILE}
+}
+
+proc update_MODELPARAM_VALUE.INPROJ_BANK4_INIT_FILE { MODELPARAM_VALUE.INPROJ_BANK4_INIT_FILE PARAM_VALUE.INPROJ_BANK4_INIT_FILE } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.INPROJ_BANK4_INIT_FILE}] ${MODELPARAM_VALUE.INPROJ_BANK4_INIT_FILE}
+}
+
+proc update_MODELPARAM_VALUE.INPROJ_BANK5_INIT_FILE { MODELPARAM_VALUE.INPROJ_BANK5_INIT_FILE PARAM_VALUE.INPROJ_BANK5_INIT_FILE } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.INPROJ_BANK5_INIT_FILE}] ${MODELPARAM_VALUE.INPROJ_BANK5_INIT_FILE}
+}
+
+proc update_MODELPARAM_VALUE.INPROJ_SCALE_INIT_FILE { MODELPARAM_VALUE.INPROJ_SCALE_INIT_FILE PARAM_VALUE.INPROJ_SCALE_INIT_FILE } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.INPROJ_SCALE_INIT_FILE}] ${MODELPARAM_VALUE.INPROJ_SCALE_INIT_FILE}
+}
+
+proc update_MODELPARAM_VALUE.DT_BANK0_INIT_FILE { MODELPARAM_VALUE.DT_BANK0_INIT_FILE PARAM_VALUE.DT_BANK0_INIT_FILE } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.DT_BANK0_INIT_FILE}] ${MODELPARAM_VALUE.DT_BANK0_INIT_FILE}
+}
+
+proc update_MODELPARAM_VALUE.DT_BANK1_INIT_FILE { MODELPARAM_VALUE.DT_BANK1_INIT_FILE PARAM_VALUE.DT_BANK1_INIT_FILE } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.DT_BANK1_INIT_FILE}] ${MODELPARAM_VALUE.DT_BANK1_INIT_FILE}
+}
+
+proc update_MODELPARAM_VALUE.DT_BANK2_INIT_FILE { MODELPARAM_VALUE.DT_BANK2_INIT_FILE PARAM_VALUE.DT_BANK2_INIT_FILE } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.DT_BANK2_INIT_FILE}] ${MODELPARAM_VALUE.DT_BANK2_INIT_FILE}
+}
+
+proc update_MODELPARAM_VALUE.DT_BANK3_INIT_FILE { MODELPARAM_VALUE.DT_BANK3_INIT_FILE PARAM_VALUE.DT_BANK3_INIT_FILE } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.DT_BANK3_INIT_FILE}] ${MODELPARAM_VALUE.DT_BANK3_INIT_FILE}
+}
+
+proc update_MODELPARAM_VALUE.DT_SCALE_INIT_FILE { MODELPARAM_VALUE.DT_SCALE_INIT_FILE PARAM_VALUE.DT_SCALE_INIT_FILE } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.DT_SCALE_INIT_FILE}] ${MODELPARAM_VALUE.DT_SCALE_INIT_FILE}
+}
+
+proc update_MODELPARAM_VALUE.OUTPROJ_BANK0_INIT_FILE { MODELPARAM_VALUE.OUTPROJ_BANK0_INIT_FILE PARAM_VALUE.OUTPROJ_BANK0_INIT_FILE } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.OUTPROJ_BANK0_INIT_FILE}] ${MODELPARAM_VALUE.OUTPROJ_BANK0_INIT_FILE}
+}
+
+proc update_MODELPARAM_VALUE.OUTPROJ_BANK1_INIT_FILE { MODELPARAM_VALUE.OUTPROJ_BANK1_INIT_FILE PARAM_VALUE.OUTPROJ_BANK1_INIT_FILE } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.OUTPROJ_BANK1_INIT_FILE}] ${MODELPARAM_VALUE.OUTPROJ_BANK1_INIT_FILE}
+}
+
+proc update_MODELPARAM_VALUE.OUTPROJ_BANK2_INIT_FILE { MODELPARAM_VALUE.OUTPROJ_BANK2_INIT_FILE PARAM_VALUE.OUTPROJ_BANK2_INIT_FILE } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.OUTPROJ_BANK2_INIT_FILE}] ${MODELPARAM_VALUE.OUTPROJ_BANK2_INIT_FILE}
+}
+
+proc update_MODELPARAM_VALUE.OUTPROJ_BANK3_INIT_FILE { MODELPARAM_VALUE.OUTPROJ_BANK3_INIT_FILE PARAM_VALUE.OUTPROJ_BANK3_INIT_FILE } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.OUTPROJ_BANK3_INIT_FILE}] ${MODELPARAM_VALUE.OUTPROJ_BANK3_INIT_FILE}
+}
+
+proc update_MODELPARAM_VALUE.OUTPROJ_BANK4_INIT_FILE { MODELPARAM_VALUE.OUTPROJ_BANK4_INIT_FILE PARAM_VALUE.OUTPROJ_BANK4_INIT_FILE } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.OUTPROJ_BANK4_INIT_FILE}] ${MODELPARAM_VALUE.OUTPROJ_BANK4_INIT_FILE}
+}
+
+proc update_MODELPARAM_VALUE.OUTPROJ_BANK5_INIT_FILE { MODELPARAM_VALUE.OUTPROJ_BANK5_INIT_FILE PARAM_VALUE.OUTPROJ_BANK5_INIT_FILE } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.OUTPROJ_BANK5_INIT_FILE}] ${MODELPARAM_VALUE.OUTPROJ_BANK5_INIT_FILE}
+}
+
+proc update_MODELPARAM_VALUE.OUTPROJ_SCALE_INIT_FILE { MODELPARAM_VALUE.OUTPROJ_SCALE_INIT_FILE PARAM_VALUE.OUTPROJ_SCALE_INIT_FILE } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.OUTPROJ_SCALE_INIT_FILE}] ${MODELPARAM_VALUE.OUTPROJ_SCALE_INIT_FILE}
+}
+
 proc update_MODELPARAM_VALUE.AXIL_ADDR_W { MODELPARAM_VALUE.AXIL_ADDR_W PARAM_VALUE.AXIL_ADDR_W } {
 	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
 	set_property value [get_property value ${PARAM_VALUE.AXIL_ADDR_W}] ${MODELPARAM_VALUE.AXIL_ADDR_W}
+}
+
+proc update_MODELPARAM_VALUE.G_DEPTH { MODELPARAM_VALUE.G_DEPTH PARAM_VALUE.G_DEPTH } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.G_DEPTH}] ${MODELPARAM_VALUE.G_DEPTH}
+}
+
+proc update_MODELPARAM_VALUE.G_ADDR_W { MODELPARAM_VALUE.G_ADDR_W PARAM_VALUE.G_ADDR_W } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.G_ADDR_W}] ${MODELPARAM_VALUE.G_ADDR_W}
 }
 

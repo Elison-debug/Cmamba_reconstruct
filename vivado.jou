@@ -3,12 +3,12 @@
 # SW Build 5076996 on Wed May 22 18:37:14 MDT 2024
 # IP Build 5075265 on Wed May 22 21:45:21 MDT 2024
 # SharedData Build 5076995 on Wed May 22 18:29:18 MDT 2024
-# Start of session at: Mon Apr  6 03:28:26 2026
-# Process ID: 49876
-# Current directory: E:/course/master/mamba/Cmamba_reconstruct
+# Start of session at: Thu Apr 16 08:35:06 2026
+# Process ID: 134960
+# Current directory: E:/course/smamba
 # Command line: vivado.exe HW_reconstruct\project_mamba_all1\project_mamba_all1.xpr
-# Log file: E:/course/master/mamba/Cmamba_reconstruct/vivado.log
-# Journal file: E:/course/master/mamba/Cmamba_reconstruct\vivado.jou
+# Log file: E:/course/smamba/vivado.log
+# Journal file: E:/course/smamba\vivado.jou
 # Running On        :13600kf
 # Platform          :Windows Server 2016 or Windows 10
 # Operating System  :26200
@@ -17,27 +17,403 @@
 # CPU Physical cores:14
 # CPU Logical cores :20
 # Host memory       :34163 MB
-# Swap memory       :34163 MB
-# Total Virtual     :68327 MB
-# Available Virtual :24016 MB
+# Swap memory       :49042 MB
+# Total Virtual     :83206 MB
+# Available Virtual :13150 MB
 #-----------------------------------------------------------
 start_gui
 open_project HW_reconstruct/project_mamba_all1/project_mamba_all1.xpr
+update_compile_order -fileset sources_1
+launch_simulation -simset [get_filesets sim_3 ]
+open_wave_config E:/course/smamba/HW_reconstruct/project_mamba_all1/tb_reuse_in_proj_scheduler_behav.wcfg
+source tb_reuse_mamba_board_shell_ps.tcl
+run all
+close_sim
 reset_simulation -simset sim_3 -mode behavioral
 launch_simulation -simset [get_filesets sim_3 ]
-open_wave_config E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/tb_reuse_in_proj_scheduler_behav.wcfg
-source tb_reuse_mamba_board_shell_min_v7.tcl
-update_compile_order -fileset sources_1
+open_wave_config E:/course/smamba/HW_reconstruct/project_mamba_all1/tb_reuse_in_proj_scheduler_behav.wcfg
+source tb_reuse_mamba_board_shell_ps.tcl
+close_sim
+reset_run synth_1
+launch_runs synth_1 -jobs 20
+wait_on_run synth_1
+launch_simulation -simset [get_filesets sim_3 ] -mode post-synthesis -type functional
+open_wave_config E:/course/smamba/HW_reconstruct/project_mamba_all1/tb_reuse_in_proj_scheduler_behav.wcfg
+source tb_reuse_mamba_board_shell_ps.tcl
+run all
+create_dataflow_design
+close_design
+save_wave_config {E:/course/smamba/HW_reconstruct/project_mamba_all1/tb_reuse_in_proj_scheduler_behav.wcfg}
+current_wave_config {tb_reuse_in_proj_scheduler_behav.wcfg}
+add_wave {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core}} 
+restart
+run all
+save_wave_config {E:/course/smamba/HW_reconstruct/project_mamba_all1/tb_reuse_in_proj_scheduler_behav.wcfg}
+close_sim
+launch_simulation -simset [get_filesets sim_3 ] -mode post-synthesis -type timing
+close_design
+reset_simulation -simset sim_3 -mode post-synthesis -type timing
+launch_simulation -simset [get_filesets sim_3 ] -mode post-synthesis -type timing
+open_wave_config E:/course/smamba/HW_reconstruct/project_mamba_all1/tb_reuse_in_proj_scheduler_behav.wcfg
+source tb_reuse_mamba_board_shell_ps.tcl
+current_wave_config {tb_reuse_in_proj_scheduler_behav.wcfg}
+add_wave {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_u_sram/u_vec_ip/rd2_addr}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_u_sram/u_vec_ip/rd2_en}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_u_sram/u_vec_ip/rd_data}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_u_sram/u_vec_ip/rd_en}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_u_sram/u_vec_ip/sys_clk_IBUF_BUFG}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_u_sram/u_vec_ip/u_rd_addr}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_u_sram/u_vec_ip/u_wr_en}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_u_sram/u_vec_ip/wr_data}} 
+current_wave_config {tb_reuse_in_proj_scheduler_behav.wcfg}
+add_wave {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_u_sram/u_vec_ip/\\g_vec_ip_64.u_copy0  /clkb}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_u_sram/u_vec_ip/\\g_vec_ip_64.u_copy0  /addra}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_u_sram/u_vec_ip/\\g_vec_ip_64.u_copy0  /addrb}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_u_sram/u_vec_ip/\\g_vec_ip_64.u_copy0  /clka}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_u_sram/u_vec_ip/\\g_vec_ip_64.u_copy0  /dina}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_u_sram/u_vec_ip/\\g_vec_ip_64.u_copy0  /dinb}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_u_sram/u_vec_ip/\\g_vec_ip_64.u_copy0  /douta}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_u_sram/u_vec_ip/\\g_vec_ip_64.u_copy0  /doutb}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_u_sram/u_vec_ip/\\g_vec_ip_64.u_copy0  /ena}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_u_sram/u_vec_ip/\\g_vec_ip_64.u_copy0  /enb}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_u_sram/u_vec_ip/\\g_vec_ip_64.u_copy0  /wea}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_u_sram/u_vec_ip/\\g_vec_ip_64.u_copy0  /web}} 
+current_wave_config {tb_reuse_in_proj_scheduler_behav.wcfg}
+add_wave {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/\\g_vec_ip_64.u_copy0  /clkb}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/\\g_vec_ip_64.u_copy0  /addra}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/\\g_vec_ip_64.u_copy0  /addrb}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/\\g_vec_ip_64.u_copy0  /clka}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/\\g_vec_ip_64.u_copy0  /dina}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/\\g_vec_ip_64.u_copy0  /dinb}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/\\g_vec_ip_64.u_copy0  /douta}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/\\g_vec_ip_64.u_copy0  /doutb}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/\\g_vec_ip_64.u_copy0  /ena}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/\\g_vec_ip_64.u_copy0  /enb}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/\\g_vec_ip_64.u_copy0  /wea}} {{/tb_reuse_mamba_board_shell_ps/dut/u_core/u_core/u_in_proj/u_z_sram/u_vec_ip/\\g_vec_ip_64.u_copy0  /web}} 
+run all
+run all
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 330
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 333
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 332
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 331
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 334
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 335
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 336
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 337
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 339
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 340
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 342
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 341
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 344
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 345
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 346
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 348
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 349
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 351
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 351
+run all
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+run 5 us
+step
+step
+step
+step
+step
+step
+run 5 us
+step
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 133
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 134
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 135
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 136
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 137
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 138
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 145
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 146
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 147
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 148
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 149
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 150
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 151
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 152
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 153
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 154
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 155
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 178
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 179
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 180
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 202
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 203
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 221
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 222
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 223
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 238
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 239
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 240
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 241
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 281
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 282
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 284
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 291
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 309
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 310
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 324
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 323
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 325
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 326
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 351
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 352
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 354
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 355
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 356
+run 5 us
 run 5 us
 run all
 current_wave_config {tb_reuse_in_proj_scheduler_behav.wcfg}
-add_wave {{/tb_reuse_mamba_board_shell_min_v7/dut/u_core/u_core}} 
+add_wave {{/tb_reuse_mamba_board_shell_ps}} 
+run all
 restart
-run 5 us
 current_wave_config {tb_reuse_in_proj_scheduler_behav.wcfg}
-add_wave {{/tb_reuse_mamba_board_shell_min_v7/dut/u_core/u_core/u_dt_sched}} 
+add_wave {{/tb_reuse_mamba_board_shell_ps/dut}} 
 restart
+run all
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+step
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 330
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 331
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 332
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 333
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 334
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 335
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 336
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 337
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 339
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 340
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 341
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 349
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 348
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 351
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 352
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 354
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 355
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 356
+step
+step
+step
+step
+step
+step
+step
+step
+step
 run 5 us
-current_wave_config {tb_reuse_in_proj_scheduler_behav.wcfg}
-add_wave {{/tb_reuse_mamba_board_shell_min_v7/dut/u_core/u_core/u_dt_sched/fabric_valid_in}} 
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 133
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 134
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 135
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 136
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 137
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 138
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 145
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 146
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 147
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 148
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 149
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 150
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 151
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 152
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 153
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 154
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 155
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 178
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 179
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 180
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 202
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 203
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 221
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 222
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 223
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 238
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 239
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 240
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 241
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 281
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 282
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 284
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 291
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 309
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 310
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 323
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 324
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 325
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 326
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 312
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 310
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 314
+add_bp {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} 316
+run all
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 342
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 344
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 345
+run all
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 314
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 316
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 312
+remove_bps -file {E:/course/smamba/HW_reconstruct/tb/tb_reuse_mamba_board_shell_ps.sv} -line 310
+run all
+save_wave_config {E:/course/smamba/HW_reconstruct/project_mamba_all1/tb_reuse_in_proj_scheduler_behav.wcfg}
 close_sim
+close_design
+open_run synth_1 -name synth_1
+report_timing_summary -delay_type min_max -report_unconstrained -check_timing_verbose -max_paths 100 -nworst 10 -input_pins -routable_nets -name timing_1 -file E:/course/smamba/HW_reconstruct/reports/timing_report.txt

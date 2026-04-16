@@ -4,7 +4,7 @@
 
 set TIME_start [clock seconds] 
 namespace eval ::optrace {
-  variable script "E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1/reuse_mamba_board_shell.tcl"
+  variable script "E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.runs/synth_1/reuse_mamba_board_shell.tcl"
   variable category "vivado_synth"
 }
 
@@ -56,18 +56,8 @@ if {$::dispatch::connected} {
 }
 
 OPTRACE "synth_1" START { ROLLUP_AUTO }
-set_param chipscope.maxJobs 5
-set_param power.BramSDPPropagationFix 1
-set_param power.enableUnconnectedCarry8PinPower 1
-set_param power.enableCarry8RouteBelPower 1
-set_param checkpoint.writeSynthRtdsInDcp 1
-set_param power.enableLutRouteBelPower 1
-set_param bd.open.in_stealth_mode 2
 set_msg_config -id {HDL 9-1061} -limit 100000
 set_msg_config -id {HDL 9-1654} -limit 100000
-set_msg_config -id {HDL-1065} -limit 10000
-set_msg_config -id {Synth 8-256} -limit 10000
-set_msg_config -id {Synth 8-638} -limit 10000
 OPTRACE "Creating in-memory project" START { }
 create_project -in_memory -part xczu9eg-ffvb1156-2-e
 
@@ -75,81 +65,77 @@ set_param project.singleFileAddWarning.threshold 0
 set_param project.compositeFile.enableAutoGeneration 0
 set_param synth.vivado.isSynthRun true
 set_msg_config -source 4 -id {IP_Flow 19-2162} -severity warning -new_severity info
-set_property webtalk.parent_dir E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.cache/wt [current_project]
-set_property parent.project_path E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.xpr [current_project]
+set_property webtalk.parent_dir E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.cache/wt [current_project]
+set_property parent.project_path E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.xpr [current_project]
 set_property XPM_LIBRARIES {XPM_CDC XPM_MEMORY} [current_project]
 set_property default_lib xil_defaultlib [current_project]
 set_property target_language Verilog [current_project]
 set_property board_part xilinx.com:zcu102:part0:3.4 [current_project]
-set_property ip_output_repo e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.cache/ip [current_project]
+set_property ip_output_repo e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.cache/ip [current_project]
 set_property ip_cache_permissions {read write} [current_project]
 OPTRACE "Creating in-memory project" END { }
 OPTRACE "Adding files" START { }
-read_mem E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/hw_debug/vivado_runs/reuse_mamba_block_top_hw_debug/sigmoid_lut_q016_2048.hex
+add_files E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/inproj_vec_out_sram_ip/INIT_COE.coe
+add_files E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/inproj_ht_sram_ip/INIT_COE.coe
+read_mem E:/course/smamba/HW_reconstruct/hw_debug/vivado_runs/reuse_mamba_block_top_hw_debug/sigmoid_lut_q016_2048.hex
 read_verilog -library xil_defaultlib -sv {
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/axis_vec_join2.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/bias_add_regslice_ip.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ew_update_vec4.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ewa_vec4.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ewm_gate_sbuf_vec4.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/ewm_vec4.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/pulse_to_stream_adapter.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/requant_round_sat_engine.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_array4x4.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_ht_multi_copy_ip.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_ht_sram.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_ht_sram_sp.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_in_proj_scheduler.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_inproj_weight_sram.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mac_fabric_manager.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_axi_lite_regs.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_block_top.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_block_wrapper.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_out_proj_scheduler.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_outproj_multi_bank_wbuf_dp.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_outproj_weight_sram.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_packed_scale_mem.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_pipeline_4array_top.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_pipeline_4array_with_reduction.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_pt_capture.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_reduction_accumulator.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_shared_mac_fabric.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_silu_vec4.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_ssm_core.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_ssm_dt_scheduler.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_vec_out_sram.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_vec_out_sram_ip.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_z_stream_reader.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/sigmoid4_vec.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/slim_multi_bank_wbuf_dp.sv
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/vec_fifo_axis_ip.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/axis_vec_join2.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/bias_add_regslice_ip.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/ew_update_vec4.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/ewa_vec4.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/ewm_gate_sbuf_vec4.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/ewm_vec4.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/pe_unit_pipe.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/pulse_to_stream_adapter.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/requant_round_sat_engine.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_array4x4.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_ht_multi_copy_ip.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_ht_sram.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_ht_sram_sp.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_in_proj_scheduler.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_inproj_weight_sram.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_mac_fabric_manager.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_mamba_axi_lite_regs.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_mamba_block_top.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_mamba_block_wrapper.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_out_proj_scheduler.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_outproj_weight_sram.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_packed_scale_mem.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_pipeline_4array_top.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_pipeline_4array_with_reduction.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_pt_capture.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_reduction_accumulator.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_shared_mac_fabric.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_silu_vec4.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_ssm_core.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_ssm_dt_scheduler.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_vec_out_sram.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_vec_out_sram_ip.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_weight_bank_rom.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_z_stream_reader.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/sigmoid4_vec.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/slim_multi_bank_wbuf_dp.sv
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/vec_fifo_axis_ip.sv
 }
 read_verilog -library xil_defaultlib {
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_h_stream_loader.v
-  E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/rtl_reuse_shared/reuse_mamba_board_shell.v
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_mamba_h_stream_loader.v
+  E:/course/smamba/HW_reconstruct/rtl_reuse_shared/reuse_mamba_board_shell.v
 }
-read_ip -quiet E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/slim_WBUF_bank_dp/slim_WBUF_bank_dp.xci
-set_property used_in_implementation false [get_files -all e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/slim_WBUF_bank_dp/slim_WBUF_bank_dp_ooc.xdc]
+read_ip -quiet E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/inproj_ht_sram_ip/inproj_ht_sram_ip.xci
+set_property used_in_implementation false [get_files -all e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/inproj_ht_sram_ip/inproj_ht_sram_ip_ooc.xdc]
 
-read_ip -quiet E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/bias_ROM/bias_ROM.xci
-set_property used_in_implementation false [get_files -all e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias_ROM/bias_ROM_ooc.xdc]
+read_ip -quiet E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/bias_ROM/bias_ROM.xci
+set_property used_in_implementation false [get_files -all e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias_ROM/bias_ROM_ooc.xdc]
 
-read_ip -quiet E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/s_buffer/s_buffer.xci
-set_property used_in_implementation false [get_files -all e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/s_buffer/s_buffer_ooc.xdc]
+read_ip -quiet E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/inproj_vec_out_sram_ip/inproj_vec_out_sram_ip.xci
+set_property used_in_implementation false [get_files -all e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/inproj_vec_out_sram_ip/inproj_vec_out_sram_ip_ooc.xdc]
 
-read_ip -quiet E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/bias2sigmoid_fifo/bias2sigmoid_fifo.xci
-set_property used_in_implementation false [get_files -all e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias2sigmoid_fifo/bias2sigmoid_fifo.xdc]
-set_property used_in_implementation false [get_files -all e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias2sigmoid_fifo/bias2sigmoid_fifo_ooc.xdc]
+read_ip -quiet E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/s_buffer/s_buffer.xci
+set_property used_in_implementation false [get_files -all e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/s_buffer/s_buffer_ooc.xdc]
 
-read_ip -quiet E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/inproj_ht_sram_ip_1/inproj_ht_sram_ip.xci
-set_property used_in_implementation false [get_files -all e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/inproj_ht_sram_ip_1/inproj_ht_sram_ip_ooc.xdc]
-
-read_ip -quiet E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/outproj_WBUF_bank_dp/outproj_WBUF_bank_dp.xci
-set_property used_in_implementation false [get_files -all e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/outproj_WBUF_bank_dp/outproj_WBUF_bank_dp_ooc.xdc]
-
-read_ip -quiet E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/inproj_vec_out_sram_ip/inproj_vec_out_sram_ip.xci
-set_property used_in_implementation false [get_files -all e:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/inproj_vec_out_sram_ip/inproj_vec_out_sram_ip_ooc.xdc]
+read_ip -quiet E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/sources_1/ip/bias2sigmoid_fifo/bias2sigmoid_fifo.xci
+set_property used_in_implementation false [get_files -all e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias2sigmoid_fifo/bias2sigmoid_fifo.xdc]
+set_property used_in_implementation false [get_files -all e:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.gen/sources_1/ip/bias2sigmoid_fifo/bias2sigmoid_fifo_ooc.xdc]
 
 OPTRACE "Adding files" END { }
 # Mark all dcp files as not used in implementation to prevent them from being
@@ -160,12 +146,12 @@ OPTRACE "Adding files" END { }
 foreach dcp [get_files -quiet -all -filter file_type=="Design\ Checkpoint"] {
   set_property used_in_implementation false $dcp
 }
-read_xdc E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/minimal_timing.xdc
-set_property used_in_implementation false [get_files E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/minimal_timing.xdc]
+read_xdc E:/course/smamba/HW_reconstruct/minimal_timing.xdc
+set_property used_in_implementation false [get_files E:/course/smamba/HW_reconstruct/minimal_timing.xdc]
 
 set_param ips.enableIPCacheLiteLoad 1
 
-read_checkpoint -auto_incremental -incremental E:/course/master/mamba/Cmamba_reconstruct/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/utils_1/imports/synth_1/reuse_mamba_block_top.dcp
+read_checkpoint -auto_incremental -incremental E:/course/smamba/HW_reconstruct/project_mamba_all1/project_mamba_all1.srcs/utils_1/imports/synth_1/reuse_mamba_block_top.dcp
 close [open __synthesis_is_running__ w]
 
 OPTRACE "synth_design" START { }
