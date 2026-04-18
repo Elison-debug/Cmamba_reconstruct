@@ -1,7 +1,0 @@
-verilog xil_defaultlib --include "F:/Xilinx/Vivado/2024.1/data/xilinx_vip/include" \
-"../../../../project_mamba_all1.gen/sources_1/ip/norm_gamma_rom_ip/sim/norm_gamma_rom_ip.v" \
-
-verilog xil_defaultlib "glbl.v"
-
-# Do not sort compile order
-nosort

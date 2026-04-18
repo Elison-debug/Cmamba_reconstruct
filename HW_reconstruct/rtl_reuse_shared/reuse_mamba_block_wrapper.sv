@@ -22,7 +22,27 @@ module reuse_mamba_block_wrapper #(
     parameter int ADDR_BITS  = 11,
     parameter string LUT_FILE = "sigmoid_lut_q016_2048.hex",
     parameter int S_ADDR_W   = 6,
-    parameter int G_FRAC_BITS = 8
+    parameter int G_FRAC_BITS = 8,
+    parameter string INPROJ_BANK0_INIT_FILE = "",
+    parameter string INPROJ_BANK1_INIT_FILE = "",
+    parameter string INPROJ_BANK2_INIT_FILE = "",
+    parameter string INPROJ_BANK3_INIT_FILE = "",
+    parameter string INPROJ_BANK4_INIT_FILE = "",
+    parameter string INPROJ_BANK5_INIT_FILE = "",
+    parameter string INPROJ_SCALE_INIT_FILE = "",
+    parameter string NORM_GAMMA_INIT_FILE = "",
+    parameter string DT_BANK0_INIT_FILE = "",
+    parameter string DT_BANK1_INIT_FILE = "",
+    parameter string DT_BANK2_INIT_FILE = "",
+    parameter string DT_BANK3_INIT_FILE = "",
+    parameter string DT_SCALE_INIT_FILE = "",
+    parameter string OUTPROJ_BANK0_INIT_FILE = "",
+    parameter string OUTPROJ_BANK1_INIT_FILE = "",
+    parameter string OUTPROJ_BANK2_INIT_FILE = "",
+    parameter string OUTPROJ_BANK3_INIT_FILE = "",
+    parameter string OUTPROJ_BANK4_INIT_FILE = "",
+    parameter string OUTPROJ_BANK5_INIT_FILE = "",
+    parameter string OUTPROJ_SCALE_INIT_FILE = ""
 )(
     input  logic sys_clk,
     input  logic ext_reset_n,
@@ -49,6 +69,9 @@ module reuse_mamba_block_wrapper #(
     input  logic                         h_wr_en,
     input  logic [4:0]                   h_wr_addr,
     input  logic signed [TILE_SIZE*DATA_WIDTH-1:0] h_wr_data,
+    input  logic                         gamma_wr_en,
+    input  logic [4:0]                   gamma_wr_addr,
+    input  logic signed [TILE_SIZE*DATA_WIDTH-1:0] gamma_wr_data,
     input  logic                         u_rd_en,
     input  logic [5:0]                   u_rd_addr,
     output logic signed [TILE_SIZE*DATA_WIDTH-1:0] u_rd_data,
@@ -65,6 +88,7 @@ module reuse_mamba_block_wrapper #(
     logic signed [DATA_WIDTH-1:0] g_axis_tdata_arr [TILE_SIZE-1:0];
     logic signed [DATA_WIDTH-1:0] y_axis_tdata_arr [TILE_SIZE-1:0];
     logic signed [DATA_WIDTH-1:0] h_wr_data_arr    [TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] gamma_wr_data_arr[TILE_SIZE-1:0];
     logic signed [DATA_WIDTH-1:0] u_rd_data_arr    [TILE_SIZE-1:0];
     logic signed [DATA_WIDTH-1:0] z_rd_data_arr    [TILE_SIZE-1:0];
 
@@ -82,6 +106,7 @@ module reuse_mamba_block_wrapper #(
         for (int i = 0; i < TILE_SIZE; i++) begin
             g_axis_tdata_arr[i] = g_axis_tdata[i*DATA_WIDTH +: DATA_WIDTH];
             h_wr_data_arr[i]    = h_wr_data[i*DATA_WIDTH +: DATA_WIDTH];
+            gamma_wr_data_arr[i]= gamma_wr_data[i*DATA_WIDTH +: DATA_WIDTH];
             y_axis_tdata[i*DATA_WIDTH +: DATA_WIDTH] = y_axis_tdata_arr[i];
             u_rd_data[i*DATA_WIDTH +: DATA_WIDTH]    = u_rd_data_arr[i];
             z_rd_data[i*DATA_WIDTH +: DATA_WIDTH]    = z_rd_data_arr[i];
@@ -103,7 +128,27 @@ module reuse_mamba_block_wrapper #(
         .ADDR_BITS   (ADDR_BITS),
         .LUT_FILE    (LUT_FILE),
         .S_ADDR_W    (S_ADDR_W),
-        .G_FRAC_BITS (G_FRAC_BITS)
+        .G_FRAC_BITS (G_FRAC_BITS),
+        .INPROJ_BANK0_INIT_FILE (INPROJ_BANK0_INIT_FILE),
+        .INPROJ_BANK1_INIT_FILE (INPROJ_BANK1_INIT_FILE),
+        .INPROJ_BANK2_INIT_FILE (INPROJ_BANK2_INIT_FILE),
+        .INPROJ_BANK3_INIT_FILE (INPROJ_BANK3_INIT_FILE),
+        .INPROJ_BANK4_INIT_FILE (INPROJ_BANK4_INIT_FILE),
+        .INPROJ_BANK5_INIT_FILE (INPROJ_BANK5_INIT_FILE),
+        .INPROJ_SCALE_INIT_FILE (INPROJ_SCALE_INIT_FILE),
+        .NORM_GAMMA_INIT_FILE   (NORM_GAMMA_INIT_FILE),
+        .DT_BANK0_INIT_FILE     (DT_BANK0_INIT_FILE),
+        .DT_BANK1_INIT_FILE     (DT_BANK1_INIT_FILE),
+        .DT_BANK2_INIT_FILE     (DT_BANK2_INIT_FILE),
+        .DT_BANK3_INIT_FILE     (DT_BANK3_INIT_FILE),
+        .DT_SCALE_INIT_FILE     (DT_SCALE_INIT_FILE),
+        .OUTPROJ_BANK0_INIT_FILE(OUTPROJ_BANK0_INIT_FILE),
+        .OUTPROJ_BANK1_INIT_FILE(OUTPROJ_BANK1_INIT_FILE),
+        .OUTPROJ_BANK2_INIT_FILE(OUTPROJ_BANK2_INIT_FILE),
+        .OUTPROJ_BANK3_INIT_FILE(OUTPROJ_BANK3_INIT_FILE),
+        .OUTPROJ_BANK4_INIT_FILE(OUTPROJ_BANK4_INIT_FILE),
+        .OUTPROJ_BANK5_INIT_FILE(OUTPROJ_BANK5_INIT_FILE),
+        .OUTPROJ_SCALE_INIT_FILE(OUTPROJ_SCALE_INIT_FILE)
     ) u_core (
         .clk            (sys_clk),
         .rst_n          (core_rst_n),
@@ -126,6 +171,9 @@ module reuse_mamba_block_wrapper #(
         .h_wr_en        (h_wr_en),
         .h_wr_addr      (h_wr_addr),
         .h_wr_data      (h_wr_data_arr),
+        .gamma_wr_en    (gamma_wr_en),
+        .gamma_wr_addr  (gamma_wr_addr),
+        .gamma_wr_data  (gamma_wr_data_arr),
         .u_rd_en        (u_rd_en),
         .u_rd_addr      (u_rd_addr),
         .u_rd_data      (u_rd_data_arr),

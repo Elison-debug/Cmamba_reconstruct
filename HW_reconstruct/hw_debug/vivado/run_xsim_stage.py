@@ -106,6 +106,14 @@ def _stage_cfg(stage: str) -> dict:
             "xsim_plusargs": [],
             "xvlog_defines": [],
         }
+    if stage == "reuse_mamba_block_top_sim6_norm":
+        return {
+            "tb_top": "tb_reuse_mamba_block_top_sim6_norm",
+            "tb_file": str(HW_DIR / "project_mamba_all1" / "project_mamba_all1.srcs" / "sim_6" / "tb_reuse_mamba_block_top_sim6_norm.sv"),
+            "sources": shared_sources,
+            "xsim_plusargs": [],
+            "xvlog_defines": [],
+        }
     if stage == "reuse_ssm_core_hw_debug":
         return {
             "tb_top": "tb_reuse_ssm_core_hw_debug",
@@ -148,6 +156,7 @@ def main() -> None:
             "reuse_mamba_block_top",
             "reuse_rmsnorm_scheduler_hw_debug",
             "reuse_mamba_block_top_hw_debug",
+            "reuse_mamba_block_top_sim6_norm",
             "reuse_ssm_core_hw_debug",
             "reuse_ssm_dt_scheduler_hw_debug",
         ],
@@ -183,7 +192,7 @@ def main() -> None:
         (case_dir_abs / "rtl_out" / args.stage.replace("_hw_debug", "")).mkdir(parents=True, exist_ok=True)
         (case_dir_abs / "rtl_out" / args.stage).mkdir(parents=True, exist_ok=True)
 
-    if args.stage in {"reuse_rmsnorm_scheduler_hw_debug", "reuse_mamba_block_top_hw_debug", "reuse_ssm_core_hw_debug", "reuse_ssm_dt_scheduler_hw_debug"}:
+    if args.stage in {"reuse_rmsnorm_scheduler_hw_debug", "reuse_mamba_block_top_hw_debug", "reuse_mamba_block_top_sim6_norm", "reuse_ssm_core_hw_debug", "reuse_ssm_dt_scheduler_hw_debug"}:
         (run_dir / "tb_hw_debug_case_path.svh").write_text(
             f'`define HW_DEBUG_CASE_DIR "{case_dir_norm}"\n', encoding="utf-8"
         )

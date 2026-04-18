@@ -25,6 +25,13 @@ module reuse_in_proj_scheduler #(
     parameter int SCALE_W            = 16,
     parameter int SCALE_FRAC_BITS    = 15,
     parameter bit USE_PER_CHANNEL_SCALE = 0,
+    parameter string INPROJ_BANK0_INIT_FILE = "",
+    parameter string INPROJ_BANK1_INIT_FILE = "",
+    parameter string INPROJ_BANK2_INIT_FILE = "",
+    parameter string INPROJ_BANK3_INIT_FILE = "",
+    parameter string INPROJ_BANK4_INIT_FILE = "",
+    parameter string INPROJ_BANK5_INIT_FILE = "",
+    parameter string INPROJ_SCALE_INIT_FILE = "",
     parameter int REQUANT_ROUND_MODE = 1,
     parameter int REQUANT_SAT_MODE   = 1
 )(
@@ -165,7 +172,13 @@ module reuse_in_proj_scheduler #(
         .N_BANK (N_BANK),
         .DEPTH  (WDEPTH),
         .ADDR_W (WADDR_W),
-        .DATA_W (DATA_W)
+        .DATA_W (DATA_W),
+        .BANK0_INIT_FILE (INPROJ_BANK0_INIT_FILE),
+        .BANK1_INIT_FILE (INPROJ_BANK1_INIT_FILE),
+        .BANK2_INIT_FILE (INPROJ_BANK2_INIT_FILE),
+        .BANK3_INIT_FILE (INPROJ_BANK3_INIT_FILE),
+        .BANK4_INIT_FILE (INPROJ_BANK4_INIT_FILE),
+        .BANK5_INIT_FILE (INPROJ_BANK5_INIT_FILE)
     ) u_w_sram (
         .clk(clk),
         .rst_n(rst_n),
@@ -247,9 +260,10 @@ module reuse_in_proj_scheduler #(
     assign scale_rd_addr     = row_tile_linear[SCALE_ADDR_W-1:0];
 
     reuse_packed_scale_mem #(
-        .DEPTH  (SCALE_DEPTH),
-        .ADDR_W (SCALE_ADDR_W),
-        .DATA_W (64)
+        .DEPTH     (SCALE_DEPTH),
+        .ADDR_W    (SCALE_ADDR_W),
+        .DATA_W    (64),
+        .INIT_FILE (INPROJ_SCALE_INIT_FILE)
     ) u_scale_mem (
         .clk  (clk),
         .en   (scale_rd_en),

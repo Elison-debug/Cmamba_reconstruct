@@ -18,6 +18,11 @@ module reuse_ssm_dt_scheduler #(
     parameter int SCALE_W            = 16,
     parameter int SCALE_FRAC_BITS    = 15,
     parameter bit USE_PER_CHANNEL_SCALE = 0,
+    parameter string DT_BANK0_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank0.mem",
+    parameter string DT_BANK1_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank1.mem",
+    parameter string DT_BANK2_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank2.mem",
+    parameter string DT_BANK3_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank3.mem",
+    parameter string DT_SCALE_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_scale_q15.mem",
     parameter int REQUANT_ROUND_MODE = 1,
     parameter int REQUANT_SAT_MODE   = 1
 )(
@@ -161,9 +166,10 @@ module reuse_ssm_dt_scheduler #(
     assign fabric_B3_mat = B3_mat_reg;
 
     reuse_packed_scale_mem #(
-        .DEPTH  (SCALE_DEPTH),
-        .ADDR_W (SCALE_ADDR_W),
-        .DATA_W (64)
+        .DEPTH     (SCALE_DEPTH),
+        .ADDR_W    (SCALE_ADDR_W),
+        .DATA_W    (64),
+        .INIT_FILE (DT_SCALE_INIT_FILE)
     ) u_scale_mem (
         .clk  (clk),
         .en   (scale_rd_en),
@@ -195,56 +201,99 @@ module reuse_ssm_dt_scheduler #(
     );
 
 `ifdef SYNTHESIS
-    slim_WBUF_bank_dp u_dt_wbuf_bank0 (
-        .clka  (clk),
-        .ena   (w_rd_en_cur),
-        .addra (w_addr_cur),
-        .douta (w_dout_sel[0]),
-        .clkb  (clk),
-        .enb   (1'b0),
-        .addrb ('0),
-        .doutb ()
+    reuse_weight_bank_rom #(
+        .DEPTH     (WDEPTH),
+        .ADDR_W    (WADDR_W),
+        .DATA_W    (DATA_W),
+        .INIT_FILE (DT_BANK0_INIT_FILE)
+    ) u_dt_wbuf_bank0 (
+        .clk    (clk),
+        .en_a   (w_rd_en_cur),
+        .addr_a (w_addr_cur),
+        .dout_a (w_dout_sel[0]),
+        .en_b   (1'b0),
+        .addr_b ('0),
+        .dout_b ()
     );
-    slim_WBUF_bank_dp u_dt_wbuf_bank1 (
-        .clka  (clk),
-        .ena   (w_rd_en_cur),
-        .addra (w_addr_cur),
-        .douta (w_dout_sel[1]),
-        .clkb  (clk),
-        .enb   (1'b0),
-        .addrb ('0),
-        .doutb ()
+    reuse_weight_bank_rom #(
+        .DEPTH     (WDEPTH),
+        .ADDR_W    (WADDR_W),
+        .DATA_W    (DATA_W),
+        .INIT_FILE (DT_BANK1_INIT_FILE)
+    ) u_dt_wbuf_bank1 (
+        .clk    (clk),
+        .en_a   (w_rd_en_cur),
+        .addr_a (w_addr_cur),
+        .dout_a (w_dout_sel[1]),
+        .en_b   (1'b0),
+        .addr_b ('0),
+        .dout_b ()
     );
-    slim_WBUF_bank_dp u_dt_wbuf_bank2 (
-        .clka  (clk),
-        .ena   (w_rd_en_cur),
-        .addra (w_addr_cur),
-        .douta (w_dout_sel[2]),
-        .clkb  (clk),
-        .enb   (1'b0),
-        .addrb ('0),
-        .doutb ()
+    reuse_weight_bank_rom #(
+        .DEPTH     (WDEPTH),
+        .ADDR_W    (WADDR_W),
+        .DATA_W    (DATA_W),
+        .INIT_FILE (DT_BANK2_INIT_FILE)
+    ) u_dt_wbuf_bank2 (
+        .clk    (clk),
+        .en_a   (w_rd_en_cur),
+        .addr_a (w_addr_cur),
+        .dout_a (w_dout_sel[2]),
+        .en_b   (1'b0),
+        .addr_b ('0),
+        .dout_b ()
     );
-    slim_WBUF_bank_dp u_dt_wbuf_bank3 (
-        .clka  (clk),
-        .ena   (w_rd_en_cur),
-        .addra (w_addr_cur),
-        .douta (w_dout_sel[3]),
-        .clkb  (clk),
-        .enb   (1'b0),
-        .addrb ('0),
-        .doutb ()
+    reuse_weight_bank_rom #(
+        .DEPTH     (WDEPTH),
+        .ADDR_W    (WADDR_W),
+        .DATA_W    (DATA_W),
+        .INIT_FILE (DT_BANK3_INIT_FILE)
+    ) u_dt_wbuf_bank3 (
+        .clk    (clk),
+        .en_a   (w_rd_en_cur),
+        .addr_a (w_addr_cur),
+        .dout_a (w_dout_sel[3]),
+        .en_b   (1'b0),
+        .addr_b ('0),
+        .dout_b ()
     );
 `else
-    logic [DATA_W-1:0] dt_wbuf_mem_sim [4][WDEPTH];
+    logic [DATA_W-1:0] dt_wbuf_mem_sim0 [0:WDEPTH-1];
+    logic [DATA_W-1:0] dt_wbuf_mem_sim1 [0:WDEPTH-1];
+    logic [DATA_W-1:0] dt_wbuf_mem_sim2 [0:WDEPTH-1];
+    logic [DATA_W-1:0] dt_wbuf_mem_sim3 [0:WDEPTH-1];
     logic [DATA_W-1:0] dt_wbuf_dout_r [4];
+
+    initial begin : init_dt_wbuf_mem_sim
+        for (int addr = 0; addr < WDEPTH; addr++) begin
+            dt_wbuf_mem_sim0[addr] = '0;
+            dt_wbuf_mem_sim1[addr] = '0;
+            dt_wbuf_mem_sim2[addr] = '0;
+            dt_wbuf_mem_sim3[addr] = '0;
+        end
+        if (DT_BANK0_INIT_FILE != "") $readmemh(DT_BANK0_INIT_FILE, dt_wbuf_mem_sim0);
+        if (DT_BANK1_INIT_FILE != "") $readmemh(DT_BANK1_INIT_FILE, dt_wbuf_mem_sim1);
+        if (DT_BANK2_INIT_FILE != "") $readmemh(DT_BANK2_INIT_FILE, dt_wbuf_mem_sim2);
+        if (DT_BANK3_INIT_FILE != "") $readmemh(DT_BANK3_INIT_FILE, dt_wbuf_mem_sim3);
+    end
+
+    function automatic [DATA_W-1:0] dt_mem_read_sim(input int bank_idx, input [WADDR_W-1:0] addr_idx);
+        case (bank_idx)
+            0: dt_mem_read_sim = dt_wbuf_mem_sim0[addr_idx];
+            1: dt_mem_read_sim = dt_wbuf_mem_sim1[addr_idx];
+            2: dt_mem_read_sim = dt_wbuf_mem_sim2[addr_idx];
+            3: dt_mem_read_sim = dt_wbuf_mem_sim3[addr_idx];
+            default: dt_mem_read_sim = '0;
+        endcase
+    endfunction
+
     always_ff @(posedge clk) begin
         if (!rst_n) begin
             for (int b = 0; b < 4; b++)
                 dt_wbuf_dout_r[b] <= '0;
         end else if (w_rd_en_cur) begin
             for (int b = 0; b < 4; b++)
-                dt_wbuf_dout_r[b] <= dt_wbuf_mem_sim[b][w_addr_cur];
+                dt_wbuf_dout_r[b] <= dt_mem_read_sim(b, w_addr_cur);
         end
     end
     always_comb begin

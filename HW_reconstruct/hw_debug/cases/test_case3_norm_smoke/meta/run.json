@@ -1,0 +1,13 @@
+{
+  "ckpt": "D:\\Mamba\\CMamba_refactor\\Cmamba_reconstruct\\refactor\\bittrue\\reference.pt",
+  "feat_root": "D:\\Mamba\\CMamba_refactor\\Cmamba_reconstruct\\data\\features\\parity_2100",
+  "target": "test",
+  "limit": 0,
+  "preload": false,
+  "reuse_float_only": true,
+  "samples": 8,
+  "seq_len": 2,
+  "din": 2100,
+  "export_json": "D:\\Mamba\\CMamba_refactor\\Cmamba_reconstruct\\export_bittrue\\case1\\export.json",
+  "export_dir": "D:\\Mamba\\CMamba_refactor\\Cmamba_reconstruct\\export_bittrue\\case1"
+}

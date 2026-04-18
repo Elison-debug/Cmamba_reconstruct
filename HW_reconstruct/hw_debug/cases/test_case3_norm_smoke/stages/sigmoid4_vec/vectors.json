@@ -1,0 +1,299 @@
+{
+  "vectors": 512,
+  "lanes": 4,
+  "format": {
+    "in_q88": "packed 4x16b, lane0 in LSB",
+    "out_q016": "packed 4x16b, lane0 in LSB"
+  },
+  "lane_meta": [
+    {
+      "vec": 0,
+      "lane": 0,
+      "in_q88_raw": -1024,
+      "in_float": -4.0,
+      "lut_addr": 0,
+      "out_q016_raw": 1179,
+      "out_float": 0.0179901123046875
+    },
+    {
+      "vec": 0,
+      "lane": 1,
+      "in_q88_raw": -1023,
+      "in_float": -3.99609375,
+      "lut_addr": 1,
+      "out_q016_raw": 1183,
+      "out_float": 0.0180511474609375
+    },
+    {
+      "vec": 0,
+      "lane": 2,
+      "in_q88_raw": -1022,
+      "in_float": -3.9921875,
+      "lut_addr": 2,
+      "out_q016_raw": 1188,
+      "out_float": 0.01812744140625
+    },
+    {
+      "vec": 0,
+      "lane": 3,
+      "in_q88_raw": -1021,
+      "in_float": -3.98828125,
+      "lut_addr": 3,
+      "out_q016_raw": 1192,
+      "out_float": 0.0181884765625
+    },
+    {
+      "vec": 1,
+      "lane": 0,
+      "in_q88_raw": -1020,
+      "in_float": -3.984375,
+      "lut_addr": 4,
+      "out_q016_raw": 1197,
+      "out_float": 0.0182647705078125
+    },
+    {
+      "vec": 1,
+      "lane": 1,
+      "in_q88_raw": -1019,
+      "in_float": -3.98046875,
+      "lut_addr": 5,
+      "out_q016_raw": 1202,
+      "out_float": 0.018341064453125
+    },
+    {
+      "vec": 1,
+      "lane": 2,
+      "in_q88_raw": -1018,
+      "in_float": -3.9765625,
+      "lut_addr": 6,
+      "out_q016_raw": 1206,
+      "out_float": 0.018402099609375
+    },
+    {
+      "vec": 1,
+      "lane": 3,
+      "in_q88_raw": -1017,
+      "in_float": -3.97265625,
+      "lut_addr": 7,
+      "out_q016_raw": 1211,
+      "out_float": 0.0184783935546875
+    },
+    {
+      "vec": 2,
+      "lane": 0,
+      "in_q88_raw": -1016,
+      "in_float": -3.96875,
+      "lut_addr": 8,
+      "out_q016_raw": 1215,
+      "out_float": 0.0185394287109375
+    },
+    {
+      "vec": 2,
+      "lane": 1,
+      "in_q88_raw": -1015,
+      "in_float": -3.96484375,
+      "lut_addr": 9,
+      "out_q016_raw": 1220,
+      "out_float": 0.01861572265625
+    },
+    {
+      "vec": 2,
+      "lane": 2,
+      "in_q88_raw": -1014,
+      "in_float": -3.9609375,
+      "lut_addr": 10,
+      "out_q016_raw": 1225,
+      "out_float": 0.0186920166015625
+    },
+    {
+      "vec": 2,
+      "lane": 3,
+      "in_q88_raw": -1013,
+      "in_float": -3.95703125,
+      "lut_addr": 11,
+      "out_q016_raw": 1230,
+      "out_float": 0.018768310546875
+    },
+    {
+      "vec": 3,
+      "lane": 0,
+      "in_q88_raw": -1012,
+      "in_float": -3.953125,
+      "lut_addr": 12,
+      "out_q016_raw": 1234,
+      "out_float": 0.018829345703125
+    },
+    {
+      "vec": 3,
+      "lane": 1,
+      "in_q88_raw": -1011,
+      "in_float": -3.94921875,
+      "lut_addr": 13,
+      "out_q016_raw": 1239,
+      "out_float": 0.0189056396484375
+    },
+    {
+      "vec": 3,
+      "lane": 2,
+      "in_q88_raw": -1010,
+      "in_float": -3.9453125,
+      "lut_addr": 14,
+      "out_q016_raw": 1244,
+      "out_float": 0.01898193359375
+    },
+    {
+      "vec": 3,
+      "lane": 3,
+      "in_q88_raw": -1009,
+      "in_float": -3.94140625,
+      "lut_addr": 15,
+      "out_q016_raw": 1249,
+      "out_float": 0.0190582275390625
+    },
+    {
+      "vec": 4,
+      "lane": 0,
+      "in_q88_raw": -1008,
+      "in_float": -3.9375,
+      "lut_addr": 16,
+      "out_q016_raw": 1253,
+      "out_float": 0.0191192626953125
+    },
+    {
+      "vec": 4,
+      "lane": 1,
+      "in_q88_raw": -1007,
+      "in_float": -3.93359375,
+      "lut_addr": 17,
+      "out_q016_raw": 1258,
+      "out_float": 0.019195556640625
+    },
+    {
+      "vec": 4,
+      "lane": 2,
+      "in_q88_raw": -1006,
+      "in_float": -3.9296875,
+      "lut_addr": 18,
+      "out_q016_raw": 1263,
+      "out_float": 0.0192718505859375
+    },
+    {
+      "vec": 4,
+      "lane": 3,
+      "in_q88_raw": -1005,
+      "in_float": -3.92578125,
+      "lut_addr": 19,
+      "out_q016_raw": 1268,
+      "out_float": 0.01934814453125
+    },
+    {
+      "vec": 5,
+      "lane": 0,
+      "in_q88_raw": -1004,
+      "in_float": -3.921875,
+      "lut_addr": 20,
+      "out_q016_raw": 1273,
+      "out_float": 0.0194244384765625
+    },
+    {
+      "vec": 5,
+      "lane": 1,
+      "in_q88_raw": -1003,
+      "in_float": -3.91796875,
+      "lut_addr": 21,
+      "out_q016_raw": 1278,
+      "out_float": 0.019500732421875
+    },
+    {
+      "vec": 5,
+      "lane": 2,
+      "in_q88_raw": -1002,
+      "in_float": -3.9140625,
+      "lut_addr": 22,
+      "out_q016_raw": 1282,
+      "out_float": 0.019561767578125
+    },
+    {
+      "vec": 5,
+      "lane": 3,
+      "in_q88_raw": -1001,
+      "in_float": -3.91015625,
+      "lut_addr": 23,
+      "out_q016_raw": 1287,
+      "out_float": 0.0196380615234375
+    },
+    {
+      "vec": 6,
+      "lane": 0,
+      "in_q88_raw": -1000,
+      "in_float": -3.90625,
+      "lut_addr": 24,
+      "out_q016_raw": 1292,
+      "out_float": 0.01971435546875
+    },
+    {
+      "vec": 6,
+      "lane": 1,
+      "in_q88_raw": -999,
+      "in_float": -3.90234375,
+      "lut_addr": 25,
+      "out_q016_raw": 1297,
+      "out_float": 0.0197906494140625
+    },
+    {
+      "vec": 6,
+      "lane": 2,
+      "in_q88_raw": -998,
+      "in_float": -3.8984375,
+      "lut_addr": 26,
+      "out_q016_raw": 1302,
+      "out_float": 0.019866943359375
+    },
+    {
+      "vec": 6,
+      "lane": 3,
+      "in_q88_raw": -997,
+      "in_float": -3.89453125,
+      "lut_addr": 27,
+      "out_q016_raw": 1307,
+      "out_float": 0.0199432373046875
+    },
+    {
+      "vec": 7,
+      "lane": 0,
+      "in_q88_raw": -996,
+      "in_float": -3.890625,
+      "lut_addr": 28,
+      "out_q016_raw": 1312,
+      "out_float": 0.02001953125
+    },
+    {
+      "vec": 7,
+      "lane": 1,
+      "in_q88_raw": -995,
+      "in_float": -3.88671875,
+      "lut_addr": 29,
+      "out_q016_raw": 1317,
+      "out_float": 0.0200958251953125
+    },
+    {
+      "vec": 7,
+      "lane": 2,
+      "in_q88_raw": -994,
+      "in_float": -3.8828125,
+      "lut_addr": 30,
+      "out_q016_raw": 1322,
+      "out_float": 0.020172119140625
+    },
+    {
+      "vec": 7,
+      "lane": 3,
+      "in_q88_raw": -993,
+      "in_float": -3.87890625,
+      "lut_addr": 31,
+      "out_q016_raw": 1327,
+      "out_float": 0.0202484130859375
+    }
+  ],
+  "lut_file_source": "D:\\Mamba\\CMamba_refactor\\Cmamba_reconstruct\\user\\data\\sigmoid_lut_q016_2048.hex"
+}

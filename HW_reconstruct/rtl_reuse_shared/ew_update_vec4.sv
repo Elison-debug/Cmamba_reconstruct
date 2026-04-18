@@ -12,7 +12,11 @@ module ew_update_vec4 #(
     parameter int TILE_SIZE  = 4,
     parameter int W          = 16,
     parameter int S_ADDR_W   = 10,   // state depth = 2^S_ADDR_W (example)
-    parameter bit USE_RAM    = 1
+    parameter bit USE_RAM    = 1,
+    parameter int MUL_ROUND_MODE = 0,
+    parameter int MUL_SAT_MODE   = 0,
+    parameter int ADD_ROUND_MODE = 0,
+    parameter int ADD_SAT_MODE   = 0
 )(
     input  logic clk,
     input  logic rst_n,
@@ -249,7 +253,9 @@ module ew_update_vec4 #(
         .OUT_W     (W),
         .FRAC_BITS (8),
         .SIGNED_A  (0),
-        .SIGNED_B  (1)
+        .SIGNED_B  (1),
+        .ROUND_MODE(MUL_ROUND_MODE),
+        .SAT_MODE  (MUL_SAT_MODE)
     ) u_ewm1 (
         .clk      (clk),
         .rst_n    (rst_n),
@@ -269,7 +275,9 @@ module ew_update_vec4 #(
         .OUT_W     (W),
         .FRAC_BITS (8),
         .SIGNED_A  (0),
-        .SIGNED_B  (1)
+        .SIGNED_B  (1),
+        .ROUND_MODE(MUL_ROUND_MODE),
+        .SAT_MODE  (MUL_SAT_MODE)
     ) u_ewm2 (
         .clk      (clk),
         .rst_n    (rst_n),
@@ -288,7 +296,9 @@ module ew_update_vec4 #(
     ewa_vec4 #(
         .TILE_SIZE (TILE_SIZE),
         .W         (W),
-        .SIGNED_IO (1)
+        .SIGNED_IO (1),
+        .ROUND_MODE(ADD_ROUND_MODE),
+        .SAT_MODE  (ADD_SAT_MODE)
     ) u_ewa (
         .clk      (clk),
         .rst_n    (rst_n),

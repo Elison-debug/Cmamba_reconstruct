@@ -1,0 +1,94 @@
+{
+  "sample_idx": 0,
+  "block0": {
+    "norm": {
+      "shape": [
+        1,
+        128
+      ],
+      "mae": 0.002792190294712782,
+      "max_abs": 0.013647079467773438,
+      "max_abs_flat_index": 95
+    },
+    "inproj_u": {
+      "shape": [
+        1,
+        256
+      ],
+      "mae": 0.010564017109572887,
+      "max_abs": 0.04036515951156616,
+      "max_abs_flat_index": 47
+    },
+    "inproj_z": {
+      "shape": [
+        1,
+        256
+      ],
+      "mae": 0.010725036263465881,
+      "max_abs": 0.038422584533691406,
+      "max_abs_flat_index": 172
+    },
+    "silu_gate": {
+      "shape": [
+        1,
+        256
+      ],
+      "mae": 0.005844729021191597,
+      "max_abs": 0.04382765293121338,
+      "max_abs_flat_index": 172
+    },
+    "dtproj": {
+      "shape": [
+        1,
+        256
+      ],
+      "mae": 0.03574774041771889,
+      "max_abs": 0.1143445372581482,
+      "max_abs_flat_index": 62
+    },
+    "dt_sigmoid": {
+      "shape": [
+        256
+      ],
+      "mae": 0.007522154599428177,
+      "max_abs": 0.028014272451400757,
+      "max_abs_flat_index": 62
+    },
+    "selective_scan": {
+      "shape": [
+        1,
+        256
+      ],
+      "mae": 0.12673825025558472,
+      "max_abs": 1.789203405380249,
+      "max_abs_flat_index": 58
+    },
+    "ewm_gating": {
+      "shape": [
+        1,
+        256
+      ],
+      "mae": 0.03262776508927345,
+      "max_abs": 0.43902358412742615,
+      "max_abs_flat_index": 239
+    },
+    "outproj": {
+      "shape": [
+        1,
+        128
+      ],
+      "mae": 0.03155317157506943,
+      "max_abs": 0.0965501219034195,
+      "max_abs_flat_index": 10
+    },
+    "block_output": {
+      "shape": [
+        1,
+        128
+      ],
+      "mae": 0.031754396855831146,
+      "max_abs": 0.09530937671661377,
+      "max_abs_flat_index": 10
+    }
+  }
+}

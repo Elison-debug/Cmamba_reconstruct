@@ -1,0 +1,79 @@
+{
+  "case_dir": "D:\\Mamba\\CMamba_refactor\\Cmamba_reconstruct\\HW_reconstruct\\hw_debug\\cases\\test_case3_norm_smoke",
+  "stage": "reuse_mamba_block_top",
+  "rtl_dir": "D:\\Mamba\\CMamba_refactor\\Cmamba_reconstruct\\HW_reconstruct\\hw_debug\\cases\\test_case3_norm_smoke\\rtl_out\\reuse_mamba_block_top",
+  "match": true,
+  "files": [
+    {
+      "match": true,
+      "lines": 64,
+      "golden_file": "D:\\Mamba\\CMamba_refactor\\Cmamba_reconstruct\\HW_reconstruct\\hw_debug\\cases\\test_case3_norm_smoke\\stages\\reuse_mamba_block_top\\dt_golden_q88.mem",
+      "rtl_file": "D:\\Mamba\\CMamba_refactor\\Cmamba_reconstruct\\HW_reconstruct\\hw_debug\\cases\\test_case3_norm_smoke\\rtl_out\\reuse_mamba_block_top\\dt_golden_q88.mem",
+      "file": "dt_golden_q88.mem"
+    },
+    {
+      "match": true,
+      "lines": 64,
+      "golden_file": "D:\\Mamba\\CMamba_refactor\\Cmamba_reconstruct\\HW_reconstruct\\hw_debug\\cases\\test_case3_norm_smoke\\stages\\reuse_mamba_block_top\\gate_y_golden_q88.mem",
+      "rtl_file": "D:\\Mamba\\CMamba_refactor\\Cmamba_reconstruct\\HW_reconstruct\\hw_debug\\cases\\test_case3_norm_smoke\\rtl_out\\reuse_mamba_block_top\\gate_y_golden_q88.mem",
+      "file": "gate_y_golden_q88.mem"
+    },
+    {
+      "match": true,
+      "lines": 32,
+      "golden_file": "D:\\Mamba\\CMamba_refactor\\Cmamba_reconstruct\\HW_reconstruct\\hw_debug\\cases\\test_case3_norm_smoke\\stages\\reuse_mamba_block_top\\h_norm_golden_q88.mem",
+      "rtl_file": "D:\\Mamba\\CMamba_refactor\\Cmamba_reconstruct\\HW_reconstruct\\hw_debug\\cases\\test_case3_norm_smoke\\rtl_out\\reuse_mamba_block_top\\h_norm_golden_q88.mem",
+      "file": "h_norm_golden_q88.mem"
+    },
+    {
+      "match": true,
+      "lines": 64,
+      "golden_file": "D:\\Mamba\\CMamba_refactor\\Cmamba_reconstruct\\HW_reconstruct\\hw_debug\\cases\\test_case3_norm_smoke\\stages\\reuse_mamba_block_top\\lam_golden_q016.mem",
+      "rtl_file": "D:\\Mamba\\CMamba_refactor\\Cmamba_reconstruct\\HW_reconstruct\\hw_debug\\cases\\test_case3_norm_smoke\\rtl_out\\reuse_mamba_block_top\\lam_golden_q016.mem",
+      "file": "lam_golden_q016.mem"
+    },
+    {
+      "match": true,
+      "lines": 64,
+      "golden_file": "D:\\Mamba\\CMamba_refactor\\Cmamba_reconstruct\\HW_reconstruct\\hw_debug\\cases\\test_case3_norm_smoke\\stages\\reuse_mamba_block_top\\ssm_golden_q88.mem",
+      "rtl_file": "D:\\Mamba\\CMamba_refactor\\Cmamba_reconstruct\\HW_reconstruct\\hw_debug\\cases\\test_case3_norm_smoke\\rtl_out\\reuse_mamba_block_top\\ssm_golden_q88.mem",
+      "file": "ssm_golden_q88.mem"
+    },
+    {
+      "match": true,
+      "lines": 64,
+      "golden_file": "D:\\Mamba\\CMamba_refactor\\Cmamba_reconstruct\\HW_reconstruct\\hw_debug\\cases\\test_case3_norm_smoke\\stages\\reuse_mamba_block_top\\u_act_golden_q88.mem",
+      "rtl_file": "D:\\Mamba\\CMamba_refactor\\Cmamba_reconstruct\\HW_reconstruct\\hw_debug\\cases\\test_case3_norm_smoke\\rtl_out\\reuse_mamba_block_top\\u_act_golden_q88.mem",
+      "file": "u_act_golden_q88.mem"
+    },
+    {
+      "match": true,
+      "lines": 64,
+      "golden_file": "D:\\Mamba\\CMamba_refactor\\Cmamba_reconstruct\\HW_reconstruct\\hw_debug\\cases\\test_case3_norm_smoke\\stages\\reuse_mamba_block_top\\u_golden_q88.mem",
+      "rtl_file": "D:\\Mamba\\CMamba_refactor\\Cmamba_reconstruct\\HW_reconstruct\\hw_debug\\cases\\test_case3_norm_smoke\\rtl_out\\reuse_mamba_block_top\\u_golden_q88.mem",
+      "file": "u_golden_q88.mem"
+    },
+    {
+      "match": true,
+      "lines": 32,
+      "golden_file": "D:\\Mamba\\CMamba_refactor\\Cmamba_reconstruct\\HW_reconstruct\\hw_debug\\cases\\test_case3_norm_smoke\\stages\\reuse_mamba_block_top\\y_golden_q88.mem",
+      "rtl_file": "D:\\Mamba\\CMamba_refactor\\Cmamba_reconstruct\\HW_reconstruct\\hw_debug\\cases\\test_case3_norm_smoke\\rtl_out\\reuse_mamba_block_top\\y_golden_q88.mem",
+      "file": "y_golden_q88.mem"
+    },
+    {
+      "match": true,
+      "lines": 64,
+      "golden_file": "D:\\Mamba\\CMamba_refactor\\Cmamba_reconstruct\\HW_reconstruct\\hw_debug\\cases\\test_case3_norm_smoke\\stages\\reuse_mamba_block_top\\z_golden_q88.mem",
+      "rtl_file": "D:\\Mamba\\CMamba_refactor\\Cmamba_reconstruct\\HW_reconstruct\\hw_debug\\cases\\test_case3_norm_smoke\\rtl_out\\reuse_mamba_block_top\\z_golden_q88.mem",
+      "file": "z_golden_q88.mem"
+    },
+    {
+      "match": true,
+      "lines": 64,
+      "golden_file": "D:\\Mamba\\CMamba_refactor\\Cmamba_reconstruct\\HW_reconstruct\\hw_debug\\cases\\test_case3_norm_smoke\\stages\\reuse_mamba_block_top\\z_silu_golden_q88.mem",
+      "rtl_file": "D:\\Mamba\\CMamba_refactor\\Cmamba_reconstruct\\HW_reconstruct\\hw_debug\\cases\\test_case3_norm_smoke\\rtl_out\\reuse_mamba_block_top\\z_silu_golden_q88.mem",
+      "file": "z_silu_golden_q88.mem"
+    }
+  ],
+  "first_fail": null
+}

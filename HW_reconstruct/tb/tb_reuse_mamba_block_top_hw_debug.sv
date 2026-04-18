@@ -41,6 +41,7 @@ module tb_reuse_mamba_block_top_hw_debug;
   localparam int U_DEPTH     = 64;
   localparam int Y_DEPTH     = 32;
   localparam int OUT_WDEPTH  = 512;
+  localparam string NORM_GAMMA_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/norm_weight_q88.mem"};
 
   logic clk, rst_n;
   initial begin
@@ -134,7 +135,8 @@ module tb_reuse_mamba_block_top_hw_debug;
       .ADDR_BITS  (ADDR_BITS),
       .LUT_FILE   (LUT_FILE),
       .S_ADDR_W   (S_ADDR_W),
-      .G_FRAC_BITS(G_FRAC_BITS)
+      .G_FRAC_BITS(G_FRAC_BITS),
+      .NORM_GAMMA_INIT_FILE(NORM_GAMMA_INIT_FILE)
   ) dut (
       .clk           (clk),
       .rst_n         (rst_n),

@@ -10,6 +10,7 @@ module tb_reuse_rmsnorm_scheduler_hw_debug;
   localparam int DATA_WIDTH = 16;
   localparam int H_DEPTH    = 32;
   localparam int H_ADDR_W   = 5;
+  localparam string NORM_GAMMA_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_rmsnorm_scheduler/norm_weight_q88.mem"};
 
   reg clk;
   reg rst_n;
@@ -40,12 +41,14 @@ module tb_reuse_rmsnorm_scheduler_hw_debug;
 
   string case_dir;
   string stage_dir;
+  string rtl_stage_dir;
 
   reuse_rmsnorm_scheduler #(
-      .TILE_SIZE (TILE_SIZE),
-      .DATA_WIDTH(DATA_WIDTH),
-      .H_DEPTH   (H_DEPTH),
-      .H_ADDR_W  (H_ADDR_W)
+      .TILE_SIZE            (TILE_SIZE),
+      .DATA_WIDTH           (DATA_WIDTH),
+      .H_DEPTH              (H_DEPTH),
+      .H_ADDR_W             (H_ADDR_W),
+      .NORM_GAMMA_INIT_FILE (NORM_GAMMA_INIT_FILE)
   ) dut (
       .clk        (clk),
       .rst_n      (rst_n),
@@ -91,6 +94,20 @@ module tb_reuse_rmsnorm_scheduler_hw_debug;
       pack4x16 = {v3[15:0], v2[15:0], v1[15:0], v0[15:0]};
     end
   endfunction
+
+  task automatic write_dump_mem(input string path, input reg [63:0] mem [0:H_DEPTH-1], input int count);
+    integer fd;
+    begin
+      fd = $fopen(path, "w");
+      if (fd == 0) begin
+        $fatal(1, "failed to open dump path %s", path);
+      end
+      for (int dump_idx = 0; dump_idx < count; dump_idx = dump_idx + 1) begin
+        $fdisplay(fd, "%016X", mem[dump_idx]);
+      end
+      $fclose(fd);
+    end
+  endtask
 
   function automatic [63:0] isqrt_u64(input [63:0] x_in);
     reg [63:0] x;
@@ -153,6 +170,7 @@ module tb_reuse_rmsnorm_scheduler_hw_debug;
         $fatal(1, "CASE_DIR not provided and HW_DEBUG_CASE_DIR empty");
       end
       stage_dir = join_path(join_path(case_dir, "stages"), "reuse_rmsnorm_scheduler");
+      rtl_stage_dir = join_path(join_path(case_dir, "rtl_out"), "reuse_rmsnorm_scheduler");
       $display("[TB] stage_dir=%0s", stage_dir);
       $readmemh(join_path(stage_dir, "h_wr_addr.mem"), h_addr_mem);
       $readmemh(join_path(stage_dir, "h_raw_wr_data_q88.mem"), h_raw_mem);
@@ -256,6 +274,8 @@ module tb_reuse_rmsnorm_scheduler_hw_debug;
         $fatal(1, "RTL mismatch addr=%0d got=%h exp=%h", addr, got_mem[addr], golden_calc_mem[addr]);
       end
     end
+
+    write_dump_mem(join_path(rtl_stage_dir, "norm_rtl_q88.mem"), got_mem, H_DEPTH);
 
     $display("[TB] reuse_rmsnorm_scheduler pass");
     #20;

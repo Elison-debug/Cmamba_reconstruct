@@ -22,14 +22,12 @@ module reuse_norm_raw_h_sram #(
 );
 `ifndef SYNTHESIS
     logic [TILE_SIZE*DATA_WIDTH-1:0] mem_sim [DEPTH];
-    logic [TILE_SIZE*DATA_WIDTH-1:0] q_d1;
     logic [TILE_SIZE*DATA_WIDTH-1:0] q;
 
     always_ff @(posedge clk) begin
         if (!rst_n) begin
             for (int i = 0; i < DEPTH; i++)
                 mem_sim[i] <= '0;
-            q_d1 <= '0;
             q <= '0;
         end else begin
             if (wr_en) begin
@@ -37,8 +35,7 @@ module reuse_norm_raw_h_sram #(
                     mem_sim[wr_addr][i*DATA_WIDTH +: DATA_WIDTH] <= wr_data[i];
             end
             if (rd_en)
-                q_d1 <= mem_sim[rd_addr];
-            q <= q_d1;
+                q <= mem_sim[rd_addr];
         end
     end
 `else

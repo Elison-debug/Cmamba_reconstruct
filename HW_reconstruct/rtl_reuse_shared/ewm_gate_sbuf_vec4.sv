@@ -9,7 +9,9 @@ module ewm_gate_sbuf_vec4 #(
     parameter int TILE_SIZE  = 4,
     parameter int W          = 16,
     parameter int FRAC_BITS  = 8,
-    parameter int S_ADDR_W   = 6
+    parameter int S_ADDR_W   = 6,
+    parameter int ROUND_MODE = 0,
+    parameter int SAT_MODE   = 0
 )(
     input  logic clk,
     input  logic rst_n,
@@ -82,7 +84,9 @@ module ewm_gate_sbuf_vec4 #(
         .OUT_W     (W),
         .FRAC_BITS (FRAC_BITS),
         .SIGNED_A  (1),
-        .SIGNED_B  (1)
+        .SIGNED_B  (1),
+        .ROUND_MODE(ROUND_MODE),
+        .SAT_MODE  (SAT_MODE)
     ) u_ewm_gate (
         .clk      (clk),
         .rst_n    (rst_n),

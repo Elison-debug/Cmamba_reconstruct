@@ -5,8 +5,9 @@ set TARGET=%1
 if "%TARGET%"=="" set TARGET=full
 
 set VSVCVARS=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat
+if not exist "%VSVCVARS%" set VSVCVARS=C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat
 if not exist "%VSVCVARS%" (
-  echo vcvars64.bat not found: "%VSVCVARS%"
+  echo vcvars64.bat not found in Community or BuildTools installs.
   exit /b 1
 )
 
