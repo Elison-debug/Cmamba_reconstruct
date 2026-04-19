@@ -10,6 +10,11 @@ from refactor.bittrue.eval_hw_like_full import _forward_full_cppish, _forward_fu
 
 
 def _tensor_stats(a: np.ndarray, b: np.ndarray) -> dict:
+    if a.shape != b.shape:
+        if a.size != b.size:
+            raise ValueError(f"shape mismatch with different element count: {a.shape} vs {b.shape}")
+        a = a.reshape(-1)
+        b = b.reshape(-1)
     d = np.abs(a.astype(np.float32) - b.astype(np.float32))
     flat = d.reshape(-1)
     idx = int(np.argmax(flat))
@@ -45,12 +50,16 @@ def main() -> None:
     report = {
         "sample_idx": sample_idx,
         "block0": {
-            "x_norm": _tensor_stats(cpp_b0["x_norm"], hw_b0["x_norm"]),
-            "u_act": _tensor_stats(cpp_b0["u_act"], hw_b0["u_act"]),
-            "dt": _tensor_stats(cpp_b0["dt"], hw_b0["dt"]),
-            "ssm_out": _tensor_stats(cpp_b0["ssm_out"], hw_b0["ssm_out"]),
-            "y_blk": _tensor_stats(cpp_b0["y_blk"], hw_b0["y_blk"]),
-            "x_next": _tensor_stats(cpp_b0["x_next"], hw_b0["x_next"]),
+            "norm": _tensor_stats(cpp_b0["x_norm"], hw_b0["x_norm"]),
+            "inproj_u": _tensor_stats(cpp_b0["u"], hw_b0["u"]),
+            "inproj_z": _tensor_stats(cpp_b0["z"], hw_b0["z"]),
+            "silu_gate": _tensor_stats(cpp_b0["z_silu"], hw_b0["z_silu"]),
+            "dtproj": _tensor_stats(cpp_b0["dt"], hw_b0["dt"]),
+            "dt_sigmoid": _tensor_stats(cpp_b0["lam"], hw_b0["lam"]),
+            "selective_scan": _tensor_stats(cpp_b0["ssm_scan"], hw_b0["ssm_scan"]),
+            "ewm_gating": _tensor_stats(cpp_b0["gate_y"], hw_b0["gate_y"]),
+            "outproj": _tensor_stats(cpp_b0["y_blk"], hw_b0["y_blk"]),
+            "block_output": _tensor_stats(cpp_b0["x_next"], hw_b0["x_next"]),
         },
     }
 

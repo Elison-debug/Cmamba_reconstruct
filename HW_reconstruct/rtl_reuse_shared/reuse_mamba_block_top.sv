@@ -251,7 +251,7 @@ module reuse_mamba_block_top #(
                 uact_fill_active<= 1'b0;
             end else begin
                 if (block_start && !block_active) begin
-                    inproj_start_int <= 1'b1;
+                            inproj_start_int <= 1'b1;
                     dt_issue_count   <= '0;
                     block_active     <= 1'b1;
                     block_done_reg   <= 1'b0;
@@ -267,7 +267,7 @@ module reuse_mamba_block_top #(
                     uact_fill_active <= 1'b0;
 
                 if (s_axis_TVALID_int && s_axis_TREADY)
-                    dt_issue_count <= dt_issue_count + 1'b1;
+                            dt_issue_count <= dt_issue_count + 1'b1;
 
                 if (block_active && uact_fill_done && !dt_started) begin
                     dt_started         <= 1'b1;
@@ -282,7 +282,7 @@ module reuse_mamba_block_top #(
                 if (block_active && pcap_done && !pcap_done_d && !outproj_started) begin
                     outproj_start_int <= 1'b1;
                     outproj_started   <= 1'b1;
-                end
+                        end
 
                 if (block_active && outproj_done_int) begin
                     block_active   <= 1'b0;
@@ -597,11 +597,11 @@ module reuse_mamba_block_top #(
     );
 
     always_comb begin
-        g_axis_int_valid = silu_valid;
-        silu_ready       = g_axis_int_ready;
-        g_axis_TREADY    = 1'b0;
-        for (int i = 0; i < TILE_SIZE; i++)
-            g_axis_int_data[i] = silu_vec[i];
+            g_axis_int_valid = silu_valid;
+            silu_ready       = g_axis_int_ready;
+            g_axis_TREADY    = 1'b0;
+            for (int i = 0; i < TILE_SIZE; i++)
+                g_axis_int_data[i] = silu_vec[i];
     end
 
     reuse_mac_fabric_manager #(

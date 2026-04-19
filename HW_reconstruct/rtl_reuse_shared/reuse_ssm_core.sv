@@ -16,7 +16,16 @@ module reuse_ssm_core #(
     parameter int ADDR_BITS  = 11,
     parameter string LUT_FILE = "sigmoid_lut_q016_2048.hex",
     parameter int S_ADDR_W   = 6,
-    parameter int G_FRAC_BITS = 8
+    parameter int G_FRAC_BITS = 8,
+    parameter int SIGMOID_OUT_SHIFT = 0,
+    parameter int SIGMOID_OUT_ROUND_MODE = 0,
+    parameter int SIGMOID_OUT_SAT_MODE = 1,
+    parameter int SCAN_MUL_ROUND_MODE = 0,
+    parameter int SCAN_MUL_SAT_MODE   = 0,
+    parameter int SCAN_ADD_ROUND_MODE = 0,
+    parameter int SCAN_ADD_SAT_MODE   = 0,
+    parameter int GATE_OUT_ROUND_MODE = 0,
+    parameter int GATE_OUT_SAT_MODE   = 0
 )(
     input  logic clk,
     input  logic rst_n,
@@ -99,7 +108,10 @@ module reuse_ssm_core #(
         .IN_W      (DATA_WIDTH),
         .OUT_W     (DATA_WIDTH),
         .ADDR_BITS (ADDR_BITS),
-        .LUT_FILE  (LUT_FILE)
+        .LUT_FILE  (LUT_FILE),
+        .OUT_SHIFT (SIGMOID_OUT_SHIFT),
+        .OUT_ROUND_MODE(SIGMOID_OUT_ROUND_MODE),
+        .OUT_SAT_MODE(SIGMOID_OUT_SAT_MODE)
     ) u_sigmoid (
         .clk      (clk),
         .rst_n    (rst_n),
@@ -229,7 +241,11 @@ module reuse_ssm_core #(
     ew_update_vec4 #(
         .TILE_SIZE (TILE_SIZE),
         .W         (DATA_WIDTH),
-        .S_ADDR_W  (S_ADDR_W)
+        .S_ADDR_W  (S_ADDR_W),
+        .MUL_ROUND_MODE(SCAN_MUL_ROUND_MODE),
+        .MUL_SAT_MODE  (SCAN_MUL_SAT_MODE),
+        .ADD_ROUND_MODE(SCAN_ADD_ROUND_MODE),
+        .ADD_SAT_MODE  (SCAN_ADD_SAT_MODE)
     ) u_ew (
         .clk       (clk),
         .rst_n     (rst_n),
@@ -251,7 +267,9 @@ module reuse_ssm_core #(
         .TILE_SIZE (TILE_SIZE),
         .W         (DATA_WIDTH),
         .FRAC_BITS (G_FRAC_BITS),
-        .S_ADDR_W  (S_ADDR_W)
+        .S_ADDR_W  (S_ADDR_W),
+        .ROUND_MODE(GATE_OUT_ROUND_MODE),
+        .SAT_MODE  (GATE_OUT_SAT_MODE)
     ) u_gate (
         .clk       (clk),
         .rst_n     (rst_n),

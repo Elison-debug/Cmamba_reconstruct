@@ -7,7 +7,10 @@ module sigmoid4_vec #(
     parameter int IN_W       = 16,   // Q8.8 signed
     parameter int OUT_W      = 16,   // Q0.16 unsigned
     parameter int ADDR_BITS  = 11,   // 2048 entries
-    parameter string LUT_FILE = "sigmoid_lut_q016_2048.hex"
+    parameter string LUT_FILE = "sigmoid_lut_q016_2048.hex",
+    parameter int OUT_SHIFT = 0,
+    parameter int OUT_ROUND_MODE = 0,
+    parameter int OUT_SAT_MODE = 1
 )(
     input  logic clk,
     input  logic rst_n,
@@ -60,6 +63,8 @@ module sigmoid4_vec #(
     // ---------------- ROM output registered (models 1-cycle ROM latency) ----------------
     logic rom_valid;
     logic [OUT_W-1:0] rom_dout [TILE_SIZE-1:0];
+    logic [OUT_W-1:0] rom_quant_dout [TILE_SIZE-1:0];
+    logic [15:0]      quant_dummy_scale [TILE_SIZE-1:0];
 
     // ---------------- Output buffer ----------------
     logic [OUT_W-1:0] out_reg [TILE_SIZE-1:0];
@@ -142,6 +147,24 @@ module sigmoid4_vec #(
         end
     end
 
+    requant_round_sat_engine #(
+        .TILE_SIZE       (TILE_SIZE),
+        .IN_W            (OUT_W),
+        .OUT_W           (OUT_W),
+        .SHIFT           (OUT_SHIFT),
+        .SCALE_W         (16),
+        .SCALE_FRAC_BITS (0),
+        .SIGNED_IN       (0),
+        .SIGNED_OUT      (0),
+        .USE_SCALE       (0),
+        .ROUND_MODE      (OUT_ROUND_MODE),
+        .SAT_MODE        (OUT_SAT_MODE)
+    ) u_sigmoid_out_quant (
+        .in_vec    (rom_dout),
+        .scale_vec (quant_dummy_scale),
+        .out_vec   (rom_quant_dout)
+    );
+
     // ---------------- Output register assignment ----------------
     always_comb begin
         for (int i=0; i<TILE_SIZE; i++) out_vec[i] = out_reg[i];
@@ -185,11 +208,11 @@ module sigmoid4_vec #(
             // 3) Otherwise handle new rom token
             else if (rom_valid) begin
                 if (buf_writable) begin
-                    for (int i=0; i<TILE_SIZE; i++) out_reg[i] <= rom_dout[i];
+                    for (int i=0; i<TILE_SIZE; i++) out_reg[i] <= rom_quant_dout[i];
                     out_valid <= 1'b1;
                 end else begin
                     // park into pending (should be empty due to in_ready gating, but safe anyway)
-                    for (int i=0; i<TILE_SIZE; i++) pending_reg[i] <= rom_dout[i];
+                    for (int i=0; i<TILE_SIZE; i++) pending_reg[i] <= rom_quant_dout[i];
                     pending_valid <= 1'b1;
                 end
             end

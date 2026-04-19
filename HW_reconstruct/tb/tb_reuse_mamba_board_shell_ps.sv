@@ -1,7 +1,7 @@
 `timescale 1ns/1ps
 
 `ifndef HW_DEBUG_CASE_DIR
-  `define HW_DEBUG_CASE_DIR "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke"
+  `define HW_DEBUG_CASE_DIR "../../../../../hw_debug/cases/test_case3_smoke"
 `endif
 
 module tb_reuse_mamba_board_shell_ps;
@@ -31,6 +31,27 @@ module tb_reuse_mamba_board_shell_ps;
   localparam logic [AXIL_ADDR_W-1:0] REG_H_ROWS     = 12'h040;
   localparam logic [AXIL_ADDR_W-1:0] REG_Y_ROWS     = 12'h044;
   localparam logic [AXIL_ADDR_W-1:0] REG_IRQ_ENABLE = 12'h048;
+
+  localparam string INPROJ_BANK0_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/inproj_wbuf_bank0.mem"};
+  localparam string INPROJ_BANK1_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/inproj_wbuf_bank1.mem"};
+  localparam string INPROJ_BANK2_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/inproj_wbuf_bank2.mem"};
+  localparam string INPROJ_BANK3_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/inproj_wbuf_bank3.mem"};
+  localparam string INPROJ_BANK4_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/inproj_wbuf_bank4.mem"};
+  localparam string INPROJ_BANK5_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/inproj_wbuf_bank5.mem"};
+  localparam string INPROJ_SCALE_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/inproj_scale_q15.mem"};
+  localparam string DT_BANK0_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/dt_wbuf_bank0.mem"};
+  localparam string DT_BANK1_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/dt_wbuf_bank1.mem"};
+  localparam string DT_BANK2_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/dt_wbuf_bank2.mem"};
+  localparam string DT_BANK3_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/dt_wbuf_bank3.mem"};
+  localparam string DT_SCALE_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/dt_scale_q15.mem"};
+  localparam string OUTPROJ_BANK0_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/outproj_wbuf_bank0.mem"};
+  localparam string OUTPROJ_BANK1_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/outproj_wbuf_bank1.mem"};
+  localparam string OUTPROJ_BANK2_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/outproj_wbuf_bank2.mem"};
+  localparam string OUTPROJ_BANK3_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/outproj_wbuf_bank3.mem"};
+  localparam string OUTPROJ_BANK4_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/outproj_wbuf_bank4.mem"};
+  localparam string OUTPROJ_BANK5_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/outproj_wbuf_bank5.mem"};
+  localparam string OUTPROJ_SCALE_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/outproj_scale_q15.mem"};
+
 
   // CTRL bits
   // [0] start processing
@@ -264,7 +285,26 @@ module tb_reuse_mamba_board_shell_ps;
       .TILE_SIZE(TILE_SIZE), .DATA_WIDTH(DATA_WIDTH), .ACC_WIDTH(ACC_WIDTH), .FRAC_BITS(FRAC_BITS),
       .N_BANK(N_BANK), .WDEPTH(WDEPTH), .WADDR_W(WADDR_W), .DATA_W(DATA_W), .XT_ADDR_W(XT_ADDR_W),
       .D(D), .PIPE_LAT(PIPE_LAT), .ADDR_BITS(ADDR_BITS), .S_ADDR_W(S_ADDR_W), .G_FRAC_BITS(G_FRAC_BITS),
-      .AXIL_ADDR_W(AXIL_ADDR_W), .G_DEPTH(G_DEPTH), .G_ADDR_W(G_ADDR_W)
+      .AXIL_ADDR_W(AXIL_ADDR_W), .G_DEPTH(G_DEPTH), .G_ADDR_W(G_ADDR_W),
+      .INPROJ_BANK0_INIT_FILE (INPROJ_BANK0_INIT_FILE),
+      .INPROJ_BANK1_INIT_FILE (INPROJ_BANK1_INIT_FILE),
+      .INPROJ_BANK2_INIT_FILE (INPROJ_BANK2_INIT_FILE),
+      .INPROJ_BANK3_INIT_FILE (INPROJ_BANK3_INIT_FILE),
+      .INPROJ_BANK4_INIT_FILE (INPROJ_BANK4_INIT_FILE),
+      .INPROJ_BANK5_INIT_FILE (INPROJ_BANK5_INIT_FILE),
+      .INPROJ_SCALE_INIT_FILE (INPROJ_SCALE_INIT_FILE),
+      .DT_BANK0_INIT_FILE     (DT_BANK0_INIT_FILE),
+      .DT_BANK1_INIT_FILE     (DT_BANK1_INIT_FILE),
+      .DT_BANK2_INIT_FILE     (DT_BANK2_INIT_FILE),
+      .DT_BANK3_INIT_FILE     (DT_BANK3_INIT_FILE),
+      .DT_SCALE_INIT_FILE     (DT_SCALE_INIT_FILE),
+      .OUTPROJ_BANK0_INIT_FILE(OUTPROJ_BANK0_INIT_FILE),
+      .OUTPROJ_BANK1_INIT_FILE(OUTPROJ_BANK1_INIT_FILE),
+      .OUTPROJ_BANK2_INIT_FILE(OUTPROJ_BANK2_INIT_FILE),
+      .OUTPROJ_BANK3_INIT_FILE(OUTPROJ_BANK3_INIT_FILE),
+      .OUTPROJ_BANK4_INIT_FILE(OUTPROJ_BANK4_INIT_FILE),
+      .OUTPROJ_BANK5_INIT_FILE(OUTPROJ_BANK5_INIT_FILE),
+      .OUTPROJ_SCALE_INIT_FILE(OUTPROJ_SCALE_INIT_FILE)
   ) dut (
       .sys_clk(sys_clk), .ext_reset_n(ext_reset_n), .irq(irq),
       .s_axi_awaddr(s_axi_awaddr), .s_axi_awvalid(s_axi_awvalid), .s_axi_awready(s_axi_awready),

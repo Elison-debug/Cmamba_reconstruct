@@ -5,7 +5,13 @@ module reuse_silu_vec4 #(
     parameter int DATA_WIDTH = 16,
     parameter int FRAC_BITS  = 8,
     parameter int ADDR_BITS  = 11,
-    parameter string LUT_FILE = "sigmoid_lut_q016_2048.hex"
+    parameter string LUT_FILE = "sigmoid_lut_q016_2048.hex",
+    parameter int SIGMOID_OUT_SHIFT = 0,
+    parameter int SIGMOID_OUT_ROUND_MODE = 0,
+    parameter int SIGMOID_OUT_SAT_MODE = 1,
+    parameter int SILU_OUT_FRAC_BITS = 16,
+    parameter int SILU_OUT_ROUND_MODE = 0,
+    parameter int SILU_OUT_SAT_MODE = 0
 )(
     input  logic clk,
     input  logic rst_n,
@@ -55,7 +61,10 @@ module reuse_silu_vec4 #(
         .IN_W      (DATA_WIDTH),
         .OUT_W     (DATA_WIDTH),
         .ADDR_BITS (ADDR_BITS),
-        .LUT_FILE  (LUT_FILE)
+        .LUT_FILE  (LUT_FILE),
+        .OUT_SHIFT (SIGMOID_OUT_SHIFT),
+        .OUT_ROUND_MODE(SIGMOID_OUT_ROUND_MODE),
+        .OUT_SAT_MODE(SIGMOID_OUT_SAT_MODE)
     ) u_sigmoid (
         .clk      (clk),
         .rst_n    (rst_n),
@@ -89,9 +98,11 @@ module reuse_silu_vec4 #(
         .TILE_SIZE (TILE_SIZE),
         .IN_W      (DATA_WIDTH),
         .OUT_W     (DATA_WIDTH),
-        .FRAC_BITS (16),
+        .FRAC_BITS (SILU_OUT_FRAC_BITS),
         .SIGNED_A  (0),
-        .SIGNED_B  (1)
+        .SIGNED_B  (1),
+        .ROUND_MODE(SILU_OUT_ROUND_MODE),
+        .SAT_MODE  (SILU_OUT_SAT_MODE)
     ) u_silu_mul (
         .clk      (clk),
         .rst_n    (rst_n),
