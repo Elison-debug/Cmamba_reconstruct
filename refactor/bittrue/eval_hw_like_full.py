@@ -127,8 +127,9 @@ def _block_forward_cppish(blk: dict, base_dir: Path, x_seq: np.ndarray, lut: _Ac
 def _block_forward_hw_like(blk: dict, base_dir: Path, x_seq: np.ndarray) -> tuple[np.ndarray, dict]:
     residual = x_seq.astype(np.float32, copy=True)
     norm_w = np.load(base_dir / blk["norm"]["weight"]).astype(np.float32).reshape(-1)
+    norm_w_q88 = _quant_q88(norm_w)
     residual_q88 = _quant_q88(residual.reshape(-1))
-    x_norm_q88, _norm_weight_q88, _rms_q88 = _rmsnorm_q88_hw(residual_q88, norm_w)
+    x_norm_q88, _rms_q88 = _rmsnorm_q88_hw(residual_q88, norm_w_q88)
     x_norm = (x_norm_q88.astype(np.float32) / 256.0).reshape(residual.shape)
 
     inner = int(blk["d_inner"])
@@ -267,7 +268,10 @@ def main() -> None:
     y_float = np.load(float_dir / "y_float.npy").astype(np.float32)
 
     cpp_out_path = float_dir / "cpp_full_int16.npy"
-    y_cpp = _run_cpp_batch(cpp_batch_bin, export_json, float_dir / "samples.npy", cpp_out_path, int(args.din), mode="int16")
+    if cpp_out_path.exists():
+        y_cpp = np.load(cpp_out_path).astype(np.float32)
+    else:
+        y_cpp = _run_cpp_batch(cpp_batch_bin, export_json, float_dir / "samples.npy", cpp_out_path, int(args.din), mode="int16")
 
     y_cppish = np.zeros_like(y_cpp, dtype=np.float32)
     y_hw = np.zeros_like(y_cpp, dtype=np.float32)

@@ -8,7 +8,7 @@
 // related logic in the core, and can be removed later to directly
 // use core results for g to save resources.
 //---------------------------------------------------------------
-module reuse_mamba_board_shell #(
+module reuse_mamba_board_shell_with_g_loader #(
     parameter integer TILE_SIZE   = 4,
     parameter integer DATA_WIDTH  = 16,
     parameter integer ACC_WIDTH   = 32,

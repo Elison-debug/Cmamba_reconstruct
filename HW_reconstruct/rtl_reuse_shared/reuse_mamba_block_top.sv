@@ -46,7 +46,12 @@ module reuse_mamba_block_top #(
     parameter string OUTPROJ_BANK3_INIT_FILE = "",
     parameter string OUTPROJ_BANK4_INIT_FILE = "",
     parameter string OUTPROJ_BANK5_INIT_FILE = "",
-    parameter string OUTPROJ_SCALE_INIT_FILE = ""
+    parameter string OUTPROJ_SCALE_INIT_FILE = "",
+    parameter bit INPROJ_USE_PER_CHANNEL_SCALE = 0,
+    parameter bit DT_USE_PER_CHANNEL_SCALE = 0,
+    parameter bit OUTPROJ_USE_PER_CHANNEL_SCALE = 0,
+    parameter bit ENABLE_RMSNORM = 0,
+    parameter string NORM_GAMMA_INIT_FILE = ""
 )(
     input  logic clk,
     input  logic rst_n,
@@ -211,6 +216,17 @@ module reuse_mamba_block_top #(
     logic                         outproj_enable_int;
     logic                         outproj_start_int;
     logic                         outproj_done_int;
+    logic                         norm_start_int;
+    logic                         norm_busy;
+    logic                         norm_done;
+    logic                         norm_pending;
+    logic                         norm_wr_en;
+    logic [4:0]                   norm_wr_addr;
+    logic signed [DATA_WIDTH-1:0] norm_wr_data [TILE_SIZE-1:0];
+    logic                         h_inproj_wr_en;
+    logic [4:0]                   h_inproj_wr_addr;
+    logic signed [DATA_WIDTH-1:0] h_inproj_wr_data [TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] gamma_wr_zero [TILE_SIZE-1:0];
 
     assign block_busy = block_auto_mode ? block_active : 1'b0;
     assign block_done = block_auto_mode ? block_done_reg : 1'b0;
@@ -219,10 +235,20 @@ module reuse_mamba_block_top #(
     assign s_axis_TVALID_int = block_auto_mode ? (dt_run_active && (dt_issue_count < SSM_TILE_COUNT)) : s_axis_TVALID;
     assign pcap_start = block_auto_mode ? pcap_start_int : 1'b0;
     assign uact_fill_done = (uact_wr_count == 7'd64);
+    assign h_inproj_wr_en = ENABLE_RMSNORM ? norm_wr_en : h_wr_en;
+    assign h_inproj_wr_addr = ENABLE_RMSNORM ? norm_wr_addr : h_wr_addr;
+    always_comb begin
+        for (int i = 0; i < TILE_SIZE; i++) begin
+            h_inproj_wr_data[i] = ENABLE_RMSNORM ? norm_wr_data[i] : h_wr_data[i];
+            gamma_wr_zero[i] = '0;
+        end
+    end
 
     always_ff @(posedge clk) begin
         if (!rst_n) begin
             inproj_start_int   <= 1'b0;
+            norm_start_int     <= 1'b0;
+            norm_pending       <= 1'b0;
             dt_issue_count     <= '0;
             block_active       <= 1'b0;
             block_done_reg     <= 1'b0;
@@ -236,6 +262,7 @@ module reuse_mamba_block_top #(
             uact_fill_active   <= 1'b0;
         end else begin
             inproj_start_int   <= 1'b0;
+            norm_start_int     <= 1'b0;
             z_stream_start_int <= 1'b0;
             pcap_start_int     <= 1'b0;
             outproj_start_int  <= 1'b0;
@@ -249,9 +276,22 @@ module reuse_mamba_block_top #(
                 dt_started      <= 1'b0;
                 outproj_started <= 1'b0;
                 uact_fill_active<= 1'b0;
+                if (ENABLE_RMSNORM) begin
+                    if (inproj_start && !norm_pending && !norm_busy)
+                        norm_start_int <= 1'b1;
+                    if (inproj_start)
+                        norm_pending <= 1'b1;
+                    if (norm_done && norm_pending) begin
+                        inproj_start_int <= 1'b1;
+                        norm_pending <= 1'b0;
+                    end
+                end else begin
+                    norm_pending <= 1'b0;
+                    if (inproj_start)
+                        inproj_start_int <= 1'b1;
+                end
             end else begin
                 if (block_start && !block_active) begin
-                            inproj_start_int <= 1'b1;
                     dt_issue_count   <= '0;
                     block_active     <= 1'b1;
                     block_done_reg   <= 1'b0;
@@ -259,6 +299,17 @@ module reuse_mamba_block_top #(
                     dt_started       <= 1'b0;
                     outproj_started  <= 1'b0;
                     uact_fill_active <= 1'b0;
+                    if (ENABLE_RMSNORM) begin
+                        norm_start_int <= 1'b1;
+                        norm_pending   <= 1'b1;
+                    end else begin
+                        inproj_start_int <= 1'b1;
+                        norm_pending     <= 1'b0;
+                    end
+                end
+                if (ENABLE_RMSNORM && norm_done && norm_pending) begin
+                    inproj_start_int <= 1'b1;
+                    norm_pending <= 1'b0;
                 end
 
                 if (inproj_done)
@@ -304,11 +355,46 @@ module reuse_mamba_block_top #(
         end
     end
 
+    if (ENABLE_RMSNORM) begin : g_rmsnorm
+        reuse_rmsnorm_scheduler #(
+            .TILE_SIZE(TILE_SIZE),
+            .DATA_WIDTH(DATA_WIDTH),
+            .H_DEPTH(32),
+            .H_ADDR_W(5),
+            .NORM_GAMMA_INIT_FILE(NORM_GAMMA_INIT_FILE)
+        ) u_rmsnorm (
+            .clk(clk),
+            .rst_n(rst_n),
+            .enable(1'b1),
+            .start(norm_start_int),
+            .busy(norm_busy),
+            .done(norm_done),
+            .h_wr_en(h_wr_en),
+            .h_wr_addr(h_wr_addr),
+            .h_wr_data(h_wr_data),
+            .gamma_wr_en(1'b0),
+            .gamma_wr_addr('0),
+            .gamma_wr_data(gamma_wr_zero),
+            .norm_wr_en(norm_wr_en),
+            .norm_wr_addr(norm_wr_addr),
+            .norm_wr_data(norm_wr_data)
+        );
+    end else begin : g_no_rmsnorm
+        assign norm_busy = 1'b0;
+        assign norm_done = 1'b0;
+        assign norm_wr_en = 1'b0;
+        assign norm_wr_addr = '0;
+        for (genvar i = 0; i < TILE_SIZE; i++) begin : g_norm_zero
+            assign norm_wr_data[i] = '0;
+        end
+    end
+
     reuse_ssm_dt_scheduler #(
         .TILE_SIZE          (TILE_SIZE),
         .DATA_WIDTH         (DATA_WIDTH),
         .ACC_WIDTH          (ACC_WIDTH),
         .FRAC_BITS          (FRAC_BITS),
+        .USE_PER_CHANNEL_SCALE(DT_USE_PER_CHANNEL_SCALE),
         .N_BANK             (N_BANK),
         .WDEPTH             (WDEPTH),
         .WADDR_W            (WADDR_W),
@@ -361,6 +447,7 @@ module reuse_mamba_block_top #(
         .TILE_SIZE              (TILE_SIZE),
         .DATA_WIDTH             (DATA_WIDTH),
         .ACC_WIDTH              (ACC_WIDTH),
+        .USE_PER_CHANNEL_SCALE  (INPROJ_USE_PER_CHANNEL_SCALE),
         .INPROJ_BANK0_INIT_FILE (INPROJ_BANK0_INIT_FILE),
         .INPROJ_BANK1_INIT_FILE (INPROJ_BANK1_INIT_FILE),
         .INPROJ_BANK2_INIT_FILE (INPROJ_BANK2_INIT_FILE),
@@ -372,12 +459,12 @@ module reuse_mamba_block_top #(
         .clk(clk),
         .rst_n(rst_n),
         .enable(inproj_enable_int),
-        .start(block_auto_mode ? inproj_start_int : inproj_start),
+        .start(inproj_start_int),
         .busy(inproj_busy),
         .done(inproj_done),
-        .h_wr_en(h_wr_en),
-        .h_wr_addr(h_wr_addr),
-        .h_wr_data(h_wr_data),
+        .h_wr_en(h_inproj_wr_en),
+        .h_wr_addr(h_inproj_wr_addr),
+        .h_wr_data(h_inproj_wr_data),
         .u_rd_en(u_mux_rd_en),
         .u_rd_addr(u_mux_rd_addr),
         .u_rd_data(u_mux_rd_data),
@@ -473,6 +560,7 @@ module reuse_mamba_block_top #(
         .TILE_SIZE               (TILE_SIZE),
         .DATA_WIDTH              (DATA_WIDTH),
         .ACC_WIDTH               (ACC_WIDTH),
+        .USE_PER_CHANNEL_SCALE   (OUTPROJ_USE_PER_CHANNEL_SCALE),
         .OUTPROJ_BANK0_INIT_FILE (OUTPROJ_BANK0_INIT_FILE),
         .OUTPROJ_BANK1_INIT_FILE (OUTPROJ_BANK1_INIT_FILE),
         .OUTPROJ_BANK2_INIT_FILE (OUTPROJ_BANK2_INIT_FILE),

@@ -83,7 +83,8 @@ def _stage_spec() -> list[dict]:
             "description": "Block-level top around shared MAC fabric.",
             "golden_inputs": [
                 "h_wr_addr.mem",
-                "h_wr_data_q88.mem",
+                "h_wr_data_s16_q8p8.mem",
+                "norm_gamma_s16_q8p8.mem",
                 "inproj_wbuf_bank*.mem",
                 "inproj_scale_q15.mem",
                 "dt_wbuf_bank*.mem",
@@ -95,6 +96,7 @@ def _stage_spec() -> list[dict]:
             "golden_outputs": [
                 "u_golden_q88.mem",
                 "z_golden_q88.mem",
+                "h_norm_golden_s16_q8p8.mem",
                 "u_act_golden_q88.mem",
                 "z_silu_golden_q88.mem",
                 "dt_golden_q88.mem",
@@ -503,6 +505,32 @@ def _quant_q15_scale(x: np.ndarray) -> np.ndarray:
     q = np.rint(x.astype(np.float64) * 32768.0).astype(np.int64)
     q = np.clip(q, 1, 0xFFFF).astype(np.uint16)
     return q
+
+
+def _rmsnorm_q88_hw(raw_q88: np.ndarray, gamma_q88: np.ndarray, eps_q16: int = 1) -> tuple[np.ndarray, int]:
+    raw_i = raw_q88.astype(np.int64).reshape(-1)
+    gamma_i = gamma_q88.astype(np.int64).reshape(-1)
+    dim = int(raw_i.shape[0])
+    if dim == 0:
+        return np.zeros((0,), dtype=np.int16), 1
+
+    sum_sq = int(np.sum(raw_i * raw_i))
+    mean_sq_q16 = int((sum_sq + (dim // 2)) // dim)
+    rms_q88 = int(math.isqrt(max(0, mean_sq_q16 + int(eps_q16))))
+    if rms_q88 <= 0:
+        rms_q88 = 1
+
+    out = np.zeros((dim,), dtype=np.int16)
+    half = rms_q88 >> 1
+    for i in range(dim):
+        num = int(raw_i[i] * gamma_i[i])
+        if num >= 0:
+            q = (num + half) // rms_q88
+        else:
+            q = -(((-num) + half) // rms_q88)
+        q = max(-32768, min(32767, q))
+        out[i] = np.int16(q)
+    return out, rms_q88
 
 
 def _quant_q016_from_sigmoid(x: np.ndarray) -> np.ndarray:
@@ -958,6 +986,7 @@ def _export_reuse_top_stage(case_dir: Path, model: torch.nn.Module, x_arr: np.nd
             s = lam[:, t, :] * s + (1.0 - lam[:, t, :]) * u_act[:, t, :]
             ssm[:, t, :] = s
 
+    h_raw_np = patch[0, 0].cpu().numpy()
     h_np = h[0, 0].cpu().numpy()
     u_act_np = u_act[0, 0].cpu().numpy()
     z_silu_np = z_silu[0, 0].cpu().numpy()
@@ -979,14 +1008,19 @@ def _export_reuse_top_stage(case_dir: Path, model: torch.nn.Module, x_arr: np.nd
     inproj_w = inproj_conv.weight.detach().cpu().numpy().reshape(inproj_conv.out_channels, inproj_conv.in_channels)
     dt_w = dtproj_conv.weight.detach().cpu().numpy().reshape(dtproj_conv.out_channels, dtproj_conv.in_channels)
     outproj_w = outproj_conv.weight.detach().cpu().numpy().reshape(outproj_conv.out_channels, outproj_conv.in_channels)
-    h_q88 = _quant_q88(h_np)
-    uv_q88 = _conv1x1_q88_rne_clamp(inproj_w, h_q88)
+    h_raw_q88 = _quant_q88(h_raw_np)
+    norm_gamma_q88 = _quant_q88(blk.norm.weight.detach().cpu().numpy().reshape(-1))
+    h_norm_q88, rms_q88 = _rmsnorm_q88_hw(h_raw_q88, norm_gamma_q88, eps_q16=1)
+    uv_q88 = _conv1x1_q88_rne_clamp(inproj_w, h_norm_q88)
     inproj_scale_q15 = np.full((inproj_w.shape[0],), 1 << 15, dtype=np.uint16)
     inproj_w_fold_q88 = _quant_q88(inproj_w)
     u_q88 = uv_q88[:inner]
     z_q88 = uv_q88[inner:]
     _write_mem_u16_scalar(stage_dir / "h_wr_addr.mem", list(range(32)), width_hex=2)
-    _write_mem_matrix_rows_q88(stage_dir / "h_wr_data_q88.mem", h_q88.reshape(32, 4))
+    _write_mem_matrix_rows_q88(stage_dir / "h_wr_data_s16_q8p8.mem", h_raw_q88.reshape(32, 4))
+    _write_mem_matrix_rows_q88(stage_dir / "h_norm_golden_s16_q8p8.mem", h_norm_q88.reshape(32, 4))
+    _write_mem_matrix_rows_q88(stage_dir / "norm_gamma_s16_q8p8.mem", norm_gamma_q88.reshape(32, 4))
+    _write_mem_u16_scalar(stage_dir / "norm_rms_s16_q8p8.mem", [rms_q88], width_hex=4)
     _write_mem_matrix_rows_q88(stage_dir / "u_golden_q88.mem", u_q88.reshape(64, 4))
     _write_mem_matrix_rows_q88(stage_dir / "z_golden_q88.mem", z_q88.reshape(64, 4))
     u_q88_rows = u_q88.reshape(64, 4)
@@ -1036,6 +1070,7 @@ def _export_reuse_top_stage(case_dir: Path, model: torch.nn.Module, x_arr: np.nd
             "u_depth": 64,
             "notes": [
                 "Current top-level golden is block-local and ends at out_proj output before any residual add outside this RTL block.",
+                "h_wr_data_s16_q8p8 is raw pre-norm patch vector; h_norm_golden_s16_q8p8 is RMSNorm output expected at in_proj input.",
                 "Compare h->in_proj->u/z SRAM first, then dt/lam/ssm/gate, then y.",
                 "Golden uses aligned 4-array weight banking with direct row_idx addressing for in_proj/dt/out_proj plus row-tile scale_q15 mems.",
                 "Current RTL-default path uses ties-to-even/clamp with identity scale on in_proj/dt/out_proj.",
@@ -1051,7 +1086,10 @@ def _export_reuse_top_stage(case_dir: Path, model: torch.nn.Module, x_arr: np.nd
             "d_inner": int(inner),
             "files": {
                 "h_wr_addr": "h_wr_addr.mem",
-                "h_wr_data_q88": "h_wr_data_q88.mem",
+                "h_wr_data_s16_q8p8": "h_wr_data_s16_q8p8.mem",
+                "h_norm_golden_s16_q8p8": "h_norm_golden_s16_q8p8.mem",
+                "norm_gamma_s16_q8p8": "norm_gamma_s16_q8p8.mem",
+                "norm_rms_s16_q8p8": "norm_rms_s16_q8p8.mem",
                 "u_golden_q88": "u_golden_q88.mem",
                 "z_golden_q88": "z_golden_q88.mem",
                 "u_act_golden_q88": "u_act_golden_q88.mem",
@@ -1075,7 +1113,10 @@ def _export_reuse_top_stage(case_dir: Path, model: torch.nn.Module, x_arr: np.nd
         "partial_only": False,
         "files": [
             "h_wr_addr.mem",
-            "h_wr_data_q88.mem",
+            "h_wr_data_s16_q8p8.mem",
+            "h_norm_golden_s16_q8p8.mem",
+            "norm_gamma_s16_q8p8.mem",
+            "norm_rms_s16_q8p8.mem",
             "u_golden_q88.mem",
             "z_golden_q88.mem",
             "u_act_golden_q88.mem",

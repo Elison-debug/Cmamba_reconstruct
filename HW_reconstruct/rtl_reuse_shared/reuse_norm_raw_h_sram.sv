@@ -20,7 +20,7 @@ module reuse_norm_raw_h_sram #(
     input  logic [ADDR_W-1:0] rd_addr,
     output logic signed [DATA_WIDTH-1:0] rd_data [TILE_SIZE-1:0]
 );
-//`ifndef SYNTHESIS
+// `ifndef SYNTHESIS
 //    logic [TILE_SIZE*DATA_WIDTH-1:0] mem_sim [DEPTH];
 //    logic [TILE_SIZE*DATA_WIDTH-1:0] q;
 
@@ -38,7 +38,7 @@ module reuse_norm_raw_h_sram #(
 //                q <= mem_sim[rd_addr];
 //        end
 //    end
-//`else
+// `else
     logic [TILE_SIZE*DATA_WIDTH-1:0] q;
     logic [TILE_SIZE*DATA_WIDTH-1:0] wr_pack;
 
@@ -61,7 +61,7 @@ module reuse_norm_raw_h_sram #(
         .dinb ('0),
         .doutb(q)
     );
-//`endif
+// `endif
 
     always_comb begin
         for (int i = 0; i < TILE_SIZE; i++)

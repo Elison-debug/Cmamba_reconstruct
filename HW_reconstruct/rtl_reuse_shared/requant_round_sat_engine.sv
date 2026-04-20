@@ -14,6 +14,8 @@
 // With USE_SCALE=1, schedulers can supply per-output-channel scale
 // factors using a packed row-tile scale memory.
 // ============================================================
+`timescale 1ns/1ps
+
 module requant_round_sat_engine #(
     parameter int TILE_SIZE   = 4,
     parameter int IN_W        = 32,

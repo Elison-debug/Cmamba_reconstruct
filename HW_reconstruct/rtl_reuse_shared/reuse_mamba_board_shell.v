@@ -43,6 +43,8 @@ module reuse_mamba_board_shell #(
     parameter OUTPROJ_BANK4_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank4.mem",
     parameter OUTPROJ_BANK5_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank5.mem",
     parameter OUTPROJ_SCALE_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_scale_q15.mem",
+    parameter ENABLE_RMSNORM = 1,
+    parameter NORM_GAMMA_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/norm_gamma_s16_q8p8.mem",
     parameter integer AXIL_ADDR_W = 12,
     parameter integer G_DEPTH     = 64,
     parameter integer G_ADDR_W    = 6
@@ -280,7 +282,9 @@ module reuse_mamba_board_shell #(
         .OUTPROJ_BANK3_INIT_FILE(OUTPROJ_BANK3_INIT_FILE),
         .OUTPROJ_BANK4_INIT_FILE(OUTPROJ_BANK4_INIT_FILE),
         .OUTPROJ_BANK5_INIT_FILE(OUTPROJ_BANK5_INIT_FILE),
-        .OUTPROJ_SCALE_INIT_FILE(OUTPROJ_SCALE_INIT_FILE)
+        .OUTPROJ_SCALE_INIT_FILE(OUTPROJ_SCALE_INIT_FILE),
+        .ENABLE_RMSNORM(ENABLE_RMSNORM),
+        .NORM_GAMMA_INIT_FILE(NORM_GAMMA_INIT_FILE)
     ) u_core (
         .sys_clk         (sys_clk),
         .ext_reset_n     (rst_n_int),
@@ -305,10 +309,10 @@ module reuse_mamba_board_shell #(
         .h_wr_addr       (h_wr_addr),
         .h_wr_data       (h_wr_data_flat),
         .u_rd_en         (1'b0),
-        .u_rd_addr       (0),
+        .u_rd_addr       (6'd0),
         .u_rd_data       (u_rd_data_flat),
         .z_rd_en         (1'b0),
-        .z_rd_addr       (0),
+        .z_rd_addr       (6'd0),
         .z_rd_data       (z_rd_data_flat),
         .outproj_enable  (1'b1),
         .outproj_busy    (outproj_busy)

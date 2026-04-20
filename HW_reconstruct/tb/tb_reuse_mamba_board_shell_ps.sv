@@ -1,7 +1,7 @@
 `timescale 1ns/1ps
 
 `ifndef HW_DEBUG_CASE_DIR
-  `define HW_DEBUG_CASE_DIR "../../../../../hw_debug/cases/test_case3_smoke"
+  `define HW_DEBUG_CASE_DIR "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke"
 `endif
 
 module tb_reuse_mamba_board_shell_ps;
@@ -51,6 +51,8 @@ module tb_reuse_mamba_board_shell_ps;
   localparam string OUTPROJ_BANK4_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/outproj_wbuf_bank4.mem"};
   localparam string OUTPROJ_BANK5_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/outproj_wbuf_bank5.mem"};
   localparam string OUTPROJ_SCALE_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/outproj_scale_q15.mem"};
+  localparam string NORM_GAMMA_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/norm_gamma_s16_q8p8.mem"};
+  localparam string LUT_FILE_ABS = "E:/course/smamba/user/data/sigmoid_lut_q016_2048.hex";
 
 
   // CTRL bits
@@ -155,7 +157,7 @@ module tb_reuse_mamba_board_shell_ps;
       if (!$value$plusargs("CASE_DIR=%s", case_dir)) case_dir = case_dir_macro;
       if (case_dir.len() == 0) $fatal(1, "need +CASE_DIR or HW_DEBUG_CASE_DIR");
       stage_dir = join_path(case_dir, "stages/reuse_mamba_block_top");
-      $readmemh(join_path(stage_dir, "h_wr_data_q88.mem"), h_wr_data_mem);
+      $readmemh(join_path(stage_dir, "h_wr_data_s16_q8p8.mem"), h_wr_data_mem);
       $readmemh(join_path(stage_dir, "y_golden_q88.mem"), y_golden_mem);
     end
   endtask
@@ -284,7 +286,7 @@ module tb_reuse_mamba_board_shell_ps;
   reuse_mamba_board_shell #(
       .TILE_SIZE(TILE_SIZE), .DATA_WIDTH(DATA_WIDTH), .ACC_WIDTH(ACC_WIDTH), .FRAC_BITS(FRAC_BITS),
       .N_BANK(N_BANK), .WDEPTH(WDEPTH), .WADDR_W(WADDR_W), .DATA_W(DATA_W), .XT_ADDR_W(XT_ADDR_W),
-      .D(D), .PIPE_LAT(PIPE_LAT), .ADDR_BITS(ADDR_BITS), .S_ADDR_W(S_ADDR_W), .G_FRAC_BITS(G_FRAC_BITS),
+      .D(D), .PIPE_LAT(PIPE_LAT), .ADDR_BITS(ADDR_BITS), .LUT_FILE(LUT_FILE_ABS), .S_ADDR_W(S_ADDR_W), .G_FRAC_BITS(G_FRAC_BITS),
       .AXIL_ADDR_W(AXIL_ADDR_W), .G_DEPTH(G_DEPTH), .G_ADDR_W(G_ADDR_W),
       .INPROJ_BANK0_INIT_FILE (INPROJ_BANK0_INIT_FILE),
       .INPROJ_BANK1_INIT_FILE (INPROJ_BANK1_INIT_FILE),
@@ -304,7 +306,9 @@ module tb_reuse_mamba_board_shell_ps;
       .OUTPROJ_BANK3_INIT_FILE(OUTPROJ_BANK3_INIT_FILE),
       .OUTPROJ_BANK4_INIT_FILE(OUTPROJ_BANK4_INIT_FILE),
       .OUTPROJ_BANK5_INIT_FILE(OUTPROJ_BANK5_INIT_FILE),
-      .OUTPROJ_SCALE_INIT_FILE(OUTPROJ_SCALE_INIT_FILE)
+      .OUTPROJ_SCALE_INIT_FILE(OUTPROJ_SCALE_INIT_FILE),
+      .ENABLE_RMSNORM(1),
+      .NORM_GAMMA_INIT_FILE(NORM_GAMMA_INIT_FILE)
   ) dut (
       .sys_clk(sys_clk), .ext_reset_n(ext_reset_n), .irq(irq),
       .s_axi_awaddr(s_axi_awaddr), .s_axi_awvalid(s_axi_awvalid), .s_axi_awready(s_axi_awready),

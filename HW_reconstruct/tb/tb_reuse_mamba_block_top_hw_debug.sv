@@ -61,6 +61,7 @@ module tb_reuse_mamba_block_top_hw_debug;
   localparam string OUTPROJ_BANK4_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/outproj_wbuf_bank4.mem"};
   localparam string OUTPROJ_BANK5_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/outproj_wbuf_bank5.mem"};
   localparam string OUTPROJ_SCALE_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/outproj_scale_q15.mem"};
+  localparam string NORM_GAMMA_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/norm_gamma_s16_q8p8.mem"};
 
 
   logic clk, rst_n;
@@ -74,9 +75,9 @@ module tb_reuse_mamba_block_top_hw_debug;
       if (dut.dt_u_rd_en || dut.u_dt_sched.xt_axis_TVALID || dut.dt_mac_valid ||
           dut.u_ssm_core.sigmoid_out_valid || dut.u_ssm_core.s_out_valid) begin
         $display(
-            "[%0t] DTDBG blk=%0d dt_rd_en=%0b dt_rd_addr=%0d dt_rd=%0d,%0d,%0d,%0d xt_v=%0b xt=%0d,%0d,%0d,%0d dt_v=%0b dt=%0d,%0d,%0d,%0d lam_v=%0b lam=%0d,%0d,%0d,%0d ssm_v=%0b ssm=%0d,%0d,%0d,%0d",
+            "[%0t] DTDBG flow=%0d dt_rd_en=%0b dt_rd_addr=%0d dt_rd=%0d,%0d,%0d,%0d xt_v=%0b xt=%0d,%0d,%0d,%0d dt_v=%0b dt=%0d,%0d,%0d,%0d lam_v=%0b lam=%0d,%0d,%0d,%0d ssm_v=%0b ssm=%0d,%0d,%0d,%0d",
             $time,
-            dut.blk_st,
+            {dut.block_done_reg, dut.dt_run_active, dut.block_active},
             dut.dt_u_rd_en,
             dut.dt_u_rd_addr,
             dut.dt_u_rd_data[0], dut.dt_u_rd_data[1], dut.dt_u_rd_data[2], dut.dt_u_rd_data[3],
@@ -171,7 +172,14 @@ module tb_reuse_mamba_block_top_hw_debug;
       .OUTPROJ_BANK3_INIT_FILE(OUTPROJ_BANK3_INIT_FILE),
       .OUTPROJ_BANK4_INIT_FILE(OUTPROJ_BANK4_INIT_FILE),
       .OUTPROJ_BANK5_INIT_FILE(OUTPROJ_BANK5_INIT_FILE),
-      .OUTPROJ_SCALE_INIT_FILE(OUTPROJ_SCALE_INIT_FILE)
+      .OUTPROJ_SCALE_INIT_FILE(OUTPROJ_SCALE_INIT_FILE),
+      .INPROJ_USE_PER_CHANNEL_SCALE(1'b1),
+      .DT_USE_PER_CHANNEL_SCALE(1'b1),
+      .OUTPROJ_USE_PER_CHANNEL_SCALE(1'b1),
+      // h_wr_data_s16_q8p8.mem stores pre-norm h; keep RMSNorm enabled here
+      // so u/z golden and RTL datapath are aligned.
+      .ENABLE_RMSNORM (1'b1),
+      .NORM_GAMMA_INIT_FILE (NORM_GAMMA_INIT_FILE)
   ) dut (
       .clk           (clk),
       .rst_n         (rst_n),
@@ -306,7 +314,7 @@ module tb_reuse_mamba_block_top_hw_debug;
       $display("[%0t] STAGE_DIR=%s", $time, stage_dir);
 
       $readmemh(join_path(stage_dir, "h_wr_addr.mem"), h_wr_addr_mem);
-      $readmemh(join_path(stage_dir, "h_wr_data_q88.mem"), h_wr_data_mem);
+      $readmemh(join_path(stage_dir, "h_wr_data_s16_q8p8.mem"), h_wr_data_mem);
       $readmemh(join_path(stage_dir, "u_golden_q88.mem"), u_golden_mem);
       $readmemh(join_path(stage_dir, "z_golden_q88.mem"), z_golden_mem);
       $readmemh(join_path(stage_dir, "u_act_golden_q88.mem"), u_act_golden_mem);
@@ -444,18 +452,18 @@ module tb_reuse_mamba_block_top_hw_debug;
       $display(
           "[%0t] U/Z  SRAM   row0 u=%0d,%0d,%0d,%0d z=%0d,%0d,%0d,%0d",
           $time,
-          $signed(dut.u_in_proj.u_u_sram.u_vec_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][0*DATA_WIDTH +: DATA_WIDTH]),
-          $signed(dut.u_in_proj.u_u_sram.u_vec_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][1*DATA_WIDTH +: DATA_WIDTH]),
-          $signed(dut.u_in_proj.u_u_sram.u_vec_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][2*DATA_WIDTH +: DATA_WIDTH]),
-          $signed(dut.u_in_proj.u_u_sram.u_vec_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][3*DATA_WIDTH +: DATA_WIDTH]),
-          $signed(dut.u_in_proj.u_z_sram.u_vec_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][0*DATA_WIDTH +: DATA_WIDTH]),
-          $signed(dut.u_in_proj.u_z_sram.u_vec_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][1*DATA_WIDTH +: DATA_WIDTH]),
-          $signed(dut.u_in_proj.u_z_sram.u_vec_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][2*DATA_WIDTH +: DATA_WIDTH]),
-          $signed(dut.u_in_proj.u_z_sram.u_vec_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][3*DATA_WIDTH +: DATA_WIDTH])
+          $signed(dut.u_in_proj.u_u_sram.u_vec_ip.g_vec_ip_64.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][0*DATA_WIDTH +: DATA_WIDTH]),
+          $signed(dut.u_in_proj.u_u_sram.u_vec_ip.g_vec_ip_64.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][1*DATA_WIDTH +: DATA_WIDTH]),
+          $signed(dut.u_in_proj.u_u_sram.u_vec_ip.g_vec_ip_64.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][2*DATA_WIDTH +: DATA_WIDTH]),
+          $signed(dut.u_in_proj.u_u_sram.u_vec_ip.g_vec_ip_64.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][3*DATA_WIDTH +: DATA_WIDTH]),
+          $signed(dut.u_in_proj.u_z_sram.u_vec_ip.g_vec_ip_64.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][0*DATA_WIDTH +: DATA_WIDTH]),
+          $signed(dut.u_in_proj.u_z_sram.u_vec_ip.g_vec_ip_64.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][1*DATA_WIDTH +: DATA_WIDTH]),
+          $signed(dut.u_in_proj.u_z_sram.u_vec_ip.g_vec_ip_64.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][2*DATA_WIDTH +: DATA_WIDTH]),
+          $signed(dut.u_in_proj.u_z_sram.u_vec_ip.g_vec_ip_64.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][3*DATA_WIDTH +: DATA_WIDTH])
       );
       for (int addr = 0; addr < U_DEPTH; addr++) begin
         for (int lane = 0; lane < TILE_SIZE; lane++) begin
-          got_u = $signed(dut.u_in_proj.u_u_sram.u_vec_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[addr][lane*DATA_WIDTH +: DATA_WIDTH]);
+          got_u = $signed(dut.u_in_proj.u_u_sram.u_vec_ip.g_vec_ip_64.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[addr][lane*DATA_WIDTH +: DATA_WIDTH]);
           exp_u = unpack_lane64(u_golden_mem[addr], lane);
           if (got_u !== exp_u) begin
             if (!first_u_mismatch_seen) begin
@@ -466,7 +474,7 @@ module tb_reuse_mamba_block_top_hw_debug;
             u_ok++;
           end
 
-          got_z = $signed(dut.u_in_proj.u_z_sram.u_vec_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[addr][lane*DATA_WIDTH +: DATA_WIDTH]);
+          got_z = $signed(dut.u_in_proj.u_z_sram.u_vec_ip.g_vec_ip_64.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[addr][lane*DATA_WIDTH +: DATA_WIDTH]);
           exp_z = unpack_lane64(z_golden_mem[addr], lane);
           if (got_z !== exp_z) begin
             if (!first_z_mismatch_seen) begin
@@ -545,14 +553,14 @@ module tb_reuse_mamba_block_top_hw_debug;
       $display(
           "[%0t] Y    SRAM   row0=%0d,%0d,%0d,%0d",
           $time,
-          $signed(dut.u_out_proj.u_y_sram.u_vec_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][0*DATA_WIDTH +: DATA_WIDTH]),
-          $signed(dut.u_out_proj.u_y_sram.u_vec_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][1*DATA_WIDTH +: DATA_WIDTH]),
-          $signed(dut.u_out_proj.u_y_sram.u_vec_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][2*DATA_WIDTH +: DATA_WIDTH]),
-          $signed(dut.u_out_proj.u_y_sram.u_vec_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][3*DATA_WIDTH +: DATA_WIDTH])
+          $signed(dut.u_out_proj.u_y_sram.u_vec_ip.g_vec_ip_32.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][0*DATA_WIDTH +: DATA_WIDTH]),
+          $signed(dut.u_out_proj.u_y_sram.u_vec_ip.g_vec_ip_32.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][1*DATA_WIDTH +: DATA_WIDTH]),
+          $signed(dut.u_out_proj.u_y_sram.u_vec_ip.g_vec_ip_32.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][2*DATA_WIDTH +: DATA_WIDTH]),
+          $signed(dut.u_out_proj.u_y_sram.u_vec_ip.g_vec_ip_32.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[0][3*DATA_WIDTH +: DATA_WIDTH])
       );
       for (int addr = 0; addr < Y_DEPTH; addr++) begin
         for (int lane = 0; lane < TILE_SIZE; lane++) begin
-          got_y = $signed(dut.u_out_proj.u_y_sram.u_vec_ip.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[addr][lane*DATA_WIDTH +: DATA_WIDTH]);
+          got_y = $signed(dut.u_out_proj.u_y_sram.u_vec_ip.g_vec_ip_32.u_copy0.inst.\native_mem_module .blk_mem_gen_v8_4_8_inst.memory[addr][lane*DATA_WIDTH +: DATA_WIDTH]);
           exp_y = unpack_lane64(y_golden_mem[addr], lane);
           if (got_y !== exp_y) begin
             y_mem_errors++;
@@ -1136,9 +1144,9 @@ module tb_reuse_mamba_block_top_hw_debug;
         post_inproj_cycles <= post_inproj_cycles + 1;
         if (post_inproj_cycles < 120) begin
           $display(
-              "[%0t] POST blk=%0d in_done=%0b u_auto_en=%0b u_auto_addr=%0d z_auto_en=%0b z_auto_addr=%0d u_busy=%0b u_done=%0b u_v=%0b z_busy=%0b z_done=%0b z_v=%0b silu_v=%0b uact_v=%0b uact_we=%0b uact_cnt=%0d uact_done=%0b dt_rd_en=%0b dt_rd_addr=%0d dt_rd0=%0d dt_v=%0b dt0=%0d lam_v=%0b lam0=%0d ssm_v=%0b ssm0=%0d",
+              "[%0t] POST flow=%0d in_done=%0b u_auto_en=%0b u_auto_addr=%0d z_auto_en=%0b z_auto_addr=%0d u_busy=%0b u_done=%0b u_v=%0b z_busy=%0b z_done=%0b z_v=%0b silu_v=%0b uact_v=%0b uact_we=%0b uact_cnt=%0d uact_done=%0b dt_rd_en=%0b dt_rd_addr=%0d dt_rd0=%0d dt_v=%0b dt0=%0d lam_v=%0b lam0=%0d ssm_v=%0b ssm0=%0d",
               $time,
-              dut.blk_st,
+              {dut.block_done_reg, dut.dt_run_active, dut.block_active},
               inproj_done,
               dut.u_auto_rd_en,
               dut.u_auto_rd_addr,
@@ -1175,9 +1183,9 @@ module tb_reuse_mamba_block_top_hw_debug;
             dut.silu_valid || dut.dt_mac_valid || dut.u_ssm_core.sigmoid_out_valid ||
             dut.u_ssm_core.s_out_valid || dut.uact_wr_en || dut.uact_fill_done) begin
           $display(
-              "[%0t] TOP blk=%0d in_done=%0b u_busy=%0b u_v=%0b uact_v=%0b uact_we=%0b uact_cnt=%0d uact_done=%0b z_v=%0b silu_v=%0b dt_v=%0b lam_v=%0b ssm_v=%0b dt_ready=%0b",
+              "[%0t] TOP flow=%0d in_done=%0b u_busy=%0b u_v=%0b uact_v=%0b uact_we=%0b uact_cnt=%0d uact_done=%0b z_v=%0b silu_v=%0b dt_v=%0b lam_v=%0b ssm_v=%0b dt_ready=%0b",
               $time,
-              dut.blk_st,
+              {dut.block_done_reg, dut.dt_run_active, dut.block_active},
               inproj_done,
               dut.u_stream_busy,
               dut.u_stream_valid,

@@ -1,7 +1,7 @@
 `timescale 1ns/1ps
 
 `ifndef HW_DEBUG_CASE_DIR
-  `define HW_DEBUG_CASE_DIR "../../../../../hw_debug/cases/test_case3_smoke"
+  `define HW_DEBUG_CASE_DIR "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke"
 `endif
 
 `define CORE_HIER dut.u_core.u_core
@@ -29,6 +29,8 @@ module tb_reuse_mamba_board_shell;
   localparam int U_DEPTH     = 64;
   localparam int Y_DEPTH     = 32;
   localparam int OUT_WDEPTH  = 512;
+  localparam string NORM_GAMMA_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/norm_gamma_s16_q8p8.mem"};
+  localparam string LUT_FILE_ABS = "E:/course/smamba/user/data/sigmoid_lut_q016_2048.hex";
 
   localparam logic [AXIL_ADDR_W-1:0] REG_CTRL       = 12'h000;
   localparam logic [AXIL_ADDR_W-1:0] REG_STATUS     = 12'h004;
@@ -132,7 +134,7 @@ module tb_reuse_mamba_board_shell;
       if (!$value$plusargs("CASE_DIR=%s", case_dir)) case_dir = case_dir_macro;
       if (case_dir.len() == 0) $fatal(1, "need +CASE_DIR or HW_DEBUG_CASE_DIR");
       stage_dir = join_path(case_dir, "stages/reuse_mamba_block_top");
-      $readmemh(join_path(stage_dir, "h_wr_data_q88.mem"), h_wr_data_mem);
+      $readmemh(join_path(stage_dir, "h_wr_data_s16_q8p8.mem"), h_wr_data_mem);
       $readmemh(join_path(stage_dir, "inproj_wbuf_bank0.mem"), inproj_bank0_mem);
       $readmemh(join_path(stage_dir, "inproj_wbuf_bank1.mem"), inproj_bank1_mem);
       $readmemh(join_path(stage_dir, "inproj_wbuf_bank2.mem"), inproj_bank2_mem);
@@ -296,7 +298,8 @@ module tb_reuse_mamba_board_shell;
   reuse_mamba_board_shell #(
       .TILE_SIZE(TILE_SIZE), .DATA_WIDTH(DATA_WIDTH), .ACC_WIDTH(ACC_WIDTH), .FRAC_BITS(FRAC_BITS),
       .N_BANK(N_BANK), .WDEPTH(WDEPTH), .WADDR_W(WADDR_W), .DATA_W(DATA_W), .XT_ADDR_W(XT_ADDR_W),
-      .D(D), .PIPE_LAT(PIPE_LAT), .ADDR_BITS(ADDR_BITS), .S_ADDR_W(S_ADDR_W), .G_FRAC_BITS(G_FRAC_BITS),
+      .D(D), .PIPE_LAT(PIPE_LAT), .ADDR_BITS(ADDR_BITS), .LUT_FILE(LUT_FILE_ABS), .S_ADDR_W(S_ADDR_W), .G_FRAC_BITS(G_FRAC_BITS),
+      .ENABLE_RMSNORM(1), .NORM_GAMMA_INIT_FILE(NORM_GAMMA_INIT_FILE),
       .AXIL_ADDR_W(AXIL_ADDR_W), .G_DEPTH(G_DEPTH), .G_ADDR_W(G_ADDR_W)
   ) dut (
       .sys_clk(sys_clk), .ext_reset_n(ext_reset_n), .irq(irq),

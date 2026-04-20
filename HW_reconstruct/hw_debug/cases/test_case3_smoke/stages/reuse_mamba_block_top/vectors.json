@@ -4,7 +4,10 @@
   "d_inner": 256,
   "files": {
     "h_wr_addr": "h_wr_addr.mem",
-    "h_wr_data_q88": "h_wr_data_q88.mem",
+    "h_wr_data_s16_q8p8": "h_wr_data_s16_q8p8.mem",
+    "h_norm_golden_s16_q8p8": "h_norm_golden_s16_q8p8.mem",
+    "norm_gamma_s16_q8p8": "norm_gamma_s16_q8p8.mem",
+    "norm_rms_s16_q8p8": "norm_rms_s16_q8p8.mem",
     "u_golden_q88": "u_golden_q88.mem",
     "z_golden_q88": "z_golden_q88.mem",
     "u_act_golden_q88": "u_act_golden_q88.mem",

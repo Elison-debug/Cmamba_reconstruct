@@ -101,7 +101,8 @@
       "description": "Block-level top around shared MAC fabric.",
       "golden_inputs": [
         "h_wr_addr.mem",
-        "h_wr_data_q88.mem",
+        "h_wr_data_s16_q8p8.mem",
+        "norm_gamma_s16_q8p8.mem",
         "inproj_wbuf_bank*.mem",
         "inproj_scale_q15.mem",
         "dt_wbuf_bank*.mem",
@@ -113,6 +114,7 @@
       "golden_outputs": [
         "u_golden_q88.mem",
         "z_golden_q88.mem",
+        "h_norm_golden_s16_q8p8.mem",
         "u_act_golden_q88.mem",
         "z_silu_golden_q88.mem",
         "dt_golden_q88.mem",

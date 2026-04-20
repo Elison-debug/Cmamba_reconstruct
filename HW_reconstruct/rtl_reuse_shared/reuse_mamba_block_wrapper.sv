@@ -41,7 +41,9 @@ module reuse_mamba_block_wrapper #(
     parameter string OUTPROJ_BANK3_INIT_FILE = "",
     parameter string OUTPROJ_BANK4_INIT_FILE = "",
     parameter string OUTPROJ_BANK5_INIT_FILE = "",
-    parameter string OUTPROJ_SCALE_INIT_FILE = ""
+    parameter string OUTPROJ_SCALE_INIT_FILE = "",
+    parameter bit ENABLE_RMSNORM = 0,
+    parameter string NORM_GAMMA_INIT_FILE = ""
 )(
     input  logic sys_clk,
     input  logic ext_reset_n,
@@ -141,7 +143,9 @@ module reuse_mamba_block_wrapper #(
         .OUTPROJ_BANK3_INIT_FILE(OUTPROJ_BANK3_INIT_FILE),
         .OUTPROJ_BANK4_INIT_FILE(OUTPROJ_BANK4_INIT_FILE),
         .OUTPROJ_BANK5_INIT_FILE(OUTPROJ_BANK5_INIT_FILE),
-        .OUTPROJ_SCALE_INIT_FILE(OUTPROJ_SCALE_INIT_FILE)
+        .OUTPROJ_SCALE_INIT_FILE(OUTPROJ_SCALE_INIT_FILE),
+        .ENABLE_RMSNORM(ENABLE_RMSNORM),
+        .NORM_GAMMA_INIT_FILE(NORM_GAMMA_INIT_FILE)
     ) u_core (
         .clk            (sys_clk),
         .rst_n          (core_rst_n),
