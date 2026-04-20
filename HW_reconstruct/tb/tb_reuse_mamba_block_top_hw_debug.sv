@@ -62,6 +62,8 @@ module tb_reuse_mamba_block_top_hw_debug;
   localparam string OUTPROJ_BANK5_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/outproj_wbuf_bank5.mem"};
   localparam string OUTPROJ_SCALE_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/outproj_scale_q15.mem"};
   localparam string NORM_GAMMA_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/norm_gamma_s16_q8p8.mem"};
+  localparam string STATE_U_TO_STATE_SCALE_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/state_u_to_state_q16.mem"};
+  localparam string STATE_TO_Q88_SCALE_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/state_to_q88_q16.mem"};
 
 
   logic clk, rst_n;
@@ -179,7 +181,10 @@ module tb_reuse_mamba_block_top_hw_debug;
       // h_wr_data_s16_q8p8.mem stores pre-norm h; keep RMSNorm enabled here
       // so u/z golden and RTL datapath are aligned.
       .ENABLE_RMSNORM (1'b1),
-      .NORM_GAMMA_INIT_FILE (NORM_GAMMA_INIT_FILE)
+      .NORM_GAMMA_INIT_FILE (NORM_GAMMA_INIT_FILE),
+      .USE_SCALED_STATE_SCAN(1'b1),
+      .STATE_U_TO_STATE_SCALE_INIT_FILE(STATE_U_TO_STATE_SCALE_INIT_FILE),
+      .STATE_TO_Q88_SCALE_INIT_FILE(STATE_TO_Q88_SCALE_INIT_FILE)
   ) dut (
       .clk           (clk),
       .rst_n         (rst_n),

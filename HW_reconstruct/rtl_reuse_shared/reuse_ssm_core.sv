@@ -24,6 +24,11 @@ module reuse_ssm_core #(
     parameter int SCAN_MUL_SAT_MODE   = 0,
     parameter int SCAN_ADD_ROUND_MODE = 0,
     parameter int SCAN_ADD_SAT_MODE   = 0,
+    parameter bit USE_SCALED_STATE_SCAN = 0,
+    parameter int STATE_SCALE_W = 32,
+    parameter int STATE_SCALE_FRAC_BITS = 16,
+    parameter string STATE_U_TO_STATE_SCALE_INIT_FILE = "",
+    parameter string STATE_TO_Q88_SCALE_INIT_FILE = "",
     parameter int GATE_OUT_ROUND_MODE = 0,
     parameter int GATE_OUT_SAT_MODE   = 0
 )(
@@ -237,11 +242,49 @@ module reuse_ssm_core #(
     logic                         s_out_valid;
     logic                         s_out_ready;
     logic signed [DATA_WIDTH-1:0] s_out_vec [TILE_SIZE-1:0];
+    logic [STATE_SCALE_W-1:0] u_to_state_scale_vec [TILE_SIZE-1:0];
+    logic [STATE_SCALE_W-1:0] state_to_q88_scale_vec [TILE_SIZE-1:0];
+    logic [STATE_SCALE_W*TILE_SIZE-1:0] u_to_state_scale_packed;
+    logic [STATE_SCALE_W*TILE_SIZE-1:0] state_to_q88_scale_packed;
+
+    reuse_packed_scale_mem #(
+        .DEPTH    (D/TILE_SIZE),
+        .ADDR_W   (S_ADDR_W),
+        .DATA_W   (STATE_SCALE_W*TILE_SIZE),
+        .INIT_FILE(STATE_U_TO_STATE_SCALE_INIT_FILE)
+    ) u_state_u_to_state_scale_mem (
+        .clk  (clk),
+        .en   (1'b1),
+        .addr (s_addr_mux),
+        .dout (u_to_state_scale_packed)
+    );
+
+    reuse_packed_scale_mem #(
+        .DEPTH    (D/TILE_SIZE),
+        .ADDR_W   (S_ADDR_W),
+        .DATA_W   (STATE_SCALE_W*TILE_SIZE),
+        .INIT_FILE(STATE_TO_Q88_SCALE_INIT_FILE)
+    ) u_state_to_q88_scale_mem (
+        .clk  (clk),
+        .en   (1'b1),
+        .addr (s_addr_mux),
+        .dout (state_to_q88_scale_packed)
+    );
+
+    always_comb begin
+        for (int i=0; i<TILE_SIZE; i++) begin
+            u_to_state_scale_vec[i] = u_to_state_scale_packed[i*STATE_SCALE_W +: STATE_SCALE_W];
+            state_to_q88_scale_vec[i] = state_to_q88_scale_packed[i*STATE_SCALE_W +: STATE_SCALE_W];
+        end
+    end
 
     ew_update_vec4 #(
         .TILE_SIZE (TILE_SIZE),
         .W         (DATA_WIDTH),
         .S_ADDR_W  (S_ADDR_W),
+        .USE_SCALED_STATE(USE_SCALED_STATE_SCAN),
+        .SCALE_W   (STATE_SCALE_W),
+        .SCALE_FRAC_BITS(STATE_SCALE_FRAC_BITS),
         .MUL_ROUND_MODE(SCAN_MUL_ROUND_MODE),
         .MUL_SAT_MODE  (SCAN_MUL_SAT_MODE),
         .ADD_ROUND_MODE(SCAN_ADD_ROUND_MODE),
@@ -253,6 +296,8 @@ module reuse_ssm_core #(
         .in_ready  (ew_in_ready),
         .lam_vec   (join_lam_vec),
         .u_vec     (join_xt_vec_s),
+        .u_to_state_scale_vec(u_to_state_scale_vec),
+        .state_to_q88_scale_vec(state_to_q88_scale_vec),
         .s_addr    (s_addr_mux),
         .out_valid (s_out_valid),
         .out_ready (s_out_ready),

@@ -13,6 +13,8 @@ module tb_ew_update_vec4;
   logic                 in_ready;
   logic [W-1:0]         lam_vec [TILE_SIZE-1:0];
   logic signed [W-1:0]  u_vec   [TILE_SIZE-1:0];
+  logic [31:0]          u_to_state_scale_vec [TILE_SIZE-1:0];
+  logic [31:0]          state_to_q88_scale_vec [TILE_SIZE-1:0];
   logic [S_ADDR_W-1:0]  s_addr;
 
   logic                 out_valid;
@@ -30,6 +32,8 @@ module tb_ew_update_vec4;
       .in_ready (in_ready),
       .lam_vec  (lam_vec),
       .u_vec    (u_vec),
+      .u_to_state_scale_vec(u_to_state_scale_vec),
+      .state_to_q88_scale_vec(state_to_q88_scale_vec),
       .s_addr   (s_addr),
       .out_valid(out_valid),
       .out_ready(out_ready),
@@ -51,6 +55,8 @@ module tb_ew_update_vec4;
     for (int i=0;i<TILE_SIZE;i++) begin
       lam_vec[i] = '0;
       u_vec[i]   = '0;
+      u_to_state_scale_vec[i] = '0;
+      state_to_q88_scale_vec[i] = '0;
     end
     for (int a=0; a<(1<<S_ADDR_W); a++) begin
       for (int j=0; j<TILE_SIZE; j++) exp_state[a][j] = 0;

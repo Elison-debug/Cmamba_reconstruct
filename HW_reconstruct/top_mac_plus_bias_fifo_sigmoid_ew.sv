@@ -285,8 +285,14 @@ module top_mac_plus_bias_fifo_sigmoid_ew #(
 
     // ew_update 需要有符号的 xt 输入，做一次 signed 映射
     logic signed [DATA_WIDTH-1:0] join_xt_vec_s [TILE_SIZE-1:0];
+    logic [31:0] ew_dummy_u_to_state_scale [TILE_SIZE-1:0];
+    logic [31:0] ew_dummy_state_to_q88_scale [TILE_SIZE-1:0];
     always_comb begin
-        for (int i=0; i<TILE_SIZE; i++) join_xt_vec_s[i] = $signed(join_xt_vec[i]);
+        for (int i=0; i<TILE_SIZE; i++) begin
+            join_xt_vec_s[i] = $signed(join_xt_vec[i]);
+            ew_dummy_u_to_state_scale[i] = '0;
+            ew_dummy_state_to_q88_scale[i] = '0;
+        end
     end
 
     ew_update_vec4 #(
@@ -300,6 +306,8 @@ module top_mac_plus_bias_fifo_sigmoid_ew #(
         .in_ready  (ew_in_ready),
         .lam_vec   (join_lam_vec),
         .u_vec     (join_xt_vec_s),
+        .u_to_state_scale_vec(ew_dummy_u_to_state_scale),
+        .state_to_q88_scale_vec(ew_dummy_state_to_q88_scale),
         .s_addr    (s_addr_mux),
         .out_valid (s_out_valid),
         .out_ready (s_out_ready),

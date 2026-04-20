@@ -1,0 +1,21 @@
+{
+  "generated": true,
+  "sample_idx": 0,
+  "scan_mode": "scaled_state",
+  "stage_order": [
+    "norm",
+    "inproj_u",
+    "inproj_z",
+    "silu_gate",
+    "dtproj",
+    "dt_sigmoid",
+    "selective_scan",
+    "ewm_gating",
+    "outproj",
+    "block_output"
+  ],
+  "files": [
+    "logs\\dt_chain_debug_sample0.json",
+    "logs\\dt_chain_debug_sample0_traces.npz"
+  ]
+}

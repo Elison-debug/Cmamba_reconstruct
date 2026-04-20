@@ -57,6 +57,38 @@ def _conv1x1_q88_rne_clamp_tc(weight_2d: np.ndarray, x_tc: np.ndarray) -> np.nda
     return np.stack(rows, axis=0).astype(np.int16)
 
 
+def _rshift_rne_i64_vec(x: np.ndarray, shift: int) -> np.ndarray:
+    base = 1 << int(shift)
+    q = x // base
+    r = x % base
+    half = base >> 1
+    return q + ((r > half) | ((r == half) & ((q & 1) != 0))).astype(np.int64)
+
+
+def _ssm_update_scaled_state_q15(lam_q016_rows: np.ndarray, u_q88_rows: np.ndarray, t_len: int, d_inner: int) -> np.ndarray:
+    u_q88 = u_q88_rows.reshape(t_len, d_inner).astype(np.int64)
+    u_f = u_q88.astype(np.float32) / 256.0
+    max_abs = np.max(np.abs(u_f), axis=0)
+    state_scale = np.where(max_abs > 0.0, max_abs / 32767.0, 1.0 / 32767.0).astype(np.float32)
+    u_state = np.rint(u_f / state_scale.reshape(1, -1)).astype(np.int64)
+    u_state = np.clip(u_state, -(1 << 15), (1 << 15) - 1)
+
+    lam_q15 = (lam_q016_rows.reshape(t_len, d_inner).astype(np.int64) >> 1)
+    lam_q15 = np.clip(lam_q15, 0, 1 << 15)
+    one_minus_q15 = (1 << 15) - lam_q15
+
+    s_state = np.zeros((d_inner,), dtype=np.int64)
+    out_state = np.zeros((t_len, d_inner), dtype=np.int64)
+    for t in range(t_len):
+        acc = lam_q15[t] * s_state + one_minus_q15[t] * u_state[t]
+        s_state = _rshift_rne_i64_vec(acc, 15)
+        s_state = np.clip(s_state, -(1 << 15), (1 << 15) - 1)
+        out_state[t] = s_state
+
+    ssm_f = out_state.astype(np.float32) * state_scale.reshape(1, -1)
+    return _quant_q88(ssm_f).reshape(-1, 4)
+
+
 def _block_forward_cppish(blk: dict, base_dir: Path, x_seq: np.ndarray, lut: _ActLut) -> tuple[np.ndarray, dict]:
     residual = x_seq.astype(np.float32, copy=True)
     x_norm = residual.copy()
@@ -124,7 +156,7 @@ def _block_forward_cppish(blk: dict, base_dir: Path, x_seq: np.ndarray, lut: _Ac
     }
 
 
-def _block_forward_hw_like(blk: dict, base_dir: Path, x_seq: np.ndarray) -> tuple[np.ndarray, dict]:
+def _block_forward_hw_like(blk: dict, base_dir: Path, x_seq: np.ndarray, scan_mode: str = "fixed_q88") -> tuple[np.ndarray, dict]:
     residual = x_seq.astype(np.float32, copy=True)
     norm_w = np.load(base_dir / blk["norm"]["weight"]).astype(np.float32).reshape(-1)
     norm_w_q88 = _quant_q88(norm_w)
@@ -153,7 +185,12 @@ def _block_forward_hw_like(blk: dict, base_dir: Path, x_seq: np.ndarray) -> tupl
     dt_q88 = dt_q88_flat.reshape(x_seq.shape[0], inner)
     dt_q88_rows = dt_q88_flat.reshape(-1, 4)
     lam_q016 = _sigmoid_q016_from_q88(dt_q88_rows)
-    ssm_q88_rows = _ssm_update_q88_from_lam_q016(lam_q016, u_act_q88_rows)
+    if scan_mode == "fixed_q88":
+        ssm_q88_rows = _ssm_update_q88_from_lam_q016(lam_q016, u_act_q88_rows)
+    elif scan_mode == "scaled_state":
+        ssm_q88_rows = _ssm_update_scaled_state_q15(lam_q016, u_act_q88_rows, x_seq.shape[0], inner)
+    else:
+        raise ValueError(f"unknown scan_mode: {scan_mode}")
     gate_y_q88_rows = _mul_q88_q88_to_q88(z_silu_q88_rows, ssm_q88_rows)
 
     y_q88_flat = _conv1x1_q88_rne_clamp(out_w, gate_y_q88_rows.reshape(-1))
@@ -214,7 +251,7 @@ def _forward_full_cppish(export_json: Path, x_sample_kd: np.ndarray) -> tuple[np
     return y.reshape(-1).astype(np.float32), traces
 
 
-def _forward_full_hw_like(export_json: Path, x_sample_kd: np.ndarray) -> tuple[np.ndarray, list[dict]]:
+def _forward_full_hw_like(export_json: Path, x_sample_kd: np.ndarray, scan_mode: str = "fixed_q88") -> tuple[np.ndarray, list[dict]]:
     export, backbone, base_dir = _load_export_ir(export_json)
     seq_len = int(export["model"]["seq_len"])
 
@@ -227,7 +264,7 @@ def _forward_full_hw_like(export_json: Path, x_sample_kd: np.ndarray) -> tuple[n
     x_seq = (_quant_q88(patch).astype(np.float32) / 256.0).astype(np.float32)
     traces: list[dict] = [{"stage": "patch_embedding_q88_if", "x_next": x_seq.copy()}]
     for blk in backbone["blocks"]:
-        x_seq, trace = _block_forward_hw_like(blk, base_dir, x_seq)
+        x_seq, trace = _block_forward_hw_like(blk, base_dir, x_seq, scan_mode=scan_mode)
         trace["stage"] = f"block{int(blk['index'])}"
         traces.append(trace)
 
@@ -254,6 +291,15 @@ def main() -> None:
     p.add_argument("--case_dir", type=str, required=True)
     p.add_argument("--cpp_batch_bin", type=str, default="build/bittrue/main_batch.exe")
     p.add_argument("--din", type=int, default=2100)
+    p.add_argument("--limit", type=int, default=0, help="Evaluate only the first N samples; 0 means all samples.")
+    p.add_argument("--progress_every", type=int, default=100, help="Print progress every N samples; 0 disables progress.")
+    p.add_argument(
+        "--scan_mode",
+        type=str,
+        default="fixed_q88",
+        choices=["fixed_q88", "scaled_state"],
+        help="SSM scan quantization model for the hw-like path.",
+    )
     args = p.parse_args()
 
     export_json = Path(args.export_json)
@@ -273,15 +319,24 @@ def main() -> None:
     else:
         y_cpp = _run_cpp_batch(cpp_batch_bin, export_json, float_dir / "samples.npy", cpp_out_path, int(args.din), mode="int16")
 
-    y_cppish = np.zeros_like(y_cpp, dtype=np.float32)
-    y_hw = np.zeros_like(y_cpp, dtype=np.float32)
+    total_samples = int(samples.shape[0])
+    eval_samples = total_samples if int(args.limit) <= 0 else min(int(args.limit), total_samples)
+    samples_eval = samples[:eval_samples]
+    y_true_eval = y_true[:eval_samples]
+    y_float_eval = y_float[:eval_samples]
+    y_cpp_eval = y_cpp[:eval_samples]
+
+    y_cppish = np.zeros_like(y_cpp_eval, dtype=np.float32)
+    y_hw = np.zeros_like(y_cpp_eval, dtype=np.float32)
     block_stage_names: list[str] | None = None
     block_mae_accum: dict[str, list[float]] = {}
     block_max_accum: dict[str, list[float]] = {}
 
-    for i in range(samples.shape[0]):
-        cppish_out, cppish_traces = _forward_full_cppish(export_json, samples[i])
-        hw_out, hw_traces = _forward_full_hw_like(export_json, samples[i])
+    for i in range(eval_samples):
+        if int(args.progress_every) > 0 and (i == 0 or (i + 1) % int(args.progress_every) == 0):
+            print(f"[eval] sample {i + 1}/{eval_samples}")
+        cppish_out, cppish_traces = _forward_full_cppish(export_json, samples_eval[i])
+        hw_out, hw_traces = _forward_full_hw_like(export_json, samples_eval[i], scan_mode=args.scan_mode)
         y_cppish[i] = cppish_out
         y_hw[i] = hw_out
 
@@ -301,21 +356,24 @@ def main() -> None:
             block_mae_accum[name].append(float(np.mean(diff)))
             block_max_accum[name].append(float(np.max(diff)))
 
-    hw_vs_cpp = np.abs(y_hw - y_cpp)
-    hw_vs_float = np.abs(y_hw - y_float)
-    cppish_vs_cpp = np.abs(y_cppish - y_cpp)
+    hw_vs_cpp = np.abs(y_hw - y_cpp_eval)
+    hw_vs_float = np.abs(y_hw - y_float_eval)
+    cppish_vs_cpp = np.abs(y_cppish - y_cpp_eval)
 
     summary = {
-        "samples": int(samples.shape[0]),
+        "samples": int(eval_samples),
+        "total_available_samples": int(total_samples),
+        "limit": int(args.limit),
+        "scan_mode": args.scan_mode,
         "hw_like_vs_cpp": {
             "mae": float(np.mean(hw_vs_cpp)),
             "max_abs": float(np.max(hw_vs_cpp)),
-            "metrics_vs_y_true": _metric_dict(y_true, y_hw),
+            "metrics_vs_y_true": _metric_dict(y_true_eval, y_hw),
         },
         "hw_like_vs_float": {
             "mae": float(np.mean(hw_vs_float)),
             "max_abs": float(np.max(hw_vs_float)),
-            "metrics_vs_y_true": _metric_dict(y_true, y_hw),
+            "metrics_vs_y_true": _metric_dict(y_true_eval, y_hw),
         },
         "cppish_vs_cpp": {
             "mae": float(np.mean(cppish_vs_cpp)),
@@ -332,8 +390,8 @@ def main() -> None:
             "y_cpp": y_cpp[0].astype(float).tolist(),
             "y_cppish": y_cppish[0].astype(float).tolist(),
             "y_hw_like": y_hw[0].astype(float).tolist(),
-            "y_true": y_true[0].astype(float).tolist(),
-            "y_float": y_float[0].astype(float).tolist(),
+            "y_true": y_true_eval[0].astype(float).tolist(),
+            "y_float": y_float_eval[0].astype(float).tolist(),
         },
     }
 

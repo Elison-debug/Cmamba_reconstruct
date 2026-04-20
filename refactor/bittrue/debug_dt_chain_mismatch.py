@@ -31,6 +31,7 @@ def main() -> None:
     p.add_argument("--export_json", type=str, required=True)
     p.add_argument("--case_dir", type=str, required=True)
     p.add_argument("--sample_idx", type=int, default=0)
+    p.add_argument("--scan_mode", type=str, default="fixed_q88", choices=["fixed_q88", "scaled_state"])
     args = p.parse_args()
 
     export_json = Path(args.export_json)
@@ -40,7 +41,7 @@ def main() -> None:
     x = samples[sample_idx]
 
     _, cpp_traces = _forward_full_cppish(export_json, x)
-    _, hw_traces = _forward_full_hw_like(export_json, x)
+    _, hw_traces = _forward_full_hw_like(export_json, x, scan_mode=args.scan_mode)
     cpp_map = {t["stage"]: t for t in cpp_traces}
     hw_map = {t["stage"]: t for t in hw_traces}
 
@@ -49,6 +50,7 @@ def main() -> None:
 
     report = {
         "sample_idx": sample_idx,
+        "scan_mode": args.scan_mode,
         "block0": {
             "norm": _tensor_stats(cpp_b0["x_norm"], hw_b0["x_norm"]),
             "inproj_u": _tensor_stats(cpp_b0["u"], hw_b0["u"]),
@@ -63,7 +65,8 @@ def main() -> None:
         },
     }
 
-    out = case_dir / "logs" / f"dt_chain_debug_sample{sample_idx}.json"
+    suffix = "" if args.scan_mode == "fixed_q88" else f"_{args.scan_mode}"
+    out = case_dir / "logs" / f"dt_chain_debug_sample{sample_idx}{suffix}.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(report, indent=2), encoding="utf-8")
     print(json.dumps(report, indent=2))
@@ -72,4 +75,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

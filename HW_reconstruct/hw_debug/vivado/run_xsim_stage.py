@@ -55,9 +55,9 @@ def _lut_src(case_dir: str | None) -> Path:
 def _stage_cfg(stage: str) -> dict:
     all_rtl = sorted(str(p) for p in RTL_DIR.glob("*.sv") if p.name != "reuse_ip_blackboxes.sv")
     ip_wrappers = [
-        str(PROJ_IP_GEN_DIR / "bias_ROM" / "sim" / "bias_ROM.v"),
-        str(PROJ_IP_GEN_DIR / "bias2sigmoid_fifo" / "sim" / "bias2sigmoid_fifo.v"),
-        str(PROJ_IP_GEN_DIR / "inproj_ht_sram_ip_1" / "sim" / "inproj_ht_sram_ip.v"),
+        str(PROJ_IP_GEN_DIR / "bias_ROM" / "bias_ROM_sim_netlist.v"),
+        str(PROJ_IP_GEN_DIR / "bias2sigmoid_fifo" / "bias2sigmoid_fifo_sim_netlist.v"),
+        str(PROJ_IP_GEN_DIR / "inproj_ht_sram_ip" / "sim" / "inproj_ht_sram_ip.v"),
         str(PROJ_IP_GEN_DIR / "inproj_vec_out_sram_ip" / "sim" / "inproj_vec_out_sram_ip.v"),
         str(PROJ_IP_GEN_DIR / "outproj_WBUF_bank_dp" / "sim" / "outproj_WBUF_bank_dp.v"),
         str(PROJ_IP_GEN_DIR / "slim_WBUF_bank_dp" / "sim" / "slim_WBUF_bank_dp.v"),
@@ -149,6 +149,8 @@ def main() -> None:
     args = p.parse_args()
 
     vivado_bin = _vivado_bin()
+    vivado_root = vivado_bin.parent
+    glbl_v = vivado_root / "data" / "verilog" / "src" / "glbl.v"
     cfg = _stage_cfg(args.stage)
     run_name = args.run_name or args.stage
     run_dir = RUN_ROOT / run_name
@@ -166,18 +168,22 @@ def main() -> None:
         for src in cfg["sources"]:
             f.write(f'sv work "{src}"\n')
         f.write(f'sv work "{cfg["tb_file"]}"\n')
+        if glbl_v.exists():
+            f.write(f'verilog work "{glbl_v}"\n')
 
     tcl = run_dir / "run.tcl"
     case_dir_norm = ""
+    case_dir_define = ""
     if args.case_dir:
         case_dir_abs = Path(args.case_dir).resolve()
         case_dir_norm = os.path.relpath(case_dir_abs, run_dir).replace("\\", "/")
+        case_dir_define = case_dir_abs.as_posix()
         (case_dir_abs / "rtl_out" / args.stage.replace("_hw_debug", "")).mkdir(parents=True, exist_ok=True)
         (case_dir_abs / "rtl_out" / args.stage).mkdir(parents=True, exist_ok=True)
 
     if args.stage in {"reuse_mamba_block_top_hw_debug", "reuse_ssm_core_hw_debug", "reuse_ssm_dt_scheduler_hw_debug"}:
         (run_dir / "tb_hw_debug_case_path.svh").write_text(
-            f'`define HW_DEBUG_CASE_DIR "{case_dir_norm}"\n', encoding="utf-8"
+            f'`define HW_DEBUG_CASE_DIR "{case_dir_define}"\n', encoding="utf-8"
         )
 
     plusargs = [arg.format(case_dir=case_dir_norm) for arg in cfg.get("xsim_plusargs", [])]
@@ -238,6 +244,7 @@ def main() -> None:
             "-L",
             "secureip",
             cfg["tb_top"],
+            "glbl",
             "-s",
             cfg["tb_top"],
             "-log",

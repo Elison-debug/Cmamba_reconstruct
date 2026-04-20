@@ -7,7 +7,9 @@
     "dt_golden_q88": "dt_golden_q88.mem",
     "lam_golden_q016": "lam_golden_q016.mem",
     "ssm_golden_q88": "ssm_golden_q88.mem",
-    "gate_y_golden_q88": "gate_y_golden_q88.mem"
+    "gate_y_golden_q88": "gate_y_golden_q88.mem",
+    "state_u_to_state_q16": "state_u_to_state_q16.mem",
+    "state_to_q88_q16": "state_to_q88_q16.mem"
   },
   "notes": [
     "Assumes bias_add_regslice_ip_A sim model uses zero-initialized mem_sim.",

@@ -427,6 +427,119 @@ def _write_compare_csv(path: Path, a: np.ndarray, b: np.ndarray, labels: tuple[s
                 f.write(f"{r},{c},{float(a[r,c])},{float(b[r,c])},{diff}\n")
 
 
+_DT_CHAIN_STAGE_PLAN: list[tuple[str, str]] = [
+    ("norm", "x_norm"),
+    ("inproj_u", "u"),
+    ("inproj_z", "z"),
+    ("silu_gate", "z_silu"),
+    ("dtproj", "dt"),
+    ("dt_sigmoid", "lam"),
+    ("selective_scan", "ssm_scan"),
+    ("ewm_gating", "gate_y"),
+    ("outproj", "y_blk"),
+    ("block_output", "x_next"),
+]
+
+
+def _tensor_diff_stats(a: np.ndarray, b: np.ndarray, topk: int = 8) -> dict:
+    if a.shape != b.shape:
+        if a.size != b.size:
+            raise ValueError(f"shape mismatch with different element count: {a.shape} vs {b.shape}")
+        a = a.reshape(-1)
+        b = b.reshape(-1)
+
+    a32 = a.astype(np.float32)
+    b32 = b.astype(np.float32)
+    diff = a32 - b32
+    abs_diff = np.abs(diff)
+    flat_abs = abs_diff.reshape(-1)
+    flat_diff = diff.reshape(-1)
+    flat_a = a32.reshape(-1)
+    flat_b = b32.reshape(-1)
+    max_idx = int(np.argmax(flat_abs)) if flat_abs.size else 0
+    top_indices = np.argsort(flat_abs)[::-1][: min(int(topk), int(flat_abs.size))]
+
+    return {
+        "shape": list(a.shape),
+        "mae": float(np.mean(flat_abs)) if flat_abs.size else 0.0,
+        "max_abs": float(flat_abs[max_idx]) if flat_abs.size else 0.0,
+        "max_abs_flat_index": max_idx,
+        "cpp_at_max": float(flat_a[max_idx]) if flat_abs.size else 0.0,
+        "hw_like_at_max": float(flat_b[max_idx]) if flat_abs.size else 0.0,
+        "signed_diff_at_max": float(flat_diff[max_idx]) if flat_abs.size else 0.0,
+        "top_abs_errors": [
+            {
+                "flat_index": int(i),
+                "cpp": float(flat_a[i]),
+                "hw_like": float(flat_b[i]),
+                "signed_diff": float(flat_diff[i]),
+                "abs_diff": float(flat_abs[i]),
+            }
+            for i in top_indices
+        ],
+    }
+
+
+def _export_dt_chain_debug(case_dir: Path, export_json: Path, sample_idx: int = 0, scan_mode: str = "scaled_state") -> dict:
+    samples = case_dir / "float" / "samples.npy"
+    if not samples.exists():
+        return {"generated": False, "reason": "float/samples.npy missing"}
+
+    try:
+        from refactor.bittrue.eval_hw_like_full import _forward_full_cppish, _forward_full_hw_like
+    except Exception as exc:  # pragma: no cover - diagnostic export path.
+        return {"generated": False, "reason": f"failed to import eval_hw_like_full: {exc}"}
+
+    x_arr = np.load(samples).astype(np.float32)
+    if x_arr.shape[0] <= int(sample_idx):
+        return {
+            "generated": False,
+            "reason": f"sample_idx {sample_idx} out of range for {x_arr.shape[0]} samples",
+        }
+
+    x = x_arr[int(sample_idx)]
+    _, cpp_traces = _forward_full_cppish(export_json, x)
+    _, hw_traces = _forward_full_hw_like(export_json, x, scan_mode=scan_mode)
+    cpp_map = {t["stage"]: t for t in cpp_traces}
+    hw_map = {t["stage"]: t for t in hw_traces}
+    cpp_b0 = cpp_map["block0"]
+    hw_b0 = hw_map["block0"]
+
+    report = {
+        "sample_idx": int(sample_idx),
+        "reference": "cppish",
+        "candidate": "hw_like",
+        "scan_mode": scan_mode,
+        "stage_order": [name for name, _ in _DT_CHAIN_STAGE_PLAN],
+        "block0": {},
+    }
+    trace_arrays: dict[str, np.ndarray] = {}
+    for stage_name, trace_key in _DT_CHAIN_STAGE_PLAN:
+        cpp_val = np.asarray(cpp_b0[trace_key])
+        hw_val = np.asarray(hw_b0[trace_key])
+        report["block0"][stage_name] = _tensor_diff_stats(cpp_val, hw_val)
+        trace_arrays[f"cpp_{stage_name}"] = cpp_val
+        trace_arrays[f"hw_like_{stage_name}"] = hw_val
+
+    log_dir = case_dir / "logs"
+    out_json = log_dir / f"dt_chain_debug_sample{sample_idx}.json"
+    out_npz = log_dir / f"dt_chain_debug_sample{sample_idx}_traces.npz"
+    _write_json(out_json, report)
+    log_dir.mkdir(parents=True, exist_ok=True)
+    np.savez_compressed(out_npz, **trace_arrays)
+
+    return {
+        "generated": True,
+        "sample_idx": int(sample_idx),
+        "scan_mode": scan_mode,
+        "stage_order": report["stage_order"],
+        "files": [
+            str(out_json.relative_to(case_dir)),
+            str(out_npz.relative_to(case_dir)),
+        ],
+    }
+
+
 def _export_block0_cpp_compare(case_dir: Path, export_json: Path) -> dict:
     exe = Path("build/bittrue/main_block0_y.exe")
     samples = case_dir / "float" / "samples.npy"
@@ -666,6 +779,68 @@ def _write_scale_rows_q15(path: Path, scale_q15: np.ndarray, tile: int = 4) -> N
     for i in range(0, vec.shape[0], tile):
         rows.append([int(v) & 0xFFFF for v in vec[i : i + tile].tolist()])
     _write_mem_packed_u16(path, rows)
+
+
+def _write_scale_rows_q16_32(path: Path, scale_q16: np.ndarray, tile: int = 4) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    vec = np.asarray(scale_q16).reshape(-1)
+    if vec.shape[0] % tile != 0:
+        raise ValueError(f"expected scale vector multiple of {tile}, got {vec.shape[0]}")
+    with open(path, "w", encoding="utf-8") as f:
+        for i in range(0, vec.shape[0], tile):
+            packed = 0
+            for lane, v in enumerate(vec[i : i + tile].tolist()):
+                packed |= (int(v) & 0xFFFFFFFF) << (32 * lane)
+            f.write(f"{packed:032X}\n")
+
+
+def _ssm_update_scaled_state_q15_from_q88(u_q88_rows: np.ndarray, lam_q016_rows: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    state_depth, tile = u_q88_rows.shape
+    u_q88 = u_q88_rows.astype(np.int64)
+    u_f = u_q88.astype(np.float32) / 256.0
+    max_abs = np.abs(u_f)
+    state_scale = np.where(max_abs > 0.0, max_abs / 32767.0, 1.0 / 32767.0).astype(np.float64)
+
+    u_to_state = 1.0 / (256.0 * state_scale)
+    state_to_q88 = state_scale * 256.0
+    u_to_state_q16 = np.clip(np.rint(u_to_state * 65536.0), 0, 0xFFFFFFFF).astype(np.uint32)
+    state_to_q88_q16 = np.clip(np.rint(state_to_q88 * 65536.0), 0, 0xFFFFFFFF).astype(np.uint32)
+
+    # Match RTL exactly: both conversions use the emitted Q16 scale rows and
+    # requant_round_sat_engine's round-to-nearest-even integer path.
+    u_state = _rshift_rne_vec(u_q88 * u_to_state_q16.astype(np.int64), 16)
+    u_state = np.clip(u_state, -(1 << 15), (1 << 15) - 1)
+    lam_q15 = (lam_q016_rows.astype(np.int64) >> 1)
+    lam_q15 = np.clip(lam_q15, 0, 1 << 15)
+    one_minus_q15 = (1 << 15) - lam_q15
+
+    state_runtime = np.zeros((state_depth, tile), dtype=np.int64)
+    last_wr_valid = False
+    last_wr_addr = 0
+    last_wr_data = np.zeros((tile,), dtype=np.int64)
+    out_state = np.zeros((state_depth, tile), dtype=np.int64)
+
+    for t in range(state_depth):
+        s_addr = t % state_depth
+        if last_wr_valid and last_wr_addr == s_addr:
+            s_prev = last_wr_data.copy()
+        else:
+            s_prev = state_runtime[s_addr].copy()
+
+        acc = lam_q15[t] * s_prev + one_minus_q15[t] * u_state[t]
+        s_new = _rshift_rne_vec(acc, 15)
+        s_new = np.clip(s_new, -(1 << 15), (1 << 15) - 1)
+
+        s_addr_w = (s_addr + 1) % state_depth
+        state_runtime[s_addr_w] = s_new
+        last_wr_valid = True
+        last_wr_addr = s_addr_w
+        last_wr_data = s_new.copy()
+        out_state[t] = s_new
+
+    ssm_q88 = _rshift_rne_vec(out_state * state_to_q88_q16.astype(np.int64), 16)
+    ssm_q88 = np.clip(ssm_q88, -32768, 32767).astype(np.int16)
+    return ssm_q88, u_to_state_q16, state_to_q88_q16
 
 
 def _write_weight_banks_q88(
@@ -1034,7 +1209,7 @@ def _export_reuse_top_stage(case_dir: Path, model: torch.nn.Module, x_arr: np.nd
     dt_w_fold_q88 = _quant_q88(dt_w)
     dt_q88 = dt_q88_flat.reshape(64, 4)
     lam_q016 = _sigmoid_q016_from_q88(dt_q88)
-    ssm_q88 = _ssm_update_q88_from_lam_q016(lam_q016, u_act_q88)
+    ssm_q88, state_u_to_state_q16, state_to_q88_q16 = _ssm_update_scaled_state_q15_from_q88(u_act_q88, lam_q016)
     gate_y_q88 = _mul_q88_q88_to_q88(z_silu_q88, ssm_q88)
     y_q88_flat = _conv1x1_q88_rne_clamp(outproj_w, gate_y_q88.reshape(-1))
     outproj_scale_q15 = np.full((outproj_w.shape[0],), 1 << 15, dtype=np.uint16)
@@ -1051,6 +1226,8 @@ def _export_reuse_top_stage(case_dir: Path, model: torch.nn.Module, x_arr: np.nd
     _write_scale_rows_q15(stage_dir / "inproj_scale_q15.mem", inproj_scale_q15)
     _write_scale_rows_q15(stage_dir / "dt_scale_q15.mem", dt_scale_q15)
     _write_scale_rows_q15(stage_dir / "outproj_scale_q15.mem", outproj_scale_q15)
+    _write_scale_rows_q16_32(stage_dir / "state_u_to_state_q16.mem", state_u_to_state_q16)
+    _write_scale_rows_q16_32(stage_dir / "state_to_q88_q16.mem", state_to_q88_q16)
     inproj_files = _write_weight_banks_q88_aligned_4array(
         stage_dir / "inproj_wbuf", inproj_w_fold_q88.astype(np.float32) / 256.0, n_bank=6, depth=1024
     )
@@ -1102,6 +1279,8 @@ def _export_reuse_top_stage(case_dir: Path, model: torch.nn.Module, x_arr: np.nd
                 "inproj_scale_q15": "inproj_scale_q15.mem",
                 "dt_scale_q15": "dt_scale_q15.mem",
                 "outproj_scale_q15": "outproj_scale_q15.mem",
+                "state_u_to_state_q16": "state_u_to_state_q16.mem",
+                "state_to_q88_q16": "state_to_q88_q16.mem",
                 "inproj_wbuf": inproj_files,
                 "dt_wbuf": dt_files,
                 "outproj_wbuf": outproj_files,
@@ -1126,6 +1305,8 @@ def _export_reuse_top_stage(case_dir: Path, model: torch.nn.Module, x_arr: np.nd
             "ssm_golden_q88.mem",
             "gate_y_golden_q88.mem",
             "y_golden_q88.mem",
+            "state_u_to_state_q16.mem",
+            "state_to_q88_q16.mem",
             "control.json",
             "vectors.json",
             *inproj_files,
@@ -1187,7 +1368,7 @@ def _export_reuse_ssm_core_stage(case_dir: Path, model: torch.nn.Module, x_arr: 
     z_silu_q88 = _mul_q016_q88_to_q88(z_sig_q016, z_q88_rows)
     dt_q88 = _conv1x1_q88_intmac(dt_w, u_act_q88.reshape(-1)).reshape(64, 4)
     lam_q016 = _sigmoid_q016_from_q88(dt_q88)
-    ssm_q88 = _ssm_update_q88_from_lam_q016(lam_q016, u_act_q88)
+    ssm_q88, state_u_to_state_q16, state_to_q88_q16 = _ssm_update_scaled_state_q15_from_q88(u_act_q88, lam_q016)
     gate_y_q88 = _mul_q88_q88_to_q88(z_silu_q88, ssm_q88)
 
     _write_mem_matrix_rows_q88(stage_dir / "mac_in_q88.mem", dt_q88)
@@ -1197,6 +1378,8 @@ def _export_reuse_ssm_core_stage(case_dir: Path, model: torch.nn.Module, x_arr: 
     _write_mem_matrix_rows_q88(stage_dir / "lam_golden_q016.mem", lam_q016.astype(np.uint16))
     _write_mem_matrix_rows_q88(stage_dir / "ssm_golden_q88.mem", ssm_q88)
     _write_mem_matrix_rows_q88(stage_dir / "gate_y_golden_q88.mem", gate_y_q88)
+    _write_scale_rows_q16_32(stage_dir / "state_u_to_state_q16.mem", state_u_to_state_q16)
+    _write_scale_rows_q16_32(stage_dir / "state_to_q88_q16.mem", state_to_q88_q16)
     _write_json(
         stage_dir / "vectors.json",
         {
@@ -1209,6 +1392,8 @@ def _export_reuse_ssm_core_stage(case_dir: Path, model: torch.nn.Module, x_arr: 
                 "lam_golden_q016": "lam_golden_q016.mem",
                 "ssm_golden_q88": "ssm_golden_q88.mem",
                 "gate_y_golden_q88": "gate_y_golden_q88.mem",
+                "state_u_to_state_q16": "state_u_to_state_q16.mem",
+                "state_to_q88_q16": "state_to_q88_q16.mem",
             },
             "notes": [
                 "Assumes bias_add_regslice_ip_A sim model uses zero-initialized mem_sim.",
@@ -1226,6 +1411,8 @@ def _export_reuse_ssm_core_stage(case_dir: Path, model: torch.nn.Module, x_arr: 
             "lam_golden_q016.mem",
             "ssm_golden_q88.mem",
             "gate_y_golden_q88.mem",
+            "state_u_to_state_q16.mem",
+            "state_to_q88_q16.mem",
             "vectors.json",
         ],
     }
@@ -1425,6 +1612,8 @@ def main() -> None:
 
     compare_summary = _export_block0_cpp_compare(out_dir, Path(export_json))
     _write_json(out_dir / "logs" / "block0_cpp_compare_manifest.json", compare_summary)
+    dt_chain_summary = _export_dt_chain_debug(out_dir, Path(export_json), sample_idx=0)
+    _write_json(out_dir / "logs" / "dt_chain_debug_manifest.json", dt_chain_summary)
 
     (out_dir / "rtl_out").mkdir(parents=True, exist_ok=True)
     (out_dir / "logs").mkdir(parents=True, exist_ok=True)
@@ -1435,6 +1624,7 @@ def main() -> None:
         "hw_debug_root": str(out_dir.resolve()),
         "float_cache_dir": str(float_dir.resolve()),
         "export_json": str(Path(export_json).resolve()),
+        "dt_chain_debug": dt_chain_summary,
         "next_steps": [
             "Populate stage-specific mem files under stages/<stage>/ or mem/<stage>/.",
             "Run cocotb tests from HW_reconstruct/hw_debug/cocotb.",

@@ -16,6 +16,8 @@ module tb_reuse_ssm_core_hw_debug;
   localparam int S_ADDR_W    = 6;
   localparam int G_FRAC_BITS = 8;
   localparam int DEPTH       = 64;
+  localparam string STATE_U_TO_STATE_SCALE_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_ssm_core/state_u_to_state_q16.mem"};
+  localparam string STATE_TO_Q88_SCALE_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_ssm_core/state_to_q88_q16.mem"};
 
   logic clk, rst_n;
   initial begin
@@ -49,7 +51,10 @@ module tb_reuse_ssm_core_hw_debug;
       .ADDR_BITS(ADDR_BITS),
       .LUT_FILE(LUT_FILE),
       .S_ADDR_W(S_ADDR_W),
-      .G_FRAC_BITS(G_FRAC_BITS)
+      .G_FRAC_BITS(G_FRAC_BITS),
+      .USE_SCALED_STATE_SCAN(1'b1),
+      .STATE_U_TO_STATE_SCALE_INIT_FILE(STATE_U_TO_STATE_SCALE_INIT_FILE),
+      .STATE_TO_Q88_SCALE_INIT_FILE(STATE_TO_Q88_SCALE_INIT_FILE)
   ) dut (
       .clk(clk),
       .rst_n(rst_n),

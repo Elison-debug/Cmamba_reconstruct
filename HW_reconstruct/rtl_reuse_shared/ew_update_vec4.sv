@@ -13,6 +13,9 @@ module ew_update_vec4 #(
     parameter int W          = 16,
     parameter int S_ADDR_W   = 10,   // state depth = 2^S_ADDR_W (example)
     parameter bit USE_RAM    = 1,
+    parameter bit USE_SCALED_STATE = 0,
+    parameter int SCALE_W = 32,
+    parameter int SCALE_FRAC_BITS = 16,
     parameter int MUL_ROUND_MODE = 0,
     parameter int MUL_SAT_MODE   = 0,
     parameter int ADD_ROUND_MODE = 0,
@@ -26,6 +29,8 @@ module ew_update_vec4 #(
     output logic                 in_ready,
     input  logic [W-1:0]         lam_vec [TILE_SIZE-1:0], // Q0.16 unsigned
     input  logic signed [W-1:0]  u_vec   [TILE_SIZE-1:0], // e.g. Q8.8 signed or already aligned
+    input  logic [SCALE_W-1:0]   u_to_state_scale_vec [TILE_SIZE-1:0],
+    input  logic [SCALE_W-1:0]   state_to_q88_scale_vec [TILE_SIZE-1:0],
 
     // state index for this token (你可以来自 tile_id / timestep counter)
     input  logic [S_ADDR_W-1:0]  s_addr,
@@ -66,6 +71,8 @@ module ew_update_vec4 #(
     // latch input
     logic [W-1:0]        lam_r [TILE_SIZE-1:0];
     logic signed [W-1:0] u_r   [TILE_SIZE-1:0];
+    logic [SCALE_W-1:0]  u_to_state_scale_r [TILE_SIZE-1:0];
+    logic [SCALE_W-1:0]  state_to_q88_scale_r [TILE_SIZE-1:0];
 
     // intermediate
     logic [W-1:0] one_minus [TILE_SIZE-1:0];
@@ -76,7 +83,7 @@ module ew_update_vec4 #(
     logic ewm2_v, ewm2_r;
     logic calc_operands_ready;
     logic calc_issue_done;
-    wire  ewm_in_fire = (st == ST_CALC) && calc_operands_ready && !calc_issue_done && ewm1_r && ewm2_r;
+    wire  ewm_in_fire = (!USE_SCALED_STATE) && (st == ST_CALC) && calc_operands_ready && !calc_issue_done && ewm1_r && ewm2_r;
     logic [W-1:0] mul_a [TILE_SIZE-1:0];
     logic [W-1:0] mul_b [TILE_SIZE-1:0];
 
@@ -85,6 +92,12 @@ module ew_update_vec4 #(
     logic [W-1:0] sum_y [TILE_SIZE-1:0];
     wire  state_we;
     logic calc_done; // latch successful CALC handshake
+
+    logic [W-1:0] scaled_u_state [TILE_SIZE-1:0];
+    logic signed [33:0] scaled_acc [TILE_SIZE-1:0];
+    logic [W-1:0] scaled_state_next [TILE_SIZE-1:0];
+    logic [W-1:0] scaled_state_q88 [TILE_SIZE-1:0];
+    logic [15:0] scaled_dummy_scale [TILE_SIZE-1:0];
 
     // ------------------------------------------------------------
     // 1) input accept + state read scheduling
@@ -105,6 +118,8 @@ module ew_update_vec4 #(
             for (int i=0;i<TILE_SIZE;i++) begin
                 lam_r[i] <= '0;
                 u_r[i]   <= '0;
+                u_to_state_scale_r[i] <= '0;
+                state_to_q88_scale_r[i] <= '0;
             end
             last_wr_valid <= 1'b0;
             last_wr_addr  <= '0;
@@ -119,9 +134,11 @@ module ew_update_vec4 #(
                     if (in_valid && in_ready) begin
                         // latch token
                         for (int i=0;i<TILE_SIZE;i++) begin
-                            // lam: Q0.16 -> Q8.8
-                            lam_r[i] <= lam_vec[i] >>> 8;
+                            // fixed mode: Q0.16 -> Q8.8. scaled-state mode: Q0.16 -> Q1.15.
+                            lam_r[i] <= USE_SCALED_STATE ? (lam_vec[i] >> 1) : (lam_vec[i] >>> 8);
                             u_r[i]   <= u_vec[i];
+                            u_to_state_scale_r[i] <= u_to_state_scale_vec[i];
+                            state_to_q88_scale_r[i] <= state_to_q88_scale_vec[i];
                         end
                         s_addr_r <= s_addr;
                         st <= ST_RD1;
@@ -149,8 +166,17 @@ module ew_update_vec4 #(
                         calc_operands_ready <= 1'b1;
                     if (ewm_in_fire)
                         calc_issue_done <= 1'b1;
-                    // 当 EWA 的结果有效并且我们能推出去时，准备写回 + 输出
-                    if (ewa_v && ewa_r) begin
+                    // scaled-state mode computes the combined Q1.15 EW update in one requant step.
+                    if (USE_SCALED_STATE && calc_operands_ready && out_ready) begin
+                        for (int i=0;i<TILE_SIZE;i++) begin
+                            s_new_vec[i]       <= $signed(scaled_state_q88[i]);
+                            s_new_packed[i*W +: W] <= $signed(scaled_state_next[i]);
+                        end
+                        out_valid <= 1'b1;
+                        calc_done <= 1'b1;
+                        st <= ST_WAIT;
+                    end else if (!USE_SCALED_STATE && ewa_v && ewa_r) begin
+                        // 当 EWA 的结果有效并且我们能推出去时，准备写回 + 输出
                         for (int i=0;i<TILE_SIZE;i++) begin
                             s_new_vec[i]       <= $signed(sum_y[i]);
                             s_new_packed[i*W +: W] <= $signed(sum_y[i]);
@@ -208,12 +234,81 @@ module ew_update_vec4 #(
     // ------------------------------------------------------------
     always_comb begin
         for (int i=0;i<TILE_SIZE;i++) begin
-            // Q8.8: 1.0 == 0x0100
-            one_minus[i] = 16'h0100 - lam_r[i];
-            // s、u、lam 都是 Q8.8：乘积 Q16.16，右移 8bits 回到 Q8.8
-            u_aligned[i] = u_r[i];
+            if (USE_SCALED_STATE) begin
+                // Q1.15: 1.0 == 0x8000.
+                one_minus[i] = 16'h8000 - lam_r[i];
+                u_aligned[i] = scaled_u_state[i];
+            end else begin
+                // Q8.8: 1.0 == 0x0100.
+                one_minus[i] = 16'h0100 - lam_r[i];
+                // s、u、lam 都是 Q8.8：乘积 Q16.16，右移 8bits 回到 Q8.8
+                u_aligned[i] = u_r[i];
+            end
         end
     end
+
+    requant_round_sat_engine #(
+        .TILE_SIZE       (TILE_SIZE),
+        .IN_W            (W),
+        .OUT_W           (W),
+        .SHIFT           (0),
+        .SCALE_W         (SCALE_W),
+        .SCALE_FRAC_BITS (SCALE_FRAC_BITS),
+        .SIGNED_IN       (1),
+        .SIGNED_OUT      (1),
+        .USE_SCALE       (1),
+        .ROUND_MODE      (1),
+        .SAT_MODE        (1)
+    ) u_to_state_requant (
+        .in_vec    (u_r),
+        .scale_vec (u_to_state_scale_r),
+        .out_vec   (scaled_u_state)
+    );
+
+    always_comb begin
+        for (int i=0;i<TILE_SIZE;i++) begin
+            scaled_acc[i] =
+                ($signed({1'b0, lam_r[i]}) * $signed(s_prev_vec[i])) +
+                ($signed({1'b0, one_minus[i]}) * $signed(scaled_u_state[i]));
+            scaled_dummy_scale[i] = 16'h0001;
+        end
+    end
+
+    requant_round_sat_engine #(
+        .TILE_SIZE       (TILE_SIZE),
+        .IN_W            (34),
+        .OUT_W           (W),
+        .SHIFT           (15),
+        .SCALE_W         (16),
+        .SCALE_FRAC_BITS (0),
+        .SIGNED_IN       (1),
+        .SIGNED_OUT      (1),
+        .USE_SCALE       (0),
+        .ROUND_MODE      (1),
+        .SAT_MODE        (1)
+    ) u_scaled_state_update_requant (
+        .in_vec    (scaled_acc),
+        .scale_vec (scaled_dummy_scale),
+        .out_vec   (scaled_state_next)
+    );
+
+    requant_round_sat_engine #(
+        .TILE_SIZE       (TILE_SIZE),
+        .IN_W            (W),
+        .OUT_W           (W),
+        .SHIFT           (0),
+        .SCALE_W         (SCALE_W),
+        .SCALE_FRAC_BITS (SCALE_FRAC_BITS),
+        .SIGNED_IN       (1),
+        .SIGNED_OUT      (1),
+        .USE_SCALE       (1),
+        .ROUND_MODE      (1),
+        .SAT_MODE        (1)
+    ) u_state_to_q88_requant (
+        .in_vec    (scaled_state_next),
+        .scale_vec (state_to_q88_scale_r),
+        .out_vec   (scaled_state_q88)
+    );
 
     // ------------------------------------------------------------
     // 5) state RAM instance (True dual port, 64-bit wide, depth=64)
@@ -251,7 +346,7 @@ module ew_update_vec4 #(
         .TILE_SIZE (TILE_SIZE),
         .IN_W      (W),
         .OUT_W     (W),
-        .FRAC_BITS (8),
+        .FRAC_BITS (USE_SCALED_STATE ? 15 : 8),
         .SIGNED_A  (0),
         .SIGNED_B  (1),
         .ROUND_MODE(MUL_ROUND_MODE),
@@ -273,7 +368,7 @@ module ew_update_vec4 #(
         .TILE_SIZE (TILE_SIZE),
         .IN_W      (W),
         .OUT_W     (W),
-        .FRAC_BITS (8),
+        .FRAC_BITS (USE_SCALED_STATE ? 15 : 8),
         .SIGNED_A  (0),
         .SIGNED_B  (1),
         .ROUND_MODE(MUL_ROUND_MODE),
