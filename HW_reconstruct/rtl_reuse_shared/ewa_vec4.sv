@@ -26,8 +26,10 @@ module ewa_vec4 #(
     assign in_ready = out_ready || !out_valid;
 
     logic [W-1:0] y_next [TILE_SIZE-1:0];
-    logic signed [W:0] sum_vec [TILE_SIZE-1:0];
+    logic [W:0] sum_vec [TILE_SIZE-1:0];
     logic [15:0] dummy_scale [TILE_SIZE-1:0];
+
+
 
     always_comb begin
         for (int i=0;i<TILE_SIZE;i++) begin

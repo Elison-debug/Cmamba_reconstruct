@@ -14,7 +14,7 @@ set_clock_uncertainty 0.200 [get_clocks sys_clk]
 set_false_path -from [get_ports ext_reset_n]
 
 ## Optional: also cut reset to all sequential async reset pins if present
-set_false_path -from [get_ports ext_reset_n] -to [all_registers]
+#set_false_path -from [get_ports ext_reset_n] -to [all_registers]
 
 ## If you want slightly narrower reset exception instead of all registers,
 ## use one of the following styles depending on synthesis names:

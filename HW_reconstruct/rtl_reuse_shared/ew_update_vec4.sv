@@ -70,7 +70,7 @@ module ew_update_vec4 #(
 
     // latch input
     logic [W-1:0]        lam_r [TILE_SIZE-1:0];
-    logic signed [W-1:0] u_r   [TILE_SIZE-1:0];
+    logic [W-1:0] u_r   [TILE_SIZE-1:0];
     logic [SCALE_W-1:0]  u_to_state_scale_r [TILE_SIZE-1:0];
     logic [SCALE_W-1:0]  state_to_q88_scale_r [TILE_SIZE-1:0];
 
@@ -273,6 +273,16 @@ module ew_update_vec4 #(
             scaled_dummy_scale[i] = 16'h0001;
         end
     end
+    
+    logic [33:0] scaled_acc_bits [TILE_SIZE-1:0];
+
+    genvar gi;
+    generate
+        for (gi = 0; gi < TILE_SIZE; gi++) begin : g_norm_bits
+            assign scaled_acc_bits[gi] = scaled_acc[gi];
+        end
+    endgenerate
+    
 
     requant_round_sat_engine #(
         .TILE_SIZE       (TILE_SIZE),
@@ -287,7 +297,7 @@ module ew_update_vec4 #(
         .ROUND_MODE      (1),
         .SAT_MODE        (1)
     ) u_scaled_state_update_requant (
-        .in_vec    (scaled_acc),
+        .in_vec    (scaled_acc_bits),
         .scale_vec (scaled_dummy_scale),
         .out_vec   (scaled_state_next)
     );

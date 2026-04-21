@@ -62,7 +62,6 @@ module reuse_rmsnorm_scheduler #(
     logic [63:0] sum_sq_next;
     logic [63:0] mean_sq_q16;
     logic [63:0] rms_q88_next;
-    logic signed [63:0] lane_num;
     logic signed [63:0] lane_val;
     logic signed [63:0] norm_lane_q88 [TILE_SIZE-1:0];
     logic [15:0]        norm_quant_out [TILE_SIZE-1:0];
@@ -72,21 +71,31 @@ module reuse_rmsnorm_scheduler #(
         reg [63:0] x;
         reg [63:0] res;
         reg [63:0] step;
+        reg [63:0] trial;
+        integer i;
         begin
-            x = x_in;
-            res = 0;
+            x    = x_in;
+            res  = 0;
             step = 64'h4000_0000_0000_0000;
-            while (step > x)
-                step = step >> 2;
-            while (step != 0) begin
-                if (x >= (res + step)) begin
-                    x = x - (res + step);
-                    res = (res >> 1) + step;
-                end else begin
-                    res = res >> 1;
-                end
-                step = step >> 2;
+    
+            for (i = 0; i < 32; i = i + 1) begin
+                if (step > x)
+                    step = step >> 2;
             end
+    
+            for (i = 0; i < 32; i = i + 1) begin
+                trial = res + step;
+                if (step != 0) begin
+                    if (x >= trial) begin
+                        x   = x - trial;
+                        res = (res >> 1) + step;
+                    end else begin
+                        res = res >> 1;
+                    end
+                    step = step >> 2;
+                end
+            end
+    
             isqrt_u64 = res;
         end
     endfunction
@@ -141,7 +150,8 @@ module reuse_rmsnorm_scheduler #(
         .addr   (raw_rd_addr),
         .rd_data(gamma_rd_data)
     );
-
+    
+    logic [63:0] norm_lane_q88_bits [TILE_SIZE-1:0];
     requant_round_sat_engine #(
         .TILE_SIZE        (TILE_SIZE),
         .IN_W             (64),
@@ -168,7 +178,7 @@ module reuse_rmsnorm_scheduler #(
             );
         end
     end
-    logic [63:0] norm_lane_q88_bits [TILE_SIZE-1:0];
+
 
     genvar gi;
     generate

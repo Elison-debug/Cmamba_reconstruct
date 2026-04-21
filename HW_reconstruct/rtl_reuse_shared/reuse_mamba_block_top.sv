@@ -111,7 +111,7 @@ module reuse_mamba_block_top #(
     logic       pcap_done_d;
     logic       uact_fill_active;
 
-    logic dt_busy, out_busy;
+    logic dt_busy;
     logic [1:0] dt_mode, in_mode, out_mode;
     logic [6:0] dt_col_blocks, in_col_blocks, out_col_blocks;
     logic dt_reduce_rows, in_reduce_rows, out_reduce_rows;
