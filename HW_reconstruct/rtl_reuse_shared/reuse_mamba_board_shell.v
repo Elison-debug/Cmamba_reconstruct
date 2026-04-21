@@ -24,7 +24,12 @@ module reuse_mamba_board_shell #(
     parameter LUT_FILE            = "sigmoid_lut_q016_2048.hex",
     parameter integer S_ADDR_W    = 6,
     parameter integer G_FRAC_BITS = 8,
+    parameter integer CHAIN4_ENABLE = 1,
     parameter STAGE_DIR = "HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top",
+    parameter STAGE_DIR_B0 = "HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top_block0",
+    parameter STAGE_DIR_B1 = "HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top_block1",
+    parameter STAGE_DIR_B2 = "HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top_block2",
+    parameter STAGE_DIR_B3 = "HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top_block3",
     parameter INPROJ_BANK0_INIT_FILE = {STAGE_DIR, "/inproj_wbuf_bank0.mem"},
     parameter INPROJ_BANK1_INIT_FILE = {STAGE_DIR, "/inproj_wbuf_bank1.mem"},
     parameter INPROJ_BANK2_INIT_FILE = {STAGE_DIR, "/inproj_wbuf_bank2.mem"},
@@ -240,6 +245,46 @@ module reuse_mamba_board_shell #(
         end
     end
 
+    generate
+    if (CHAIN4_ENABLE != 0) begin : g_chain4_core
+    reuse_mamba_chain4_core_adapter #(
+        .TILE_SIZE   (TILE_SIZE),
+        .DATA_WIDTH  (DATA_WIDTH),
+        .ACC_WIDTH   (ACC_WIDTH),
+        .FRAC_BITS   (FRAC_BITS),
+        .N_BANK      (N_BANK),
+        .WDEPTH      (WDEPTH),
+        .WADDR_W     (WADDR_W),
+        .DATA_W      (DATA_W),
+        .XT_ADDR_W   (XT_ADDR_W),
+        .D           (D),
+        .PIPE_LAT    (PIPE_LAT),
+        .ADDR_BITS   (ADDR_BITS),
+        .LUT_FILE    (LUT_FILE),
+        .S_ADDR_W    (S_ADDR_W),
+        .G_FRAC_BITS (G_FRAC_BITS),
+        .STAGE_DIR_B0(STAGE_DIR_B0),
+        .STAGE_DIR_B1(STAGE_DIR_B1),
+        .STAGE_DIR_B2(STAGE_DIR_B2),
+        .STAGE_DIR_B3(STAGE_DIR_B3)
+    ) u_core (
+        .sys_clk      (sys_clk),
+        .ext_reset_n  (rst_n_int),
+        .core_rst_n_o (core_rst_n_o),
+        .start        (core_block_start_pulse),
+        .busy         (block_busy),
+        .done         (block_done),
+        .h_wr_en      (h_wr_en),
+        .h_wr_addr    (h_wr_addr),
+        .h_wr_data    (h_wr_data_flat),
+        .y_axis_tvalid(m_axis_y_tvalid),
+        .y_axis_tready(m_axis_y_tready),
+        .y_axis_tdata (m_axis_y_tdata)
+    );
+    assign inproj_busy = 1'b0;
+    assign inproj_done = 1'b0;
+    assign outproj_busy = 1'b0;
+    end else begin : g_single_block_core
     reuse_mamba_core_adapter #(
         .TILE_SIZE   (TILE_SIZE),
         .DATA_WIDTH  (DATA_WIDTH),
@@ -312,5 +357,7 @@ module reuse_mamba_board_shell #(
         .outproj_enable  (1'b1),
         .outproj_busy    (outproj_busy)
     );
+    end
+    endgenerate
 
 endmodule

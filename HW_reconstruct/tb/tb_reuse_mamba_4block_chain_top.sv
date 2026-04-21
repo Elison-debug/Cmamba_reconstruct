@@ -30,10 +30,16 @@ module tb_reuse_mamba_4block_chain_top;
 
   logic [63:0] h_wr_data_mem [0:H_DEPTH-1];
   logic [63:0] h_wr_data_b3_mem [0:H_DEPTH-1];
+  logic [63:0] y_b0_mem [0:Y_DEPTH-1];
+  logic [63:0] y_b1_mem [0:Y_DEPTH-1];
+  logic [63:0] y_b2_mem [0:Y_DEPTH-1];
+  logic [63:0] y_b3_mem [0:Y_DEPTH-1];
   logic [63:0] y_golden_mem  [0:Y_DEPTH-1];
 
   int y_idx;
   int y_err;
+  int blk_y_idx [0:3];
+  int blk_y_err [0:3];
   bit b3_input_checked;
 
   string case_dir;
@@ -63,6 +69,10 @@ module tb_reuse_mamba_4block_chain_top;
       lut_path = LUT_PATH_CONST;
       $readmemh(join_path(stage_b0, "h_wr_data_s16_q8p8.mem"), h_wr_data_mem);
       $readmemh(join_path(stage_b3, "h_wr_data_s16_q8p8.mem"), h_wr_data_b3_mem);
+      $readmemh(join_path(stage_b0, "y_golden_q88.mem"), y_b0_mem);
+      $readmemh(join_path(stage_b1, "y_golden_q88.mem"), y_b1_mem);
+      $readmemh(join_path(stage_b2, "y_golden_q88.mem"), y_b2_mem);
+      $readmemh(join_path(stage_b3, "y_golden_q88.mem"), y_b3_mem);
       $readmemh(join_path(chain_dir, "final_y_golden_q88.mem"), y_golden_mem);
     end
   endtask
@@ -123,6 +133,10 @@ module tb_reuse_mamba_4block_chain_top;
     y_ready = 1'b1;
     y_idx = 0;
     y_err = 0;
+    for (int bi = 0; bi < 4; bi++) begin
+      blk_y_idx[bi] = 0;
+      blk_y_err[bi] = 0;
+    end
     for (int lane = 0; lane < TILE_SIZE; lane++) begin
       h_wr_data[lane] = '0;
     end
@@ -197,6 +211,33 @@ module tb_reuse_mamba_4block_chain_top;
         end
         if (b3_mis == 0) $display("[%0t] DEBUG b3-input compare PASS", $time);
         else $display("[%0t] DEBUG b3-input mismatches=%0d", $time, b3_mis);
+      end
+    end
+  end
+
+  always_ff @(posedge clk) begin
+    for (int bi = 0; bi < 4; bi++) begin
+      logic [63:0] exp_pack;
+      logic signed [DATA_WIDTH-1:0] got_v, exp_v;
+      if (dut.blk_y_valid[bi] && dut.blk_y_ready[bi]) begin
+        case (bi)
+          0: exp_pack = y_b0_mem[blk_y_idx[bi]];
+          1: exp_pack = y_b1_mem[blk_y_idx[bi]];
+          2: exp_pack = y_b2_mem[blk_y_idx[bi]];
+          default: exp_pack = y_b3_mem[blk_y_idx[bi]];
+        endcase
+        for (int lane = 0; lane < TILE_SIZE; lane++) begin
+          got_v = dut.blk_y_data[bi][lane];
+          exp_v = unpack_lane64(exp_pack, lane);
+          if (got_v !== exp_v) begin
+            blk_y_err[bi]++;
+            if (blk_y_err[bi] <= 4) begin
+              $display("[%0t] DEBUG blk%0d-y mismatch row=%0d lane=%0d got=%0d exp=%0d",
+                       $time, bi, blk_y_idx[bi], lane, got_v, exp_v);
+            end
+          end
+        end
+        blk_y_idx[bi]++;
       end
     end
   end

@@ -1,0 +1,29 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug eval_hw_like_full",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "refactor.bittrue.eval_hw_like_full",
+      "cwd": "E:/course/smamba",
+      "python": "C:/Users/Elison/.conda/envs/python-transformers/python.exe",
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "envFile": "",
+      "env": {
+        "PYTHONNOUSERSITE": "1"
+      },
+      "args": [
+        "--export_json", "export_bittrue/case1/export.json",
+        "--case_dir", "HW_reconstruct/hw_debug/cases/test_case3_smoke",
+        "--cpp_batch_bin", "build/bittrue/main_batch.exe",
+        "--din", "2100",
+        "--scan_mode", "scaled_state",
+        "--limit", "512",
+        "--workers", "12",
+        "--progress_every", "64"
+      ]
+    }
+  ]
+}

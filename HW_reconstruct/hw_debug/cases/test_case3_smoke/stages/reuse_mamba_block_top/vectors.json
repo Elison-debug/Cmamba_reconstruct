@@ -1,5 +1,4 @@
 {
-  "num_patches": 1,
   "d_model": 128,
   "d_inner": 256,
   "files": {
@@ -13,10 +12,12 @@
     "u_act_golden_q88": "u_act_golden_q88.mem",
     "z_silu_golden_q88": "z_silu_golden_q88.mem",
     "dt_golden_q88": "dt_golden_q88.mem",
+    "bias_ROM": "bias_ROM.mem",
     "lam_golden_q016": "lam_golden_q016.mem",
     "ssm_golden_q88": "ssm_golden_q88.mem",
     "gate_y_golden_q88": "gate_y_golden_q88.mem",
     "y_golden_q88": "y_golden_q88.mem",
+    "x_next_golden_q88": "x_next_golden_q88.mem",
     "inproj_scale_q15": "inproj_scale_q15.mem",
     "dt_scale_q15": "dt_scale_q15.mem",
     "outproj_scale_q15": "outproj_scale_q15.mem",

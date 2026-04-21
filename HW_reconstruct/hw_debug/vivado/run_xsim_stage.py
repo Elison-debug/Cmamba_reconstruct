@@ -194,10 +194,7 @@ def _stage_cfg(stage: str) -> dict:
         return {
             "tb_top": "tb_reuse_mamba_4block_chain_top",
             "tb_file": str(TB_DIR / "tb_reuse_mamba_4block_chain_top.sv"),
-            "sources": [
-                *shared_sources,
-                str(RTL_DIR / "reuse_mamba_4block_chain_top.sv"),
-            ],
+            "sources": shared_sources,
             "xsim_plusargs": [],
             "xvlog_defines": [],
         }

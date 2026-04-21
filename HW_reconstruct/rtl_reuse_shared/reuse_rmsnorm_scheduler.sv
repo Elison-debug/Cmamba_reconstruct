@@ -155,7 +155,7 @@ module reuse_rmsnorm_scheduler #(
         .ROUND_MODE       (NORM_OUT_ROUND_MODE),
         .SAT_MODE         (NORM_OUT_SAT_MODE)
     ) u_norm_out_quant (
-        .in_vec    (norm_lane_q88),
+        .in_vec    (norm_lane_q88_bits),
         .scale_vec (norm_dummy_scale),
         .out_vec   (norm_quant_out)
     );
@@ -168,6 +168,14 @@ module reuse_rmsnorm_scheduler #(
             );
         end
     end
+    logic [63:0] norm_lane_q88_bits [TILE_SIZE-1:0];
+
+    genvar gi;
+    generate
+        for (gi = 0; gi < TILE_SIZE; gi++) begin : g_norm_bits
+            assign norm_lane_q88_bits[gi] = norm_lane_q88[gi];
+        end
+    endgenerate
 
     always_ff @(posedge clk) begin
         if (!rst_n) begin

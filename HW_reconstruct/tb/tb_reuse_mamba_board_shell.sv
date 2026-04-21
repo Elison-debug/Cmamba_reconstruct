@@ -4,7 +4,7 @@
   `define HW_DEBUG_CASE_DIR "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke"
 `endif
 
-`define CORE_HIER dut.u_core.u_core
+`define CORE_HIER dut.g_single_block_core.u_core.u_core
 
 module tb_reuse_mamba_board_shell;
   localparam int TILE_SIZE   = 4;
@@ -285,7 +285,7 @@ module tb_reuse_mamba_board_shell;
       .ENABLE_RMSNORM(1), .NORM_GAMMA_INIT_FILE(NORM_GAMMA_INIT_FILE),
       .STATE_U_TO_STATE_SCALE_INIT_FILE(STATE_U_TO_STATE_SCALE_INIT_FILE),
       .STATE_TO_Q88_SCALE_INIT_FILE(STATE_TO_Q88_SCALE_INIT_FILE),
-      .AXIL_ADDR_W(AXIL_ADDR_W), .G_DEPTH(G_DEPTH), .G_ADDR_W(G_ADDR_W)
+      .AXIL_ADDR_W(AXIL_ADDR_W), .G_DEPTH(G_DEPTH), .G_ADDR_W(G_ADDR_W), .CHAIN4_ENABLE(0)
   ) dut (
       .sys_clk(sys_clk), .ext_reset_n(ext_reset_n), .irq(irq),
       .s_axi_awaddr(s_axi_awaddr), .s_axi_awvalid(s_axi_awvalid), .s_axi_awready(s_axi_awready),

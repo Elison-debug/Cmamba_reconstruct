@@ -32,6 +32,11 @@ module tb_reuse_mamba_board_shell_ps;
   localparam logic [AXIL_ADDR_W-1:0] REG_Y_ROWS     = 12'h044;
   localparam logic [AXIL_ADDR_W-1:0] REG_IRQ_ENABLE = 12'h048;
 
+  localparam string STAGE_DIR_B0 = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top_block0"};
+  localparam string STAGE_DIR_B1 = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top_block1"};
+  localparam string STAGE_DIR_B2 = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top_block2"};
+  localparam string STAGE_DIR_B3 = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top_block3"};
+  localparam string CHAIN_DIR    = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top_chain4"};
   localparam string INPROJ_BANK0_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/inproj_wbuf_bank0.mem"};
   localparam string INPROJ_BANK1_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/inproj_wbuf_bank1.mem"};
   localparam string INPROJ_BANK2_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/inproj_wbuf_bank2.mem"};
@@ -119,6 +124,7 @@ module tb_reuse_mamba_board_shell_ps;
 
   string case_dir;
   string stage_dir;
+  string chain_dir;
 
   logic [63:0]  h_wr_data_mem [0:H_DEPTH-1];
   logic [63:0]  y_golden_mem  [0:Y_DEPTH-1];
@@ -153,9 +159,10 @@ module tb_reuse_mamba_board_shell_ps;
       case_dir_macro = `HW_DEBUG_CASE_DIR;
       if (!$value$plusargs("CASE_DIR=%s", case_dir)) case_dir = case_dir_macro;
       if (case_dir.len() == 0) $fatal(1, "need +CASE_DIR or HW_DEBUG_CASE_DIR");
-      stage_dir = join_path(case_dir, "stages/reuse_mamba_block_top");
+      stage_dir = join_path(case_dir, "stages/reuse_mamba_block_top_block0");
+      chain_dir = join_path(case_dir, "stages/reuse_mamba_block_top_chain4");
       $readmemh(join_path(stage_dir, "h_wr_data_s16_q8p8.mem"), h_wr_data_mem);
-      $readmemh(join_path(stage_dir, "y_golden_q88.mem"), y_golden_mem);
+      $readmemh(join_path(chain_dir, "final_y_golden_q88.mem"), y_golden_mem);
     end
   endtask
 
@@ -284,6 +291,11 @@ module tb_reuse_mamba_board_shell_ps;
       .TILE_SIZE(TILE_SIZE), .DATA_WIDTH(DATA_WIDTH), .ACC_WIDTH(ACC_WIDTH), .FRAC_BITS(FRAC_BITS),
       .N_BANK(N_BANK), .WDEPTH(WDEPTH), .WADDR_W(WADDR_W), .DATA_W(DATA_W), .XT_ADDR_W(XT_ADDR_W),
       .D(D), .PIPE_LAT(PIPE_LAT), .ADDR_BITS(ADDR_BITS), .LUT_FILE(LUT_FILE_ABS), .S_ADDR_W(S_ADDR_W), .G_FRAC_BITS(G_FRAC_BITS),
+      .CHAIN4_ENABLE(1),
+      .STAGE_DIR_B0(STAGE_DIR_B0),
+      .STAGE_DIR_B1(STAGE_DIR_B1),
+      .STAGE_DIR_B2(STAGE_DIR_B2),
+      .STAGE_DIR_B3(STAGE_DIR_B3),
       .AXIL_ADDR_W(AXIL_ADDR_W), .G_DEPTH(G_DEPTH), .G_ADDR_W(G_ADDR_W),
       .INPROJ_BANK0_INIT_FILE (INPROJ_BANK0_INIT_FILE),
       .INPROJ_BANK1_INIT_FILE (INPROJ_BANK1_INIT_FILE),

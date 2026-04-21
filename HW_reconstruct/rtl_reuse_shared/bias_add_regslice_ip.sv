@@ -44,11 +44,12 @@ module bias_add_regslice_ip_A #(
     // ------------------------------------------------------------
     logic hold_valid;
     wire  fire_out = hold_valid && out_ready;
+    localparam bit USE_LOCAL_BIAS_ROM = (BIAS_INIT_FILE != "");
 
     // Scheme A: upstream is allowed when output slot is empty
     // or will be freed this cycle.
     logic bias_primed;
-    assign in_ready = bias_primed && ((!hold_valid) || fire_out);
+    assign in_ready = (USE_LOCAL_BIAS_ROM ? 1'b1 : bias_primed) && ((!hold_valid) || fire_out);
 
     wire accept_in = in_valid && in_ready;
 
@@ -109,13 +110,20 @@ module bias_add_regslice_ip_A #(
             bias_primed <= 1'b0;
         end else if (sof) begin
             bias_primed <= 1'b0;
+        end else if (USE_LOCAL_BIAS_ROM) begin
+            bias_primed <= 1'b1;
         end else if (!bias_primed) begin
             bias_primed <= 1'b1;
         end
     end
 
     always_comb begin
-        if (!bias_primed) begin
+        if (USE_LOCAL_BIAS_ROM) begin
+            // Local ROM path: use straightforward synchronous BRAM timing.
+            bias_en   = accept_in;
+            bias_addr = tile_idx;
+        end else if (!bias_primed) begin
+            // Vivado IP path: keep prefetch + look-ahead alignment.
             bias_en   = 1'b1;
             bias_addr = '0;
         end else begin
