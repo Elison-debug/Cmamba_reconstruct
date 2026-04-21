@@ -19,7 +19,8 @@ module bias_add_regslice_ip_A #(
     parameter int D          = 256,                      // total biases
     parameter int TILE_DEPTH = D / TILE_SIZE,            // 64
     parameter int ADDR_W     = $clog2(TILE_DEPTH),       // 6
-    parameter int PIPE_LAT   = 2                         // match your IP summary
+    parameter int PIPE_LAT   = 2,                        // match your IP summary
+    parameter string BIAS_INIT_FILE = ""
 )(
     input  logic clk,
     input  logic rst_n,
@@ -76,15 +77,29 @@ module bias_add_regslice_ip_A #(
     logic [ADDR_W-1:0] bias_addr;
     logic [63:0]       bias64_ip;
 
-    // Use the generated Vivado IP model in both RTL sim and synthesis.
-    // Keep bias data directly from the IP output to avoid an extra local
-    // register stage that would shift bias by one beat.
-    bias_ROM u_bias_rom (
-        .clka  (clk),
-        .ena   (bias_en),
-        .addra (bias_addr),
-        .douta (bias64_ip)
-    );
+    generate
+        if (BIAS_INIT_FILE != "") begin : g_bias_param_rom
+            (* rom_style = "block" *) logic [63:0] bias_mem [0:TILE_DEPTH-1];
+            initial begin
+                for (int i = 0; i < TILE_DEPTH; i++) bias_mem[i] = '0;
+                $readmemh(BIAS_INIT_FILE, bias_mem);
+            end
+            always_ff @(posedge clk) begin
+                if (bias_en)
+                    bias64_ip <= bias_mem[bias_addr];
+            end
+        end else begin : g_bias_ip
+            // Use the generated Vivado IP model in both RTL sim and synthesis.
+            // Keep bias data directly from the IP output to avoid an extra local
+            // register stage that would shift bias by one beat.
+            bias_ROM u_bias_rom (
+                .clka  (clk),
+                .ena   (bias_en),
+                .addra (bias_addr),
+                .douta (bias64_ip)
+            );
+        end
+    endgenerate
 
     // Bias ROM timing in this IP configuration is effectively one-beat ahead
     // of accepted payload tracking, so keep one-word look-ahead address and

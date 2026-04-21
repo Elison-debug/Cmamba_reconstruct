@@ -52,6 +52,7 @@ module reuse_mamba_block_top #(
     parameter bit OUTPROJ_USE_PER_CHANNEL_SCALE = 0,
     parameter bit ENABLE_RMSNORM = 0,
     parameter string NORM_GAMMA_INIT_FILE = "",
+    parameter string BIAS_INIT_FILE = "",
     parameter bit USE_SCALED_STATE_SCAN = 0,
     parameter string STATE_U_TO_STATE_SCALE_INIT_FILE = "",
     parameter string STATE_TO_Q88_SCALE_INIT_FILE = ""
@@ -759,6 +760,7 @@ module reuse_mamba_block_top #(
         .LUT_FILE  (LUT_FILE),
         .S_ADDR_W  (S_ADDR_W),
         .G_FRAC_BITS(G_FRAC_BITS),
+        .BIAS_INIT_FILE(BIAS_INIT_FILE),
         .USE_SCALED_STATE_SCAN(USE_SCALED_STATE_SCAN),
         .STATE_U_TO_STATE_SCALE_INIT_FILE(STATE_U_TO_STATE_SCALE_INIT_FILE),
         .STATE_TO_Q88_SCALE_INIT_FILE(STATE_TO_Q88_SCALE_INIT_FILE)

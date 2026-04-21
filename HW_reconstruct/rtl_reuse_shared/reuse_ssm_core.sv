@@ -28,6 +28,7 @@ module reuse_ssm_core #(
     parameter bit USE_SCALED_STATE_SCAN = 0,
     parameter int STATE_SCALE_W = 32,
     parameter int STATE_SCALE_FRAC_BITS = 16,
+    parameter string BIAS_INIT_FILE = "",
     parameter string STATE_U_TO_STATE_SCALE_INIT_FILE = "",
     parameter string STATE_TO_Q88_SCALE_INIT_FILE = "",
     parameter int GATE_OUT_ROUND_MODE = 0,
@@ -75,7 +76,8 @@ module reuse_ssm_core #(
         .TILE_SIZE (TILE_SIZE),
         .DATA_WIDTH(DATA_WIDTH),
         .D         (D),
-        .PIPE_LAT  (BIAS_PIPE_LAT)
+        .PIPE_LAT  (BIAS_PIPE_LAT),
+        .BIAS_INIT_FILE(BIAS_INIT_FILE)
     ) u_bias_add (
         .clk      (clk),
         .rst_n    (rst_n),
