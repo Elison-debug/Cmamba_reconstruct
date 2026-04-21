@@ -1,0 +1,78 @@
+log_wave -recursive /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_z_reader
+log_wave -recursive /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_silu
+log_wave -recursive /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_ssm_core
+
+add_wave_group "Gate Path"
+
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/block_start
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/block_busy
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/inproj_done
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/pcap_done
+
+add_wave_group "z_sram Read"
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/z_gate_rd_en
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/z_gate_rd_addr
+add_wave -radix hex /tb_reuse_mamba_block_top_inproj_to_outproj/dut/z_gate_rd_data
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_in_proj/u_z_sram/rd2_en
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_in_proj/u_z_sram/rd2_addr
+add_wave -radix hex /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_in_proj/u_z_sram/rd2_data
+
+add_wave_group "z_reader"
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_z_reader/state
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_z_reader/busy
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_z_reader/done
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_z_reader/rd_addr_reg
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_z_reader/issue_count
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_z_reader/recv_count
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_z_reader/rd_pending
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_z_reader/out_valid
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_z_reader/out_ready
+add_wave -radix hex /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_z_reader/out_vec
+
+add_wave_group "SiLU"
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_silu/in_valid
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_silu/in_ready
+add_wave -radix hex /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_silu/in_vec
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_silu/x_path_valid
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_silu/x_path_ready
+add_wave -radix hex /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_silu/x_path_vec
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_silu/sig_valid
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_silu/sig_ready
+add_wave -radix hex /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_silu/sig_vec
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_silu/join_valid
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_silu/join_ready
+add_wave -radix hex /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_silu/x_join_vec
+add_wave -radix hex /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_silu/sig_join_vec
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_silu/out_valid
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_silu/out_ready
+add_wave -radix hex /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_silu/out_vec
+
+add_wave_group "Gate Axis"
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/g_axis_int_valid
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/g_axis_int_ready
+add_wave -radix hex /tb_reuse_mamba_block_top_inproj_to_outproj/dut/g_axis_int_data
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_ssm_core/g_axis_TVALID
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_ssm_core/g_axis_TREADY
+add_wave -radix hex /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_ssm_core/g_axis_TDATA
+
+add_wave_group "SSM Output"
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/ssm_p_valid
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/ssm_p_ready
+add_wave -radix hex /tb_reuse_mamba_block_top_inproj_to_outproj/dut/ssm_p_data
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/p_wr_en
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/p_wr_addr
+add_wave -radix hex /tb_reuse_mamba_block_top_inproj_to_outproj/dut/p_wr_data
+
+add_wave_group "Final Gate"
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_ssm_core/s_out_valid
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_ssm_core/s_out_ready
+add_wave -radix hex /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_ssm_core/s_out_vec
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_ssm_core/u_gate/join_valid
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_ssm_core/u_gate/join_ready
+add_wave -radix hex /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_ssm_core/u_gate/s_aligned
+add_wave -radix hex /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_ssm_core/u_gate/g_aligned
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_ssm_core/u_gate/y_valid
+add_wave /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_ssm_core/u_gate/y_ready
+add_wave -radix hex /tb_reuse_mamba_block_top_inproj_to_outproj/dut/u_ssm_core/u_gate/y_vec
+
+run 12 us
