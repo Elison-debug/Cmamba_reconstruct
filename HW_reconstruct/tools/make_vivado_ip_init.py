@@ -54,7 +54,7 @@ def main() -> None:
     ap.add_argument("--case-dir", type=Path, default=Path("HW_reconstruct/hw_debug/cases/test_case3_smoke"))
     ap.add_argument("--export-dir", type=Path, default=Path("export_bittrue/case1"))
     ap.add_argument("--block-index", type=int, default=0)
-    ap.add_argument("--out-dir", type=Path, default=Path("HW_reconstruct/ip_init/test_case3_smoke/block0"))
+    ap.add_argument("--out-dir", type=Path, default=Path("HW_reconstruct/hw_debug/cases/test_case3_smoke/ip_init/block0"))
     args = ap.parse_args()
 
     repo_root = args.repo_root.resolve()
@@ -77,6 +77,8 @@ def main() -> None:
         raise ValueError(f"expected 64 packed bias words, got {len(bias_words)}")
 
     xt_mem_path = stage_dir / "xt_hw_golden_q88.mem"
+    if not xt_mem_path.exists():
+        xt_mem_path = stage_dir / "u_act_golden_q88.mem"
     xt_lines = [ln.strip() for ln in xt_mem_path.read_text(encoding="ascii").splitlines() if ln.strip()]
     xt_words = [int(ln, 16) for ln in xt_lines]
     if len(xt_words) != 64:

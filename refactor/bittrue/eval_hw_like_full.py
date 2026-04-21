@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 
 import numpy as np
@@ -10,6 +12,7 @@ import numpy as np
 from refactor.bittrue.eval_bittrue import _metric_dict
 from refactor.bittrue.export_hw_debug import (
     _ActLut,
+    _add_bias_q88_rows,
     _compute_block0_local_y_cppish,  # kept importable sanity anchor
     _conv1d_run_integer_desc,
     _conv1x1_q88_rne_clamp,
@@ -181,9 +184,14 @@ def _block_forward_hw_like(blk: dict, base_dir: Path, x_seq: np.ndarray, scan_mo
     u_act_q88_rows = _mul_q016_q88_to_q88(u_sig_q016, u_q88_rows)
     z_silu_q88_rows = _mul_q016_q88_to_q88(z_sig_q016, z_q88_rows)
 
-    dt_q88_flat = _conv1x1_q88_rne_clamp(dt_w, u_act_q88_rows.reshape(-1))
-    dt_q88 = dt_q88_flat.reshape(x_seq.shape[0], inner)
-    dt_q88_rows = dt_q88_flat.reshape(-1, 4)
+    dt_q88_mac_flat = _conv1x1_q88_rne_clamp(dt_w, u_act_q88_rows.reshape(-1))
+    dt_q88_mac = dt_q88_mac_flat.reshape(x_seq.shape[0], inner)
+    dt_bias = blk["ssm"]["dt_proj"].get("bias_file", "")
+    dt_bias_vec = None
+    if dt_bias:
+        dt_bias_vec = np.load(base_dir / dt_bias).astype(np.float32).reshape(-1)
+    dt_q88 = _add_bias_q88_rows(dt_q88_mac.reshape(-1, 4), dt_bias_vec).reshape(x_seq.shape[0], inner)
+    dt_q88_rows = dt_q88.reshape(-1, 4)
     lam_q016 = _sigmoid_q016_from_q88(dt_q88_rows)
     if scan_mode == "fixed_q88":
         ssm_q88_rows = _ssm_update_q88_from_lam_q016(lam_q016, u_act_q88_rows)
@@ -285,6 +293,38 @@ def _forward_full_hw_like(export_json: Path, x_sample_kd: np.ndarray, scan_mode:
     return y.reshape(-1).astype(np.float32), traces
 
 
+_MP_EXPORT_JSON: Path | None = None
+_MP_SCAN_MODE: str = "scaled_state"
+_MP_BLOCK_STAGE_NAMES: list[str] = []
+
+
+def _mp_worker_init(export_json_str: str, scan_mode: str, block_stage_names: list[str]) -> None:
+    global _MP_EXPORT_JSON, _MP_SCAN_MODE, _MP_BLOCK_STAGE_NAMES
+    _MP_EXPORT_JSON = Path(export_json_str)
+    _MP_SCAN_MODE = scan_mode
+    _MP_BLOCK_STAGE_NAMES = list(block_stage_names)
+
+
+def _mp_eval_one(item: tuple[int, np.ndarray]) -> tuple[int, np.ndarray, np.ndarray, list[float], list[float]]:
+    idx, sample = item
+    assert _MP_EXPORT_JSON is not None
+    cppish_out, cppish_traces = _forward_full_cppish(_MP_EXPORT_JSON, sample.astype(np.float32))
+    hw_out, hw_traces = _forward_full_hw_like(_MP_EXPORT_JSON, sample.astype(np.float32), scan_mode=_MP_SCAN_MODE)
+    cppish_map = {t["stage"]: t["x_next"] for t in cppish_traces}
+    hw_map = {t["stage"]: t["x_next"] for t in hw_traces}
+
+    maes: list[float] = []
+    maxes: list[float] = []
+    for name in _MP_BLOCK_STAGE_NAMES:
+        ref_name = "patch_embedding" if name == "patch_embedding_q88_if" else name
+        hw_state = hw_map[name]
+        ref_state = cppish_map[ref_name]
+        diff = np.abs(hw_state.astype(np.float32) - ref_state.astype(np.float32))
+        maes.append(float(np.mean(diff)))
+        maxes.append(float(np.max(diff)))
+    return idx, cppish_out.astype(np.float32), hw_out.astype(np.float32), maes, maxes
+
+
 def main() -> None:
     p = argparse.ArgumentParser(description="Estimate end-to-end error using current hw-like block semantics.")
     p.add_argument("--export_json", type=str, required=True)
@@ -296,9 +336,15 @@ def main() -> None:
     p.add_argument(
         "--scan_mode",
         type=str,
-        default="fixed_q88",
+        default="scaled_state",
         choices=["fixed_q88", "scaled_state"],
         help="SSM scan quantization model for the hw-like path.",
+    )
+    p.add_argument(
+        "--workers",
+        type=int,
+        default=0,
+        help="Parallel worker processes for hw/cppish sample evaluation. 0 uses os.cpu_count().",
     )
     args = p.parse_args()
 
@@ -328,33 +374,46 @@ def main() -> None:
 
     y_cppish = np.zeros_like(y_cpp_eval, dtype=np.float32)
     y_hw = np.zeros_like(y_cpp_eval, dtype=np.float32)
-    block_stage_names: list[str] | None = None
     block_mae_accum: dict[str, list[float]] = {}
     block_max_accum: dict[str, list[float]] = {}
 
-    for i in range(eval_samples):
-        if int(args.progress_every) > 0 and (i == 0 or (i + 1) % int(args.progress_every) == 0):
-            print(f"[eval] sample {i + 1}/{eval_samples}")
-        cppish_out, cppish_traces = _forward_full_cppish(export_json, samples_eval[i])
-        hw_out, hw_traces = _forward_full_hw_like(export_json, samples_eval[i], scan_mode=args.scan_mode)
-        y_cppish[i] = cppish_out
-        y_hw[i] = hw_out
+    # probe first sample once to derive stable stage-name mapping
+    probe_cppish, probe_cppish_traces = _forward_full_cppish(export_json, samples_eval[0])
+    probe_hw, probe_hw_traces = _forward_full_hw_like(export_json, samples_eval[0], scan_mode=args.scan_mode)
+    y_cppish[0] = probe_cppish
+    y_hw[0] = probe_hw
+    block_stage_names = [t["stage"] for t in probe_hw_traces if t["stage"].startswith("block") or t["stage"].startswith("patch_embedding")]
+    for name in block_stage_names:
+        block_mae_accum[name] = []
+        block_max_accum[name] = []
+    probe_cppish_map = {t["stage"]: t["x_next"] for t in probe_cppish_traces}
+    probe_hw_map = {t["stage"]: t["x_next"] for t in probe_hw_traces}
+    for name in block_stage_names:
+        ref_name = "patch_embedding" if name == "patch_embedding_q88_if" else name
+        probe_diff = np.abs(probe_hw_map[name].astype(np.float32) - probe_cppish_map[ref_name].astype(np.float32))
+        block_mae_accum[name].append(float(np.mean(probe_diff)))
+        block_max_accum[name].append(float(np.max(probe_diff)))
 
-        if block_stage_names is None:
-            block_stage_names = [t["stage"] for t in hw_traces if t["stage"].startswith("block") or t["stage"].startswith("patch_embedding")]
-            for name in block_stage_names:
-                block_mae_accum[name] = []
-                block_max_accum[name] = []
-
-        cppish_map = {t["stage"]: t["x_next"] for t in cppish_traces}
-        hw_map = {t["stage"]: t["x_next"] for t in hw_traces}
-        for name in block_stage_names:
-            ref_name = "patch_embedding" if name == "patch_embedding_q88_if" else name
-            hw_state = hw_map[name]
-            ref_state = cppish_map[ref_name]
-            diff = np.abs(hw_state.astype(np.float32) - ref_state.astype(np.float32))
-            block_mae_accum[name].append(float(np.mean(diff)))
-            block_max_accum[name].append(float(np.max(diff)))
+    remaining = [(i, samples_eval[i]) for i in range(1, eval_samples)]
+    workers = int(args.workers) if int(args.workers) > 0 else max(1, int(os.cpu_count() or 1))
+    if remaining:
+        with ProcessPoolExecutor(
+            max_workers=workers,
+            initializer=_mp_worker_init,
+            initargs=(str(export_json), args.scan_mode, block_stage_names),
+        ) as ex:
+            futs = [ex.submit(_mp_eval_one, item) for item in remaining]
+            done_n = 1
+            for fut in as_completed(futs):
+                idx, cppish_out, hw_out, maes, maxes = fut.result()
+                y_cppish[idx] = cppish_out
+                y_hw[idx] = hw_out
+                for j, name in enumerate(block_stage_names):
+                    block_mae_accum[name].append(maes[j])
+                    block_max_accum[name].append(maxes[j])
+                done_n += 1
+                if int(args.progress_every) > 0 and (done_n == 1 or done_n % int(args.progress_every) == 0):
+                    print(f"[eval] sample {done_n}/{eval_samples}")
 
     hw_vs_cpp = np.abs(y_hw - y_cpp_eval)
     hw_vs_float = np.abs(y_hw - y_float_eval)
@@ -387,7 +446,7 @@ def main() -> None:
             for name in (block_stage_names or [])
         },
         "sample0": {
-            "y_cpp": y_cpp[0].astype(float).tolist(),
+            "y_cpp": y_cpp_eval[0].astype(float).tolist(),
             "y_cppish": y_cppish[0].astype(float).tolist(),
             "y_hw_like": y_hw[0].astype(float).tolist(),
             "y_true": y_true_eval[0].astype(float).tolist(),

@@ -13,6 +13,7 @@ module reuse_ssm_core #(
     parameter int DATA_WIDTH = 16,
     parameter int D          = 256,
     parameter int PIPE_LAT   = 4,
+    parameter int BIAS_PIPE_LAT = 2,
     parameter int ADDR_BITS  = 11,
     parameter string LUT_FILE = "sigmoid_lut_q016_2048.hex",
     parameter int S_ADDR_W   = 6,
@@ -74,7 +75,7 @@ module reuse_ssm_core #(
         .TILE_SIZE (TILE_SIZE),
         .DATA_WIDTH(DATA_WIDTH),
         .D         (D),
-        .PIPE_LAT  (PIPE_LAT)
+        .PIPE_LAT  (BIAS_PIPE_LAT)
     ) u_bias_add (
         .clk      (clk),
         .rst_n    (rst_n),

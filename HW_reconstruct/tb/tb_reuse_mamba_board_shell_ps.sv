@@ -52,6 +52,8 @@ module tb_reuse_mamba_board_shell_ps;
   localparam string OUTPROJ_BANK5_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/outproj_wbuf_bank5.mem"};
   localparam string OUTPROJ_SCALE_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/outproj_scale_q15.mem"};
   localparam string NORM_GAMMA_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/norm_gamma_s16_q8p8.mem"};
+  localparam string STATE_U_TO_STATE_SCALE_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/state_u_to_state_q16.mem"};
+  localparam string STATE_TO_Q88_SCALE_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/state_to_q88_q16.mem"};
   localparam string LUT_FILE_ABS = "E:/course/smamba/user/data/sigmoid_lut_q016_2048.hex";
 
 
@@ -109,11 +111,6 @@ module tb_reuse_mamba_board_shell_ps;
   logic                            s_axis_h_tready;
   logic [TILE_SIZE*DATA_WIDTH-1:0] s_axis_h_tdata;
   logic                            s_axis_h_tlast;
-
-  logic                            s_axis_g_tvalid;
-  logic                            s_axis_g_tready;
-  logic [TILE_SIZE*DATA_WIDTH-1:0] s_axis_g_tdata;
-  logic                            s_axis_g_tlast;
 
   logic                            m_axis_y_tvalid;
   logic                            m_axis_y_tready;
@@ -307,6 +304,8 @@ module tb_reuse_mamba_board_shell_ps;
       .OUTPROJ_BANK4_INIT_FILE(OUTPROJ_BANK4_INIT_FILE),
       .OUTPROJ_BANK5_INIT_FILE(OUTPROJ_BANK5_INIT_FILE),
       .OUTPROJ_SCALE_INIT_FILE(OUTPROJ_SCALE_INIT_FILE),
+      .STATE_U_TO_STATE_SCALE_INIT_FILE(STATE_U_TO_STATE_SCALE_INIT_FILE),
+      .STATE_TO_Q88_SCALE_INIT_FILE(STATE_TO_Q88_SCALE_INIT_FILE),
       .ENABLE_RMSNORM(1),
       .NORM_GAMMA_INIT_FILE(NORM_GAMMA_INIT_FILE)
   ) dut (
@@ -317,7 +316,6 @@ module tb_reuse_mamba_board_shell_ps;
       .s_axi_araddr(s_axi_araddr), .s_axi_arvalid(s_axi_arvalid), .s_axi_arready(s_axi_arready),
       .s_axi_rdata(s_axi_rdata), .s_axi_rresp(s_axi_rresp), .s_axi_rvalid(s_axi_rvalid), .s_axi_rready(s_axi_rready),
       .s_axis_h_tvalid(s_axis_h_tvalid), .s_axis_h_tready(s_axis_h_tready), .s_axis_h_tdata(s_axis_h_tdata), .s_axis_h_tlast(s_axis_h_tlast),
-      .s_axis_g_tvalid(s_axis_g_tvalid), .s_axis_g_tready(s_axis_g_tready), .s_axis_g_tdata(s_axis_g_tdata), .s_axis_g_tlast(s_axis_g_tlast),
       .m_axis_y_tvalid(m_axis_y_tvalid), .m_axis_y_tready(m_axis_y_tready), .m_axis_y_tdata(m_axis_y_tdata), .m_axis_y_tlast(m_axis_y_tlast)
   );
 
@@ -375,7 +373,6 @@ module tb_reuse_mamba_board_shell_ps;
     s_axi_awaddr = '0; s_axi_awvalid = 1'b0; s_axi_wdata='0; s_axi_wstrb='0; s_axi_wvalid=1'b0;
     s_axi_bready = 1'b0; s_axi_araddr='0; s_axi_arvalid=1'b0; s_axi_rready=1'b0;
     s_axis_h_tvalid=1'b0; s_axis_h_tdata='0; s_axis_h_tlast=1'b0;
-    s_axis_g_tvalid=1'b0; s_axis_g_tdata='0; s_axis_g_tlast=1'b0;
     m_axis_y_tready=1'b1;
     y_stream_idx = 0; y_stream_errors = 0; first_y_mismatch_seen = 1'b0;
     track_preload = 1'b0; track_block = 1'b0;

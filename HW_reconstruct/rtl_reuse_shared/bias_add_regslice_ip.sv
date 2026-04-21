@@ -46,7 +46,8 @@ module bias_add_regslice_ip_A #(
 
     // Scheme A: upstream is allowed when output slot is empty
     // or will be freed this cycle.
-    assign in_ready = (!hold_valid) || fire_out;
+    logic bias_primed;
+    assign in_ready = bias_primed && ((!hold_valid) || fire_out);
 
     wire accept_in = in_valid && in_ready;
 
@@ -73,13 +74,11 @@ module bias_add_regslice_ip_A #(
     // ------------------------------------------------------------
     logic              bias_en;
     logic [ADDR_W-1:0] bias_addr;
-    logic [63:0]       bias64;
     logic [63:0]       bias64_ip;
 
     // Use the generated Vivado IP model in both RTL sim and synthesis.
-    // The ROM itself is configured with 1-cycle read latency, so add one
-    // explicit register stage here to preserve the historical 2-cycle
-    // alignment expected by PIPE_LAT=2.
+    // Keep bias data directly from the IP output to avoid an extra local
+    // register stage that would shift bias by one beat.
     bias_ROM u_bias_rom (
         .clka  (clk),
         .ena   (bias_en),
@@ -87,31 +86,39 @@ module bias_add_regslice_ip_A #(
         .douta (bias64_ip)
     );
 
-    always_ff @(posedge clk) begin
-        if (!rst_n)
-            bias64 <= '0;
-        else
-            bias64 <= bias64_ip;
-    end
-
-    // Read request on accept_in
+    // Bias ROM timing in this IP configuration is effectively one-beat ahead
+    // of accepted payload tracking, so keep one-word look-ahead address and
+    // prefetch addr0 before first payload beat.
     always_ff @(posedge clk) begin
         if (!rst_n) begin
-            bias_en   <= 1'b0;
-            bias_addr <= '0;
+            bias_primed <= 1'b0;
+        end else if (sof) begin
+            bias_primed <= 1'b0;
+        end else if (!bias_primed) begin
+            bias_primed <= 1'b1;
+        end
+    end
+
+    always_comb begin
+        if (!bias_primed) begin
+            bias_en   = 1'b1;
+            bias_addr = '0;
         end else begin
-            bias_en   <= accept_in;
-            bias_addr <= tile_idx;
+            bias_en = accept_in;
+            if (tile_idx == TILE_DEPTH-1)
+                bias_addr = '0;
+            else
+                bias_addr = tile_idx + 1'b1;
         end
     end
 
     // Unpack bias64 into 4 lanes (lane0 lowest)
     logic signed [DATA_WIDTH-1:0] bias_vec [TILE_SIZE-1:0];
     always_comb begin
-        bias_vec[0] = bias64[15:0];
-        bias_vec[1] = bias64[31:16];
-        bias_vec[2] = bias64[47:32];
-        bias_vec[3] = bias64[63:48];
+        bias_vec[0] = bias64_ip[15:0];
+        bias_vec[1] = bias64_ip[31:16];
+        bias_vec[2] = bias64_ip[47:32];
+        bias_vec[3] = bias64_ip[63:48];
     end
 
     // ------------------------------------------------------------
@@ -183,4 +190,3 @@ module bias_add_regslice_ip_A #(
     assign out_valid = hold_valid;
 
 endmodule
-

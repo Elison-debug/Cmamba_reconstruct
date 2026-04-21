@@ -42,6 +42,8 @@
         "OUTPROJ_BANK4_INIT_FILE": [ { "value": "e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank4.mem", "resolve_type": "user", "usage": "all" } ],
         "OUTPROJ_BANK5_INIT_FILE": [ { "value": "e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank5.mem", "resolve_type": "user", "usage": "all" } ],
         "OUTPROJ_SCALE_INIT_FILE": [ { "value": "e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_scale_q15.mem", "resolve_type": "user", "usage": "all" } ],
+        "ENABLE_RMSNORM": [ { "value": "1", "resolve_type": "user", "format": "long", "usage": "all" } ],
+        "NORM_GAMMA_INIT_FILE": [ { "value": "e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/norm_gamma_s16_q8p8.mem", "resolve_type": "user", "usage": "all" } ],
         "AXIL_ADDR_W": [ { "value": "12", "resolve_type": "user", "format": "long", "usage": "all" } ],
         "G_DEPTH": [ { "value": "64", "resolve_type": "user", "format": "long", "usage": "all" } ],
         "G_ADDR_W": [ { "value": "6", "resolve_type": "user", "format": "long", "usage": "all" } ],
@@ -82,6 +84,8 @@
         "OUTPROJ_BANK4_INIT_FILE": [ { "value": "e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank4.mem", "resolve_type": "generated", "usage": "all" } ],
         "OUTPROJ_BANK5_INIT_FILE": [ { "value": "e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank5.mem", "resolve_type": "generated", "usage": "all" } ],
         "OUTPROJ_SCALE_INIT_FILE": [ { "value": "e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_scale_q15.mem", "resolve_type": "generated", "usage": "all" } ],
+        "ENABLE_RMSNORM": [ { "value": "1", "resolve_type": "generated", "format": "long", "usage": "all" } ],
+        "NORM_GAMMA_INIT_FILE": [ { "value": "e:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/norm_gamma_s16_q8p8.mem", "resolve_type": "generated", "usage": "all" } ],
         "AXIL_ADDR_W": [ { "value": "12", "resolve_type": "generated", "format": "long", "usage": "all" } ],
         "G_DEPTH": [ { "value": "64", "resolve_type": "generated", "format": "long", "usage": "all" } ],
         "G_ADDR_W": [ { "value": "6", "resolve_type": "generated", "format": "long", "usage": "all" } ]

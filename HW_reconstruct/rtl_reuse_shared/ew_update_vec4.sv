@@ -325,7 +325,7 @@ module ew_update_vec4 #(
     s_buffer u_s_buffer (
         .clka   (clk),
         .ena    (ena_a),
-        .wea    ({MEM_BYTES{1'b0}}),
+        .wea    (1'b0),
         .addra  (s_addr_r),
         .dina   ({MEM_W{1'b0}}),
         .douta  (s_dout_packed),

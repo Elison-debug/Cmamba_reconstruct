@@ -12,7 +12,7 @@
     "state_to_q88_q16": "state_to_q88_q16.mem"
   },
   "notes": [
-    "Assumes bias_add_regslice_ip_A sim model uses zero-initialized mem_sim.",
-    "mac_in_q88 feeds reuse_ssm_core mac_m_valid/mac_vec directly."
+    "mac_in_q88/dt_golden_q88 are pre-bias dt_mac vectors that feed reuse_ssm_core mac_m_valid/mac_vec directly.",
+    "lam/ssm/gate_y golden include on-chip bias ROM addition before sigmoid."
   ]
 }

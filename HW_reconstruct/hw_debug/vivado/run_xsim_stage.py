@@ -52,18 +52,76 @@ def _lut_src(case_dir: str | None) -> Path:
     raise FileNotFoundError("No in-repo LUT found. Provide --case_dir or place LUT under user/data/.")
 
 
+def _pick_first_existing(paths: list[Path]) -> Path | None:
+    for p in paths:
+        if p.exists():
+            return p
+    return None
+
+
+def _collect_ip_wrappers() -> list[str]:
+    """
+    Resolve currently-available Vivado IP simulation wrapper/netlist files.
+    Keep this dynamic so the script follows the live project IP set instead
+    of stale hardcoded names.
+    """
+    candidates: list[Path | None] = [
+        _pick_first_existing(
+            [
+                PROJ_IP_GEN_DIR / "bias_ROM" / "sim" / "bias_ROM.v",
+                PROJ_IP_GEN_DIR / "bias_ROM" / "bias_ROM_sim_netlist.v",
+            ]
+        ),
+        _pick_first_existing(
+            [
+                PROJ_IP_GEN_DIR / "bias2sigmoid_fifo" / "sim" / "bias2sigmoid_fifo.v",
+                PROJ_IP_GEN_DIR / "bias2sigmoid_fifo" / "bias2sigmoid_fifo_sim_netlist.v",
+            ]
+        ),
+        _pick_first_existing(
+            [
+                PROJ_IP_GEN_DIR / "inproj_ht_sram_ip" / "sim" / "inproj_ht_sram_ip.v",
+                PROJ_IP_GEN_DIR / "inproj_ht_sram_ip_1" / "sim" / "inproj_ht_sram_ip.v",
+                PROJ_IP_GEN_DIR / "inproj_ht_sram_ip" / "inproj_ht_sram_ip_sim_netlist.v",
+            ]
+        ),
+        _pick_first_existing(
+            [
+                PROJ_IP_GEN_DIR / "inproj_vec_out_sram_ip" / "sim" / "inproj_vec_out_sram_ip.v",
+                PROJ_IP_GEN_DIR / "inproj_vec_out_sram_ip" / "inproj_vec_out_sram_ip_sim_netlist.v",
+            ]
+        ),
+        _pick_first_existing(
+            [
+                PROJ_IP_GEN_DIR / "s_buffer" / "sim" / "s_buffer.v",
+                PROJ_IP_GEN_DIR / "s_buffer" / "s_buffer_sim_netlist.v",
+            ]
+        ),
+        _pick_first_existing(
+            [
+                PROJ_IP_GEN_DIR / "outproj_WBUF_bank_dp" / "sim" / "outproj_WBUF_bank_dp.v",
+                PROJ_IP_GEN_DIR / "outproj_WBUF_bank_dp" / "outproj_WBUF_bank_dp_sim_netlist.v",
+            ]
+        ),
+        _pick_first_existing(
+            [
+                PROJ_IP_GEN_DIR / "slim_WBUF_bank_dp" / "sim" / "slim_WBUF_bank_dp.v",
+                PROJ_IP_GEN_DIR / "slim_WBUF_bank_dp" / "slim_WBUF_bank_dp_sim_netlist.v",
+            ]
+        ),
+        _pick_first_existing(
+            [
+                PROJ_IP_GEN_DIR / "u_xt_rom" / "sim" / "u_xt_rom.v",
+                PROJ_IP_GEN_DIR / "u_xt_rom" / "u_xt_rom_sim_netlist.v",
+            ]
+        ),
+    ]
+    return [str(p) for p in candidates if p is not None]
+
+
 def _stage_cfg(stage: str) -> dict:
     all_rtl = sorted(str(p) for p in RTL_DIR.glob("*.sv") if p.name != "reuse_ip_blackboxes.sv")
-    ip_wrappers = [
-        str(PROJ_IP_GEN_DIR / "bias_ROM" / "bias_ROM_sim_netlist.v"),
-        str(PROJ_IP_GEN_DIR / "bias2sigmoid_fifo" / "bias2sigmoid_fifo_sim_netlist.v"),
-        str(PROJ_IP_GEN_DIR / "inproj_ht_sram_ip" / "sim" / "inproj_ht_sram_ip.v"),
-        str(PROJ_IP_GEN_DIR / "inproj_vec_out_sram_ip" / "sim" / "inproj_vec_out_sram_ip.v"),
-        str(PROJ_IP_GEN_DIR / "outproj_WBUF_bank_dp" / "sim" / "outproj_WBUF_bank_dp.v"),
-        str(PROJ_IP_GEN_DIR / "slim_WBUF_bank_dp" / "sim" / "slim_WBUF_bank_dp.v"),
-        str(PROJ_IP_GEN_DIR / "s_buffer" / "sim" / "s_buffer.v"),
-        str(PROJ_IP_GEN_DIR / "u_xt_rom" / "sim" / "u_xt_rom.v"),
-    ]
+    ip_wrappers = _collect_ip_wrappers()
     shared_sources = [*all_rtl, *ip_wrappers]
     if stage == "sigmoid4_vec":
         return {
@@ -111,11 +169,23 @@ def _stage_cfg(stage: str) -> dict:
             "tb_file": str(TB_DIR / "tb_reuse_ssm_dt_scheduler_hw_debug.sv"),
             "sources": [
                 *shared_sources,
-                str(HW_DIR / "slim_mac_mem_controller_combined_dp.sv"),
-                str(HW_DIR / "array4x4.sv"),
-                str(HW_DIR / "pipeline_4array_top.sv"),
-                str(HW_DIR / "pipeline_4array_with_reduction.sv"),
-                str(HW_DIR / "reduction_accumulator.sv"),
+                str(RTL_DIR / "reuse_slim_mac_mem_controller_combined_dp.sv"),
+                str(RTL_DIR / "reuse_array4x4.sv"),
+                str(RTL_DIR / "reuse_pipeline_4array_top.sv"),
+                str(RTL_DIR / "reuse_pipeline_4array_with_reduction.sv"),
+                str(RTL_DIR / "reuse_reduction_accumulator.sv"),
+            ],
+            "xsim_plusargs": [],
+            "xvlog_defines": [],
+        }
+    if stage == "reuse_mamba_board_shell_ps":
+        return {
+            "tb_top": "tb_reuse_mamba_board_shell_ps",
+            "tb_file": str(TB_DIR / "tb_reuse_mamba_board_shell_ps.sv"),
+            "sources": [
+                *shared_sources,
+                str(RTL_DIR / "reuse_mamba_board_shell.v"),
+                str(RTL_DIR / "reuse_mamba_h_stream_loader.v"),
             ],
             "xsim_plusargs": [],
             "xvlog_defines": [],
@@ -140,6 +210,7 @@ def main() -> None:
             "reuse_mamba_block_top_hw_debug",
             "reuse_ssm_core_hw_debug",
             "reuse_ssm_dt_scheduler_hw_debug",
+            "reuse_mamba_board_shell_ps",
         ],
     )
     p.add_argument("--case_dir", default="", help="Optional hw_debug case dir used to source LUT/mem files.")
@@ -166,7 +237,8 @@ def main() -> None:
     prj = run_dir / "files.prj"
     with open(prj, "w", encoding="utf-8") as f:
         for src in cfg["sources"]:
-            f.write(f'sv work "{src}"\n')
+            lang = "verilog" if src.endswith(".v") else "sv"
+            f.write(f'{lang} work "{src}"\n')
         f.write(f'sv work "{cfg["tb_file"]}"\n')
         if glbl_v.exists():
             f.write(f'verilog work "{glbl_v}"\n')

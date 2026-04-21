@@ -24,32 +24,36 @@ module reuse_mamba_board_shell #(
     parameter LUT_FILE            = "sigmoid_lut_q016_2048.hex",
     parameter integer S_ADDR_W    = 6,
     parameter integer G_FRAC_BITS = 8,
-    parameter INPROJ_BANK0_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank0.mem",
-    parameter INPROJ_BANK1_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank1.mem",
-    parameter INPROJ_BANK2_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank2.mem",
-    parameter INPROJ_BANK3_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank3.mem",
-    parameter INPROJ_BANK4_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank4.mem",
-    parameter INPROJ_BANK5_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_wbuf_bank5.mem",
-    parameter INPROJ_SCALE_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/inproj_scale_q15.mem",
-    parameter DT_BANK0_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank0.mem",
-    parameter DT_BANK1_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank1.mem",
-    parameter DT_BANK2_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank2.mem",
-    parameter DT_BANK3_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_wbuf_bank3.mem",
-    parameter DT_SCALE_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/dt_scale_q15.mem",
-    parameter OUTPROJ_BANK0_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank0.mem",
-    parameter OUTPROJ_BANK1_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank1.mem",
-    parameter OUTPROJ_BANK2_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank2.mem",
-    parameter OUTPROJ_BANK3_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank3.mem",
-    parameter OUTPROJ_BANK4_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank4.mem",
-    parameter OUTPROJ_BANK5_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_wbuf_bank5.mem",
-    parameter OUTPROJ_SCALE_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/outproj_scale_q15.mem",
+    parameter STAGE_DIR = "HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top",
+    parameter INPROJ_BANK0_INIT_FILE = {STAGE_DIR, "/inproj_wbuf_bank0.mem"},
+    parameter INPROJ_BANK1_INIT_FILE = {STAGE_DIR, "/inproj_wbuf_bank1.mem"},
+    parameter INPROJ_BANK2_INIT_FILE = {STAGE_DIR, "/inproj_wbuf_bank2.mem"},
+    parameter INPROJ_BANK3_INIT_FILE = {STAGE_DIR, "/inproj_wbuf_bank3.mem"},
+    parameter INPROJ_BANK4_INIT_FILE = {STAGE_DIR, "/inproj_wbuf_bank4.mem"},
+    parameter INPROJ_BANK5_INIT_FILE = {STAGE_DIR, "/inproj_wbuf_bank5.mem"},
+    parameter INPROJ_SCALE_INIT_FILE = {STAGE_DIR, "/inproj_scale_q15.mem"},
+    parameter DT_BANK0_INIT_FILE = {STAGE_DIR, "/dt_wbuf_bank0.mem"},
+    parameter DT_BANK1_INIT_FILE = {STAGE_DIR, "/dt_wbuf_bank1.mem"},
+    parameter DT_BANK2_INIT_FILE = {STAGE_DIR, "/dt_wbuf_bank2.mem"},
+    parameter DT_BANK3_INIT_FILE = {STAGE_DIR, "/dt_wbuf_bank3.mem"},
+    parameter DT_SCALE_INIT_FILE = {STAGE_DIR, "/dt_scale_q15.mem"},
+    parameter OUTPROJ_BANK0_INIT_FILE = {STAGE_DIR, "/outproj_wbuf_bank0.mem"},
+    parameter OUTPROJ_BANK1_INIT_FILE = {STAGE_DIR, "/outproj_wbuf_bank1.mem"},
+    parameter OUTPROJ_BANK2_INIT_FILE = {STAGE_DIR, "/outproj_wbuf_bank2.mem"},
+    parameter OUTPROJ_BANK3_INIT_FILE = {STAGE_DIR, "/outproj_wbuf_bank3.mem"},
+    parameter OUTPROJ_BANK4_INIT_FILE = {STAGE_DIR, "/outproj_wbuf_bank4.mem"},
+    parameter OUTPROJ_BANK5_INIT_FILE = {STAGE_DIR, "/outproj_wbuf_bank5.mem"},
+    parameter OUTPROJ_SCALE_INIT_FILE = {STAGE_DIR, "/outproj_scale_q15.mem"},
     parameter ENABLE_RMSNORM = 1,
-    parameter NORM_GAMMA_INIT_FILE = "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top/norm_gamma_s16_q8p8.mem",
+    parameter NORM_GAMMA_INIT_FILE = {STAGE_DIR, "/norm_gamma_s16_q8p8.mem"},
+    parameter USE_SCALED_STATE_SCAN = 1,
+    parameter STATE_U_TO_STATE_SCALE_INIT_FILE = {STAGE_DIR, "/state_u_to_state_q16.mem"},
+    parameter STATE_TO_Q88_SCALE_INIT_FILE = {STAGE_DIR, "/state_to_q88_q16.mem"},
     parameter integer AXIL_ADDR_W = 12,
     parameter integer G_DEPTH     = 64,
     parameter integer G_ADDR_W    = 6
 ) (
-    (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME sys_clk, ASSOCIATED_BUSIF s_axi:s_axis_h:s_axis_g:m_axis_y, ASSOCIATED_RESET ext_reset_n, FREQ_HZ 99990005" *)
+    (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME sys_clk, ASSOCIATED_BUSIF s_axi:s_axis_h:m_axis_y, ASSOCIATED_RESET ext_reset_n, FREQ_HZ 99990005" *)
     (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 sys_clk CLK" *)
     input  wire                           sys_clk,
 
@@ -102,15 +106,6 @@ module reuse_mamba_board_shell #(
     (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 s_axis_h TLAST" *)
     input  wire                           s_axis_h_tlast,
 
-    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 s_axis_g TVALID" *)
-    input  wire                           s_axis_g_tvalid,
-    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 s_axis_g TREADY" *)
-    output wire                           s_axis_g_tready,
-    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 s_axis_g TDATA" *)
-    input  wire [TILE_SIZE*DATA_WIDTH-1:0] s_axis_g_tdata,
-    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 s_axis_g TLAST" *)
-    input  wire                           s_axis_g_tlast,
-
     (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 m_axis_y TVALID" *)
     output wire                           m_axis_y_tvalid,
     (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 m_axis_y TREADY" *)
@@ -157,9 +152,6 @@ module reuse_mamba_board_shell #(
 
     assign rst_n_int      = ext_reset_n & ~core_soft_reset_pulse;
     assign dma_error      = 1'b0;
-    // Legacy g-stream debug input is intentionally ignored in board-shell dataflow mode.
-    // Keep AXIS port for BD compatibility, but always advertise ready and drive zeros into core.
-    assign s_axis_g_tready = 1'b1;
     assign irq            = (irq_enable[0] & block_done) |
                             (irq_enable[1] & preload_h_done) |
                             (irq_enable[2] & dma_error);
@@ -248,7 +240,7 @@ module reuse_mamba_board_shell #(
         end
     end
 
-    reuse_mamba_block_wrapper #(
+    reuse_mamba_core_adapter #(
         .TILE_SIZE   (TILE_SIZE),
         .DATA_WIDTH  (DATA_WIDTH),
         .ACC_WIDTH   (ACC_WIDTH),
@@ -284,7 +276,10 @@ module reuse_mamba_board_shell #(
         .OUTPROJ_BANK5_INIT_FILE(OUTPROJ_BANK5_INIT_FILE),
         .OUTPROJ_SCALE_INIT_FILE(OUTPROJ_SCALE_INIT_FILE),
         .ENABLE_RMSNORM(ENABLE_RMSNORM),
-        .NORM_GAMMA_INIT_FILE(NORM_GAMMA_INIT_FILE)
+        .NORM_GAMMA_INIT_FILE(NORM_GAMMA_INIT_FILE),
+        .USE_SCALED_STATE_SCAN(USE_SCALED_STATE_SCAN),
+        .STATE_U_TO_STATE_SCALE_INIT_FILE(STATE_U_TO_STATE_SCALE_INIT_FILE),
+        .STATE_TO_Q88_SCALE_INIT_FILE(STATE_TO_Q88_SCALE_INIT_FILE)
     ) u_core (
         .sys_clk         (sys_clk),
         .ext_reset_n     (rst_n_int),

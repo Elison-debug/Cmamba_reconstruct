@@ -322,7 +322,7 @@ module reuse_mamba_board_shell_with_g_loader #(
         end
     end
 
-    reuse_mamba_block_wrapper #(
+    reuse_mamba_core_adapter #(
         .TILE_SIZE   (TILE_SIZE),
         .DATA_WIDTH  (DATA_WIDTH),
         .ACC_WIDTH   (ACC_WIDTH),

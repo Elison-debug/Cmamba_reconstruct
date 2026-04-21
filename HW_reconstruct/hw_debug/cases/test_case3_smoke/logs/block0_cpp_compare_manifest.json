@@ -1,4 +1,12 @@
 {
-  "generated": false,
-  "reason": "cpp exe or samples.npy missing"
+  "generated": true,
+  "cpp_vs_legacy_export_mae": 0.03149329125881195,
+  "cpp_vs_cppish_export_mae": 1.9674189388751984e-08,
+  "cpp_vs_legacy_export_max_abs": 0.11363963782787323,
+  "cpp_vs_cppish_export_max_abs": 8.940696716308594e-07,
+  "files": [
+    "logs/final_compare_cpp_export_hw_cppish.json",
+    "logs/final_compare_cpp_export_hw_cppish.csv",
+    "float/cpp_block0_y_cppbittrue.npy"
+  ]
 }

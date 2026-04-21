@@ -43,7 +43,10 @@ module reuse_mamba_block_wrapper #(
     parameter string OUTPROJ_BANK5_INIT_FILE = "",
     parameter string OUTPROJ_SCALE_INIT_FILE = "",
     parameter bit ENABLE_RMSNORM = 0,
-    parameter string NORM_GAMMA_INIT_FILE = ""
+    parameter string NORM_GAMMA_INIT_FILE = "",
+    parameter bit USE_SCALED_STATE_SCAN = 0,
+    parameter string STATE_U_TO_STATE_SCALE_INIT_FILE = "",
+    parameter string STATE_TO_Q88_SCALE_INIT_FILE = ""
 )(
     input  logic sys_clk,
     input  logic ext_reset_n,
@@ -80,36 +83,8 @@ module reuse_mamba_block_wrapper #(
     input  logic                         outproj_enable,
     output logic                         outproj_busy
 );
-    logic [1:0] rst_sync_ff;
-    logic       core_rst_n;
-
-    logic signed [DATA_WIDTH-1:0] g_axis_tdata_arr [TILE_SIZE-1:0];
-    logic signed [DATA_WIDTH-1:0] y_axis_tdata_arr [TILE_SIZE-1:0];
-    logic signed [DATA_WIDTH-1:0] h_wr_data_arr    [TILE_SIZE-1:0];
-    logic signed [DATA_WIDTH-1:0] u_rd_data_arr    [TILE_SIZE-1:0];
-    logic signed [DATA_WIDTH-1:0] z_rd_data_arr    [TILE_SIZE-1:0];
-
-    always_ff @(posedge sys_clk) begin
-        if (!ext_reset_n)
-            rst_sync_ff <= '0;
-        else
-            rst_sync_ff <= {rst_sync_ff[0], 1'b1};
-    end
-
-    assign core_rst_n   = rst_sync_ff[1];
-    assign core_rst_n_o = core_rst_n;
-
-    always_comb begin
-        for (int i = 0; i < TILE_SIZE; i++) begin
-            g_axis_tdata_arr[i] = g_axis_tdata[i*DATA_WIDTH +: DATA_WIDTH];
-            h_wr_data_arr[i]    = h_wr_data[i*DATA_WIDTH +: DATA_WIDTH];
-            y_axis_tdata[i*DATA_WIDTH +: DATA_WIDTH] = y_axis_tdata_arr[i];
-            u_rd_data[i*DATA_WIDTH +: DATA_WIDTH]    = u_rd_data_arr[i];
-            z_rd_data[i*DATA_WIDTH +: DATA_WIDTH]    = z_rd_data_arr[i];
-        end
-    end
-
-    reuse_mamba_block_top #(
+    // Backward-compatible alias to the new adapter.
+    reuse_mamba_core_adapter #(
         .TILE_SIZE   (TILE_SIZE),
         .DATA_WIDTH  (DATA_WIDTH),
         .ACC_WIDTH   (ACC_WIDTH),
@@ -145,35 +120,39 @@ module reuse_mamba_block_wrapper #(
         .OUTPROJ_BANK5_INIT_FILE(OUTPROJ_BANK5_INIT_FILE),
         .OUTPROJ_SCALE_INIT_FILE(OUTPROJ_SCALE_INIT_FILE),
         .ENABLE_RMSNORM(ENABLE_RMSNORM),
-        .NORM_GAMMA_INIT_FILE(NORM_GAMMA_INIT_FILE)
+        .NORM_GAMMA_INIT_FILE(NORM_GAMMA_INIT_FILE),
+        .USE_SCALED_STATE_SCAN(USE_SCALED_STATE_SCAN),
+        .STATE_U_TO_STATE_SCALE_INIT_FILE(STATE_U_TO_STATE_SCALE_INIT_FILE),
+        .STATE_TO_Q88_SCALE_INIT_FILE(STATE_TO_Q88_SCALE_INIT_FILE)
     ) u_core (
-        .clk            (sys_clk),
-        .rst_n          (core_rst_n),
+        .sys_clk        (sys_clk),
+        .ext_reset_n    (ext_reset_n),
+        .core_rst_n_o   (core_rst_n_o),
         .block_auto_mode(block_auto_mode),
         .block_start    (block_start),
         .block_busy     (block_busy),
         .block_done     (block_done),
-        .s_axis_TVALID  (s_axis_tvalid),
-        .s_axis_TREADY  (s_axis_tready),
-        .g_axis_TVALID  (g_axis_tvalid),
-        .g_axis_TREADY  (g_axis_tready),
-        .g_axis_TDATA   (g_axis_tdata_arr),
-        .y_axis_TVALID  (y_axis_tvalid),
-        .y_axis_TREADY  (y_axis_tready),
-        .y_axis_TDATA   (y_axis_tdata_arr),
+        .s_axis_tvalid  (s_axis_tvalid),
+        .s_axis_tready  (s_axis_tready),
+        .g_axis_tvalid  (g_axis_tvalid),
+        .g_axis_tready  (g_axis_tready),
+        .g_axis_tdata   (g_axis_tdata),
+        .y_axis_tvalid  (y_axis_tvalid),
+        .y_axis_tready  (y_axis_tready),
+        .y_axis_tdata   (y_axis_tdata),
         .inproj_enable  (inproj_enable),
         .inproj_start   (inproj_start),
         .inproj_busy    (inproj_busy),
         .inproj_done    (inproj_done),
         .h_wr_en        (h_wr_en),
         .h_wr_addr      (h_wr_addr),
-        .h_wr_data      (h_wr_data_arr),
+        .h_wr_data      (h_wr_data),
         .u_rd_en        (u_rd_en),
         .u_rd_addr      (u_rd_addr),
-        .u_rd_data      (u_rd_data_arr),
+        .u_rd_data      (u_rd_data),
         .z_rd_en        (z_rd_en),
         .z_rd_addr      (z_rd_addr),
-        .z_rd_data      (z_rd_data_arr),
+        .z_rd_data      (z_rd_data),
         .outproj_enable (outproj_enable),
         .outproj_busy   (outproj_busy)
     );

@@ -30,6 +30,8 @@ module tb_reuse_mamba_board_shell;
   localparam int Y_DEPTH     = 32;
   localparam int OUT_WDEPTH  = 512;
   localparam string NORM_GAMMA_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/norm_gamma_s16_q8p8.mem"};
+  localparam string STATE_U_TO_STATE_SCALE_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/state_u_to_state_q16.mem"};
+  localparam string STATE_TO_Q88_SCALE_INIT_FILE = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top/state_to_q88_q16.mem"};
   localparam string LUT_FILE_ABS = "E:/course/smamba/user/data/sigmoid_lut_q016_2048.hex";
 
   localparam logic [AXIL_ADDR_W-1:0] REG_CTRL       = 12'h000;
@@ -71,11 +73,6 @@ module tb_reuse_mamba_board_shell;
   logic [TILE_SIZE*DATA_WIDTH-1:0] s_axis_h_tdata;
   logic                            s_axis_h_tlast;
 
-  logic                            s_axis_g_tvalid;
-  logic                            s_axis_g_tready;
-  logic [TILE_SIZE*DATA_WIDTH-1:0] s_axis_g_tdata;
-  logic                            s_axis_g_tlast;
-
   logic                            m_axis_y_tvalid;
   logic                            m_axis_y_tready;
   logic [TILE_SIZE*DATA_WIDTH-1:0] m_axis_y_tdata;
@@ -116,8 +113,8 @@ module tb_reuse_mamba_board_shell;
   logic preload_h_done_seen;
   logic block_done_seen;
   logic block_busy_seen;
-  logic track_preload_h, track_preload_g, track_block;
-  logic track_preload_h_d, track_preload_g_d, track_block_d;
+  logic track_preload_h, track_block;
+  logic track_preload_h_d, track_block_d;
 
   function automatic string join_path(input string a, input string b);
     join_path = {a, "/", b};
@@ -244,20 +241,6 @@ module tb_reuse_mamba_board_shell;
     end
   endtask
 
-  task automatic send_g_zero_stream_once();
-    begin
-      for (int idx = 0; idx < U_DEPTH; idx++) begin
-        @(posedge sys_clk);
-        s_axis_g_tvalid <= 1'b1;
-        s_axis_g_tdata  <= '0;
-        s_axis_g_tlast  <= (idx == U_DEPTH-1);
-        while (!s_axis_g_tready) @(posedge sys_clk);
-      end
-      @(posedge sys_clk);
-      s_axis_g_tvalid <= 1'b0; s_axis_g_tdata <= '0; s_axis_g_tlast <= 1'b0;
-    end
-  endtask
-
   task automatic collect_and_check_y_stream();
     logic signed [DATA_WIDTH-1:0] got_v, exp_v;
     logic [63:0] exp_pack;
@@ -300,6 +283,8 @@ module tb_reuse_mamba_board_shell;
       .N_BANK(N_BANK), .WDEPTH(WDEPTH), .WADDR_W(WADDR_W), .DATA_W(DATA_W), .XT_ADDR_W(XT_ADDR_W),
       .D(D), .PIPE_LAT(PIPE_LAT), .ADDR_BITS(ADDR_BITS), .LUT_FILE(LUT_FILE_ABS), .S_ADDR_W(S_ADDR_W), .G_FRAC_BITS(G_FRAC_BITS),
       .ENABLE_RMSNORM(1), .NORM_GAMMA_INIT_FILE(NORM_GAMMA_INIT_FILE),
+      .STATE_U_TO_STATE_SCALE_INIT_FILE(STATE_U_TO_STATE_SCALE_INIT_FILE),
+      .STATE_TO_Q88_SCALE_INIT_FILE(STATE_TO_Q88_SCALE_INIT_FILE),
       .AXIL_ADDR_W(AXIL_ADDR_W), .G_DEPTH(G_DEPTH), .G_ADDR_W(G_ADDR_W)
   ) dut (
       .sys_clk(sys_clk), .ext_reset_n(ext_reset_n), .irq(irq),
@@ -309,7 +294,6 @@ module tb_reuse_mamba_board_shell;
       .s_axi_araddr(s_axi_araddr), .s_axi_arvalid(s_axi_arvalid), .s_axi_arready(s_axi_arready),
       .s_axi_rdata(s_axi_rdata), .s_axi_rresp(s_axi_rresp), .s_axi_rvalid(s_axi_rvalid), .s_axi_rready(s_axi_rready),
       .s_axis_h_tvalid(s_axis_h_tvalid), .s_axis_h_tready(s_axis_h_tready), .s_axis_h_tdata(s_axis_h_tdata), .s_axis_h_tlast(s_axis_h_tlast),
-      .s_axis_g_tvalid(s_axis_g_tvalid), .s_axis_g_tready(s_axis_g_tready), .s_axis_g_tdata(s_axis_g_tdata), .s_axis_g_tlast(s_axis_g_tlast),
       .m_axis_y_tvalid(m_axis_y_tvalid), .m_axis_y_tready(m_axis_y_tready), .m_axis_y_tdata(m_axis_y_tdata), .m_axis_y_tlast(m_axis_y_tlast)
   );
 
@@ -319,11 +303,9 @@ module tb_reuse_mamba_board_shell;
       block_done_seen     <= 1'b0;
       block_busy_seen     <= 1'b0;
       track_preload_h_d   <= 1'b0;
-      track_preload_g_d   <= 1'b0;
       track_block_d       <= 1'b0;
     end else begin
       track_preload_h_d <= track_preload_h;
-      track_preload_g_d <= track_preload_g;
       track_block_d     <= track_block;
       if (track_preload_h && !track_preload_h_d) preload_h_done_seen <= 1'b0;
       if (track_block     && !track_block_d) begin block_done_seen <= 1'b0; block_busy_seen <= 1'b0; end
@@ -338,10 +320,9 @@ module tb_reuse_mamba_board_shell;
     s_axi_awaddr = '0; s_axi_awvalid = 1'b0; s_axi_wdata='0; s_axi_wstrb='0; s_axi_wvalid=1'b0;
     s_axi_bready = 1'b0; s_axi_araddr='0; s_axi_arvalid=1'b0; s_axi_rready=1'b0;
     s_axis_h_tvalid=1'b0; s_axis_h_tdata='0; s_axis_h_tlast=1'b0;
-    s_axis_g_tvalid=1'b0; s_axis_g_tdata='0; s_axis_g_tlast=1'b0;
     m_axis_y_tready=1'b1;
     y_stream_idx = 0; y_stream_errors = 0; first_y_mismatch_seen = 1'b0;
-    track_preload_h = 1'b0; track_preload_g = 1'b0; track_block = 1'b0;
+    track_preload_h = 1'b0; track_block = 1'b0;
 
     load_case_files();
     repeat (20) @(posedge sys_clk);
@@ -381,7 +362,6 @@ module tb_reuse_mamba_board_shell;
 
     `WAIT_TRUE(block_done_seen, "block_done_seen", 50000);
     `WAIT_TRUE((y_stream_idx == Y_DEPTH), "y_stream_idx==Y_DEPTH", 50000);
-    track_preload_g = 1'b0;
     track_block     = 1'b0;
 
     repeat (20) @(posedge sys_clk);
