@@ -65,7 +65,7 @@ module ew_update_vec4 #(
 
 
     // FSM: in -> RD1 -> RD2 -> CALC (2-cycle RAM read latency)
-    typedef enum logic [2:0] {ST_IDLE, ST_RD1, ST_RD2, ST_CALC, ST_WAIT, ST_HOLD} st_t;
+    typedef enum logic [2:0] {ST_IDLE, ST_RD1, ST_RD2, ST_CALC, ST_SC1, ST_SC2, ST_WAIT, ST_HOLD} st_t;
     st_t st;
 
     // latch input
@@ -94,8 +94,10 @@ module ew_update_vec4 #(
     logic calc_done; // latch successful CALC handshake
 
     logic [W-1:0] scaled_u_state [TILE_SIZE-1:0];
+    logic [W-1:0] scaled_u_state_r [TILE_SIZE-1:0];
     logic signed [33:0] scaled_acc [TILE_SIZE-1:0];
     logic [W-1:0] scaled_state_next [TILE_SIZE-1:0];
+    logic [W-1:0] scaled_state_next_r [TILE_SIZE-1:0];
     logic [W-1:0] scaled_state_q88 [TILE_SIZE-1:0];
     logic [15:0] scaled_dummy_scale [TILE_SIZE-1:0];
 
@@ -120,6 +122,8 @@ module ew_update_vec4 #(
                 u_r[i]   <= '0;
                 u_to_state_scale_r[i] <= '0;
                 state_to_q88_scale_r[i] <= '0;
+                scaled_u_state_r[i] <= '0;
+                scaled_state_next_r[i] <= '0;
             end
             last_wr_valid <= 1'b0;
             last_wr_addr  <= '0;
@@ -166,15 +170,12 @@ module ew_update_vec4 #(
                         calc_operands_ready <= 1'b1;
                     if (ewm_in_fire)
                         calc_issue_done <= 1'b1;
-                    // scaled-state mode computes the combined Q1.15 EW update in one requant step.
-                    if (USE_SCALED_STATE && calc_operands_ready && out_ready) begin
+                    // scaled-state mode: pipeline the requant chain to cut critical path.
+                    if (USE_SCALED_STATE && calc_operands_ready) begin
                         for (int i=0;i<TILE_SIZE;i++) begin
-                            s_new_vec[i]       <= $signed(scaled_state_q88[i]);
-                            s_new_packed[i*W +: W] <= $signed(scaled_state_next[i]);
+                            scaled_u_state_r[i] <= scaled_u_state[i];
                         end
-                        out_valid <= 1'b1;
-                        calc_done <= 1'b1;
-                        st <= ST_WAIT;
+                        st <= ST_SC1;
                     end else if (!USE_SCALED_STATE && ewa_v && ewa_r) begin
                         // 当 EWA 的结果有效并且我们能推出去时，准备写回 + 输出
                         for (int i=0;i<TILE_SIZE;i++) begin
@@ -184,6 +185,25 @@ module ew_update_vec4 #(
                         out_valid <= 1'b1;
                         calc_done <= 1'b1;
                         st <= ST_WAIT; // 插一拍气泡，下一拍执行写回
+                    end
+                end
+
+                ST_SC1: begin
+                    for (int i=0;i<TILE_SIZE;i++) begin
+                        scaled_state_next_r[i] <= scaled_state_next[i];
+                    end
+                    st <= ST_SC2;
+                end
+
+                ST_SC2: begin
+                    if (out_ready) begin
+                        for (int i=0;i<TILE_SIZE;i++) begin
+                            s_new_vec[i]       <= $signed(scaled_state_q88[i]);
+                            s_new_packed[i*W +: W] <= $signed(scaled_state_next_r[i]);
+                        end
+                        out_valid <= 1'b1;
+                        calc_done <= 1'b1;
+                        st <= ST_WAIT;
                     end
                 end
 
@@ -269,7 +289,7 @@ module ew_update_vec4 #(
         for (int i=0;i<TILE_SIZE;i++) begin
             scaled_acc[i] =
                 ($signed({1'b0, lam_r[i]}) * $signed(s_prev_vec[i])) +
-                ($signed({1'b0, one_minus[i]}) * $signed(scaled_u_state[i]));
+                ($signed({1'b0, one_minus[i]}) * $signed(scaled_u_state_r[i]));
             scaled_dummy_scale[i] = 16'h0001;
         end
     end
@@ -315,7 +335,7 @@ module ew_update_vec4 #(
         .ROUND_MODE      (1),
         .SAT_MODE        (1)
     ) u_state_to_q88_requant (
-        .in_vec    (scaled_state_next),
+        .in_vec    (scaled_state_next_r),
         .scale_vec (state_to_q88_scale_r),
         .out_vec   (scaled_state_q88)
     );

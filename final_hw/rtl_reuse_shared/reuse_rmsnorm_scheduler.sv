@@ -31,6 +31,7 @@ module reuse_rmsnorm_scheduler #(
         ST_ACCUM,
         ST_ISQRT,
         ST_PREP_NORM,
+        ST_RECIP,
         ST_NORM,
         ST_DONE
     } state_t;
@@ -55,6 +56,11 @@ module reuse_rmsnorm_scheduler #(
     logic [63:0] mean_sq_q16_reg;
     logic [31:0] rms_q88_reg;
     logic [31:0] recip_q_reg;
+    logic [63:0] recip_num_reg;
+    logic [31:0] recip_den_reg;
+    logic [63:0] recip_rem_reg;
+    logic [31:0] recip_quot_reg;
+    logic [5:0]  recip_iter_reg;
     logic [65:0] isqrt_rem;
     logic [63:0] isqrt_op;
     logic [31:0] isqrt_root;
@@ -62,6 +68,16 @@ module reuse_rmsnorm_scheduler #(
 
     logic signed [63:0] norm_lane_q88 [TILE_SIZE-1:0];
     logic [63:0] norm_lane_q88_bits [TILE_SIZE-1:0];
+    logic signed [63:0] norm_lane_q88_calc [TILE_SIZE-1:0];
+    logic [63:0] norm_lane_q88_calc_bits [TILE_SIZE-1:0];
+    logic                         norm_src_valid;
+    logic [H_ADDR_W-1:0]          norm_src_addr;
+    logic signed [DATA_WIDTH-1:0] norm_src_raw [TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] norm_src_gamma [TILE_SIZE-1:0];
+    logic                         norm_pipe_valid;
+    logic [H_ADDR_W-1:0]          norm_pipe_addr;
+    logic signed [63:0]           norm_pipe_q88 [TILE_SIZE-1:0];
+    logic [63:0]                  norm_pipe_q88_bits [TILE_SIZE-1:0];
     logic [15:0] norm_quant_out [TILE_SIZE-1:0];
     logic [15:0] norm_dummy_scale [TILE_SIZE-1:0];
 
@@ -112,7 +128,7 @@ module reuse_rmsnorm_scheduler #(
         .ROUND_MODE       (NORM_OUT_ROUND_MODE),
         .SAT_MODE         (NORM_OUT_SAT_MODE)
     ) u_norm_out_quant (
-        .in_vec    (norm_lane_q88_bits),
+        .in_vec    (norm_pipe_q88_bits),
         .scale_vec (norm_dummy_scale),
         .out_vec   (norm_quant_out)
     );
@@ -122,14 +138,16 @@ module reuse_rmsnorm_scheduler #(
             logic signed [31:0] mul_xg;
             logic signed [63:0] mul_recip;
             logic signed [63:0] rounded;
-            mul_xg = $signed(raw_rd_data[lane]) * $signed(gamma_rd_data[lane]);
+            mul_xg = $signed(norm_src_raw[lane]) * $signed(norm_src_gamma[lane]);
             mul_recip = mul_xg * $signed({1'b0, recip_q_reg});
             if (mul_recip >= 0)
                 rounded = mul_recip + (64'sd1 <<< (RECIP_FRAC_EXACT - 1));
             else
                 rounded = mul_recip - (64'sd1 <<< (RECIP_FRAC_EXACT - 1));
-            norm_lane_q88[lane] = rounded >>> RECIP_FRAC_EXACT;
-            norm_lane_q88_bits[lane] = norm_lane_q88[lane];
+            norm_lane_q88_calc[lane] = rounded >>> RECIP_FRAC_EXACT;
+            norm_lane_q88_calc_bits[lane] = norm_lane_q88_calc[lane];
+            norm_lane_q88[lane] = norm_pipe_q88[lane];
+            norm_lane_q88_bits[lane] = norm_pipe_q88_bits[lane];
             norm_dummy_scale[lane] = 16'd1;
         end
     end
@@ -144,6 +162,11 @@ module reuse_rmsnorm_scheduler #(
             mean_sq_q16_reg <= 64'd0;
             rms_q88_reg <= 32'd1;
             recip_q_reg <= (32'd1 << RECIP_FRAC_EXACT);
+            recip_num_reg <= '0;
+            recip_den_reg <= 32'd1;
+            recip_rem_reg <= '0;
+            recip_quot_reg <= '0;
+            recip_iter_reg <= '0;
             isqrt_rem <= '0;
             isqrt_op <= '0;
             isqrt_root <= '0;
@@ -151,14 +174,43 @@ module reuse_rmsnorm_scheduler #(
             norm_wr_en <= 1'b0;
             norm_wr_addr <= '0;
             norm_wr_data <= '{default:'0};
+            norm_pipe_valid <= 1'b0;
+            norm_pipe_addr <= '0;
+            norm_pipe_q88 <= '{default:'0};
+            norm_pipe_q88_bits <= '{default:'0};
+            norm_src_valid <= 1'b0;
+            norm_src_addr <= '0;
+            norm_src_raw <= '{default:'0};
+            norm_src_gamma <= '{default:'0};
         end else begin
             norm_wr_en <= 1'b0;
+            if (norm_pipe_valid) begin
+                norm_wr_en <= 1'b1;
+                norm_wr_addr <= norm_pipe_addr;
+                for (int lane = 0; lane < TILE_SIZE; lane++) begin
+                    norm_wr_data[lane] <= $signed(norm_quant_out[lane]);
+                end
+            end
 
             if (raw_rd_en)
                 issue_addr <= issue_addr + 1'b1;
             rd_valid_d0 <= raw_rd_en;
             if (raw_rd_en)
                 rd_addr_d0 <= raw_rd_addr;
+
+            norm_src_valid <= rd_valid_d0;
+            norm_src_addr <= rd_addr_d0;
+            for (int lane = 0; lane < TILE_SIZE; lane++) begin
+                norm_src_raw[lane] <= raw_rd_data[lane];
+                norm_src_gamma[lane] <= gamma_rd_data[lane];
+            end
+
+            norm_pipe_valid <= norm_src_valid;
+            norm_pipe_addr <= norm_src_addr;
+            for (int lane = 0; lane < TILE_SIZE; lane++) begin
+                norm_pipe_q88[lane] <= norm_lane_q88_calc[lane];
+                norm_pipe_q88_bits[lane] <= norm_lane_q88_calc_bits[lane];
+            end
 
             case (state)
                 ST_IDLE: begin
@@ -169,6 +221,19 @@ module reuse_rmsnorm_scheduler #(
                     mean_sq_q16_reg <= 64'd0;
                     rms_q88_reg <= 32'd1;
                     recip_q_reg <= (32'd1 << RECIP_FRAC_EXACT);
+                    recip_num_reg <= '0;
+                    recip_den_reg <= 32'd1;
+                    recip_rem_reg <= '0;
+                    recip_quot_reg <= '0;
+                    recip_iter_reg <= '0;
+                    norm_pipe_valid <= 1'b0;
+                    norm_pipe_addr <= '0;
+                    norm_pipe_q88 <= '{default:'0};
+                    norm_pipe_q88_bits <= '{default:'0};
+                    norm_src_valid <= 1'b0;
+                    norm_src_addr <= '0;
+                    norm_src_raw <= '{default:'0};
+                    norm_src_gamma <= '{default:'0};
                     if (enable && start)
                         state <= ST_ACCUM;
                 end
@@ -228,25 +293,53 @@ module reuse_rmsnorm_scheduler #(
                     issue_addr <= '0;
                     rd_addr_d0 <= '0;
                     rd_valid_d0 <= 1'b0;
-                    if (rms_q88_reg == 0)
+                    if (rms_q88_reg == 0) begin
                         recip_q_reg <= (32'd1 << RECIP_FRAC_EXACT);
-                    else
-                        recip_q_reg <= ((32'd1 << RECIP_FRAC_EXACT) + (rms_q88_reg >> 1)) / rms_q88_reg;
-                    state <= ST_NORM;
+                        state <= ST_NORM;
+                    end else begin
+                        recip_num_reg <= ((64'd1 << RECIP_FRAC_EXACT) + (rms_q88_reg >> 1));
+                        recip_den_reg <= rms_q88_reg;
+                        recip_rem_reg <= 64'd0;
+                        recip_quot_reg <= 32'd0;
+                        recip_iter_reg <= 6'd32;
+                        state <= ST_RECIP;
+                    end
+                end
+
+                ST_RECIP: begin
+                    logic [63:0] rem_shift;
+                    logic [63:0] rem_next;
+                    logic [31:0] quot_next;
+                    logic        bit_in;
+
+                    bit_in = recip_num_reg[recip_iter_reg-1];
+                    rem_shift = {recip_rem_reg[62:0], bit_in};
+                    quot_next = recip_quot_reg;
+
+                    if (rem_shift >= {32'd0, recip_den_reg}) begin
+                        rem_next = rem_shift - {32'd0, recip_den_reg};
+                        quot_next[recip_iter_reg-1] = 1'b1;
+                    end else begin
+                        rem_next = rem_shift;
+                    end
+
+                    recip_rem_reg <= rem_next;
+                    recip_quot_reg <= quot_next;
+                    recip_iter_reg <= recip_iter_reg - 1'b1;
+
+                    if (recip_iter_reg == 6'd1) begin
+                        recip_q_reg <= quot_next;
+                        state <= ST_NORM;
+                    end
                 end
 
                 ST_NORM: begin
-                    if (rd_valid_d0) begin
-                        norm_wr_en <= 1'b1;
-                        norm_wr_addr <= rd_addr_d0;
-                        for (int lane = 0; lane < TILE_SIZE; lane++) begin
-                            norm_wr_data[lane] <= $signed(norm_quant_out[lane]);
-                        end
-                        if (rd_addr_d0 == H_DEPTH-1) begin
-                            rd_addr_d0 <= '0;
-                            rd_valid_d0 <= 1'b0;
-                            state <= ST_DONE;
-                        end
+                    if (norm_pipe_valid && (norm_pipe_addr == H_DEPTH-1) && !norm_src_valid && !rd_valid_d0) begin
+                        rd_addr_d0 <= '0;
+                        rd_valid_d0 <= 1'b0;
+                        norm_src_valid <= 1'b0;
+                        norm_pipe_valid <= 1'b0;
+                        state <= ST_DONE;
                     end
                 end
 
