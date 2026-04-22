@@ -9,7 +9,7 @@ module tb_reuse_mamba_board_shell_stream_ps;
   localparam int DATA_WIDTH  = 16;
   localparam int H_DEPTH     = 32;
   localparam int Y_DEPTH     = 32;
-  localparam int N_FRAMES    = 3;
+  localparam int N_FRAMES    = 5;
 
   localparam string STAGE_B0_CONST = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top_block0"};
 
@@ -39,6 +39,7 @@ module tb_reuse_mamba_board_shell_stream_ps;
   logic                             frame_busy;
 
   logic [63:0] h_wr_data_mem [0:H_DEPTH-1];
+  logic [63:0] h_stream_input_mem [0:(N_FRAMES*H_DEPTH)-1];
   logic [63:0] y_stream_golden_mem  [0:(N_FRAMES*Y_DEPTH)-1];
 
   int tx_idx;
@@ -74,7 +75,8 @@ module tb_reuse_mamba_board_shell_stream_ps;
   task automatic load_case_files();
     begin
       $readmemh({STAGE_B0_CONST, "/h_wr_data_s16_q8p8.mem"}, h_wr_data_mem);
-      $readmemh({`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top_chain4/stream_y_golden_q88.mem"}, y_stream_golden_mem);
+      $readmemh({`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top_chain4/stream_h_input_stateless_q88.mem"}, h_stream_input_mem);
+      $readmemh({`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top_chain4/stream_y_golden_stateless_q88.mem"}, y_stream_golden_mem);
     end
   endtask
 
@@ -108,7 +110,7 @@ module tb_reuse_mamba_board_shell_stream_ps;
     $display("[%0t] PS-STREAM-TB launch h stream", $time);
     while (tx_idx < total_beats) begin
       s_axis_h_tvalid <= 1'b1;
-      s_axis_h_tdata  <= h_wr_data_mem[tx_idx % H_DEPTH];
+      s_axis_h_tdata  <= h_stream_input_mem[tx_idx];
       s_axis_h_tlast  <= ((tx_idx % H_DEPTH) == (H_DEPTH - 1));
       do @(posedge clk); while (!(s_axis_h_tvalid && s_axis_h_tready));
       tx_idx <= tx_idx + 1;
@@ -174,7 +176,7 @@ module tb_reuse_mamba_board_shell_stream_ps;
   end
 
   initial begin : timeout_guard
-    #6000000;
+    #10000000;
     $fatal(1, "[%0t] timeout in tb_reuse_mamba_board_shell_stream_ps tx_idx=%0d rx_frame=%0d rx_row=%0d total=%0d tlast=%0d busy=%b",
            $time, tx_idx, rx_frame, rx_row, rx_total_beats, rx_tlast_count, frame_busy);
   end

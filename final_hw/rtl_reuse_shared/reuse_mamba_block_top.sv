@@ -55,7 +55,8 @@ module reuse_mamba_block_top #(
     parameter string BIAS_INIT_FILE = "",
     parameter bit USE_SCALED_STATE_SCAN = 0,
     parameter string STATE_U_TO_STATE_SCALE_INIT_FILE = "",
-    parameter string STATE_TO_Q88_SCALE_INIT_FILE = ""
+    parameter string STATE_TO_Q88_SCALE_INIT_FILE = "",
+    parameter bit STATE_CONTINUOUS_DEFAULT = 0
 )(
     input  logic clk,
     input  logic rst_n,
@@ -231,6 +232,8 @@ module reuse_mamba_block_top #(
     logic [4:0]                   h_inproj_wr_addr;
     logic signed [DATA_WIDTH-1:0] h_inproj_wr_data [TILE_SIZE-1:0];
     logic signed [DATA_WIDTH-1:0] gamma_wr_zero [TILE_SIZE-1:0];
+    logic                         ssm_state_clear_busy;
+    logic                         ssm_state_clear_done;
 
     assign block_busy = block_active;
     assign block_done = block_done_reg;
@@ -743,6 +746,11 @@ module reuse_mamba_block_top #(
     ) u_ssm_core (
         .clk(clk),
         .rst_n(rst_n),
+        .state_frame_start(block_start),
+        .state_continuous_en(STATE_CONTINUOUS_DEFAULT),
+        .state_force_clear(1'b0),
+        .state_clear_busy(ssm_state_clear_busy),
+        .state_clear_done(ssm_state_clear_done),
         .mac_m_valid(dt_mac_valid),
         .mac_vec(dt_mac_vec),
         .mac_m_ready(dt_mac_ready),

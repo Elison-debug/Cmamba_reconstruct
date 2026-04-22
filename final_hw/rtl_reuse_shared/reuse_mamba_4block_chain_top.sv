@@ -16,6 +16,7 @@ module reuse_mamba_4block_chain_top #(
     parameter string LUT_FILE = "sigmoid_lut_q016_2048.hex",
     parameter int S_ADDR_W   = 6,
     parameter int G_FRAC_BITS = 8,
+    parameter bit INTER_BLOCK_PIPELINE = 0,
     parameter string STAGE_DIR_B0 = "",
     parameter string STAGE_DIR_B1 = "",
     parameter string STAGE_DIR_B2 = "",
@@ -159,7 +160,6 @@ module reuse_mamba_4block_chain_top #(
 
     logic signed [DATA_WIDTH-1:0] h0_shadow [0:H_ROWS-1][TILE_SIZE-1:0];
     logic signed [DATA_WIDTH-1:0] residual_cur [0:H_ROWS-1][TILE_SIZE-1:0];
-    logic signed [DATA_WIDTH-1:0] residual_next [0:H_ROWS-1][TILE_SIZE-1:0];
 
     typedef enum logic [1:0] {
         ST_IDLE    = 2'd0,
@@ -188,11 +188,18 @@ module reuse_mamba_4block_chain_top #(
             for (int lane = 0; lane < TILE_SIZE; lane++) begin
                 blk_h_wr_data[0][lane] = h_wr_data[lane];
             end
+        end else if (INTER_BLOCK_PIPELINE && state == ST_RUN && (cur_blk < 2'd3) &&
+                     blk_y_valid[cur_blk] && blk_y_ready[cur_blk]) begin
+            blk_h_wr_en[cur_blk + 1'b1] = 1'b1;
+            blk_h_wr_addr[cur_blk + 1'b1] = y_row_cnt[4:0];
+            for (int lane = 0; lane < TILE_SIZE; lane++) begin
+                blk_h_wr_data[cur_blk + 1'b1][lane] = sat_add_s16(residual_cur[y_row_cnt][lane], blk_y_data[cur_blk][lane]);
+            end
         end else if (state == ST_PRELOAD && (cur_blk < 2'd3)) begin
             blk_h_wr_en[cur_blk + 1'b1] = 1'b1;
             blk_h_wr_addr[cur_blk + 1'b1] = preload_row_cnt[4:0];
             for (int lane = 0; lane < TILE_SIZE; lane++) begin
-                blk_h_wr_data[cur_blk + 1'b1][lane] = residual_next[preload_row_cnt][lane];
+                blk_h_wr_data[cur_blk + 1'b1][lane] = residual_cur[preload_row_cnt][lane];
             end
         end
     end
@@ -232,7 +239,6 @@ module reuse_mamba_4block_chain_top #(
                 for (int lane = 0; lane < TILE_SIZE; lane++) begin
                     h0_shadow[r][lane] <= '0;
                     residual_cur[r][lane] <= '0;
-                    residual_next[r][lane] <= '0;
                 end
             end
         end else begin
@@ -268,7 +274,7 @@ module reuse_mamba_4block_chain_top #(
                     if (blk_y_valid[cur_blk] && blk_y_ready[cur_blk]) begin
                         if (cur_blk < 2'd3) begin
                             for (int lane = 0; lane < TILE_SIZE; lane++) begin
-                                residual_next[y_row_cnt][lane] <= sat_add_s16(residual_cur[y_row_cnt][lane], blk_y_data[cur_blk][lane]);
+                                residual_cur[y_row_cnt][lane] <= sat_add_s16(residual_cur[y_row_cnt][lane], blk_y_data[cur_blk][lane]);
                             end
                         end
                         if (y_row_cnt == 6'd31) begin
@@ -277,8 +283,14 @@ module reuse_mamba_4block_chain_top #(
                                 done <= 1'b1;
                                 state <= ST_IDLE;
                             end else begin
-                                preload_row_cnt <= 6'd0;
-                                state <= ST_PRELOAD;
+                                if (INTER_BLOCK_PIPELINE) begin
+                                    cur_blk <= cur_blk + 2'd1;
+                                    y_row_cnt <= 6'd0;
+                                    state <= ST_LAUNCH;
+                                end else begin
+                                    preload_row_cnt <= 6'd0;
+                                    state <= ST_PRELOAD;
+                                end
                             end
                         end else begin
                             y_row_cnt <= y_row_cnt + 6'd1;
@@ -288,11 +300,6 @@ module reuse_mamba_4block_chain_top #(
 
                 ST_PRELOAD: begin
                     if (preload_row_cnt == 6'd31) begin
-                        for (int r = 0; r < H_ROWS; r++) begin
-                            for (int lane = 0; lane < TILE_SIZE; lane++) begin
-                                residual_cur[r][lane] <= residual_next[r][lane];
-                            end
-                        end
                         cur_blk <= cur_blk + 2'd1;
                         y_row_cnt <= 6'd0;
                         state <= ST_LAUNCH;

@@ -51,7 +51,9 @@ module reuse_mamba_h_stream_loader #(
                 if (rows_left != 16'd0)
                     rows_left <= rows_left - 1'b1;
 
-                if ((rows_left == 16'd1) || s_axis_tlast) begin
+                // Complete exactly after rows_cfg beats. Do not terminate early on
+                // upstream TLAST; loader framing is row-count based.
+                if (rows_left == 16'd1) begin
                     busy <= 1'b0;
                     done <= 1'b1;
                 end

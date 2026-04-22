@@ -23,6 +23,12 @@ module ew_update_vec4 #(
 )(
     input  logic clk,
     input  logic rst_n,
+    // state clear controls
+    input  logic                 state_frame_start,
+    input  logic                 state_continuous_en,
+    input  logic                 state_force_clear,
+    output logic                 state_clear_busy,
+    output logic                 state_clear_done,
 
     // input stream (from join)
     input  logic                 in_valid,
@@ -100,12 +106,22 @@ module ew_update_vec4 #(
     logic [W-1:0] scaled_state_next_r [TILE_SIZE-1:0];
     logic [W-1:0] scaled_state_q88 [TILE_SIZE-1:0];
     logic [15:0] scaled_dummy_scale [TILE_SIZE-1:0];
+    logic                 state_clr_wr_en;
+    logic [S_ADDR_W-1:0]  state_clr_wr_addr;
+    logic [MEM_W-1:0]     state_clr_wr_data;
+    logic                 state_quiesce_req;
+    logic                 state_compute_hold;
+    logic                 state_pipe_quiescent;
+    logic                 ram_we;
+    logic [S_ADDR_W-1:0]  ram_waddr;
+    logic [MEM_W-1:0]     ram_wdata;
 
     // ------------------------------------------------------------
     // 1) input accept + state read scheduling
     // ------------------------------------------------------------
     // in_ready: 只有在内部空闲且后续不会阻塞时才接 token
-    assign in_ready = (st == ST_IDLE);
+    assign in_ready = (st == ST_IDLE) && !state_compute_hold;
+    assign state_pipe_quiescent = (st == ST_IDLE) && !out_valid;
 
     always_ff @(posedge clk) begin
         if (!rst_n) begin
@@ -132,6 +148,7 @@ module ew_update_vec4 #(
             // output handshake
             if (out_valid && out_ready) out_valid <= 1'b0;
             if (calc_done && st==ST_WAIT) calc_done <= 1'b0;
+            if (state_clr_wr_en) last_wr_valid <= 1'b0;
 
             case (st)
                 ST_IDLE: begin
@@ -345,12 +362,34 @@ module ew_update_vec4 #(
     // ------------------------------------------------------------
     // 在 ST_WAIT 写回，需确保上一拍完成计算
     assign state_we = (st == ST_WAIT) && calc_done;
+    assign ram_we   = state_clr_wr_en || state_we;
 
     // A 口在读流水线阶段保持使能，包含 ST_WAIT 以捕获 2-cycle 延迟输出
     wire ena_a = (st == ST_RD1) || (st == ST_RD2) || (st == ST_CALC) || (st == ST_WAIT);
 
     // 写地址 = 读地址 + 1，期望下一次读到上一次写入（地址空间回绕）
     assign s_addr_w = s_addr_r + 1'b1;
+    assign ram_waddr = state_clr_wr_en ? state_clr_wr_addr : s_addr_w;
+    assign ram_wdata = state_clr_wr_en ? state_clr_wr_data : s_new_packed;
+
+    reuse_ssm_state_reset_ctrl #(
+        .S_ADDR_W(S_ADDR_W),
+        .DATA_W  (MEM_W)
+    ) u_state_reset_ctrl (
+        .clk                (clk),
+        .rst_n              (rst_n),
+        .frame_start        (state_frame_start),
+        .force_clear        (state_force_clear),
+        .continuous_state_en(state_continuous_en),
+        .pipe_quiescent     (state_pipe_quiescent),
+        .clear_busy         (state_clear_busy),
+        .clear_done         (state_clear_done),
+        .quiesce_req        (state_quiesce_req),
+        .compute_hold       (state_compute_hold),
+        .state_wr_en        (state_clr_wr_en),
+        .state_wr_addr      (state_clr_wr_addr),
+        .state_wr_data      (state_clr_wr_data)
+    );
 
     s_buffer u_s_buffer (
         .clka   (clk),
@@ -361,10 +400,10 @@ module ew_update_vec4 #(
         .douta  (s_dout_packed),
 
         .clkb   (clk),
-        .enb    (state_we),
-        .web    (state_we),
-        .addrb  (s_addr_w), // 写到下一地址
-        .dinb   (s_new_packed),
+        .enb    (ram_we),
+        .web    (ram_we),
+        .addrb  (ram_waddr),
+        .dinb   (ram_wdata),
         .doutb  ()
     );
 

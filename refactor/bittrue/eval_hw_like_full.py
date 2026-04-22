@@ -27,6 +27,13 @@ from refactor.bittrue.export_hw_debug import (
     _ssm_update_q88_from_lam_q016,
     _ssm_update_scaled_state_q15_from_q88,
 )
+from refactor.bittrue.hw_like_chain4 import (
+    collect_chain4_q88_continuous,
+    collect_chain4_q88_parallel,
+    load_chain4_cache,
+    save_chain4_cache,
+    validate_chain4_cache_with_stream_golden,
+)
 
 
 def _write_json(path: Path, obj: dict | list) -> None:
@@ -798,45 +805,85 @@ def main() -> None:
         raise ValueError("no samples to evaluate")
 
     threshold = max(1, int(args.cache_threshold))
-    use_cache_mode = (not bool(args.continuous_state)) and (int(eval_samples) < threshold)
     workers = int(args.workers) if int(args.workers) > 0 else max(1, int((__import__("os").cpu_count()) or 1))
-    cached = None if bool(args.continuous_state) else _load_chain4_cached_batches(case_dir, min_samples=int(eval_samples))
+    cache_validation: dict = {"checked": False}
     if bool(args.continuous_state):
         print(f"[eval] continuous_state mode: sequential chain4 generation for {eval_samples} samples")
-        y_batch, h_batch = _collect_chain4_q88_stream_continuous(
+        y_batch, h_batch = collect_chain4_q88_continuous(
             export_json=export_json,
             samples_eval=samples_eval,
             scan_mode=str(args.scan_mode),
             progress_every=int(args.progress_every),
         )
         chain4_input_mode = "stream_continuous"
-    elif cached is not None:
-        print(f"[eval] using existing chain4 cache for {eval_samples} samples")
-        y_batch, h_batch = cached[0][:eval_samples], cached[1][:eval_samples]
-        chain4_input_mode = "cache"
-    elif use_cache_mode:
-        regen_n = min(int(total_samples), max(int(eval_samples), threshold))
-        print(f"[eval] cache mode: regenerating chain4 batch cache to {regen_n} samples")
-        y_batch_all, h_batch_all = _ensure_chain4_batch_inputs(
-            case_dir=case_dir,
-            export_json=export_json,
-            required_samples=regen_n,
-            progress_every=int(args.progress_every),
-        )
-        y_batch, h_batch = y_batch_all[:eval_samples], h_batch_all[:eval_samples]
-        chain4_input_mode = "cache"
     else:
-        print(f"[eval] stream mode: generating chain4 q88 with {workers} worker(s) for {eval_samples} samples")
-        y_batch, h_batch = _collect_chain4_q88_stream(
-            export_json=export_json,
-            samples_eval=samples_eval,
-            workers=workers,
-            scan_mode=str(args.scan_mode),
-            progress_every=int(args.progress_every),
-        )
-        _save_chain4_cached_batches(case_dir, y_batch, h_batch)
-        print(f"[eval] stream mode: saved cache with {eval_samples} samples")
-        chain4_input_mode = "stream"
+        cached = load_chain4_cache(case_dir)
+        if cached is not None:
+            ok_cache, cache_validation = validate_chain4_cache_with_stream_golden(
+                case_dir=case_dir,
+                y_batch=cached[0],
+                mode_tag="stateless",
+                max_frames=max(1, min(8, int(eval_samples))),
+            )
+            if not ok_cache:
+                print("[eval] chain4 cache mismatch vs stream golden prefix; rebuilding cache")
+                cached = None
+        if cached is not None and int(cached[0].shape[0]) >= int(eval_samples):
+            print(f"[eval] using chain4 cache prefix for {eval_samples} samples")
+            y_batch, h_batch = cached[0][:eval_samples], cached[1][:eval_samples]
+            chain4_input_mode = "cache_hit"
+        elif cached is not None:
+            have = int(cached[0].shape[0])
+            need = int(eval_samples)
+            print(f"[eval] extending chain4 cache from {have} to {need} samples")
+            y_more, h_more = collect_chain4_q88_parallel(
+                export_json=export_json,
+                samples_eval=samples_eval[have:need],
+                workers=workers,
+                scan_mode=str(args.scan_mode),
+                progress_every=int(args.progress_every),
+            )
+            y_batch = np.concatenate([cached[0], y_more], axis=0)
+            h_batch = np.concatenate([cached[1], h_more], axis=0)
+            save_chain4_cache(case_dir, y_batch, h_batch)
+            y_batch = y_batch[:eval_samples]
+            h_batch = h_batch[:eval_samples]
+            chain4_input_mode = "cache_extend"
+        else:
+            print(f"[eval] building chain4 cache with {workers} worker(s) for {eval_samples} samples")
+            y_batch, h_batch = collect_chain4_q88_parallel(
+                export_json=export_json,
+                samples_eval=samples_eval,
+                workers=workers,
+                scan_mode=str(args.scan_mode),
+                progress_every=int(args.progress_every),
+            )
+            save_chain4_cache(case_dir, y_batch, h_batch)
+            chain4_input_mode = "cache_build"
+            cache_validation = {"checked": False, "reason": "cache newly built"}
+
+    # Optional cppish cache for long-run comparison/debug reuse.
+    cppish_path = float_dir / "cppish_full.npy"
+    if cppish_path.exists():
+        y_cppish_all = np.load(cppish_path).astype(np.float32)
+    else:
+        y_cppish_all = np.zeros((0, y_cpp_eval.shape[1]), dtype=np.float32)
+    if int(y_cppish_all.shape[0]) < int(eval_samples):
+        start_i = int(y_cppish_all.shape[0])
+        out_rows = []
+        for i in range(start_i, int(eval_samples)):
+            y_i, _ = _forward_full_cppish(export_json, samples_eval[i])
+            out_rows.append(y_i.astype(np.float32))
+            if int(args.progress_every) > 0 and (((i + 1) - start_i) % int(args.progress_every) == 0):
+                print(f"[eval] cppish cache {i + 1}/{eval_samples}")
+        if out_rows:
+            y_more = np.stack(out_rows, axis=0).astype(np.float32)
+            if start_i > 0:
+                y_cppish_all = np.concatenate([y_cppish_all, y_more], axis=0)
+            else:
+                y_cppish_all = y_more
+            np.save(cppish_path, y_cppish_all.astype(np.float32))
+    y_cppish_eval = y_cppish_all[:eval_samples]
 
     y_hw = np.zeros_like(y_cpp_eval, dtype=np.float32)
     items = [(i, h_batch[i], y_batch[i]) for i in range(eval_samples)]
@@ -858,6 +905,7 @@ def main() -> None:
 
     hw_vs_cpp = np.abs(y_hw - y_cpp_eval)
     hw_vs_float = np.abs(y_hw - y_float_eval)
+    cppish_vs_cpp = np.abs(y_cppish_eval - y_cpp_eval)
     summary = {
         "samples": int(eval_samples),
         "total_available_samples": int(total_samples),
@@ -866,6 +914,7 @@ def main() -> None:
         "continuous_state": bool(args.continuous_state),
         "chain4_input_mode": chain4_input_mode,
         "cache_threshold": int(threshold),
+        "chain4_cache_validation": cache_validation,
         "block_source": "case_chain4",
         "hw_like_vs_cpp": {
             "mae": float(np.mean(hw_vs_cpp)),
@@ -877,7 +926,10 @@ def main() -> None:
             "max_abs": float(np.max(hw_vs_float)),
             "metrics_vs_y_true": _metric_dict(y_true_eval, y_hw),
         },
-        "cppish_vs_cpp": None,
+        "cppish_vs_cpp": {
+            "mae": float(np.mean(cppish_vs_cpp)),
+            "max_abs": float(np.max(cppish_vs_cpp)),
+        },
         "block_error_accumulation": {
             name: {
                 "mean_mae": float(np.mean(block_mae_accum[name])),
@@ -887,7 +939,7 @@ def main() -> None:
         },
         "sample0": {
             "y_cpp": y_cpp_eval[0].astype(float).tolist(),
-            "y_cppish": None,
+            "y_cppish": y_cppish_eval[0].astype(float).tolist(),
             "y_hw_like": y_hw[0].astype(float).tolist(),
             "y_true": y_true_eval[0].astype(float).tolist(),
             "y_float": y_float_eval[0].astype(float).tolist(),

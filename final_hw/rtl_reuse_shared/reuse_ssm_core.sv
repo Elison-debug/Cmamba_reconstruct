@@ -36,6 +36,11 @@ module reuse_ssm_core #(
 )(
     input  logic clk,
     input  logic rst_n,
+    input  logic state_frame_start,
+    input  logic state_continuous_en,
+    input  logic state_force_clear,
+    output logic state_clear_busy,
+    output logic state_clear_done,
 
     // dt scheduler outputs
     input  logic                         mac_m_valid,
@@ -72,6 +77,7 @@ module reuse_ssm_core #(
 
     logic                         bias_valid, bias_ready;
     logic signed [DATA_WIDTH-1:0] bias_vec [TILE_SIZE-1:0];
+
     bias_add_regslice_ip_A #(
         .TILE_SIZE (TILE_SIZE),
         .DATA_WIDTH(DATA_WIDTH),
@@ -295,6 +301,11 @@ module reuse_ssm_core #(
     ) u_ew (
         .clk       (clk),
         .rst_n     (rst_n),
+        .state_frame_start(state_frame_start),
+        .state_continuous_en(state_continuous_en),
+        .state_force_clear(state_force_clear),
+        .state_clear_busy(state_clear_busy),
+        .state_clear_done(state_clear_done),
         .in_valid  (join_out_valid),
         .in_ready  (ew_in_ready),
         .lam_vec   (join_lam_vec),

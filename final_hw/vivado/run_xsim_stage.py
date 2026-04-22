@@ -250,6 +250,14 @@ def _stage_cfg(stage: str) -> dict:
             "xsim_plusargs": [],
             "xvlog_defines": [],
         }
+    if stage == "reuse_ssm_state_reset_ctrl":
+        return {
+            "tb_top": "tb_reuse_ssm_state_reset_ctrl",
+            "tb_file": str(TB_DIR / "tb_reuse_ssm_state_reset_ctrl.sv"),
+            "sources": shared_sources,
+            "xsim_plusargs": [],
+            "xvlog_defines": [],
+        }
     raise ValueError(f"unsupported stage: {stage}")
 
 
@@ -283,6 +291,7 @@ def main() -> None:
             "reuse_mamba_4block_chain_top",
             "reuse_mamba_board_shell_stream",
             "reuse_mamba_board_shell_stream_ps",
+            "reuse_ssm_state_reset_ctrl",
         ],
     )
     p.add_argument("--case_dir", default="", help="Optional hw_debug case dir used to source LUT/mem files.")

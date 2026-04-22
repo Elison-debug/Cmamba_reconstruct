@@ -1542,44 +1542,50 @@ def _ssm_update_scaled_state_q15_from_q88_stateful(
     return ssm_q88
 
 
-def _export_chain4_stream_continuous_golden(
+def _export_chain4_stream_golden(
     case_dir: Path,
     export_json: Path,
     n_frames: int = 3,
+    continuous_state: bool = True,
+    source_mode: str = "real_samples",
+    workers: int = 0,
+    progress_every: int = 100,
 ) -> dict:
-    export, backbone, base_dir = _load_export_ir(export_json)
-    blocks = backbone.get("blocks", [])
-    if len(blocks) < 4:
-        return {"generated": False, "reason": f"need >=4 blocks, got {len(blocks)}"}
+    from refactor.bittrue.hw_like_chain4 import collect_chain4_triplets_continuous, collect_chain4_triplets_parallel
 
-    stage_b0 = case_dir / "stages" / "reuse_mamba_block_top_block0"
-    if not (stage_b0 / "h_wr_data_s16_q8p8.mem").exists():
-        return {"generated": False, "reason": "missing block0 input mem"}
+    samples_npy = case_dir / "float" / "samples.npy"
+    if not samples_npy.exists():
+        return {"generated": False, "reason": f"missing samples cache: {samples_npy}"}
+    samples = np.load(samples_npy).astype(np.float32)
+    if samples.shape[0] <= 0:
+        return {"generated": False, "reason": "samples cache is empty"}
 
-    h_rows = _load_packed_mem_q88(stage_b0 / "h_wr_data_s16_q8p8.mem")
-    if h_rows.shape != (32, 4):
-        return {"generated": False, "reason": f"unexpected h shape: {h_rows.shape}"}
-    h0_q88 = _quant_q88(h_rows.reshape(-1)).astype(np.int16)
-
-    blk_cache = []
-    for bi in range(4):
-        blk = blocks[bi]
-        norm_gamma = np.load(base_dir / blk["norm"]["weight"]).astype(np.float32).reshape(-1)
-        in_w = _load_weight_2d_from_desc(base_dir, blk["in_proj"])
-        dt_w = _load_weight_2d_from_desc(base_dir, blk["ssm"]["dt_proj"])
-        out_w = _load_weight_2d_from_desc(base_dir, blk["out_proj"])
-        dt_bias = None
-        if blk["ssm"]["dt_proj"].get("bias_file"):
-            dt_bias = np.load(base_dir / blk["ssm"]["dt_proj"]["bias_file"]).astype(np.float32).reshape(-1)
-        blk_cache.append(
-            {
-                "norm_gamma_q88": _quant_q88(norm_gamma),
-                "in_w": in_w,
-                "dt_w": dt_w,
-                "out_w": out_w,
-                "dt_bias": dt_bias,
-                "runtime": None,
+    n_frames_i = max(1, int(n_frames))
+    if str(source_mode) == "real_samples":
+        if int(samples.shape[0]) < n_frames_i:
+            return {
+                "generated": False,
+                "reason": f"not enough real samples for stream export: need={n_frames_i}, have={samples.shape[0]}",
             }
+        samples_eval = samples[:n_frames_i]
+    else:
+        samples_eval = np.repeat(samples[:1], n_frames_i, axis=0)
+
+    worker_n = int(workers) if int(workers) > 0 else max(1, int((__import__("os").cpu_count()) or 1))
+    if bool(continuous_state):
+        h0_batch, h_batch, y_batch = collect_chain4_triplets_continuous(
+            export_json=export_json,
+            samples_eval=samples_eval,
+            scan_mode="scaled_state",
+            progress_every=int(progress_every),
+        )
+    else:
+        h0_batch, h_batch, y_batch = collect_chain4_triplets_parallel(
+            export_json=export_json,
+            samples_eval=samples_eval,
+            workers=worker_n,
+            scan_mode="scaled_state",
+            progress_every=int(progress_every),
         )
 
     chain_dir = case_dir / "stages" / "reuse_mamba_block_top_chain4"
@@ -1588,78 +1594,72 @@ def _export_chain4_stream_continuous_golden(
     dbg_dir.mkdir(parents=True, exist_ok=True)
 
     y_stream_rows: list[list[int]] = []
+    h_stream_rows: list[list[int]] = []
     debug_files: list[str] = []
-    x_in = h0_q88.copy()
-    for fi in range(int(n_frames)):
-        x_blk = x_in.copy()
-        y_blk3 = np.zeros((32, 4), dtype=np.int16)
-        b3_h_norm = np.zeros((32, 4), dtype=np.int16)
-        b3_u_act = np.zeros((64, 4), dtype=np.int16)
-        b3_dt = np.zeros((64, 4), dtype=np.int16)
-        b3_gate = np.zeros((64, 4), dtype=np.int16)
-        for bi in range(4):
-            bc = blk_cache[bi]
-            inner = int(blocks[bi]["d_inner"])
-            h_norm_q88, _ = _rmsnorm_q88_hw(x_blk, bc["norm_gamma_q88"], eps_q16=1, mode="exact_recip30")
-            uv_q88 = _conv1x1_q88_rne_clamp(bc["in_w"], h_norm_q88)
-            u_q88_rows = uv_q88[:inner].reshape(64, 4)
-            z_q88_rows = uv_q88[inner:].reshape(64, 4)
-            u_sig_q016 = _sigmoid_q016_from_q88(u_q88_rows)
-            z_sig_q016 = _sigmoid_q016_from_q88(z_q88_rows)
-            u_act_q88 = _mul_q016_q88_to_q88(u_sig_q016, u_q88_rows)
-            z_silu_q88 = _mul_q016_q88_to_q88(z_sig_q016, z_q88_rows)
-            dt_q88_mac = _conv1x1_q88_rne_clamp(bc["dt_w"], u_act_q88.reshape(-1)).reshape(64, 4)
-            dt_q88 = _add_bias_q88_rows(dt_q88_mac, bc["dt_bias"])
-            lam_q016 = _sigmoid_q016_from_q88(dt_q88)
-            if bc["runtime"] is None:
-                bc["runtime"] = _make_scaled_state_runtime(u_act_q88)
-            ssm_q88 = _ssm_update_scaled_state_q15_from_q88_stateful(u_act_q88, lam_q016, bc["runtime"])
-            gate_y_q88 = _mul_q88_q88_to_q88(z_silu_q88, ssm_q88)
-            y_q88 = _conv1x1_q88_rne_clamp(bc["out_w"], gate_y_q88.reshape(-1)).reshape(32, 4).astype(np.int16)
-            x_next_q88 = _clamp_s16_arr(x_blk.astype(np.int64).reshape(32, 4) + y_q88.astype(np.int64)).reshape(-1).astype(np.int16)
-            x_blk = x_next_q88
-            if bi == 3:
-                b3_h_norm = h_norm_q88.reshape(32, 4).astype(np.int16)
-                b3_u_act = u_act_q88.reshape(64, 4).astype(np.int16)
-                b3_dt = dt_q88_mac.reshape(64, 4).astype(np.int16)
-                b3_gate = gate_y_q88.reshape(64, 4).astype(np.int16)
-                y_blk3 = y_q88.copy()
+    for fi in range(int(n_frames_i)):
+        h_raw_q88 = h0_batch[fi].astype(np.int16)
+        y_blk3 = y_batch[fi].astype(np.int16)
+        h_blk3 = h_batch[fi].astype(np.int16)
+        for r in range(32):
+            h_stream_rows.append([int(v) & 0xFFFF for v in h_raw_q88[r].tolist()])
         for r in range(32):
             y_stream_rows.append([int(v) & 0xFFFF for v in y_blk3[r].tolist()])
-        fn_h_norm = f"stream_debug/frame{fi:02d}_block3_rmsnorm_q88.mem"
-        fn_u_act = f"stream_debug/frame{fi:02d}_block3_uact_q88.mem"
-        fn_dt = f"stream_debug/frame{fi:02d}_block3_dt_q88.mem"
-        fn_gate = f"stream_debug/frame{fi:02d}_block3_gate_y_q88.mem"
+        fn_h_raw = f"stream_debug/frame{fi:02d}_h_in_raw_q88.mem"
+        fn_h_in = f"stream_debug/frame{fi:02d}_block3_h_in_q88.mem"
         fn_out = f"stream_debug/frame{fi:02d}_block3_outproj_y_q88.mem"
-        _write_mem_matrix_rows_q88(chain_dir / fn_h_norm, b3_h_norm)
-        _write_mem_matrix_rows_q88(chain_dir / fn_u_act, b3_u_act)
-        _write_mem_matrix_rows_q88(chain_dir / fn_dt, b3_dt)
-        _write_mem_matrix_rows_q88(chain_dir / fn_gate, b3_gate)
+        _write_mem_matrix_rows_q88(chain_dir / fn_h_raw, h_raw_q88)
+        _write_mem_matrix_rows_q88(chain_dir / fn_h_in, h_blk3)
         _write_mem_matrix_rows_q88(chain_dir / fn_out, y_blk3)
-        debug_files.extend([fn_h_norm, fn_u_act, fn_dt, fn_gate, fn_out])
-        x_in = h0_q88.copy()
+        debug_files.extend([fn_h_raw, fn_h_in, fn_out])
 
-    out_mem = chain_dir / "stream_y_golden_q88.mem"
+    mode_tag = "continuous" if bool(continuous_state) else "stateless"
+    in_mem_name = f"stream_h_input_{mode_tag}_q88.mem"
+    b3_in_mem_name = f"stream_block3_h_in_{mode_tag}_q88.mem"
+    out_mem_name = f"stream_y_golden_{mode_tag}_q88.mem"
+    manifest_name = f"stream_manifest_{mode_tag}.json"
+    in_mem = chain_dir / in_mem_name
+    b3_in_mem = chain_dir / b3_in_mem_name
+    out_mem = chain_dir / out_mem_name
+    _write_mem_packed_u16(in_mem, h_stream_rows)
+    _write_mem_packed_u16(
+        b3_in_mem,
+        [[int(v) & 0xFFFF for v in h_batch[fi, r].tolist()] for fi in range(int(n_frames_i)) for r in range(32)],
+    )
     _write_mem_packed_u16(out_mem, y_stream_rows)
     _write_json(
-        chain_dir / "stream_manifest.json",
+        chain_dir / manifest_name,
         {
             "generated": True,
-            "n_frames": int(n_frames),
+            "n_frames": int(n_frames_i),
+            "continuous_state": bool(continuous_state),
+            "source_mode": str(source_mode),
             "rows_per_frame": 32,
-            "file": "stream_y_golden_q88.mem",
+            "input_file": in_mem_name,
+            "block3_input_file": b3_in_mem_name,
+            "file": out_mem_name,
             "notes": [
-                "Continuous-state golden for board-shell stream mode.",
-                "Each frame reuses the same block0 h input; EW state is carried across frames.",
+                "Stream golden for board-shell stream mode.",
+                (
+                    "Frames use real per-sample inputs from float/samples.npy."
+                    if str(source_mode) == "real_samples"
+                    else "Frames repeat the first sample input."
+                ),
+                (
+                    "EW state is carried across frames." if bool(continuous_state) else "EW state is reset at each frame boundary."
+                ),
             ],
             "debug_files": debug_files,
         },
     )
     return {
         "generated": True,
-        "n_frames": int(n_frames),
-        "file": "stream_y_golden_q88.mem",
-        "manifest": "stream_manifest.json",
+        "n_frames": int(n_frames_i),
+        "continuous_state": bool(continuous_state),
+        "source_mode": str(source_mode),
+        "input_file": in_mem_name,
+        "block3_input_file": b3_in_mem_name,
+        "file": out_mem_name,
+        "manifest": manifest_name,
         "debug_files": debug_files,
     }
 
@@ -2103,6 +2103,24 @@ def main() -> None:
     p.add_argument("--limit", type=int, default=0)
     p.add_argument("--preload", action="store_true")
     p.add_argument(
+        "--chain4_stream_frames",
+        type=int,
+        default=3,
+        help="Number of frames to export for chain4 stream golden mem.",
+    )
+    p.add_argument(
+        "--chain4_stream_continuous_state",
+        action="store_true",
+        help="Carry EW state across exported stream frames (default: off, reset state every frame).",
+    )
+    p.add_argument(
+        "--chain4_stream_source",
+        type=str,
+        default="real_samples",
+        choices=["real_samples", "repeat_first_sample"],
+        help="Source frames for chain4 stream export: real sample sequence or repeated first sample.",
+    )
+    p.add_argument(
         "--float_cache_dir",
         type=str,
         default="",
@@ -2231,12 +2249,20 @@ def main() -> None:
         max_blocks=4,
     )
     _write_json(out_dir / "logs" / "block_chain4_manifest.json", chain4_summary)
-    stream_chain4_summary = _export_chain4_stream_continuous_golden(
+    stream_chain4_summary = _export_chain4_stream_golden(
         out_dir,
         Path(export_json),
-        n_frames=3,
+        n_frames=max(1, int(args.chain4_stream_frames)),
+        continuous_state=bool(args.chain4_stream_continuous_state),
+        source_mode=str(args.chain4_stream_source),
+        workers=int(args.workers),
+        progress_every=100,
     )
-    _write_json(out_dir / "logs" / "block_chain4_stream_manifest.json", stream_chain4_summary)
+    stream_mode_tag = "continuous" if bool(args.chain4_stream_continuous_state) else "stateless"
+    _write_json(
+        out_dir / "logs" / f"block_chain4_stream_{stream_mode_tag}_manifest.json",
+        stream_chain4_summary,
+    )
     ip_init_summary = {"generated": False, "reason": "skipped"}
     if not bool(args.skip_ip_init):
         ip_entries = []

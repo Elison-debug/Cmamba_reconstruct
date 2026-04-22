@@ -310,6 +310,11 @@ module reuse_top_mac_plus_bias_fifo_sigmoid_ew_gate #(
     ) u_ew (
         .clk       (clk),
         .rst_n     (rst_n),
+        .state_frame_start(1'b0),
+        .state_continuous_en(1'b1),
+        .state_force_clear(1'b0),
+        .state_clear_busy(),
+        .state_clear_done(),
         .in_valid  (join_out_valid),
         .in_ready  (ew_in_ready),
         .lam_vec   (join_lam_vec),
