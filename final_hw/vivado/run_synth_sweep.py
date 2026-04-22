@@ -9,6 +9,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 RTL_DIR = ROOT / "final_hw" / "rtl_reuse_shared"
 IP_DIR = ROOT / "final_hw" / "ip"
+PROJECT_IP_GEN_DIR = ROOT / "final_hw" / "project_mamba_final_hw" / "project_mamba_final_hw.gen" / "sources_1" / "ip"
+PROJECT_IP_CACHE_DIR = ROOT / "final_hw" / "project_mamba_final_hw" / "project_mamba_final_hw.cache" / "ip" / "2024.1"
 RUN_ROOT = ROOT / "final_hw" / "synth_runs"
 
 
@@ -28,16 +30,31 @@ def _ip_sources(mode: str) -> list[Path]:
     out: list[Path] = []
     ip_names = ["bias_ROM", "bias2sigmoid_fifo", "inproj_ht_sram_ip", "inproj_vec_out_sram_ip", "s_buffer"]
     for ip_name in ip_names:
-        base = IP_DIR / ip_name
+        base_candidates = [
+            IP_DIR / ip_name,
+            PROJECT_IP_GEN_DIR / ip_name,
+        ]
+        # cache dir uses hashed subdirs, so we search lazily there as fallback
         candidates: list[Path] = []
         if mode == "stub":
-            candidates = [base / f"{ip_name}_stub.v", base / "sim" / f"{ip_name}.v"]
+            for base in base_candidates:
+                candidates.extend([base / f"{ip_name}_stub.v", base / "sim" / f"{ip_name}.v"])
+            if PROJECT_IP_CACHE_DIR.exists():
+                candidates.extend(PROJECT_IP_CACHE_DIR.rglob(f"{ip_name}_stub.v"))
         elif mode == "sim":
-            candidates = [base / "sim" / f"{ip_name}.v", base / f"{ip_name}_stub.v"]
+            for base in base_candidates:
+                candidates.extend([base / "sim" / f"{ip_name}.v", base / f"{ip_name}_stub.v"])
+            if PROJECT_IP_CACHE_DIR.exists():
+                candidates.extend(PROJECT_IP_CACHE_DIR.rglob(f"{ip_name}_sim_netlist.v"))
+                candidates.extend(PROJECT_IP_CACHE_DIR.rglob(f"{ip_name}_stub.v"))
         else:
             # netlist mode can fail because many *_sim_netlist.v are
             # simulation-only; keep as optional fallback.
-            candidates = [base / f"{ip_name}_sim_netlist.v", base / f"{ip_name}_stub.v", base / "sim" / f"{ip_name}.v"]
+            for base in base_candidates:
+                candidates.extend([base / f"{ip_name}_sim_netlist.v", base / f"{ip_name}_stub.v", base / "sim" / f"{ip_name}.v"])
+            if PROJECT_IP_CACHE_DIR.exists():
+                candidates.extend(PROJECT_IP_CACHE_DIR.rglob(f"{ip_name}_sim_netlist.v"))
+                candidates.extend(PROJECT_IP_CACHE_DIR.rglob(f"{ip_name}_stub.v"))
         for c in candidates:
             if c.exists():
                 out.append(c)
@@ -57,6 +74,7 @@ def _legacy_ip_dep_sources() -> list[Path]:
 def _rtl_sources() -> list[Path]:
     skip = {
         "reuse_ip_blackboxes.sv",
+        "reuse_mamba_board_shell.v",
         "reuse_mamba_board_shell_with_g_loader.v",
         "reuse_mamba_g_stream_loader.v",
     }

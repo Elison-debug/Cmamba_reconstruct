@@ -1,7 +1,7 @@
 `timescale 1ns/1ps
 
 `ifndef HW_DEBUG_CASE_DIR
-  `define HW_DEBUG_CASE_DIR "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke"
+  `define HW_DEBUG_CASE_DIR "E:/course/smamba/final_hw/cases/c01"
 `endif
 
 module tb_reuse_mamba_board_shell_ps;

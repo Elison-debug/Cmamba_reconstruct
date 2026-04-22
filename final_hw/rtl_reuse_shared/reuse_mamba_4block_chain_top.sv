@@ -16,10 +16,10 @@ module reuse_mamba_4block_chain_top #(
     parameter string LUT_FILE = "sigmoid_lut_q016_2048.hex",
     parameter int S_ADDR_W   = 6,
     parameter int G_FRAC_BITS = 8,
-    parameter string STAGE_DIR_B0 = "HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top_block0",
-    parameter string STAGE_DIR_B1 = "HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top_block1",
-    parameter string STAGE_DIR_B2 = "HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top_block2",
-    parameter string STAGE_DIR_B3 = "HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top_block3"
+    parameter string STAGE_DIR_B0 = "",
+    parameter string STAGE_DIR_B1 = "",
+    parameter string STAGE_DIR_B2 = "",
+    parameter string STAGE_DIR_B3 = ""
 ) (
     input  logic clk,
     input  logic rst_n,

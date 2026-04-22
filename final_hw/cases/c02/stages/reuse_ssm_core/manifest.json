@@ -1,0 +1,35 @@
+{
+  "name": "reuse_ssm_core",
+  "rtl_top": "reuse_ssm_core",
+  "status": "partial_ready",
+  "description": "Standalone SSM post-dt core: bias -> sigmoid -> join -> EW update -> gate.",
+  "golden_inputs": [
+    "mac_in_q88.mem",
+    "xt_in_q88.mem",
+    "g_in_q88.mem"
+  ],
+  "golden_outputs": [
+    "lam_golden_q016.mem",
+    "ssm_golden_q88.mem",
+    "gate_y_golden_q88.mem"
+  ],
+  "notes": [
+    "Current simulation model of bias_add_regslice_ip_A uses zero-initialized bias mem_sim unless TB explicitly initializes it.",
+    "This stage isolates dt/lam/ssm/gate from the top-level scheduler."
+  ],
+  "generated_artifacts": {
+    "generated": true,
+    "files": [
+      "mac_in_q88.mem",
+      "xt_in_q88.mem",
+      "g_in_q88.mem",
+      "dt_golden_q88.mem",
+      "lam_golden_q016.mem",
+      "ssm_golden_q88.mem",
+      "gate_y_golden_q88.mem",
+      "state_u_to_state_q16.mem",
+      "state_to_q88_q16.mem",
+      "vectors.json"
+    ]
+  }
+}

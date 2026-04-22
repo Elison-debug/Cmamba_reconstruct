@@ -6,6 +6,7 @@
 //   - Synchronizes external active-low reset into sys_clk
 //   - Packs/unpacks 4-lane vectors
 //---------------------------------------------------------------
+
 module reuse_mamba_chain4_core_adapter #(
     parameter int TILE_SIZE  = 4,
     parameter int DATA_WIDTH = 16,
@@ -19,13 +20,13 @@ module reuse_mamba_chain4_core_adapter #(
     parameter int D          = 256,
     parameter int PIPE_LAT   = 4,
     parameter int ADDR_BITS  = 11,
-    parameter string LUT_FILE = "sigmoid_lut_q016_2048.hex",
+    parameter string LUT_FILE = "E:/course/smamba/final_hw/ip/sigmoid_lut_q016_2048.hex",
     parameter int S_ADDR_W   = 6,
     parameter int G_FRAC_BITS = 8,
-    parameter string STAGE_DIR_B0 = "",
-    parameter string STAGE_DIR_B1 = "",
-    parameter string STAGE_DIR_B2 = "",
-    parameter string STAGE_DIR_B3 = ""
+    parameter string STAGE_DIR_B0 = "E:/course/smamba/final_hw/cases/c01/stages/reuse_mamba_block_top_block0",
+    parameter string STAGE_DIR_B1 = "E:/course/smamba/final_hw/cases/c01/stages/reuse_mamba_block_top_block1",
+    parameter string STAGE_DIR_B2 = "E:/course/smamba/final_hw/cases/c01/stages/reuse_mamba_block_top_block2",
+    parameter string STAGE_DIR_B3 = "E:/course/smamba/final_hw/cases/c01/stages/reuse_mamba_block_top_block3"
 )(
     input  logic sys_clk,
     input  logic ext_reset_n,
@@ -43,21 +44,11 @@ module reuse_mamba_chain4_core_adapter #(
     input  logic                         y_axis_tready,
     output logic signed [TILE_SIZE*DATA_WIDTH-1:0] y_axis_tdata
 );
-    logic [1:0] rst_sync_ff;
-    logic       core_rst_n;
-
     logic signed [DATA_WIDTH-1:0] h_wr_data_arr [TILE_SIZE-1:0];
     logic signed [DATA_WIDTH-1:0] y_axis_tdata_arr [TILE_SIZE-1:0];
 
-    always_ff @(posedge sys_clk) begin
-        if (!ext_reset_n)
-            rst_sync_ff <= '0;
-        else
-            rst_sync_ff <= {rst_sync_ff[0], 1'b1};
-    end
-
-    assign core_rst_n   = rst_sync_ff[1];
-    assign core_rst_n_o = core_rst_n;
+    // ext_reset_n is already synchronized at the board-shell top level.
+    assign core_rst_n_o = ext_reset_n;
 
     always_comb begin
         for (int i = 0; i < TILE_SIZE; i++) begin
@@ -88,7 +79,7 @@ module reuse_mamba_chain4_core_adapter #(
         .STAGE_DIR_B3(STAGE_DIR_B3)
     ) u_core (
         .clk    (sys_clk),
-        .rst_n  (core_rst_n),
+        .rst_n  (ext_reset_n),
         .start  (start),
         .busy   (busy),
         .done   (done),
@@ -100,4 +91,3 @@ module reuse_mamba_chain4_core_adapter #(
         .y_data (y_axis_tdata_arr)
     );
 endmodule
-

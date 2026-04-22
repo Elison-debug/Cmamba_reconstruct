@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import subprocess
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
@@ -30,6 +29,26 @@ from refactor.bittrue.export_hw_debug import (
 def _write_json(path: Path, obj: dict | list) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(obj, indent=2), encoding="utf-8")
+
+
+def _read_mem_matrix_rows_q88(path: Path, cols: int = 4) -> np.ndarray:
+    rows: list[list[int]] = []
+    with open(path, "r", encoding="utf-8") as f:
+        for ln in f:
+            s = ln.strip()
+            if not s:
+                continue
+            word = int(s, 16)
+            row = []
+            for lane in range(cols):
+                v = (word >> (16 * lane)) & 0xFFFF
+                if v & 0x8000:
+                    v -= 0x10000
+                row.append(int(v))
+            rows.append(row)
+    if not rows:
+        return np.zeros((0, cols), dtype=np.int16)
+    return np.asarray(rows, dtype=np.int16)
 
 
 def _run_cpp_batch(
@@ -293,9 +312,66 @@ def _forward_full_hw_like(export_json: Path, x_sample_kd: np.ndarray, scan_mode:
     return y.reshape(-1).astype(np.float32), traces
 
 
+def _forward_full_case_chain4(export_json: Path, case_dir: Path) -> tuple[np.ndarray, list[dict]]:
+    export, backbone, base_dir = _load_export_ir(export_json)
+    stage_b3 = case_dir / "stages" / "reuse_mamba_block_top_block3"
+    chain4_stage = case_dir / "stages" / "reuse_mamba_block_top_chain4"
+    h_in_mem = stage_b3 / "h_wr_data_s16_q8p8.mem"
+    y_blk_mem = chain4_stage / "final_y_golden_q88.mem"
+    if not h_in_mem.exists():
+        raise FileNotFoundError(f"missing block3 input mem: {h_in_mem}")
+    if not y_blk_mem.exists():
+        raise FileNotFoundError(f"missing chain4 final y mem: {y_blk_mem}")
+
+    h_in_q88 = _read_mem_matrix_rows_q88(h_in_mem, cols=4).astype(np.int64).reshape(1, -1)  # (1,128)
+    y_blk_q88 = _read_mem_matrix_rows_q88(y_blk_mem, cols=4).astype(np.int64).reshape(1, -1)  # (1,128)
+    x_post_q88 = np.clip(h_in_q88 + y_blk_q88, -32768, 32767).astype(np.int16)
+    x_post = x_post_q88.astype(np.float32) / 256.0
+
+    traces: list[dict] = [{"stage": "chain4_hw", "x_next": x_post.copy()}]
+    _rmsnorm_inplace_np(x_post, backbone["final_norm"], base_dir)
+    traces.append({"stage": "final_norm", "x_next": x_post.copy()})
+
+    if backbone["output_head"]["kind"] == "pool":
+        pooled = np.mean(x_post, axis=0, keepdims=True).astype(np.float32)
+        backbone_out = _conv1d_run_integer_desc(backbone["output_head"]["pool"], base_dir, pooled, pooled.shape[0], bits=16)
+    else:
+        backbone_out = _conv1d_run_integer_desc(backbone["output_head"]["flat"], base_dir, x_post, x_post.shape[0], bits=16)
+    traces.append({"stage": "output_head", "x_next": backbone_out.copy()})
+
+    head_in = backbone_out.reshape(int(export["model"]["forecast_len"]), int(backbone["meta"]["num_channels"]))
+    y = _conv1d_run_integer_desc(export["head"], base_dir, head_in, head_in.shape[0], bits=16)
+    traces.append({"stage": "head", "x_next": y.copy()})
+    return y.reshape(-1).astype(np.float32), traces
+
+
+def _forward_full_case_chain4_from_q88(export_json: Path, h_in_q88: np.ndarray, y_blk_q88: np.ndarray) -> tuple[np.ndarray, list[dict]]:
+    export, backbone, base_dir = _load_export_ir(export_json)
+    h_in_i = h_in_q88.astype(np.int64).reshape(1, -1)
+    y_blk_i = y_blk_q88.astype(np.int64).reshape(1, -1)
+    x_post_q88 = np.clip(h_in_i + y_blk_i, -32768, 32767).astype(np.int16)
+    x_post = x_post_q88.astype(np.float32) / 256.0
+    traces: list[dict] = [{"stage": "chain4_hw", "x_next": x_post.copy()}]
+    _rmsnorm_inplace_np(x_post, backbone["final_norm"], base_dir)
+    traces.append({"stage": "final_norm", "x_next": x_post.copy()})
+
+    if backbone["output_head"]["kind"] == "pool":
+        pooled = np.mean(x_post, axis=0, keepdims=True).astype(np.float32)
+        backbone_out = _conv1d_run_integer_desc(backbone["output_head"]["pool"], base_dir, pooled, pooled.shape[0], bits=16)
+    else:
+        backbone_out = _conv1d_run_integer_desc(backbone["output_head"]["flat"], base_dir, x_post, x_post.shape[0], bits=16)
+    traces.append({"stage": "output_head", "x_next": backbone_out.copy()})
+
+    head_in = backbone_out.reshape(int(export["model"]["forecast_len"]), int(backbone["meta"]["num_channels"]))
+    y = _conv1d_run_integer_desc(export["head"], base_dir, head_in, head_in.shape[0], bits=16)
+    traces.append({"stage": "head", "x_next": y.copy()})
+    return y.reshape(-1).astype(np.float32), traces
+
+
 _MP_EXPORT_JSON: Path | None = None
 _MP_SCAN_MODE: str = "scaled_state"
 _MP_BLOCK_STAGE_NAMES: list[str] = []
+_MP_EXPORT_JSON_CHAIN: Path | None = None
 
 
 def _mp_worker_init(export_json_str: str, scan_mode: str, block_stage_names: list[str]) -> None:
@@ -303,6 +379,18 @@ def _mp_worker_init(export_json_str: str, scan_mode: str, block_stage_names: lis
     _MP_EXPORT_JSON = Path(export_json_str)
     _MP_SCAN_MODE = scan_mode
     _MP_BLOCK_STAGE_NAMES = list(block_stage_names)
+
+
+def _mp_worker_init_chain(export_json_str: str) -> None:
+    global _MP_EXPORT_JSON_CHAIN
+    _MP_EXPORT_JSON_CHAIN = Path(export_json_str)
+
+
+def _mp_eval_case_chain4(item: tuple[int, np.ndarray, np.ndarray]) -> tuple[int, np.ndarray]:
+    idx, h_q88, y_q88 = item
+    assert _MP_EXPORT_JSON_CHAIN is not None
+    y_out, _ = _forward_full_case_chain4_from_q88(_MP_EXPORT_JSON_CHAIN, h_q88, y_q88)
+    return idx, y_out.astype(np.float32)
 
 
 def _mp_eval_one(item: tuple[int, np.ndarray]) -> tuple[int, np.ndarray, np.ndarray, list[float], list[float]]:
@@ -333,18 +421,12 @@ def main() -> None:
     p.add_argument("--din", type=int, default=2100)
     p.add_argument("--limit", type=int, default=0, help="Evaluate only the first N samples; 0 means all samples.")
     p.add_argument("--progress_every", type=int, default=100, help="Print progress every N samples; 0 disables progress.")
-    p.add_argument(
-        "--scan_mode",
-        type=str,
-        default="scaled_state",
-        choices=["fixed_q88", "scaled_state"],
-        help="SSM scan quantization model for the hw-like path.",
-    )
+    p.add_argument("--scan_mode", type=str, default="scaled_state", choices=["fixed_q88", "scaled_state"])
     p.add_argument(
         "--workers",
         type=int,
         default=0,
-        help="Parallel worker processes for hw/cppish sample evaluation. 0 uses os.cpu_count().",
+        help="Parallel worker processes for case_chain4 post-block evaluation. 0 uses os.cpu_count().",
     )
     args = p.parse_args()
 
@@ -372,58 +454,60 @@ def main() -> None:
     y_float_eval = y_float[:eval_samples]
     y_cpp_eval = y_cpp[:eval_samples]
 
-    y_cppish = np.zeros_like(y_cpp_eval, dtype=np.float32)
     y_hw = np.zeros_like(y_cpp_eval, dtype=np.float32)
+    block_stage_names: list[str] = []
     block_mae_accum: dict[str, list[float]] = {}
     block_max_accum: dict[str, list[float]] = {}
 
-    # probe first sample once to derive stable stage-name mapping
-    probe_cppish, probe_cppish_traces = _forward_full_cppish(export_json, samples_eval[0])
-    probe_hw, probe_hw_traces = _forward_full_hw_like(export_json, samples_eval[0], scan_mode=args.scan_mode)
-    y_cppish[0] = probe_cppish
-    y_hw[0] = probe_hw
-    block_stage_names = [t["stage"] for t in probe_hw_traces if t["stage"].startswith("block") or t["stage"].startswith("patch_embedding")]
-    for name in block_stage_names:
-        block_mae_accum[name] = []
-        block_max_accum[name] = []
-    probe_cppish_map = {t["stage"]: t["x_next"] for t in probe_cppish_traces}
-    probe_hw_map = {t["stage"]: t["x_next"] for t in probe_hw_traces}
-    for name in block_stage_names:
-        ref_name = "patch_embedding" if name == "patch_embedding_q88_if" else name
-        probe_diff = np.abs(probe_hw_map[name].astype(np.float32) - probe_cppish_map[ref_name].astype(np.float32))
-        block_mae_accum[name].append(float(np.mean(probe_diff)))
-        block_max_accum[name].append(float(np.max(probe_diff)))
-
-    remaining = [(i, samples_eval[i]) for i in range(1, eval_samples)]
-    workers = int(args.workers) if int(args.workers) > 0 else max(1, int(os.cpu_count() or 1))
-    if remaining:
-        with ProcessPoolExecutor(
-            max_workers=workers,
-            initializer=_mp_worker_init,
-            initargs=(str(export_json), args.scan_mode, block_stage_names),
-        ) as ex:
-            futs = [ex.submit(_mp_eval_one, item) for item in remaining]
-            done_n = 1
-            for fut in as_completed(futs):
-                idx, cppish_out, hw_out, maes, maxes = fut.result()
-                y_cppish[idx] = cppish_out
-                y_hw[idx] = hw_out
-                for j, name in enumerate(block_stage_names):
-                    block_mae_accum[name].append(maes[j])
-                    block_max_accum[name].append(maxes[j])
-                done_n += 1
-                if int(args.progress_every) > 0 and (done_n == 1 or done_n % int(args.progress_every) == 0):
-                    print(f"[eval] sample {done_n}/{eval_samples}")
+    chain_stage = case_dir / "stages" / "reuse_mamba_block_top_chain4"
+    y_batch_npy = chain_stage / "final_y_q88_batch.npy"
+    h_batch_npy = chain_stage / "block3_h_in_q88_batch.npy"
+    if y_batch_npy.exists() and h_batch_npy.exists():
+        y_batch = np.load(y_batch_npy).astype(np.int16)
+        h_batch = np.load(h_batch_npy).astype(np.int16)
+        if y_batch.shape != h_batch.shape:
+            raise ValueError(f"chain4 batch shape mismatch: y={y_batch.shape}, h={h_batch.shape}")
+        usable = min(eval_samples, int(y_batch.shape[0]))
+        eval_samples = usable
+        samples_eval = samples_eval[:eval_samples]
+        y_true_eval = y_true_eval[:eval_samples]
+        y_float_eval = y_float_eval[:eval_samples]
+        y_cpp_eval = y_cpp_eval[:eval_samples]
+        y_hw = np.zeros_like(y_cpp_eval, dtype=np.float32)
+        workers = int(args.workers) if int(args.workers) > 0 else max(1, int((__import__("os").cpu_count()) or 1))
+        items = [(i, h_batch[i], y_batch[i]) for i in range(eval_samples)]
+        if eval_samples <= 1 or workers <= 1:
+            for i, h_i, y_i in items:
+                y_hw[i], _ = _forward_full_case_chain4_from_q88(export_json, h_i, y_i)
+                if int(args.progress_every) > 0 and ((i + 1) % int(args.progress_every) == 0):
+                    print(f"[eval] sample {i + 1}/{eval_samples}")
+        else:
+            with ProcessPoolExecutor(max_workers=workers, initializer=_mp_worker_init_chain, initargs=(str(export_json),)) as ex:
+                futs = [ex.submit(_mp_eval_case_chain4, it) for it in items]
+                done_n = 0
+                for fut in as_completed(futs):
+                    idx, y_out = fut.result()
+                    y_hw[idx] = y_out
+                    done_n += 1
+                    if int(args.progress_every) > 0 and (done_n % int(args.progress_every) == 0):
+                        print(f"[eval] sample {done_n}/{eval_samples}")
+    else:
+        eval_samples = min(eval_samples, 1)
+        samples_eval = samples_eval[:eval_samples]
+        y_true_eval = y_true_eval[:eval_samples]
+        y_float_eval = y_float_eval[:eval_samples]
+        y_cpp_eval = y_cpp_eval[:eval_samples]
+        y_hw = np.zeros_like(y_cpp_eval, dtype=np.float32)
+        y_hw[0], _ = _forward_full_case_chain4(export_json, case_dir)
 
     hw_vs_cpp = np.abs(y_hw - y_cpp_eval)
     hw_vs_float = np.abs(y_hw - y_float_eval)
-    cppish_vs_cpp = np.abs(y_cppish - y_cpp_eval)
-
     summary = {
         "samples": int(eval_samples),
         "total_available_samples": int(total_samples),
         "limit": int(args.limit),
         "scan_mode": args.scan_mode,
+        "block_source": "case_chain4",
         "hw_like_vs_cpp": {
             "mae": float(np.mean(hw_vs_cpp)),
             "max_abs": float(np.max(hw_vs_cpp)),
@@ -434,10 +518,7 @@ def main() -> None:
             "max_abs": float(np.max(hw_vs_float)),
             "metrics_vs_y_true": _metric_dict(y_true_eval, y_hw),
         },
-        "cppish_vs_cpp": {
-            "mae": float(np.mean(cppish_vs_cpp)),
-            "max_abs": float(np.max(cppish_vs_cpp)),
-        },
+        "cppish_vs_cpp": None,
         "block_error_accumulation": {
             name: {
                 "mean_mae": float(np.mean(block_mae_accum[name])),
@@ -447,7 +528,7 @@ def main() -> None:
         },
         "sample0": {
             "y_cpp": y_cpp_eval[0].astype(float).tolist(),
-            "y_cppish": y_cppish[0].astype(float).tolist(),
+            "y_cppish": None,
             "y_hw_like": y_hw[0].astype(float).tolist(),
             "y_true": y_true_eval[0].astype(float).tolist(),
             "y_float": y_float_eval[0].astype(float).tolist(),
@@ -455,7 +536,6 @@ def main() -> None:
     }
 
     np.save(float_dir / "hw_like_full.npy", y_hw.astype(np.float32))
-    np.save(float_dir / "cppish_full.npy", y_cppish.astype(np.float32))
     _write_json(log_dir / "full_hw_like_eval.json", summary)
     print(json.dumps(summary, indent=2))
 

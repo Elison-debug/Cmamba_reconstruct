@@ -655,7 +655,12 @@ def _quant_q15_scale(x: np.ndarray) -> np.ndarray:
     return q
 
 
-def _rmsnorm_q88_hw(raw_q88: np.ndarray, gamma_q88: np.ndarray, eps_q16: int = 1) -> tuple[np.ndarray, int]:
+def _rmsnorm_q88_hw(
+    raw_q88: np.ndarray,
+    gamma_q88: np.ndarray,
+    eps_q16: int = 1,
+    mode: str = "exact_div",
+) -> tuple[np.ndarray, int]:
     raw_i = raw_q88.astype(np.int64).reshape(-1)
     gamma_i = gamma_q88.astype(np.int64).reshape(-1)
     dim = int(raw_i.shape[0])
@@ -668,16 +673,103 @@ def _rmsnorm_q88_hw(raw_q88: np.ndarray, gamma_q88: np.ndarray, eps_q16: int = 1
     if rms_q88 <= 0:
         rms_q88 = 1
 
-    out = np.zeros((dim,), dtype=np.int16)
-    half = rms_q88 >> 1
-    for i in range(dim):
-        num = int(raw_i[i] * gamma_i[i])
-        if num >= 0:
-            q = (num + half) // rms_q88
+    def _recip_q24_lut8(den: int) -> int:
+        if den <= 0:
+            return 1 << 24
+        msb = int(den.bit_length() - 1)
+        sh = max(0, msb - 8)
+        den_hi = int((den + (1 << (sh - 1))) >> sh) if sh > 0 else int(den)
+        den_hi = max(256, min(511, den_hi))
+        # 256-entry LUT over normalized den_hi in [256, 511]
+        lut_q24 = np.array([int(np.rint((1 << 24) / i)) for i in range(256, 512)], dtype=np.int64)
+        recip = int(lut_q24[den_hi - 256])
+        if msb >= 8:
+            rs = msb - 8
+            recip = int((recip + (1 << (rs - 1))) >> rs) if rs > 0 else recip
         else:
-            q = -(((-num) + half) // rms_q88)
-        q = max(-32768, min(32767, q))
-        out[i] = np.int16(q)
+            recip = int(recip << (8 - msb))
+        return max(1, recip)
+
+    def _recip_q24_nr1_lut8(den: int) -> int:
+        if den <= 0:
+            return 1 << 24
+        msb = int(den.bit_length() - 1)
+        # normalize den to Q1.15 in [1.0, 2.0)
+        den_q15 = int((den << 15) >> msb)
+        den_q15 = max(1 << 15, min((1 << 16) - 1, den_q15))
+        # seed LUT indexed by top-8 fractional bits of den_q15
+        idx = (den_q15 - (1 << 15)) >> 7  # 0..255
+        centers = np.array([(1 << 15) + (i << 7) + 64 for i in range(256)], dtype=np.int64)
+        x0_lut_q15 = np.array([int(np.rint((1 << 30) / c)) for c in centers], dtype=np.int64)  # approx 1/c in Q1.15
+        x = int(x0_lut_q15[int(idx)])
+        # one Newton step: x1 = x * (2 - d*x)
+        prod = int((den_q15 * x + (1 << 14)) >> 15)  # Q1.15
+        term = int((2 << 15) - prod)                 # Q1.15
+        x1 = int((x * term + (1 << 14)) >> 15)       # Q1.15
+        x1 = max(0, min((1 << 16) - 1, x1))
+        # denormalize and convert to Q0.24 reciprocal
+        recip = int((x1 << 9) >> msb)  # (x1 / 2^15) / 2^msb * 2^24
+        return max(1, recip)
+
+    out = np.zeros((dim,), dtype=np.int16)
+    if mode in ("approx_pow2", "lut8", "nr1_lut8", "nr2_lut8", "exact_recip30"):
+        recip_frac_bits = 24
+        if mode == "approx_pow2":
+            if rms_q88 <= 0:
+                recip_q24 = 1 << recip_frac_bits
+            else:
+                msb_idx = int(int(rms_q88).bit_length() - 1)
+                sh = recip_frac_bits - msb_idx
+                sh = max(0, min(31, sh))
+                recip_q24 = 1 << sh
+        elif mode == "lut8":
+            recip_q24 = _recip_q24_lut8(int(rms_q88))
+        elif mode == "nr2_lut8":
+            # first NR from LUT seed in Q1.15
+            den = int(max(1, rms_q88))
+            msb = int(den.bit_length() - 1)
+            den_q15 = int((den << 15) >> msb)
+            den_q15 = max(1 << 15, min((1 << 16) - 1, den_q15))
+            idx = (den_q15 - (1 << 15)) >> 7
+            centers = np.array([(1 << 15) + (i << 7) + 64 for i in range(256)], dtype=np.int64)
+            x0_lut_q15 = np.array([int(np.rint((1 << 30) / c)) for c in centers], dtype=np.int64)
+            x = int(x0_lut_q15[int(idx)])
+            for _ in range(2):
+                prod = int((den_q15 * x + (1 << 14)) >> 15)
+                term = int((2 << 15) - prod)
+                x = int((x * term + (1 << 14)) >> 15)
+                x = max(0, min((1 << 16) - 1, x))
+            recip_q24 = int((x << 9) >> msb)
+            recip_q24 = max(1, recip_q24)
+        elif mode == "exact_recip30":
+            recip_frac_bits = 30
+            if rms_q88 <= 0:
+                recip_q24 = 1 << recip_frac_bits
+            else:
+                recip_q24 = int(((1 << recip_frac_bits) + (int(rms_q88) >> 1)) // int(rms_q88))
+        else:
+            recip_q24 = _recip_q24_nr1_lut8(int(rms_q88))
+        half = 1 << (recip_frac_bits - 1)
+        for i in range(dim):
+            num = int(raw_i[i] * gamma_i[i])
+            mul = int(num * recip_q24)
+            if mul >= 0:
+                rounded = mul + half
+            else:
+                rounded = mul - half
+            q = int(rounded >> recip_frac_bits)
+            q = max(-32768, min(32767, q))
+            out[i] = np.int16(q)
+    else:
+        half = rms_q88 >> 1
+        for i in range(dim):
+            num = int(raw_i[i] * gamma_i[i])
+            if num >= 0:
+                q = (num + half) // rms_q88
+            else:
+                q = -(((-num) + half) // rms_q88)
+            q = max(-32768, min(32767, q))
+            out[i] = np.int16(q)
     return out, rms_q88
 
 
@@ -1169,7 +1261,12 @@ def _export_ew_update_stage(case_dir: Path, state_depth: int = 64, vector_count:
     }
 
 
-def _export_reuse_top_stage(case_dir: Path, model: torch.nn.Module, x_arr: np.ndarray) -> dict:
+def _export_reuse_top_stage(
+    case_dir: Path,
+    model: torch.nn.Module,
+    x_arr: np.ndarray,
+    rmsnorm_mode: str = "exact_div",
+) -> dict:
     stage_dir = case_dir / "stages" / "reuse_mamba_block_top"
     bb = model.backbone
     if len(bb.blocks) == 0:
@@ -1230,7 +1327,7 @@ def _export_reuse_top_stage(case_dir: Path, model: torch.nn.Module, x_arr: np.nd
     outproj_w = outproj_conv.weight.detach().cpu().numpy().reshape(outproj_conv.out_channels, outproj_conv.in_channels)
     h_raw_q88 = _quant_q88(h_raw_np)
     norm_gamma_q88 = _quant_q88(blk.norm.weight.detach().cpu().numpy().reshape(-1))
-    h_norm_q88, rms_q88 = _rmsnorm_q88_hw(h_raw_q88, norm_gamma_q88, eps_q16=1)
+    h_norm_q88, rms_q88 = _rmsnorm_q88_hw(h_raw_q88, norm_gamma_q88, eps_q16=1, mode=rmsnorm_mode)
     uv_q88 = _conv1x1_q88_rne_clamp(inproj_w, h_norm_q88)
     inproj_scale_q15 = np.full((inproj_w.shape[0],), 1 << 15, dtype=np.uint16)
     inproj_w_fold_q88 = _quant_q88(inproj_w)
@@ -1298,6 +1395,7 @@ def _export_reuse_top_stage(case_dir: Path, model: torch.nn.Module, x_arr: np.nd
                 "Compare h->in_proj->u/z SRAM first, then dt/lam/ssm/gate, then y.",
                 "Golden uses aligned 4-array weight banking with direct row_idx addressing for in_proj/dt/out_proj plus row-tile scale_q15 mems.",
                 "Current RTL path uses ties-to-even/clamp with packed per-row scale_q15 for in_proj/dt/out_proj and dynamic scaled-state EW scan.",
+                f"RMSNorm hardware-like mode: {rmsnorm_mode}.",
                 "For cpp-bittrue style ties-to-even/clamp/per-channel-scale comparison, see logs/final_compare_cpp_export_hw_cppish.json.",
             ],
         },
@@ -1373,6 +1471,7 @@ def _export_reuse_top_block_from_ir(
     blk_desc: dict,
     base_dir: Path,
     h_in_f32: np.ndarray,
+    rmsnorm_mode: str = "exact_div",
 ) -> dict:
     inner = int(blk_desc["d_inner"])
     d_model = int(blk_desc["d_model"])
@@ -1383,7 +1482,7 @@ def _export_reuse_top_block_from_ir(
     norm_gamma = np.load(base_dir / blk_desc["norm"]["weight"]).astype(np.float32).reshape(-1)
     norm_gamma_q88 = _quant_q88(norm_gamma)
     h_raw_q88 = _quant_q88(h_in)
-    h_norm_q88, rms_q88 = _rmsnorm_q88_hw(h_raw_q88, norm_gamma_q88, eps_q16=1)
+    h_norm_q88, rms_q88 = _rmsnorm_q88_hw(h_raw_q88, norm_gamma_q88, eps_q16=1, mode=rmsnorm_mode)
 
     inproj_w = _load_weight_2d_from_desc(base_dir, blk_desc["in_proj"])
     dtproj_w = _load_weight_2d_from_desc(base_dir, blk_desc["ssm"]["dt_proj"])
@@ -1466,6 +1565,7 @@ def _export_reuse_top_block_from_ir(
                 "Per-block export from export_json IR with hw-like integer math.",
                 "h_wr_data is pre-norm block input in Q8.8.",
                 "y_golden_q88 is block-local out_proj output.",
+                f"RMSNorm hardware-like mode: {rmsnorm_mode}.",
                 "x_next_golden_q88 = clamp(h_wr_data + y_golden), used as next-block input.",
             ],
         },
@@ -1533,7 +1633,13 @@ def _export_reuse_top_block_from_ir(
     }
 
 
-def _export_reuse_top_four_block_chain(case_dir: Path, export_json: Path, sample_idx: int = 0, max_blocks: int = 4) -> dict:
+def _export_reuse_top_four_block_chain(
+    case_dir: Path,
+    export_json: Path,
+    sample_idx: int = 0,
+    max_blocks: int = 4,
+    rmsnorm_mode: str = "exact_div",
+) -> dict:
     samples = case_dir / "float" / "samples.npy"
     if not samples.exists():
         return {"generated": False, "reason": "float/samples.npy missing"}
@@ -1565,7 +1671,7 @@ def _export_reuse_top_four_block_chain(case_dir: Path, export_json: Path, sample
         stage_name = f"reuse_mamba_block_top_block{bi}"
         stage_dir = case_dir / "stages" / stage_name
         stage_dir.mkdir(parents=True, exist_ok=True)
-        block_out = _export_reuse_top_block_from_ir(stage_dir, blocks[bi], base_dir, x_in)
+        block_out = _export_reuse_top_block_from_ir(stage_dir, blocks[bi], base_dir, x_in, rmsnorm_mode=rmsnorm_mode)
         x_in = block_out["x_next_f32"]
         last_stage_dir = stage_dir
         block_manifests.append(
@@ -1800,6 +1906,19 @@ def main() -> None:
     p.add_argument("--workers", type=int, default=0)
     p.add_argument("--limit", type=int, default=0)
     p.add_argument("--preload", action="store_true")
+    p.add_argument(
+        "--float_cache_dir",
+        type=str,
+        default="",
+        help="Reuse existing float cache dir containing samples.npy/y_true.npy/y_float.npy/cache_meta.json",
+    )
+    p.add_argument(
+        "--rmsnorm_mode",
+        type=str,
+        default="approx_pow2",
+        choices=["exact_div", "approx_pow2", "lut8", "nr1_lut8", "nr2_lut8", "exact_recip30"],
+        help="RMSNorm integer emulation mode (approx_pow2 matches final_hw RMS_APPROX_RECIP path)",
+    )
     p.add_argument("--skip_ip_init", action="store_true", help="Do not generate Vivado IP init .mem/.coe files")
     args = p.parse_args()
 
@@ -1852,6 +1971,14 @@ def main() -> None:
     )
 
     out_dir = Path(args.out_dir)
+    if args.float_cache_dir:
+        src_float = Path(args.float_cache_dir)
+        dst_float = out_dir / "float"
+        dst_float.mkdir(parents=True, exist_ok=True)
+        for fn in ["samples.npy", "y_true.npy", "y_float.npy", "cache_meta.json"]:
+            src = src_float / fn
+            if src.exists():
+                shutil.copy2(src, dst_float / fn)
     float_dir = out_dir / "float"
     x_arr, y_true_arr, y_float_arr = _load_or_prepare_float_cache(
         args, ckpt_cfg, ckpt_arch, dl, device, model, out_dir
@@ -1868,6 +1995,7 @@ def main() -> None:
             "samples": int(x_arr.shape[0]),
             "seq_len": int(x_arr.shape[1]),
             "din": int(x_arr.shape[2]),
+            "rmsnorm_mode": str(args.rmsnorm_mode),
             "export_json": str(Path(export_json).resolve()),
             "export_dir": str(export_dir.resolve()),
         },
@@ -1894,7 +2022,12 @@ def main() -> None:
         elif stage["name"] == "reuse_ssm_dt_scheduler":
             manifest["generated_artifacts"] = _export_reuse_ssm_dt_scheduler_stage(out_dir, model, x_arr)
         elif stage["name"] == "reuse_mamba_block_top":
-            manifest["generated_artifacts"] = _export_reuse_top_stage(out_dir, model, x_arr)
+            manifest["generated_artifacts"] = _export_reuse_top_stage(
+                out_dir,
+                model,
+                x_arr,
+                rmsnorm_mode=args.rmsnorm_mode,
+            )
         else:
             manifest["generated_artifacts"] = {"generated": False}
         _write_json(stage_dir / "manifest.json", manifest)
@@ -1903,7 +2036,13 @@ def main() -> None:
     _write_json(out_dir / "logs" / "block0_cpp_compare_manifest.json", compare_summary)
     dt_chain_summary = _export_dt_chain_debug(out_dir, Path(export_json), sample_idx=0)
     _write_json(out_dir / "logs" / "dt_chain_debug_manifest.json", dt_chain_summary)
-    chain4_summary = _export_reuse_top_four_block_chain(out_dir, Path(export_json), sample_idx=0, max_blocks=4)
+    chain4_summary = _export_reuse_top_four_block_chain(
+        out_dir,
+        Path(export_json),
+        sample_idx=0,
+        max_blocks=4,
+        rmsnorm_mode=args.rmsnorm_mode,
+    )
     _write_json(out_dir / "logs" / "block_chain4_manifest.json", chain4_summary)
     ip_init_summary = {"generated": False, "reason": "skipped"}
     if not bool(args.skip_ip_init):

@@ -1,0 +1,17 @@
+{
+  "N": 32,
+  "approx_pow2_vs_cpp": {
+    "mae": 0.184589684009552,
+    "max_abs": 0.4042261838912964
+  },
+  "exact_div_vs_cpp": {
+    "mae": 0.013546386733651161,
+    "max_abs": 0.0356447696685791
+  },
+  "approx_vs_exact_internal_q88": {
+    "block3_h_in_mae_lsb": 226.664306640625,
+    "block3_h_in_max_lsb": 1189,
+    "chain4_final_y_mae_lsb": 83.913330078125,
+    "chain4_final_y_max_lsb": 667
+  }
+}

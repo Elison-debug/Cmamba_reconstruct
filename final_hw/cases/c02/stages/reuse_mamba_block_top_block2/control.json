@@ -1,0 +1,13 @@
+{
+  "block_auto_mode": 1,
+  "block_start_pulse_cycles": 1,
+  "h_depth": 32,
+  "u_depth": 64,
+  "notes": [
+    "Per-block export from export_json IR with hw-like integer math.",
+    "h_wr_data is pre-norm block input in Q8.8.",
+    "y_golden_q88 is block-local out_proj output.",
+    "RMSNorm hardware-like mode: exact_recip30.",
+    "x_next_golden_q88 = clamp(h_wr_data + y_golden), used as next-block input."
+  ]
+}

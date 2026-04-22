@@ -1,7 +1,7 @@
 `timescale 1ns/1ps
 
 `ifndef HW_DEBUG_CASE_DIR
-  `define HW_DEBUG_CASE_DIR "E:/course/smamba/HW_reconstruct/hw_debug/cases/test_case3_smoke"
+  `define HW_DEBUG_CASE_DIR "E:/course/smamba/final_hw/cases/c01"
 `endif
 
 module tb_reuse_mamba_board_shell_stream;
@@ -10,8 +10,8 @@ module tb_reuse_mamba_board_shell_stream;
   localparam int H_DEPTH    = 32;
   localparam int Y_DEPTH    = 32;
   localparam int N_FRAMES   = 3;
-  localparam bit CHECK_FRAME0_GOLDEN = 0;
-  localparam bit REQUIRE_REPEATABLE = 0;
+  localparam bit CHECK_FRAME0_GOLDEN = 1;
+  localparam bit REQUIRE_REPEATABLE = 1;
   localparam string CASE_DIR = `HW_DEBUG_CASE_DIR;
   localparam string STAGE_B0_CONST = {CASE_DIR, "/stages/reuse_mamba_block_top_block0"};
   localparam string STAGE_B1_CONST = {CASE_DIR, "/stages/reuse_mamba_block_top_block1"};
@@ -27,10 +27,23 @@ module tb_reuse_mamba_board_shell_stream;
   logic [TILE_SIZE*DATA_WIDTH-1:0] s_axis_h_tdata;
   logic                           s_axis_h_tlast;
 
+  logic                           dut_s_axis_h_tvalid;
+  logic                           dut_s_axis_h_tready;
+  logic [TILE_SIZE*DATA_WIDTH-1:0] dut_s_axis_h_tdata;
+  logic                           dut_s_axis_h_tlast;
+  logic [511:0]                   s_axis_h_tdata_512;
+  logic [511:0]                   dut_s_axis_h_tdata_512;
+
   logic                           m_axis_y_tvalid;
   logic                           m_axis_y_tready;
   logic [TILE_SIZE*DATA_WIDTH-1:0] m_axis_y_tdata;
   logic                           m_axis_y_tlast;
+  logic                           dut_m_axis_y_tvalid;
+  logic                           dut_m_axis_y_tready;
+  logic [TILE_SIZE*DATA_WIDTH-1:0] dut_m_axis_y_tdata;
+  logic                           dut_m_axis_y_tlast;
+  logic [511:0]                   dut_m_axis_y_tdata_512;
+  logic [511:0]                   m_axis_y_tdata_512;
   logic                           frame_busy;
 
   logic [63:0] h_wr_data_mem [0:H_DEPTH-1];
@@ -53,7 +66,7 @@ module tb_reuse_mamba_board_shell_stream;
     begin
       stage_b0 = {CASE_DIR, "/stages/reuse_mamba_block_top_block0"};
       $readmemh({stage_b0, "/h_wr_data_s16_q8p8.mem"}, h_wr_data_mem);
-      $readmemh({stage_b0, "/y_golden_q88.mem"}, y_golden_mem);
+      $readmemh({CASE_DIR, "/stages/reuse_mamba_block_top_chain4/final_y_golden_q88.mem"}, y_golden_mem);
     end
   endtask
 
@@ -175,27 +188,54 @@ module tb_reuse_mamba_board_shell_stream;
              $time, tx_idx, rx_frame, rx_row, rx_total_beats, rx_tlast_count, frame_busy);
   end
 
+
+  axis_register_slice_0 u_rs_h_in (
+    .aclk          (clk),
+    .aresetn       (rst_n),
+    .s_axis_tvalid (s_axis_h_tvalid),
+    .s_axis_tready (s_axis_h_tready),
+    .s_axis_tdata  (s_axis_h_tdata),
+    .s_axis_tlast  (s_axis_h_tlast),
+    .m_axis_tvalid (dut_s_axis_h_tvalid),
+    .m_axis_tready (dut_s_axis_h_tready),
+    .m_axis_tdata  (dut_s_axis_h_tdata),
+    .m_axis_tlast  (dut_s_axis_h_tlast)
+  );
+
+  axis_register_slice_0 u_rs_y_out (
+    .aclk          (clk),
+    .aresetn       (rst_n),
+    .s_axis_tvalid (dut_m_axis_y_tvalid),
+    .s_axis_tready (dut_m_axis_y_tready),
+    .s_axis_tdata  (dut_m_axis_y_tdata),
+    .s_axis_tlast  (dut_m_axis_y_tlast),
+    .m_axis_tvalid (m_axis_y_tvalid),
+    .m_axis_tready (m_axis_y_tready),
+    .m_axis_tdata  (m_axis_y_tdata),
+    .m_axis_tlast  (m_axis_y_tlast)
+  );
+
   reuse_mamba_board_shell_stream #(
     .TILE_SIZE(TILE_SIZE),
     .DATA_WIDTH(DATA_WIDTH),
-    .LUT_FILE(LUT_PATH_CONST),
-    .CHAIN4_ENABLE(1),
-    .H_ROWS(H_DEPTH),
-    .STAGE_DIR_B0(STAGE_B0_CONST),
-    .STAGE_DIR_B1(STAGE_B1_CONST),
-    .STAGE_DIR_B2(STAGE_B2_CONST),
-    .STAGE_DIR_B3(STAGE_B3_CONST)
+    .H_ROWS(H_DEPTH)
   ) dut (
     .sys_clk        (clk),
     .ext_reset_n    (rst_n),
-    .s_axis_h_tvalid(s_axis_h_tvalid),
-    .s_axis_h_tready(s_axis_h_tready),
-    .s_axis_h_tdata (s_axis_h_tdata),
-    .s_axis_h_tlast (s_axis_h_tlast),
-    .m_axis_y_tvalid(m_axis_y_tvalid),
-    .m_axis_y_tready(m_axis_y_tready),
-    .m_axis_y_tdata (m_axis_y_tdata),
-    .m_axis_y_tlast (m_axis_y_tlast),
+    .s_axis_h_tvalid(dut_s_axis_h_tvalid),
+    .s_axis_h_tready(dut_s_axis_h_tready),
+    .s_axis_h_tdata (dut_s_axis_h_tdata),
+    .s_axis_h_tlast (dut_s_axis_h_tlast),
+    .m_axis_y_tvalid(dut_m_axis_y_tvalid),
+    .m_axis_y_tready(dut_m_axis_y_tready),
+    .m_axis_y_tdata (dut_m_axis_y_tdata),
+    .m_axis_y_tlast (dut_m_axis_y_tlast),
     .frame_busy     (frame_busy)
   );
+
+  // NOTE:
+  // Keep stream TB path source aligned with stream_ps/post-synth flow by
+  // using adapter defaults. Do not override internal params via defparam.
+  // localparam string LUT_PATH_CONST/STAGE_B*_CONST are retained only for
+  // quick manual bring-up if needed in a dedicated RTL-only debug branch.
 endmodule

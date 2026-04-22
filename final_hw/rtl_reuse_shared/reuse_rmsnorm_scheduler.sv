@@ -4,7 +4,6 @@ module reuse_rmsnorm_scheduler #(
     parameter int H_DEPTH = 32,
     parameter int H_ADDR_W = $clog2(H_DEPTH),
     parameter int EPS_Q16 = 1,
-    parameter bit RMS_APPROX_RECIP = 0,
     parameter string NORM_GAMMA_INIT_FILE = "",
     parameter int NORM_OUT_ROUND_MODE = 1,
     parameter int NORM_OUT_SAT_MODE   = 1
@@ -37,7 +36,7 @@ module reuse_rmsnorm_scheduler #(
     } state_t;
 
     localparam int DIM = H_DEPTH * TILE_SIZE;
-    localparam int RECIP_FRAC_BITS = 24;
+    localparam int RECIP_FRAC_EXACT = 30;
     state_t state;
 
     logic                        raw_rd_en;
@@ -55,7 +54,7 @@ module reuse_rmsnorm_scheduler #(
 
     logic [63:0] mean_sq_q16_reg;
     logic [31:0] rms_q88_reg;
-    logic [31:0] recip_q24_reg;
+    logic [31:0] recip_q_reg;
     logic [65:0] isqrt_rem;
     logic [63:0] isqrt_op;
     logic [31:0] isqrt_root;
@@ -65,46 +64,6 @@ module reuse_rmsnorm_scheduler #(
     logic [63:0] norm_lane_q88_bits [TILE_SIZE-1:0];
     logic [15:0] norm_quant_out [TILE_SIZE-1:0];
     logic [15:0] norm_dummy_scale [TILE_SIZE-1:0];
-
-    function automatic signed [63:0] div_round_nearest_signed(
-        input signed [63:0] num,
-        input [31:0] den
-    );
-        reg [63:0] abs_num;
-        begin
-            if (den == 0)
-                div_round_nearest_signed = 0;
-            else if (num >= 0)
-                div_round_nearest_signed = (num + $signed({32'd0, (den >> 1)})) / $signed({32'd0, den});
-            else begin
-                abs_num = -num;
-                div_round_nearest_signed = -$signed((abs_num + (den >> 1)) / den);
-            end
-        end
-    endfunction
-
-    function automatic [31:0] recip_pow2_approx_q24(
-        input [31:0] den
-    );
-        integer msb_idx;
-        integer sh;
-        begin
-            if (den == 0) begin
-                recip_pow2_approx_q24 = (32'd1 << RECIP_FRAC_BITS);
-            end else begin
-                msb_idx = 0;
-                for (integer i = 0; i < 32; i++) begin
-                    if (den[i]) begin
-                        msb_idx = i;
-                    end
-                end
-                sh = RECIP_FRAC_BITS - msb_idx;
-                if (sh < 0) sh = 0;
-                if (sh > 31) sh = 31;
-                recip_pow2_approx_q24 = (32'd1 << sh);
-            end
-        end
-    endfunction
 
     assign busy = (state != ST_IDLE && state != ST_DONE);
     assign done = (state == ST_DONE);
@@ -163,20 +122,13 @@ module reuse_rmsnorm_scheduler #(
             logic signed [31:0] mul_xg;
             logic signed [63:0] mul_recip;
             logic signed [63:0] rounded;
-            if (RMS_APPROX_RECIP) begin
-                mul_xg = $signed(raw_rd_data[lane]) * $signed(gamma_rd_data[lane]);
-                mul_recip = mul_xg * $signed({1'b0, recip_q24_reg});
-                if (mul_recip >= 0)
-                    rounded = mul_recip + (64'sd1 <<< (RECIP_FRAC_BITS - 1));
-                else
-                    rounded = mul_recip - (64'sd1 <<< (RECIP_FRAC_BITS - 1));
-                norm_lane_q88[lane] = rounded >>> RECIP_FRAC_BITS;
-            end else begin
-                norm_lane_q88[lane] = div_round_nearest_signed(
-                    longint'($signed(raw_rd_data[lane])) * longint'($signed(gamma_rd_data[lane])),
-                    rms_q88_reg
-                );
-            end
+            mul_xg = $signed(raw_rd_data[lane]) * $signed(gamma_rd_data[lane]);
+            mul_recip = mul_xg * $signed({1'b0, recip_q_reg});
+            if (mul_recip >= 0)
+                rounded = mul_recip + (64'sd1 <<< (RECIP_FRAC_EXACT - 1));
+            else
+                rounded = mul_recip - (64'sd1 <<< (RECIP_FRAC_EXACT - 1));
+            norm_lane_q88[lane] = rounded >>> RECIP_FRAC_EXACT;
             norm_lane_q88_bits[lane] = norm_lane_q88[lane];
             norm_dummy_scale[lane] = 16'd1;
         end
@@ -191,7 +143,7 @@ module reuse_rmsnorm_scheduler #(
             sum_sq_accum <= '0;
             mean_sq_q16_reg <= 64'd0;
             rms_q88_reg <= 32'd1;
-            recip_q24_reg <= (32'd1 << RECIP_FRAC_BITS);
+            recip_q_reg <= (32'd1 << RECIP_FRAC_EXACT);
             isqrt_rem <= '0;
             isqrt_op <= '0;
             isqrt_root <= '0;
@@ -216,7 +168,7 @@ module reuse_rmsnorm_scheduler #(
                     sum_sq_accum <= '0;
                     mean_sq_q16_reg <= 64'd0;
                     rms_q88_reg <= 32'd1;
-                    recip_q24_reg <= (32'd1 << RECIP_FRAC_BITS);
+                    recip_q_reg <= (32'd1 << RECIP_FRAC_EXACT);
                     if (enable && start)
                         state <= ST_ACCUM;
                 end
@@ -276,14 +228,10 @@ module reuse_rmsnorm_scheduler #(
                     issue_addr <= '0;
                     rd_addr_d0 <= '0;
                     rd_valid_d0 <= 1'b0;
-                    if (RMS_APPROX_RECIP) begin
-                        recip_q24_reg <= recip_pow2_approx_q24(rms_q88_reg);
-                    end else begin
-                        if (rms_q88_reg == 0)
-                            recip_q24_reg <= (32'd1 << RECIP_FRAC_BITS);
-                        else
-                            recip_q24_reg <= ((32'd1 << RECIP_FRAC_BITS) + (rms_q88_reg >> 1)) / rms_q88_reg;
-                    end
+                    if (rms_q88_reg == 0)
+                        recip_q_reg <= (32'd1 << RECIP_FRAC_EXACT);
+                    else
+                        recip_q_reg <= ((32'd1 << RECIP_FRAC_EXACT) + (rms_q88_reg >> 1)) / rms_q88_reg;
                     state <= ST_NORM;
                 end
 

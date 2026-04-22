@@ -1,0 +1,55 @@
+{
+  "N": 64,
+  "results": {
+    "approx_pow2": {
+      "mae_vs_cpp": 0.1650632917881012,
+      "max_abs_vs_cpp": 0.4071330428123474,
+      "mape_vs_cpp_percent": 10.54979419708252,
+      "mae_vs_float": 0.16150277853012085,
+      "max_abs_vs_float": 0.41082483530044556
+    },
+    "lut8": {
+      "mae_vs_cpp": 0.17128869891166687,
+      "max_abs_vs_cpp": 0.4816402196884155,
+      "mape_vs_cpp_percent": 10.943192481994629,
+      "mae_vs_float": 0.16837285459041595,
+      "max_abs_vs_float": 0.47796952724456787
+    },
+    "nr1_lut8": {
+      "mae_vs_cpp": 0.01691608689725399,
+      "max_abs_vs_cpp": 0.05261635780334473,
+      "mape_vs_cpp_percent": 1.1234147548675537,
+      "mae_vs_float": 0.016204524785280228,
+      "max_abs_vs_float": 0.05416059494018555
+    },
+    "exact_div": {
+      "mae_vs_cpp": 0.01716308668255806,
+      "max_abs_vs_cpp": 0.04950094223022461,
+      "mape_vs_cpp_percent": 1.13515043258667,
+      "mae_vs_float": 0.01656755432486534,
+      "max_abs_vs_float": 0.054006099700927734
+    }
+  },
+  "notes": {
+    "approx_pow2": {
+      "precision": "low",
+      "timing": "best",
+      "resource": "minimal"
+    },
+    "lut8": {
+      "precision": "medium",
+      "timing": "excellent",
+      "resource": "small ROM + 1 mul"
+    },
+    "nr1_lut8": {
+      "precision": "high",
+      "timing": "good",
+      "resource": "small ROM + ~2 mul"
+    },
+    "exact_div": {
+      "precision": "best",
+      "timing": "worst if combinational; good if iterative divider",
+      "resource": "LUT-heavy divider or multi-cycle divider"
+    }
+  }
+}

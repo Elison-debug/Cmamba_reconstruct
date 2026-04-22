@@ -1,0 +1,109 @@
+{
+  "sample": 0,
+  "per_block": {
+    "block0": {
+      "h_norm_golden_s16_q8p8.mem": {
+        "mae_lsb": 183.40625,
+        "max_lsb": 873
+      },
+      "u_golden_q88.mem": {
+        "mae_lsb": 156.4140625,
+        "max_lsb": 712
+      },
+      "z_golden_q88.mem": {
+        "mae_lsb": 155.04296875,
+        "max_lsb": 510
+      },
+      "dt_golden_q88.mem": {
+        "mae_lsb": 197.265625,
+        "max_lsb": 721
+      },
+      "ssm_golden_q88.mem": {
+        "mae_lsb": 79.21875,
+        "max_lsb": 821
+      },
+      "y_golden_q88.mem": {
+        "mae_lsb": 339.1953125,
+        "max_lsb": 1066
+      }
+    },
+    "block1": {
+      "h_norm_golden_s16_q8p8.mem": {
+        "mae_lsb": 169.4375,
+        "max_lsb": 656
+      },
+      "u_golden_q88.mem": {
+        "mae_lsb": 126.1328125,
+        "max_lsb": 430
+      },
+      "z_golden_q88.mem": {
+        "mae_lsb": 133.92578125,
+        "max_lsb": 418
+      },
+      "dt_golden_q88.mem": {
+        "mae_lsb": 81.42578125,
+        "max_lsb": 281
+      },
+      "ssm_golden_q88.mem": {
+        "mae_lsb": 41.203125,
+        "max_lsb": 342
+      },
+      "y_golden_q88.mem": {
+        "mae_lsb": 46.546875,
+        "max_lsb": 146
+      }
+    },
+    "block2": {
+      "h_norm_golden_s16_q8p8.mem": {
+        "mae_lsb": 153.1328125,
+        "max_lsb": 581
+      },
+      "u_golden_q88.mem": {
+        "mae_lsb": 120.05859375,
+        "max_lsb": 465
+      },
+      "z_golden_q88.mem": {
+        "mae_lsb": 116.49609375,
+        "max_lsb": 417
+      },
+      "dt_golden_q88.mem": {
+        "mae_lsb": 94.41015625,
+        "max_lsb": 308
+      },
+      "ssm_golden_q88.mem": {
+        "mae_lsb": 47.6015625,
+        "max_lsb": 370
+      },
+      "y_golden_q88.mem": {
+        "mae_lsb": 70.453125,
+        "max_lsb": 210
+      }
+    },
+    "block3": {
+      "h_norm_golden_s16_q8p8.mem": {
+        "mae_lsb": 125.8828125,
+        "max_lsb": 465
+      },
+      "u_golden_q88.mem": {
+        "mae_lsb": 93.515625,
+        "max_lsb": 332
+      },
+      "z_golden_q88.mem": {
+        "mae_lsb": 91.45703125,
+        "max_lsb": 340
+      },
+      "dt_golden_q88.mem": {
+        "mae_lsb": 61.9765625,
+        "max_lsb": 254
+      },
+      "ssm_golden_q88.mem": {
+        "mae_lsb": 29.9375,
+        "max_lsb": 251
+      },
+      "y_golden_q88.mem": {
+        "mae_lsb": 62.5625,
+        "max_lsb": 195
+      }
+    }
+  }
+}

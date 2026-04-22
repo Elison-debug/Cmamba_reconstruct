@@ -1,0 +1,18 @@
+{
+  "d_inner": 256,
+  "files": {
+    "mac_in_q88": "mac_in_q88.mem",
+    "xt_in_q88": "xt_in_q88.mem",
+    "g_in_q88": "g_in_q88.mem",
+    "dt_golden_q88": "dt_golden_q88.mem",
+    "lam_golden_q016": "lam_golden_q016.mem",
+    "ssm_golden_q88": "ssm_golden_q88.mem",
+    "gate_y_golden_q88": "gate_y_golden_q88.mem",
+    "state_u_to_state_q16": "state_u_to_state_q16.mem",
+    "state_to_q88_q16": "state_to_q88_q16.mem"
+  },
+  "notes": [
+    "mac_in_q88/dt_golden_q88 are pre-bias dt_mac vectors that feed reuse_ssm_core mac_m_valid/mac_vec directly.",
+    "lam/ssm/gate_y golden include on-chip bias ROM addition before sigmoid."
+  ]
+}

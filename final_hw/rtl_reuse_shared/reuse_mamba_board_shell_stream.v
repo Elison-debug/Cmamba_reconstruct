@@ -16,56 +16,40 @@ module reuse_mamba_board_shell_stream #(
     parameter integer D           = 256,
     parameter integer PIPE_LAT    = 4,
     parameter integer ADDR_BITS   = 11,
-    parameter LUT_FILE            = "sigmoid_lut_q016_2048.hex",
     parameter integer S_ADDR_W    = 6,
     parameter integer G_FRAC_BITS = 8,
-    parameter integer H_ROWS      = 32,
-    parameter integer CHAIN4_ENABLE = 1,
-    parameter STAGE_DIR = "HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top",
-    parameter STAGE_DIR_B0 = "HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top_block0",
-    parameter STAGE_DIR_B1 = "HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top_block1",
-    parameter STAGE_DIR_B2 = "HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top_block2",
-    parameter STAGE_DIR_B3 = "HW_reconstruct/hw_debug/cases/test_case3_smoke/stages/reuse_mamba_block_top_block3",
-    parameter INPROJ_BANK0_INIT_FILE = {STAGE_DIR, "/inproj_wbuf_bank0.mem"},
-    parameter INPROJ_BANK1_INIT_FILE = {STAGE_DIR, "/inproj_wbuf_bank1.mem"},
-    parameter INPROJ_BANK2_INIT_FILE = {STAGE_DIR, "/inproj_wbuf_bank2.mem"},
-    parameter INPROJ_BANK3_INIT_FILE = {STAGE_DIR, "/inproj_wbuf_bank3.mem"},
-    parameter INPROJ_BANK4_INIT_FILE = {STAGE_DIR, "/inproj_wbuf_bank4.mem"},
-    parameter INPROJ_BANK5_INIT_FILE = {STAGE_DIR, "/inproj_wbuf_bank5.mem"},
-    parameter INPROJ_SCALE_INIT_FILE = {STAGE_DIR, "/inproj_scale_q15.mem"},
-    parameter DT_BANK0_INIT_FILE = {STAGE_DIR, "/dt_wbuf_bank0.mem"},
-    parameter DT_BANK1_INIT_FILE = {STAGE_DIR, "/dt_wbuf_bank1.mem"},
-    parameter DT_BANK2_INIT_FILE = {STAGE_DIR, "/dt_wbuf_bank2.mem"},
-    parameter DT_BANK3_INIT_FILE = {STAGE_DIR, "/dt_wbuf_bank3.mem"},
-    parameter DT_SCALE_INIT_FILE = {STAGE_DIR, "/dt_scale_q15.mem"},
-    parameter OUTPROJ_BANK0_INIT_FILE = {STAGE_DIR, "/outproj_wbuf_bank0.mem"},
-    parameter OUTPROJ_BANK1_INIT_FILE = {STAGE_DIR, "/outproj_wbuf_bank1.mem"},
-    parameter OUTPROJ_BANK2_INIT_FILE = {STAGE_DIR, "/outproj_wbuf_bank2.mem"},
-    parameter OUTPROJ_BANK3_INIT_FILE = {STAGE_DIR, "/outproj_wbuf_bank3.mem"},
-    parameter OUTPROJ_BANK4_INIT_FILE = {STAGE_DIR, "/outproj_wbuf_bank4.mem"},
-    parameter OUTPROJ_BANK5_INIT_FILE = {STAGE_DIR, "/outproj_wbuf_bank5.mem"},
-    parameter OUTPROJ_SCALE_INIT_FILE = {STAGE_DIR, "/outproj_scale_q15.mem"},
-    parameter ENABLE_RMSNORM = 1,
-    parameter NORM_GAMMA_INIT_FILE = {STAGE_DIR, "/norm_gamma_s16_q8p8.mem"},
-    parameter USE_SCALED_STATE_SCAN = 1,
-    parameter STATE_U_TO_STATE_SCALE_INIT_FILE = {STAGE_DIR, "/state_u_to_state_q16.mem"},
-    parameter STATE_TO_Q88_SCALE_INIT_FILE = {STAGE_DIR, "/state_to_q88_q16.mem"}
+    parameter integer H_ROWS      = 32
 ) (
+    (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME sys_clk, ASSOCIATED_BUSIF s_axis_h:m_axis_y, ASSOCIATED_RESET ext_reset_n, FREQ_HZ 99990005" *)
+    (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 sys_clk CLK" *)
     input  wire                           sys_clk,
+    (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME ext_reset_n, POLARITY ACTIVE_LOW" *)
+    (* X_INTERFACE_INFO = "xilinx.com:signal:reset:1.0 ext_reset_n RST" *)
     input  wire                           ext_reset_n,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 s_axis_h TVALID" *)
     input  wire                           s_axis_h_tvalid,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 s_axis_h TREADY" *)
     output wire                           s_axis_h_tready,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 s_axis_h TDATA" *)
     input  wire [TILE_SIZE*DATA_WIDTH-1:0] s_axis_h_tdata,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 s_axis_h TLAST" *)
     input  wire                           s_axis_h_tlast,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 m_axis_y TVALID" *)
     output wire                           m_axis_y_tvalid,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 m_axis_y TREADY" *)
     input  wire                           m_axis_y_tready,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 m_axis_y TDATA" *)
     output wire [TILE_SIZE*DATA_WIDTH-1:0] m_axis_y_tdata,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 m_axis_y TLAST" *)
     output wire                           m_axis_y_tlast,
+    (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME frame_busy, SENSITIVITY LEVEL_HIGH" *)
+    (* X_INTERFACE_INFO = "xilinx.com:signal:interrupt:1.0 frame_busy INTERRUPT" *)
     output wire                           frame_busy
 );
     localparam integer H_ADDR_W = 5;
     localparam [15:0] H_ROWS_CFG = H_ROWS[15:0];
 
+    reg  [1:0]                     rst_sync_ff;
     wire                           rst_n_int;
     wire                           preload_h_busy;
     wire                           preload_h_done;
@@ -84,11 +68,18 @@ module reuse_mamba_board_shell_stream #(
     wire                           y_last_int;
     wire [15:0]                    h_rows_safe;
 
-    assign rst_n_int    = ext_reset_n;
+    always @(posedge sys_clk) begin
+        if (!ext_reset_n)
+            rst_sync_ff <= 2'b00;
+        else
+            rst_sync_ff <= {rst_sync_ff[0], 1'b1};
+    end
+
+    assign rst_n_int    = rst_sync_ff[1];
     assign frame_busy   = preload_h_busy | core_busy;
     assign h_rows_safe  = (H_ROWS_CFG == 16'd0) ? 16'd1 : H_ROWS_CFG;
     assign y_fire       = m_axis_y_tvalid & m_axis_y_tready;
-    assign y_last_int   = y_fire && (y_row_cnt == (h_rows_safe - 16'd1));
+    assign y_last_int   = m_axis_y_tvalid && (y_row_cnt == (h_rows_safe - 16'd1));
     assign m_axis_y_tlast = y_last_int;
 
     reuse_mamba_h_stream_loader #(
@@ -146,95 +137,33 @@ module reuse_mamba_board_shell_stream #(
         end
     end
 
-    generate
-    if (CHAIN4_ENABLE != 0) begin : g_chain4_core
-        reuse_mamba_chain4_core_adapter #(
-            .TILE_SIZE   (TILE_SIZE),
-            .DATA_WIDTH  (DATA_WIDTH),
-            .ACC_WIDTH   (ACC_WIDTH),
-            .FRAC_BITS   (FRAC_BITS),
-            .N_BANK      (N_BANK),
-            .WDEPTH      (WDEPTH),
-            .WADDR_W     (WADDR_W),
-            .DATA_W      (DATA_W),
-            .XT_ADDR_W   (XT_ADDR_W),
-            .D           (D),
-            .PIPE_LAT    (PIPE_LAT),
-            .ADDR_BITS   (ADDR_BITS),
-            .LUT_FILE    (LUT_FILE),
-            .S_ADDR_W    (S_ADDR_W),
-            .G_FRAC_BITS (G_FRAC_BITS),
-            .STAGE_DIR_B0(STAGE_DIR_B0),
-            .STAGE_DIR_B1(STAGE_DIR_B1),
-            .STAGE_DIR_B2(STAGE_DIR_B2),
-            .STAGE_DIR_B3(STAGE_DIR_B3)
-        ) u_core (
-            .sys_clk       (sys_clk),
-            .ext_reset_n   (rst_n_int),
-            .core_rst_n_o  (core_rst_n_o),
-            .start         (core_start_pulse),
-            .busy          (core_busy),
-            .done          (core_done),
-            .h_wr_en       (h_wr_en),
-            .h_wr_addr     (h_wr_addr),
-            .h_wr_data     (h_wr_data_flat),
-            .y_axis_tvalid (m_axis_y_tvalid),
-            .y_axis_tready (m_axis_y_tready),
-            .y_axis_tdata  (m_axis_y_tdata)
-        );
-    end else begin : g_single_core
-        wire unused_g_ready;
-        reuse_mamba_core_adapter #(
-            .TILE_SIZE(TILE_SIZE), .DATA_WIDTH(DATA_WIDTH), .ACC_WIDTH(ACC_WIDTH), .FRAC_BITS(FRAC_BITS),
-            .N_BANK(N_BANK), .WDEPTH(WDEPTH), .WADDR_W(WADDR_W), .DATA_W(DATA_W), .XT_ADDR_W(XT_ADDR_W), .D(D),
-            .PIPE_LAT(PIPE_LAT), .ADDR_BITS(ADDR_BITS), .LUT_FILE(LUT_FILE), .S_ADDR_W(S_ADDR_W), .G_FRAC_BITS(G_FRAC_BITS),
-            .INPROJ_BANK0_INIT_FILE(INPROJ_BANK0_INIT_FILE), .INPROJ_BANK1_INIT_FILE(INPROJ_BANK1_INIT_FILE),
-            .INPROJ_BANK2_INIT_FILE(INPROJ_BANK2_INIT_FILE), .INPROJ_BANK3_INIT_FILE(INPROJ_BANK3_INIT_FILE),
-            .INPROJ_BANK4_INIT_FILE(INPROJ_BANK4_INIT_FILE), .INPROJ_BANK5_INIT_FILE(INPROJ_BANK5_INIT_FILE),
-            .INPROJ_SCALE_INIT_FILE(INPROJ_SCALE_INIT_FILE),
-            .DT_BANK0_INIT_FILE(DT_BANK0_INIT_FILE), .DT_BANK1_INIT_FILE(DT_BANK1_INIT_FILE),
-            .DT_BANK2_INIT_FILE(DT_BANK2_INIT_FILE), .DT_BANK3_INIT_FILE(DT_BANK3_INIT_FILE),
-            .DT_SCALE_INIT_FILE(DT_SCALE_INIT_FILE),
-            .OUTPROJ_BANK0_INIT_FILE(OUTPROJ_BANK0_INIT_FILE), .OUTPROJ_BANK1_INIT_FILE(OUTPROJ_BANK1_INIT_FILE),
-            .OUTPROJ_BANK2_INIT_FILE(OUTPROJ_BANK2_INIT_FILE), .OUTPROJ_BANK3_INIT_FILE(OUTPROJ_BANK3_INIT_FILE),
-            .OUTPROJ_BANK4_INIT_FILE(OUTPROJ_BANK4_INIT_FILE), .OUTPROJ_BANK5_INIT_FILE(OUTPROJ_BANK5_INIT_FILE),
-            .OUTPROJ_SCALE_INIT_FILE(OUTPROJ_SCALE_INIT_FILE),
-            .ENABLE_RMSNORM(ENABLE_RMSNORM), .NORM_GAMMA_INIT_FILE(NORM_GAMMA_INIT_FILE),
-            .USE_SCALED_STATE_SCAN(USE_SCALED_STATE_SCAN),
-            .STATE_U_TO_STATE_SCALE_INIT_FILE(STATE_U_TO_STATE_SCALE_INIT_FILE),
-            .STATE_TO_Q88_SCALE_INIT_FILE(STATE_TO_Q88_SCALE_INIT_FILE)
-        ) u_core (
-            .sys_clk         (sys_clk),
-            .ext_reset_n     (rst_n_int),
-            .core_rst_n_o    (core_rst_n_o),
-            .block_auto_mode (1'b1),
-            .block_start     (core_start_pulse),
-            .block_busy      (core_busy),
-            .block_done      (core_done),
-            .s_axis_tvalid   (1'b0),
-            .s_axis_tready   (),
-            .g_axis_tvalid   (1'b0),
-            .g_axis_tready   (unused_g_ready),
-            .g_axis_tdata    ({(TILE_SIZE*DATA_WIDTH){1'b0}}),
-            .y_axis_tvalid   (m_axis_y_tvalid),
-            .y_axis_tready   (m_axis_y_tready),
-            .y_axis_tdata    (m_axis_y_tdata),
-            .inproj_enable   (1'b1),
-            .inproj_start    (1'b1),
-            .inproj_busy     (),
-            .inproj_done     (),
-            .h_wr_en         (h_wr_en),
-            .h_wr_addr       (h_wr_addr),
-            .h_wr_data       (h_wr_data_flat),
-            .u_rd_en         (1'b0),
-            .u_rd_addr       (6'd0),
-            .u_rd_data       (),
-            .z_rd_en         (1'b0),
-            .z_rd_addr       (6'd0),
-            .z_rd_data       (),
-            .outproj_enable  (1'b1),
-            .outproj_busy    ()
-        );
-    end
-    endgenerate
+    reuse_mamba_chain4_core_adapter #(
+        .TILE_SIZE   (TILE_SIZE),
+        .DATA_WIDTH  (DATA_WIDTH),
+        .ACC_WIDTH   (ACC_WIDTH),
+        .FRAC_BITS   (FRAC_BITS),
+        .N_BANK      (N_BANK),
+        .WDEPTH      (WDEPTH),
+        .WADDR_W     (WADDR_W),
+        .DATA_W      (DATA_W),
+        .XT_ADDR_W   (XT_ADDR_W),
+        .D           (D),
+        .PIPE_LAT    (PIPE_LAT),
+        .ADDR_BITS   (ADDR_BITS),
+        .S_ADDR_W    (S_ADDR_W),
+        .G_FRAC_BITS (G_FRAC_BITS)
+    ) u_core (
+        .sys_clk       (sys_clk),
+        .ext_reset_n   (rst_n_int),
+        .core_rst_n_o  (core_rst_n_o),
+        .start         (core_start_pulse),
+        .busy          (core_busy),
+        .done          (core_done),
+        .h_wr_en       (h_wr_en),
+        .h_wr_addr     (h_wr_addr),
+        .h_wr_data     (h_wr_data_flat),
+        .y_axis_tvalid (m_axis_y_tvalid),
+        .y_axis_tready (m_axis_y_tready),
+        .y_axis_tdata  (m_axis_y_tdata)
+    );
 endmodule

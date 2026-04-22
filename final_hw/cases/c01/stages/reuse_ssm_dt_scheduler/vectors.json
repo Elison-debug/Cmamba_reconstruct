@@ -1,0 +1,22 @@
+{
+  "d_inner": 256,
+  "files": {
+    "u_act_in_q88": "u_act_in_q88.mem",
+    "dt_golden_q88": "dt_golden_q88.mem",
+    "xt_golden_q88": "xt_golden_q88.mem",
+    "dt_scale_q15": "dt_scale_q15.mem",
+    "dt_wbuf": [
+      "dt_wbuf_bank0.mem",
+      "dt_wbuf_bank1.mem",
+      "dt_wbuf_bank2.mem",
+      "dt_wbuf_bank3.mem",
+      "dt_wbuf_bank4.mem",
+      "dt_wbuf_bank5.mem"
+    ]
+  },
+  "notes": [
+    "u_act_in_q88 is the dt scheduler read source.",
+    "xt_golden_q88 is the direct u_act row stream aligned one-to-one with dt output rows.",
+    "dt_wbuf uses the aligned 4-array bank layout (bank=array index, addr=row_tile*groups+group)."
+  ]
+}

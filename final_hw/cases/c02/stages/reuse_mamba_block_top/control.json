@@ -1,0 +1,15 @@
+{
+  "block_auto_mode": 1,
+  "block_start_pulse_cycles": 1,
+  "h_depth": 32,
+  "u_depth": 64,
+  "notes": [
+    "Current top-level golden is block-local and ends at out_proj output before any residual add outside this RTL block.",
+    "h_wr_data_s16_q8p8 is raw pre-norm patch vector; h_norm_golden_s16_q8p8 is RMSNorm output expected at in_proj input.",
+    "Compare h->in_proj->u/z SRAM first, then dt/lam/ssm/gate, then y.",
+    "Golden uses aligned 4-array weight banking with direct row_idx addressing for in_proj/dt/out_proj plus row-tile scale_q15 mems.",
+    "Current RTL path uses ties-to-even/clamp with packed per-row scale_q15 for in_proj/dt/out_proj and dynamic scaled-state EW scan.",
+    "RMSNorm hardware-like mode: exact_recip30.",
+    "For cpp-bittrue style ties-to-even/clamp/per-channel-scale comparison, see logs/final_compare_cpp_export_hw_cppish.json."
+  ]
+}

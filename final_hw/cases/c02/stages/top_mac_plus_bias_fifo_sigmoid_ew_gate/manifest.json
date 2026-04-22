@@ -1,0 +1,22 @@
+{
+  "name": "top_mac_plus_bias_fifo_sigmoid_ew_gate",
+  "rtl_top": "top_mac_plus_bias_fifo_sigmoid_ew_gate",
+  "status": "planned",
+  "description": "SSM post-dt path including bias, sigmoid, EW update, and gate.",
+  "golden_inputs": [
+    "mac_vec_q88.mem",
+    "xt_q88.mem",
+    "gate_q88.mem"
+  ],
+  "golden_outputs": [
+    "y_q88.mem",
+    "lam_q016.mem",
+    "s_new_q88.mem"
+  ],
+  "notes": [
+    "Good integration target after sigmoid4_vec and ew_update_vec4 pass."
+  ],
+  "generated_artifacts": {
+    "generated": false
+  }
+}

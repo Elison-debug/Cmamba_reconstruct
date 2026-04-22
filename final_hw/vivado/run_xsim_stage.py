@@ -12,7 +12,7 @@ RTL_DIR = ROOT / "final_hw" / "rtl_reuse_shared"
 HW_DIR = ROOT / "final_hw"
 TB_DIR = ROOT / "final_hw" / "tb"
 RUN_ROOT = ROOT / "final_hw"  / "vivado_runs"
-PROJ_IP_GEN_DIR = ROOT / "final_hw" / "ip"
+PROJ_IP_GEN_DIR = ROOT / "final_hw" / "project_mamba_final_hw" / "project_mamba_final_hw.gen" / "sources_1" / "ip"
 
 
 def _vivado_bin() -> Path:
@@ -68,6 +68,22 @@ def _collect_ip_wrappers() -> list[str]:
     candidates: list[Path | None] = [
         _pick_first_existing(
             [
+                PROJ_IP_GEN_DIR / "axis_register_slice_0" / "hdl" / "axis_infrastructure_v1_1_vl_rfs.v",
+            ]
+        ),
+        _pick_first_existing(
+            [
+                PROJ_IP_GEN_DIR / "axis_register_slice_0" / "hdl" / "axis_register_slice_v1_1_vl_rfs.v",
+            ]
+        ),
+        _pick_first_existing(
+            [
+                PROJ_IP_GEN_DIR / "axis_register_slice_0" / "sim" / "axis_register_slice_0.v",
+                PROJ_IP_GEN_DIR / "axis_register_slice_0" / "axis_register_slice_0_sim_netlist.v",
+            ]
+        ),
+        _pick_first_existing(
+            [
                 PROJ_IP_GEN_DIR / "bias_ROM" / "sim" / "bias_ROM.v",
                 PROJ_IP_GEN_DIR / "bias_ROM" / "bias_ROM_sim_netlist.v",
             ]
@@ -116,12 +132,19 @@ def _collect_ip_wrappers() -> list[str]:
             ]
         ),
     ]
-    return [str(p) for p in candidates if p is not None]
+    wrappers = [str(p) for p in candidates if p is not None]
+    if not wrappers:
+        raise FileNotFoundError(
+            f"No IP simulation wrappers found under {PROJ_IP_GEN_DIR}. "
+            "Generate local final_hw IP output products first."
+        )
+    return wrappers
 
 
 def _stage_cfg(stage: str) -> dict:
     skip_rtl = {
         "reuse_ip_blackboxes.sv",
+        "reuse_mamba_board_shell.v",
         "reuse_mamba_board_shell_with_g_loader.v",
         "reuse_mamba_g_stream_loader.v",
     }
@@ -215,6 +238,18 @@ def _stage_cfg(stage: str) -> dict:
             "xsim_plusargs": [],
             "xvlog_defines": [],
         }
+    if stage == "reuse_mamba_board_shell_stream_ps":
+        return {
+            "tb_top": "tb_reuse_mamba_board_shell_stream_ps",
+            "tb_file": str(TB_DIR / "tb_reuse_mamba_board_shell_stream_ps.sv"),
+            "sources": [
+                *shared_sources,
+                str(RTL_DIR / "reuse_mamba_board_shell_stream.v"),
+                str(RTL_DIR / "reuse_mamba_h_stream_loader.v"),
+            ],
+            "xsim_plusargs": [],
+            "xvlog_defines": [],
+        }
     raise ValueError(f"unsupported stage: {stage}")
 
 
@@ -247,6 +282,7 @@ def main() -> None:
             "reuse_mamba_board_shell_ps",
             "reuse_mamba_4block_chain_top",
             "reuse_mamba_board_shell_stream",
+            "reuse_mamba_board_shell_stream_ps",
         ],
     )
     p.add_argument("--case_dir", default="", help="Optional hw_debug case dir used to source LUT/mem files.")
@@ -268,14 +304,21 @@ def main() -> None:
 
     lut_src = _lut_src(args.case_dir or None)
     shutil.copyfile(lut_src, run_dir / "sigmoid_lut_q016_2048.hex")
+    if not PROJ_IP_GEN_DIR.exists():
+        raise FileNotFoundError(
+            f"IP output dir missing: {PROJ_IP_GEN_DIR}. "
+            "Please generate outputs in final_hw/project_mamba_final_hw first."
+        )
     for mif in PROJ_IP_GEN_DIR.rglob("*.mif"):
         shutil.copyfile(mif, run_dir / mif.name)
 
     prj = run_dir / "files.prj"
     with open(prj, "w", encoding="utf-8") as f:
         for src in cfg["sources"]:
-            lang = "verilog" if src.endswith(".v") else "sv"
-            f.write(f'{lang} work "{src}"\n')
+            # Keep .v/.sv consistent under xvlog by forcing SV mode for local RTL.
+            # Some board-shell wrappers intentionally keep .v extension for IP packager
+            # compatibility but still use SV constructs (e.g. string parameters).
+            f.write(f'sv work "{src}"\n')
         f.write(f'sv work "{cfg["tb_file"]}"\n')
         if glbl_v.exists():
             f.write(f'verilog work "{glbl_v}"\n')
@@ -328,6 +371,9 @@ def main() -> None:
         ]
 
     xvlog_cmd = [str(vivado_bin / "xvlog.bat"), "--sv", "--relax", "-i", "."]
+    axis_rs_hdl_dir = PROJ_IP_GEN_DIR / "axis_register_slice_0" / "hdl"
+    if axis_rs_hdl_dir.exists():
+        xvlog_cmd.extend(["-i", str(axis_rs_hdl_dir)])
     for define in xvlog_defines:
         xvlog_cmd.extend(["-d", define])
     xvlog_cmd.extend(["-prj", "files.prj", "-log", "xvlog.log"])

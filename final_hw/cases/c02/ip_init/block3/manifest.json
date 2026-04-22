@@ -1,0 +1,24 @@
+{
+  "block_index": 3,
+  "bias_source": "final_hw\\cases\\c02\\export_ir\\block3_dt_proj_B.npy",
+  "xt_source": "final_hw\\cases\\c02\\stages\\reuse_mamba_block_top\\u_act_golden_q88.mem",
+  "generated": [
+    "bias_ROM_block.coe",
+    "bias_ROM_block.mem",
+    "inproj_ht_sram_zero.coe",
+    "inproj_ht_sram_zero.mem",
+    "inproj_vec_out_sram_zero.coe",
+    "inproj_vec_out_sram_zero.mem",
+    "s_buffer_zero.coe",
+    "s_buffer_zero.mem",
+    "u_xt_rom_block.coe",
+    "u_xt_rom_block.mem"
+  ],
+  "notes": {
+    "bias_ROM": "real dt_proj bias for the selected block, quantized to Q8.8 and packed as 4x int16 per 64-bit word",
+    "u_xt_rom": "debug/static xt preload for legacy MAC-controller tops only; not used by current board shell path",
+    "inproj_ht_sram_ip": "optional zero-init debug image",
+    "inproj_vec_out_sram_ip": "optional zero-init debug image",
+    "s_buffer": "optional zero-init debug image"
+  }
+}

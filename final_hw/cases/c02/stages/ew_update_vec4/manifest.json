@@ -1,0 +1,36 @@
+{
+  "name": "ew_update_vec4",
+  "rtl_top": "ew_update_vec4",
+  "status": "ready_to_hook",
+  "description": "State update s_new = lam*s_prev + (1-lam)*u with SRAM timing.",
+  "golden_inputs": [
+    "lam_q016.mem",
+    "u_q88.mem",
+    "s_prev_q88.mem",
+    "s_addr.mem"
+  ],
+  "golden_outputs": [
+    "s_new_q88.mem",
+    "state_write_addr.mem",
+    "state_write_data.mem"
+  ],
+  "notes": [
+    "Must align lam Q0.16 -> Q8.8 truncation, one_minus, SRAM read latency, and write-back address."
+  ],
+  "generated_artifacts": {
+    "generated": true,
+    "vector_count": 128,
+    "state_depth": 64,
+    "files": [
+      "state_init_q88.mem",
+      "lam_q016.mem",
+      "u_q88.mem",
+      "s_addr.mem",
+      "s_prev_q88.mem",
+      "s_new_q88.mem",
+      "state_write_addr.mem",
+      "state_write_data.mem",
+      "vectors.json"
+    ]
+  }
+}

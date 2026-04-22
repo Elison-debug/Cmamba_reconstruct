@@ -341,7 +341,6 @@ module reuse_mamba_block_top #(
             .DATA_WIDTH(DATA_WIDTH),
             .H_DEPTH(32),
             .H_ADDR_W(5),
-            .RMS_APPROX_RECIP(1'b1),
             .NORM_GAMMA_INIT_FILE(NORM_GAMMA_INIT_FILE)
         ) u_rmsnorm (
             .clk(clk),
