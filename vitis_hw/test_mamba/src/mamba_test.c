@@ -1,6 +1,5 @@
 #include "mamba_test.h"
 #include "platform_cfg.h"
-#include "mamba_regs.h"
 #include "dma_helper.h"
 #include "mem_assets.h"
 
@@ -14,17 +13,6 @@
 
 static XAxiDma AxiDmaH;
 static XAxiDma AxiDmaGY;
-
-static int wait_status_set(uint32_t mask, uint32_t timeout_cycles)
-{
-    volatile uint32_t t = 0;
-    while ((mamba_read(REG_STATUS) & mask) == 0U) {
-        if (++t > timeout_cycles) {
-            return XST_FAILURE;
-        }
-    }
-    return XST_SUCCESS;
-}
 
 static int compare_y_q88_from_assets(const int16_t *got,
                                      const uint64_t *golden_packed,
@@ -64,6 +52,12 @@ int run_mamba_test(void)
     uint32_t y_words;
     uint32_t h_bytes;
     uint32_t y_bytes;
+    uint32_t frame_cnt;
+    uint32_t frame;
+    uint32_t h_words_per_frame = H_DEPTH_EXPECT;
+    uint32_t y_words_per_frame = Y_DEPTH_EXPECT;
+    uint32_t h_bytes_per_frame;
+    uint32_t y_bytes_per_frame;
     int err_cnt = 0;
 
     uint64_t *h_buf      = (uint64_t *)(UINTPTR)H_BUF_ADDR;
@@ -106,69 +100,60 @@ int run_mamba_test(void)
                (unsigned long)h_words,
                (unsigned long)y_words);
 
-    if (h_words != H_DEPTH_EXPECT) {
-        xil_printf("unexpected H depth: %lu (expect %u)\r\n",
-                   (unsigned long)h_words, H_DEPTH_EXPECT);
-        return XST_FAILURE;
-    }
-
-    if (y_words != Y_DEPTH_EXPECT) {
-        xil_printf("unexpected Y depth: %lu (expect %u)\r\n",
-                   (unsigned long)y_words, Y_DEPTH_EXPECT);
-        return XST_FAILURE;
-    }
-
     h_bytes = h_words * sizeof(uint64_t);
     y_bytes = y_words * sizeof(uint64_t);
+    h_bytes_per_frame = h_words_per_frame * sizeof(uint64_t);
+    y_bytes_per_frame = y_words_per_frame * sizeof(uint64_t);
 
-    mamba_write(REG_IRQ_ENABLE, 0U);
-    mamba_write(REG_H_ROWS, h_words);
-    mamba_write(REG_Y_ROWS, y_words);
+    if ((h_words % h_words_per_frame) != 0U) {
+        xil_printf("invalid H words=%lu, not divisible by frame=%lu\r\n",
+                   (unsigned long)h_words, (unsigned long)h_words_per_frame);
+        return XST_FAILURE;
+    }
+    frame_cnt = h_words / h_words_per_frame;
 
-    mamba_write(REG_CTRL, CTRL_SOFT_RESET);
-
-    xil_printf("REG_STATUS before = 0x%08lx\r\n", (unsigned long)mamba_read(REG_STATUS));
-
-    Status = dma_recv_start(&AxiDmaGY, (UINTPTR)Y_BUF_ADDR, y_bytes);
-    if (Status != XST_SUCCESS) {
-        xil_printf("dma recv start failed\r\n");
+    if (y_words != frame_cnt * y_words_per_frame) {
+        xil_printf("invalid Y words=%lu, expect frames(%lu)*%lu=%lu\r\n",
+                   (unsigned long)y_words,
+                   (unsigned long)frame_cnt,
+                   (unsigned long)y_words_per_frame,
+                   (unsigned long)(frame_cnt * y_words_per_frame));
         return XST_FAILURE;
     }
 
-    mamba_write(REG_CTRL, CTRL_PRELOAD_H);
+    xil_printf("stream frames=%lu, h/frame=%lu, y/frame=%lu\r\n",
+               (unsigned long)frame_cnt,
+               (unsigned long)h_words_per_frame,
+               (unsigned long)y_words_per_frame);
 
-    Status = dma_send_blocking(&AxiDmaH, (UINTPTR)H_BUF_ADDR, h_bytes);
-    if (Status != XST_SUCCESS) {
-        xil_printf("dma send H failed\r\n");
-        return XST_FAILURE;
-    }
+    for (frame = 0; frame < frame_cnt; frame++) {
+        UINTPTR h_frame_addr = (UINTPTR)H_BUF_ADDR + ((UINTPTR)frame * h_bytes_per_frame);
+        UINTPTR y_frame_addr = (UINTPTR)Y_BUF_ADDR + ((UINTPTR)frame * y_bytes_per_frame);
 
-    Status = wait_status_set(STATUS_PRELOAD_H_DONE, 1000000U);
-    if (Status != XST_SUCCESS) {
-        xil_printf("wait preload_h_done timeout, status=0x%08lx\r\n",
-                   (unsigned long)mamba_read(REG_STATUS));
-        return XST_FAILURE;
-    }
+        /* AXI4-Stream standard flow: arm output path first, then push input frame. */
+        Status = dma_recv_start(&AxiDmaGY, y_frame_addr, y_bytes_per_frame);
+        if (Status != XST_SUCCESS) {
+            xil_printf("dma recv start failed @frame=%lu\r\n", (unsigned long)frame);
+            return XST_FAILURE;
+        }
 
-    xil_printf("preload_h done, status=0x%08lx\r\n",
-               (unsigned long)mamba_read(REG_STATUS));
+        Status = dma_send_blocking(&AxiDmaH, h_frame_addr, h_bytes_per_frame);
+        if (Status != XST_SUCCESS) {
+            xil_printf("dma send H failed @frame=%lu\r\n", (unsigned long)frame);
+            return XST_FAILURE;
+        }
 
-    mamba_write(REG_CTRL, CTRL_START);
+        Status = dma_wait_s2mm_done(&AxiDmaGY, 50000000U);
+        if (Status != XST_SUCCESS) {
+            xil_printf("wait y dma done timeout @frame=%lu\r\n", (unsigned long)frame);
+            return XST_FAILURE;
+        }
 
-    Status = wait_status_set(STATUS_BLOCK_DONE, 50000000U);
-    if (Status != XST_SUCCESS) {
-        xil_printf("wait block_done timeout, status=0x%08lx\r\n",
-                   (unsigned long)mamba_read(REG_STATUS));
-        return XST_FAILURE;
-    }
-
-    xil_printf("block done, status=0x%08lx\r\n",
-               (unsigned long)mamba_read(REG_STATUS));
-
-    Status = dma_wait_s2mm_done(&AxiDmaGY, 50000000U);
-    if (Status != XST_SUCCESS) {
-        xil_printf("wait y dma done timeout\r\n");
-        return XST_FAILURE;
+        Status = dma_wait_mm2s_done(&AxiDmaH, 50000000U);
+        if (Status != XST_SUCCESS) {
+            xil_printf("wait h dma done timeout @frame=%lu\r\n", (unsigned long)frame);
+            return XST_FAILURE;
+        }
     }
 
     Xil_DCacheInvalidateRange((UINTPTR)Y_BUF_ADDR, y_bytes);

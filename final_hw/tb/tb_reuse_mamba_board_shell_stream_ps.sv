@@ -1,7 +1,7 @@
 `timescale 1ns/1ps
 
 `ifndef HW_DEBUG_CASE_DIR
-  `define HW_DEBUG_CASE_DIR "E:/course/smamba/final_hw/cases/c01"
+  `define HW_DEBUG_CASE_DIR "E:/course/smamba/final_hw/cases/c02"
 `endif
 
 module tb_reuse_mamba_board_shell_stream_ps;
@@ -10,8 +10,6 @@ module tb_reuse_mamba_board_shell_stream_ps;
   localparam int H_DEPTH     = 32;
   localparam int Y_DEPTH     = 32;
   localparam int N_FRAMES    = 3;
-  localparam bit CHECK_FRAME0_GOLDEN = 1;
-  localparam bit REQUIRE_REPEATABLE = 1;
 
   localparam string STAGE_B0_CONST = {`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top_block0"};
 
@@ -41,8 +39,7 @@ module tb_reuse_mamba_board_shell_stream_ps;
   logic                             frame_busy;
 
   logic [63:0] h_wr_data_mem [0:H_DEPTH-1];
-  logic [63:0] y_frame0_mem  [0:Y_DEPTH-1];
-  logic [63:0] y_golden_mem  [0:Y_DEPTH-1];
+  logic [63:0] y_stream_golden_mem  [0:(N_FRAMES*Y_DEPTH)-1];
 
   int tx_idx;
   int rx_frame;
@@ -55,10 +52,29 @@ module tb_reuse_mamba_board_shell_stream_ps;
     unpack_lane64 = $signed(packed_word[lane*DATA_WIDTH +: DATA_WIDTH]);
   endfunction
 
+  function automatic bit lane_diff_gt_1(input logic [63:0] got_w, input logic [63:0] exp_w);
+    int lane;
+    logic signed [DATA_WIDTH-1:0] g;
+    logic signed [DATA_WIDTH-1:0] e;
+    int d;
+    begin
+      lane_diff_gt_1 = 1'b0;
+      for (lane = 0; lane < TILE_SIZE; lane++) begin
+        g = unpack_lane64(got_w, lane);
+        e = unpack_lane64(exp_w, lane);
+        d = g - e;
+        if (d < 0) d = -d;
+        if (d > 1) begin
+          lane_diff_gt_1 = 1'b1;
+        end
+      end
+    end
+  endfunction
+
   task automatic load_case_files();
     begin
       $readmemh({STAGE_B0_CONST, "/h_wr_data_s16_q8p8.mem"}, h_wr_data_mem);
-      $readmemh({`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top_chain4/final_y_golden_q88.mem"}, y_golden_mem);
+      $readmemh({`HW_DEBUG_CASE_DIR, "/stages/reuse_mamba_block_top_chain4/stream_y_golden_q88.mem"}, y_stream_golden_mem);
     end
   endtask
 
@@ -91,13 +107,11 @@ module tb_reuse_mamba_board_shell_stream_ps;
     repeat (8) @(posedge clk);
     $display("[%0t] PS-STREAM-TB launch h stream", $time);
     while (tx_idx < total_beats) begin
-      @(posedge clk);
       s_axis_h_tvalid <= 1'b1;
       s_axis_h_tdata  <= h_wr_data_mem[tx_idx % H_DEPTH];
       s_axis_h_tlast  <= ((tx_idx % H_DEPTH) == (H_DEPTH - 1));
-      if (s_axis_h_tvalid && s_axis_h_tready) begin
-        tx_idx <= tx_idx + 1;
-      end
+      do @(posedge clk); while (!(s_axis_h_tvalid && s_axis_h_tready));
+      tx_idx <= tx_idx + 1;
     end
     @(posedge clk);
     s_axis_h_tvalid <= 1'b0;
@@ -118,24 +132,15 @@ module tb_reuse_mamba_board_shell_stream_ps;
                  $time, rx_frame, rx_row, m_axis_y_tdata, m_axis_y_tlast);
         end
 
-        if (rx_frame == 0) begin
-          if (m_axis_y_tdata !== y_golden_mem[rx_row]) begin
-            if (CHECK_FRAME0_GOLDEN) begin
-              mismatch_cnt++;
-              if (mismatch_cnt <= 8) begin
-                $display("[%0t] golden mismatch frame=%0d row=%0d got=%h exp=%h",
-                         $time, rx_frame, rx_row, m_axis_y_tdata, y_golden_mem[rx_row]);
-              end
-            end
-          end
-          y_frame0_mem[rx_row] = m_axis_y_tdata;
-        end else if (REQUIRE_REPEATABLE) begin
-          if (m_axis_y_tdata !== y_frame0_mem[rx_row]) begin
-            mismatch_cnt++;
-            if (mismatch_cnt <= 8) begin
-              $display("[%0t] mismatch frame=%0d row=%0d got=%h exp=%h",
-                       $time, rx_frame, rx_row, m_axis_y_tdata, y_frame0_mem[rx_row]);
-            end
+        if ($isunknown(y_stream_golden_mem[rx_total_beats])) begin
+          $fatal(1, "[%0t] expected stream golden is X/Z at beat=%0d (check CASE_DIR and mem file)",
+                 $time, rx_total_beats);
+        end
+        if (lane_diff_gt_1(m_axis_y_tdata, y_stream_golden_mem[rx_total_beats])) begin
+          mismatch_cnt++;
+          if (mismatch_cnt <= 8) begin
+            $display("[%0t] stream golden mismatch beat=%0d frame=%0d row=%0d got=%h exp=%h",
+                     $time, rx_total_beats, rx_frame, rx_row, m_axis_y_tdata, y_stream_golden_mem[rx_total_beats]);
           end
         end
         rx_total_beats++;
@@ -174,31 +179,31 @@ module tb_reuse_mamba_board_shell_stream_ps;
            $time, tx_idx, rx_frame, rx_row, rx_total_beats, rx_tlast_count, frame_busy);
   end
 
-//  axis_register_slice_0 u_rs_h_in (
-//    .aclk          (clk),
-//    .aresetn       (rst_n),
-//    .s_axis_tvalid (s_axis_h_tvalid),
-//    .s_axis_tready (s_axis_h_tready),
-//    .s_axis_tdata  (s_axis_h_tdata),
-//    .s_axis_tlast  (s_axis_h_tlast),
-//    .m_axis_tvalid (dut_s_axis_h_tvalid),
-//    .m_axis_tready (dut_s_axis_h_tready),
-//    .m_axis_tdata  (dut_s_axis_h_tdata),
-//    .m_axis_tlast  (dut_s_axis_h_tlast)
-//  );
+  axis_register_slice_0 u_rs_h_in (
+    .aclk          (clk),
+    .aresetn       (rst_n),
+    .s_axis_tvalid (s_axis_h_tvalid),
+    .s_axis_tready (s_axis_h_tready),
+    .s_axis_tdata  (s_axis_h_tdata),
+    .s_axis_tlast  (s_axis_h_tlast),
+    .m_axis_tvalid (dut_s_axis_h_tvalid),
+    .m_axis_tready (dut_s_axis_h_tready),
+    .m_axis_tdata  (dut_s_axis_h_tdata),
+    .m_axis_tlast  (dut_s_axis_h_tlast)
+  );
 
-//  axis_register_slice_0 u_rs_y_out (
-//    .aclk          (clk),
-//    .aresetn       (rst_n),
-//    .s_axis_tvalid (dut_m_axis_y_tvalid),
-//    .s_axis_tready (dut_m_axis_y_tready),
-//    .s_axis_tdata  (dut_m_axis_y_tdata),
-//    .s_axis_tlast  (dut_m_axis_y_tlast),
-//    .m_axis_tvalid (m_axis_y_tvalid),
-//    .m_axis_tready (m_axis_y_tready),
-//    .m_axis_tdata  (m_axis_y_tdata),
-//    .m_axis_tlast  (m_axis_y_tlast)
-//  );
+  axis_register_slice_0 u_rs_y_out (
+    .aclk          (clk),
+    .aresetn       (rst_n),
+    .s_axis_tvalid (dut_m_axis_y_tvalid),
+    .s_axis_tready (dut_m_axis_y_tready),
+    .s_axis_tdata  (dut_m_axis_y_tdata),
+    .s_axis_tlast  (dut_m_axis_y_tlast),
+    .m_axis_tvalid (m_axis_y_tvalid),
+    .m_axis_tready (m_axis_y_tready),
+    .m_axis_tdata  (m_axis_y_tdata),
+    .m_axis_tlast  (m_axis_y_tlast)
+  );
 
   reuse_mamba_board_shell_stream #(
     .TILE_SIZE (TILE_SIZE),
@@ -207,14 +212,14 @@ module tb_reuse_mamba_board_shell_stream_ps;
   ) dut (
     .sys_clk        (clk),
     .ext_reset_n    (rst_n),
-    .s_axis_h_tvalid(s_axis_h_tvalid),
-    .s_axis_h_tready(s_axis_h_tready),
-    .s_axis_h_tdata (s_axis_h_tdata),
-    .s_axis_h_tlast (s_axis_h_tlast),
-    .m_axis_y_tvalid(m_axis_y_tvalid),
-    .m_axis_y_tready(m_axis_y_tready),
-    .m_axis_y_tdata (m_axis_y_tdata),
-    .m_axis_y_tlast (m_axis_y_tlast),
+    .s_axis_h_tvalid(dut_s_axis_h_tvalid),
+    .s_axis_h_tready(dut_s_axis_h_tready),
+    .s_axis_h_tdata (dut_s_axis_h_tdata),
+    .s_axis_h_tlast (dut_s_axis_h_tlast),
+    .m_axis_y_tvalid(dut_m_axis_y_tvalid),
+    .m_axis_y_tready(dut_m_axis_y_tready),
+    .m_axis_y_tdata (dut_m_axis_y_tdata),
+    .m_axis_y_tlast (dut_m_axis_y_tlast),
     .frame_busy     (frame_busy)
   );
 

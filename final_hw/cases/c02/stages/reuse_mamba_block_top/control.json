@@ -9,7 +9,7 @@
     "Compare h->in_proj->u/z SRAM first, then dt/lam/ssm/gate, then y.",
     "Golden uses aligned 4-array weight banking with direct row_idx addressing for in_proj/dt/out_proj plus row-tile scale_q15 mems.",
     "Current RTL path uses ties-to-even/clamp with packed per-row scale_q15 for in_proj/dt/out_proj and dynamic scaled-state EW scan.",
-    "RMSNorm hardware-like mode: exact_recip30.",
+    "RMSNorm hardware-like mode: exact_recip30 (fixed).",
     "For cpp-bittrue style ties-to-even/clamp/per-channel-scale comparison, see logs/final_compare_cpp_export_hw_cppish.json."
   ]
 }

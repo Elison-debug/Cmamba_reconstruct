@@ -1,0 +1,27 @@
+{
+  "generated": true,
+  "n_frames": 3,
+  "rows_per_frame": 32,
+  "file": "stream_y_golden_q88.mem",
+  "notes": [
+    "Continuous-state golden for board-shell stream mode.",
+    "Each frame reuses the same block0 h input; EW state is carried across frames."
+  ],
+  "debug_files": [
+    "stream_debug/frame00_block3_rmsnorm_q88.mem",
+    "stream_debug/frame00_block3_uact_q88.mem",
+    "stream_debug/frame00_block3_dt_q88.mem",
+    "stream_debug/frame00_block3_gate_y_q88.mem",
+    "stream_debug/frame00_block3_outproj_y_q88.mem",
+    "stream_debug/frame01_block3_rmsnorm_q88.mem",
+    "stream_debug/frame01_block3_uact_q88.mem",
+    "stream_debug/frame01_block3_dt_q88.mem",
+    "stream_debug/frame01_block3_gate_y_q88.mem",
+    "stream_debug/frame01_block3_outproj_y_q88.mem",
+    "stream_debug/frame02_block3_rmsnorm_q88.mem",
+    "stream_debug/frame02_block3_uact_q88.mem",
+    "stream_debug/frame02_block3_dt_q88.mem",
+    "stream_debug/frame02_block3_gate_y_q88.mem",
+    "stream_debug/frame02_block3_outproj_y_q88.mem"
+  ]
+}

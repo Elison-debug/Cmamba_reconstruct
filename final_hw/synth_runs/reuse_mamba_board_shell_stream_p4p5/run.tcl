@@ -46,11 +46,11 @@ read_verilog -sv "E:/course/smamba/final_hw/rtl_reuse_shared/sigmoid4_vec.sv"
 read_verilog -sv "E:/course/smamba/final_hw/rtl_reuse_shared/slim_multi_bank_wbuf_dp.sv"
 read_verilog -sv "E:/course/smamba/final_hw/rtl_reuse_shared/vec_fifo_axis_ip.sv"
 read_verilog -sv "E:/course/smamba/final_hw/rtl_reuse_shared/xt_input_buf.sv"
-read_verilog "E:/course/smamba/final_hw/project_mamba_final_hw/project_mamba_final_hw.gen/sources_1/ip/bias2sigmoid_fifo/bias2sigmoid_fifo_sim_netlist.v"
-read_verilog "E:/course/smamba/final_hw/project_mamba_final_hw/project_mamba_final_hw.gen/sources_1/ip/bias_ROM/bias_ROM_sim_netlist.v"
-read_verilog "E:/course/smamba/final_hw/project_mamba_final_hw/project_mamba_final_hw.gen/sources_1/ip/inproj_ht_sram_ip/inproj_ht_sram_ip_sim_netlist.v"
-read_verilog "E:/course/smamba/final_hw/project_mamba_final_hw/project_mamba_final_hw.gen/sources_1/ip/inproj_vec_out_sram_ip/inproj_vec_out_sram_ip_sim_netlist.v"
-read_verilog "E:/course/smamba/final_hw/project_mamba_final_hw/project_mamba_final_hw.gen/sources_1/ip/s_buffer/s_buffer_sim_netlist.v"
+read_verilog "E:/course/smamba/final_hw/project_mamba_final_hw/project_mamba_final_hw.gen/sources_1/ip/bias2sigmoid_fifo/bias2sigmoid_fifo_stub.v"
+read_verilog "E:/course/smamba/final_hw/project_mamba_final_hw/project_mamba_final_hw.gen/sources_1/ip/bias_ROM/bias_ROM_stub.v"
+read_verilog "E:/course/smamba/final_hw/project_mamba_final_hw/project_mamba_final_hw.gen/sources_1/ip/inproj_ht_sram_ip/inproj_ht_sram_ip_stub.v"
+read_verilog "E:/course/smamba/final_hw/project_mamba_final_hw/project_mamba_final_hw.gen/sources_1/ip/inproj_vec_out_sram_ip/inproj_vec_out_sram_ip_stub.v"
+read_verilog "E:/course/smamba/final_hw/project_mamba_final_hw/project_mamba_final_hw.gen/sources_1/ip/s_buffer/s_buffer_stub.v"
 synth_design -top reuse_mamba_board_shell_stream -part xczu9eg-ffvb1156-2-e -flatten_hierarchy rebuilt
 if {[llength [get_ports clk]] > 0} { create_clock -period 4.5 -name clk [get_ports clk] }
 if {[llength [get_ports sys_clk]] > 0} { create_clock -period 4.5 -name sys_clk [get_ports sys_clk] }

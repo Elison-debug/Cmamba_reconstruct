@@ -659,7 +659,7 @@ def _rmsnorm_q88_hw(
     raw_q88: np.ndarray,
     gamma_q88: np.ndarray,
     eps_q16: int = 1,
-    mode: str = "exact_div",
+    mode: str = "exact_recip30",
 ) -> tuple[np.ndarray, int]:
     raw_i = raw_q88.astype(np.int64).reshape(-1)
     gamma_i = gamma_q88.astype(np.int64).reshape(-1)
@@ -1265,7 +1265,6 @@ def _export_reuse_top_stage(
     case_dir: Path,
     model: torch.nn.Module,
     x_arr: np.ndarray,
-    rmsnorm_mode: str = "exact_div",
 ) -> dict:
     stage_dir = case_dir / "stages" / "reuse_mamba_block_top"
     bb = model.backbone
@@ -1327,7 +1326,7 @@ def _export_reuse_top_stage(
     outproj_w = outproj_conv.weight.detach().cpu().numpy().reshape(outproj_conv.out_channels, outproj_conv.in_channels)
     h_raw_q88 = _quant_q88(h_raw_np)
     norm_gamma_q88 = _quant_q88(blk.norm.weight.detach().cpu().numpy().reshape(-1))
-    h_norm_q88, rms_q88 = _rmsnorm_q88_hw(h_raw_q88, norm_gamma_q88, eps_q16=1, mode=rmsnorm_mode)
+    h_norm_q88, rms_q88 = _rmsnorm_q88_hw(h_raw_q88, norm_gamma_q88, eps_q16=1, mode="exact_recip30")
     uv_q88 = _conv1x1_q88_rne_clamp(inproj_w, h_norm_q88)
     inproj_scale_q15 = np.full((inproj_w.shape[0],), 1 << 15, dtype=np.uint16)
     inproj_w_fold_q88 = _quant_q88(inproj_w)
@@ -1395,7 +1394,7 @@ def _export_reuse_top_stage(
                 "Compare h->in_proj->u/z SRAM first, then dt/lam/ssm/gate, then y.",
                 "Golden uses aligned 4-array weight banking with direct row_idx addressing for in_proj/dt/out_proj plus row-tile scale_q15 mems.",
                 "Current RTL path uses ties-to-even/clamp with packed per-row scale_q15 for in_proj/dt/out_proj and dynamic scaled-state EW scan.",
-                f"RMSNorm hardware-like mode: {rmsnorm_mode}.",
+                "RMSNorm hardware-like mode: exact_recip30 (fixed).",
                 "For cpp-bittrue style ties-to-even/clamp/per-channel-scale comparison, see logs/final_compare_cpp_export_hw_cppish.json.",
             ],
         },
@@ -1466,12 +1465,210 @@ def _load_weight_2d_from_desc(base_dir: Path, conv_desc: dict) -> np.ndarray:
     return w.reshape(int(conv_desc["out_channels"]), int(conv_desc["in_channels"]))
 
 
+def _make_scaled_state_runtime(u_q88_rows: np.ndarray) -> dict:
+    state_depth, tile = u_q88_rows.shape
+    u_q88 = u_q88_rows.astype(np.int64)
+    u_f = u_q88.astype(np.float32) / 256.0
+    max_abs = np.abs(u_f)
+    state_scale = np.where(max_abs > 0.0, max_abs / 32767.0, 1.0 / 32767.0).astype(np.float64)
+    u_to_state = 1.0 / (256.0 * state_scale)
+    state_to_q88 = state_scale * 256.0
+    u_to_state_q16 = np.clip(np.rint(u_to_state * 65536.0), 0, 0xFFFFFFFF).astype(np.uint32)
+    state_to_q88_q16 = np.clip(np.rint(state_to_q88 * 65536.0), 0, 0xFFFFFFFF).astype(np.uint32)
+    return {
+        "state_depth": int(state_depth),
+        "tile": int(tile),
+        "u_to_state_q16": u_to_state_q16.astype(np.int64),
+        "state_to_q88_q16": state_to_q88_q16.astype(np.int64),
+        "state_runtime": np.zeros((state_depth, tile), dtype=np.int64),
+        "last_wr_valid": False,
+        "last_wr_addr": 0,
+        "last_wr_data": np.zeros((tile,), dtype=np.int64),
+    }
+
+
+def _ssm_update_scaled_state_q15_from_q88_stateful(
+    u_q88_rows: np.ndarray,
+    lam_q016_rows: np.ndarray,
+    runtime: dict,
+) -> np.ndarray:
+    state_depth = int(runtime["state_depth"])
+    tile = int(runtime["tile"])
+    if u_q88_rows.shape != (state_depth, tile):
+        raise ValueError(f"u_q88_rows shape mismatch: got={u_q88_rows.shape} exp={(state_depth, tile)}")
+    if lam_q016_rows.shape != (state_depth, tile):
+        raise ValueError(f"lam_q016_rows shape mismatch: got={lam_q016_rows.shape} exp={(state_depth, tile)}")
+
+    u_q88 = u_q88_rows.astype(np.int64)
+    u_to_state_q16 = runtime["u_to_state_q16"].astype(np.int64)
+    state_to_q88_q16 = runtime["state_to_q88_q16"].astype(np.int64)
+    state_runtime = runtime["state_runtime"].astype(np.int64)
+    last_wr_valid = bool(runtime["last_wr_valid"])
+    last_wr_addr = int(runtime["last_wr_addr"])
+    last_wr_data = runtime["last_wr_data"].astype(np.int64)
+
+    u_state = _rshift_rne_vec(u_q88 * u_to_state_q16, 16)
+    u_state = np.clip(u_state, -(1 << 15), (1 << 15) - 1)
+    lam_q15 = (lam_q016_rows.astype(np.int64) >> 1)
+    lam_q15 = np.clip(lam_q15, 0, 1 << 15)
+    one_minus_q15 = (1 << 15) - lam_q15
+
+    out_state = np.zeros((state_depth, tile), dtype=np.int64)
+    for t in range(state_depth):
+        s_addr = t % state_depth
+        if last_wr_valid and last_wr_addr == s_addr:
+            s_prev = last_wr_data.copy()
+        else:
+            s_prev = state_runtime[s_addr].copy()
+
+        acc = lam_q15[t] * s_prev + one_minus_q15[t] * u_state[t]
+        s_new = _rshift_rne_vec(acc, 15)
+        s_new = np.clip(s_new, -(1 << 15), (1 << 15) - 1)
+
+        s_addr_w = (s_addr + 1) % state_depth
+        state_runtime[s_addr_w] = s_new
+        last_wr_valid = True
+        last_wr_addr = s_addr_w
+        last_wr_data = s_new.copy()
+        out_state[t] = s_new
+
+    runtime["state_runtime"] = state_runtime
+    runtime["last_wr_valid"] = bool(last_wr_valid)
+    runtime["last_wr_addr"] = int(last_wr_addr)
+    runtime["last_wr_data"] = last_wr_data
+
+    ssm_q88 = _rshift_rne_vec(out_state * state_to_q88_q16, 16)
+    ssm_q88 = np.clip(ssm_q88, -32768, 32767).astype(np.int16)
+    return ssm_q88
+
+
+def _export_chain4_stream_continuous_golden(
+    case_dir: Path,
+    export_json: Path,
+    n_frames: int = 3,
+) -> dict:
+    export, backbone, base_dir = _load_export_ir(export_json)
+    blocks = backbone.get("blocks", [])
+    if len(blocks) < 4:
+        return {"generated": False, "reason": f"need >=4 blocks, got {len(blocks)}"}
+
+    stage_b0 = case_dir / "stages" / "reuse_mamba_block_top_block0"
+    if not (stage_b0 / "h_wr_data_s16_q8p8.mem").exists():
+        return {"generated": False, "reason": "missing block0 input mem"}
+
+    h_rows = _load_packed_mem_q88(stage_b0 / "h_wr_data_s16_q8p8.mem")
+    if h_rows.shape != (32, 4):
+        return {"generated": False, "reason": f"unexpected h shape: {h_rows.shape}"}
+    h0_q88 = _quant_q88(h_rows.reshape(-1)).astype(np.int16)
+
+    blk_cache = []
+    for bi in range(4):
+        blk = blocks[bi]
+        norm_gamma = np.load(base_dir / blk["norm"]["weight"]).astype(np.float32).reshape(-1)
+        in_w = _load_weight_2d_from_desc(base_dir, blk["in_proj"])
+        dt_w = _load_weight_2d_from_desc(base_dir, blk["ssm"]["dt_proj"])
+        out_w = _load_weight_2d_from_desc(base_dir, blk["out_proj"])
+        dt_bias = None
+        if blk["ssm"]["dt_proj"].get("bias_file"):
+            dt_bias = np.load(base_dir / blk["ssm"]["dt_proj"]["bias_file"]).astype(np.float32).reshape(-1)
+        blk_cache.append(
+            {
+                "norm_gamma_q88": _quant_q88(norm_gamma),
+                "in_w": in_w,
+                "dt_w": dt_w,
+                "out_w": out_w,
+                "dt_bias": dt_bias,
+                "runtime": None,
+            }
+        )
+
+    chain_dir = case_dir / "stages" / "reuse_mamba_block_top_chain4"
+    chain_dir.mkdir(parents=True, exist_ok=True)
+    dbg_dir = chain_dir / "stream_debug"
+    dbg_dir.mkdir(parents=True, exist_ok=True)
+
+    y_stream_rows: list[list[int]] = []
+    debug_files: list[str] = []
+    x_in = h0_q88.copy()
+    for fi in range(int(n_frames)):
+        x_blk = x_in.copy()
+        y_blk3 = np.zeros((32, 4), dtype=np.int16)
+        b3_h_norm = np.zeros((32, 4), dtype=np.int16)
+        b3_u_act = np.zeros((64, 4), dtype=np.int16)
+        b3_dt = np.zeros((64, 4), dtype=np.int16)
+        b3_gate = np.zeros((64, 4), dtype=np.int16)
+        for bi in range(4):
+            bc = blk_cache[bi]
+            inner = int(blocks[bi]["d_inner"])
+            h_norm_q88, _ = _rmsnorm_q88_hw(x_blk, bc["norm_gamma_q88"], eps_q16=1, mode="exact_recip30")
+            uv_q88 = _conv1x1_q88_rne_clamp(bc["in_w"], h_norm_q88)
+            u_q88_rows = uv_q88[:inner].reshape(64, 4)
+            z_q88_rows = uv_q88[inner:].reshape(64, 4)
+            u_sig_q016 = _sigmoid_q016_from_q88(u_q88_rows)
+            z_sig_q016 = _sigmoid_q016_from_q88(z_q88_rows)
+            u_act_q88 = _mul_q016_q88_to_q88(u_sig_q016, u_q88_rows)
+            z_silu_q88 = _mul_q016_q88_to_q88(z_sig_q016, z_q88_rows)
+            dt_q88_mac = _conv1x1_q88_rne_clamp(bc["dt_w"], u_act_q88.reshape(-1)).reshape(64, 4)
+            dt_q88 = _add_bias_q88_rows(dt_q88_mac, bc["dt_bias"])
+            lam_q016 = _sigmoid_q016_from_q88(dt_q88)
+            if bc["runtime"] is None:
+                bc["runtime"] = _make_scaled_state_runtime(u_act_q88)
+            ssm_q88 = _ssm_update_scaled_state_q15_from_q88_stateful(u_act_q88, lam_q016, bc["runtime"])
+            gate_y_q88 = _mul_q88_q88_to_q88(z_silu_q88, ssm_q88)
+            y_q88 = _conv1x1_q88_rne_clamp(bc["out_w"], gate_y_q88.reshape(-1)).reshape(32, 4).astype(np.int16)
+            x_next_q88 = _clamp_s16_arr(x_blk.astype(np.int64).reshape(32, 4) + y_q88.astype(np.int64)).reshape(-1).astype(np.int16)
+            x_blk = x_next_q88
+            if bi == 3:
+                b3_h_norm = h_norm_q88.reshape(32, 4).astype(np.int16)
+                b3_u_act = u_act_q88.reshape(64, 4).astype(np.int16)
+                b3_dt = dt_q88_mac.reshape(64, 4).astype(np.int16)
+                b3_gate = gate_y_q88.reshape(64, 4).astype(np.int16)
+                y_blk3 = y_q88.copy()
+        for r in range(32):
+            y_stream_rows.append([int(v) & 0xFFFF for v in y_blk3[r].tolist()])
+        fn_h_norm = f"stream_debug/frame{fi:02d}_block3_rmsnorm_q88.mem"
+        fn_u_act = f"stream_debug/frame{fi:02d}_block3_uact_q88.mem"
+        fn_dt = f"stream_debug/frame{fi:02d}_block3_dt_q88.mem"
+        fn_gate = f"stream_debug/frame{fi:02d}_block3_gate_y_q88.mem"
+        fn_out = f"stream_debug/frame{fi:02d}_block3_outproj_y_q88.mem"
+        _write_mem_matrix_rows_q88(chain_dir / fn_h_norm, b3_h_norm)
+        _write_mem_matrix_rows_q88(chain_dir / fn_u_act, b3_u_act)
+        _write_mem_matrix_rows_q88(chain_dir / fn_dt, b3_dt)
+        _write_mem_matrix_rows_q88(chain_dir / fn_gate, b3_gate)
+        _write_mem_matrix_rows_q88(chain_dir / fn_out, y_blk3)
+        debug_files.extend([fn_h_norm, fn_u_act, fn_dt, fn_gate, fn_out])
+        x_in = h0_q88.copy()
+
+    out_mem = chain_dir / "stream_y_golden_q88.mem"
+    _write_mem_packed_u16(out_mem, y_stream_rows)
+    _write_json(
+        chain_dir / "stream_manifest.json",
+        {
+            "generated": True,
+            "n_frames": int(n_frames),
+            "rows_per_frame": 32,
+            "file": "stream_y_golden_q88.mem",
+            "notes": [
+                "Continuous-state golden for board-shell stream mode.",
+                "Each frame reuses the same block0 h input; EW state is carried across frames.",
+            ],
+            "debug_files": debug_files,
+        },
+    )
+    return {
+        "generated": True,
+        "n_frames": int(n_frames),
+        "file": "stream_y_golden_q88.mem",
+        "manifest": "stream_manifest.json",
+        "debug_files": debug_files,
+    }
+
+
 def _export_reuse_top_block_from_ir(
     stage_dir: Path,
     blk_desc: dict,
     base_dir: Path,
     h_in_f32: np.ndarray,
-    rmsnorm_mode: str = "exact_div",
 ) -> dict:
     inner = int(blk_desc["d_inner"])
     d_model = int(blk_desc["d_model"])
@@ -1482,7 +1679,7 @@ def _export_reuse_top_block_from_ir(
     norm_gamma = np.load(base_dir / blk_desc["norm"]["weight"]).astype(np.float32).reshape(-1)
     norm_gamma_q88 = _quant_q88(norm_gamma)
     h_raw_q88 = _quant_q88(h_in)
-    h_norm_q88, rms_q88 = _rmsnorm_q88_hw(h_raw_q88, norm_gamma_q88, eps_q16=1, mode=rmsnorm_mode)
+    h_norm_q88, rms_q88 = _rmsnorm_q88_hw(h_raw_q88, norm_gamma_q88, eps_q16=1, mode="exact_recip30")
 
     inproj_w = _load_weight_2d_from_desc(base_dir, blk_desc["in_proj"])
     dtproj_w = _load_weight_2d_from_desc(base_dir, blk_desc["ssm"]["dt_proj"])
@@ -1565,7 +1762,7 @@ def _export_reuse_top_block_from_ir(
                 "Per-block export from export_json IR with hw-like integer math.",
                 "h_wr_data is pre-norm block input in Q8.8.",
                 "y_golden_q88 is block-local out_proj output.",
-                f"RMSNorm hardware-like mode: {rmsnorm_mode}.",
+                "RMSNorm hardware-like mode: exact_recip30 (fixed).",
                 "x_next_golden_q88 = clamp(h_wr_data + y_golden), used as next-block input.",
             ],
         },
@@ -1638,7 +1835,6 @@ def _export_reuse_top_four_block_chain(
     export_json: Path,
     sample_idx: int = 0,
     max_blocks: int = 4,
-    rmsnorm_mode: str = "exact_div",
 ) -> dict:
     samples = case_dir / "float" / "samples.npy"
     if not samples.exists():
@@ -1671,7 +1867,7 @@ def _export_reuse_top_four_block_chain(
         stage_name = f"reuse_mamba_block_top_block{bi}"
         stage_dir = case_dir / "stages" / stage_name
         stage_dir.mkdir(parents=True, exist_ok=True)
-        block_out = _export_reuse_top_block_from_ir(stage_dir, blocks[bi], base_dir, x_in, rmsnorm_mode=rmsnorm_mode)
+        block_out = _export_reuse_top_block_from_ir(stage_dir, blocks[bi], base_dir, x_in)
         x_in = block_out["x_next_f32"]
         last_stage_dir = stage_dir
         block_manifests.append(
@@ -1912,13 +2108,6 @@ def main() -> None:
         default="",
         help="Reuse existing float cache dir containing samples.npy/y_true.npy/y_float.npy/cache_meta.json",
     )
-    p.add_argument(
-        "--rmsnorm_mode",
-        type=str,
-        default="approx_pow2",
-        choices=["exact_div", "approx_pow2", "lut8", "nr1_lut8", "nr2_lut8", "exact_recip30"],
-        help="RMSNorm integer emulation mode (approx_pow2 matches final_hw RMS_APPROX_RECIP path)",
-    )
     p.add_argument("--skip_ip_init", action="store_true", help="Do not generate Vivado IP init .mem/.coe files")
     args = p.parse_args()
 
@@ -1995,7 +2184,7 @@ def main() -> None:
             "samples": int(x_arr.shape[0]),
             "seq_len": int(x_arr.shape[1]),
             "din": int(x_arr.shape[2]),
-            "rmsnorm_mode": str(args.rmsnorm_mode),
+            "rmsnorm_mode": "exact_recip30",
             "export_json": str(Path(export_json).resolve()),
             "export_dir": str(export_dir.resolve()),
         },
@@ -2026,7 +2215,6 @@ def main() -> None:
                 out_dir,
                 model,
                 x_arr,
-                rmsnorm_mode=args.rmsnorm_mode,
             )
         else:
             manifest["generated_artifacts"] = {"generated": False}
@@ -2041,9 +2229,14 @@ def main() -> None:
         Path(export_json),
         sample_idx=0,
         max_blocks=4,
-        rmsnorm_mode=args.rmsnorm_mode,
     )
     _write_json(out_dir / "logs" / "block_chain4_manifest.json", chain4_summary)
+    stream_chain4_summary = _export_chain4_stream_continuous_golden(
+        out_dir,
+        Path(export_json),
+        n_frames=3,
+    )
+    _write_json(out_dir / "logs" / "block_chain4_stream_manifest.json", stream_chain4_summary)
     ip_init_summary = {"generated": False, "reason": "skipped"}
     if not bool(args.skip_ip_init):
         ip_entries = []
@@ -2063,6 +2256,7 @@ def main() -> None:
         "export_json": str(Path(export_json).resolve()),
         "dt_chain_debug": dt_chain_summary,
         "chain4_debug": chain4_summary,
+        "chain4_stream_debug": stream_chain4_summary,
         "ip_init": ip_init_summary,
         "next_steps": [
             "Populate stage-specific mem files under stages/<stage>/ or mem/<stage>/.",

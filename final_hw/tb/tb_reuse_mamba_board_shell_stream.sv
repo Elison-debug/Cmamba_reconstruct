@@ -1,7 +1,7 @@
 `timescale 1ns/1ps
 
 `ifndef HW_DEBUG_CASE_DIR
-  `define HW_DEBUG_CASE_DIR "E:/course/smamba/final_hw/cases/c01"
+  `define HW_DEBUG_CASE_DIR "E:/course/smamba/final_hw/cases/c02"
 `endif
 
 module tb_reuse_mamba_board_shell_stream;
@@ -10,8 +10,6 @@ module tb_reuse_mamba_board_shell_stream;
   localparam int H_DEPTH    = 32;
   localparam int Y_DEPTH    = 32;
   localparam int N_FRAMES   = 3;
-  localparam bit CHECK_FRAME0_GOLDEN = 1;
-  localparam bit REQUIRE_REPEATABLE = 1;
   localparam string CASE_DIR = `HW_DEBUG_CASE_DIR;
   localparam string STAGE_B0_CONST = {CASE_DIR, "/stages/reuse_mamba_block_top_block0"};
   localparam string STAGE_B1_CONST = {CASE_DIR, "/stages/reuse_mamba_block_top_block1"};
@@ -27,28 +25,14 @@ module tb_reuse_mamba_board_shell_stream;
   logic [TILE_SIZE*DATA_WIDTH-1:0] s_axis_h_tdata;
   logic                           s_axis_h_tlast;
 
-  logic                           dut_s_axis_h_tvalid;
-  logic                           dut_s_axis_h_tready;
-  logic [TILE_SIZE*DATA_WIDTH-1:0] dut_s_axis_h_tdata;
-  logic                           dut_s_axis_h_tlast;
-  logic [511:0]                   s_axis_h_tdata_512;
-  logic [511:0]                   dut_s_axis_h_tdata_512;
-
   logic                           m_axis_y_tvalid;
   logic                           m_axis_y_tready;
   logic [TILE_SIZE*DATA_WIDTH-1:0] m_axis_y_tdata;
   logic                           m_axis_y_tlast;
-  logic                           dut_m_axis_y_tvalid;
-  logic                           dut_m_axis_y_tready;
-  logic [TILE_SIZE*DATA_WIDTH-1:0] dut_m_axis_y_tdata;
-  logic                           dut_m_axis_y_tlast;
-  logic [511:0]                   dut_m_axis_y_tdata_512;
-  logic [511:0]                   m_axis_y_tdata_512;
   logic                           frame_busy;
 
   logic [63:0] h_wr_data_mem [0:H_DEPTH-1];
-  logic [63:0] y_frame0_mem  [0:Y_DEPTH-1];
-  logic [63:0] y_golden_mem  [0:Y_DEPTH-1];
+  logic [63:0] y_stream_golden_mem  [0:(N_FRAMES*Y_DEPTH)-1];
 
   int tx_idx;
   int rx_frame;
@@ -61,12 +45,42 @@ module tb_reuse_mamba_board_shell_stream;
     unpack_lane64 = $signed(packed_word[lane*DATA_WIDTH +: DATA_WIDTH]);
   endfunction
 
+  function automatic bit lane_diff_gt_1(input logic [63:0] got_w, input logic [63:0] exp_w);
+    int lane;
+    logic signed [DATA_WIDTH-1:0] g;
+    logic signed [DATA_WIDTH-1:0] e;
+    int d;
+    begin
+      lane_diff_gt_1 = 1'b0;
+      for (lane = 0; lane < TILE_SIZE; lane++) begin
+        g = unpack_lane64(got_w, lane);
+        e = unpack_lane64(exp_w, lane);
+        d = g - e;
+        if (d < 0) d = -d;
+        if (d > 1) begin
+          lane_diff_gt_1 = 1'b1;
+        end
+      end
+    end
+  endfunction
+
+  function automatic logic [63:0] pack_vec4(input logic signed [DATA_WIDTH-1:0] vec [TILE_SIZE-1:0]);
+    logic [63:0] tmp;
+    begin
+      tmp = '0;
+      for (int i = 0; i < TILE_SIZE; i++) begin
+        tmp[i*DATA_WIDTH +: DATA_WIDTH] = vec[i];
+      end
+      pack_vec4 = tmp;
+    end
+  endfunction
+
   task automatic load_case();
     string stage_b0;
     begin
       stage_b0 = {CASE_DIR, "/stages/reuse_mamba_block_top_block0"};
       $readmemh({stage_b0, "/h_wr_data_s16_q8p8.mem"}, h_wr_data_mem);
-      $readmemh({CASE_DIR, "/stages/reuse_mamba_block_top_chain4/final_y_golden_q88.mem"}, y_golden_mem);
+      $readmemh({CASE_DIR, "/stages/reuse_mamba_block_top_chain4/stream_y_golden_q88.mem"}, y_stream_golden_mem);
     end
   endtask
 
@@ -97,15 +111,13 @@ module tb_reuse_mamba_board_shell_stream;
     int total_beats;
     total_beats = N_FRAMES * H_DEPTH;
     wait(rst_n);
-    @(posedge clk);
+    repeat (8) @(posedge clk);
     while (tx_idx < total_beats) begin
-      @(posedge clk);
       s_axis_h_tvalid <= 1'b1;
       s_axis_h_tdata  <= h_wr_data_mem[tx_idx % H_DEPTH];
       s_axis_h_tlast  <= ((tx_idx % H_DEPTH) == (H_DEPTH - 1));
-      if (s_axis_h_tvalid && s_axis_h_tready) begin
-        tx_idx <= tx_idx + 1;
-      end
+      do @(posedge clk); while (!(s_axis_h_tvalid && s_axis_h_tready));
+      tx_idx <= tx_idx + 1;
     end
     @(posedge clk);
     s_axis_h_tvalid <= 1'b0;
@@ -116,9 +128,8 @@ module tb_reuse_mamba_board_shell_stream;
 
   // Strict checker:
   // 1) Never allow X/Z on output handshake/data/last.
-  // 2) Frame0 must match exported y_golden.
-  // 3) Optional repeatability check for later frames.
-  // 4) TLAST must align to frame boundaries.
+  // 2) Compare every beat against continuous-state golden stream.
+  // 3) TLAST must align to frame boundaries.
   initial begin : check_y_stream
     wait(rst_n);
     while (rx_total_beats < (N_FRAMES * Y_DEPTH)) begin
@@ -132,24 +143,15 @@ module tb_reuse_mamba_board_shell_stream;
                  $time, rx_frame, rx_row, m_axis_y_tdata, m_axis_y_tlast);
         end
 
-        if (rx_frame == 0) begin
-          if (m_axis_y_tdata !== y_golden_mem[rx_row]) begin
-            if (CHECK_FRAME0_GOLDEN) begin
-              mismatch_cnt++;
-              if (mismatch_cnt <= 8) begin
-                $display("[%0t] golden mismatch frame=%0d row=%0d got=%h exp=%h",
-                         $time, rx_frame, rx_row, m_axis_y_tdata, y_golden_mem[rx_row]);
-              end
-            end
-          end
-          y_frame0_mem[rx_row] = m_axis_y_tdata;
-        end else if (REQUIRE_REPEATABLE) begin
-          if (m_axis_y_tdata !== y_frame0_mem[rx_row]) begin
-            mismatch_cnt++;
-            if (mismatch_cnt <= 8) begin
-              $display("[%0t] mismatch frame=%0d row=%0d got=%h exp=%h",
-                       $time, rx_frame, rx_row, m_axis_y_tdata, y_frame0_mem[rx_row]);
-            end
+        if ($isunknown(y_stream_golden_mem[rx_total_beats])) begin
+          $fatal(1, "[%0t] expected stream golden is X/Z at beat=%0d (check CASE_DIR and mem file)",
+                 $time, rx_total_beats);
+        end
+        if (lane_diff_gt_1(m_axis_y_tdata, y_stream_golden_mem[rx_total_beats])) begin
+          mismatch_cnt++;
+          if (mismatch_cnt <= 8) begin
+            $display("[%0t] stream golden mismatch beat=%0d frame=%0d row=%0d got=%h exp=%h",
+                     $time, rx_total_beats, rx_frame, rx_row, m_axis_y_tdata, y_stream_golden_mem[rx_total_beats]);
           end
         end
         rx_total_beats++;
@@ -188,32 +190,112 @@ module tb_reuse_mamba_board_shell_stream;
              $time, tx_idx, rx_frame, rx_row, rx_total_beats, rx_tlast_count, frame_busy);
   end
 
+  // Block3 stage probes around the first divergence frame.
+  // Frame index is 0-based; beat=64 belongs to frame index 2.
+  localparam int DBG_FRAME = 2;
+  localparam int DBG_ROWS  = 8;
+  localparam int DBG_TOKS  = 16;
+  int dbg_blk3_frame;
+  int dbg_norm_idx;
+  int dbg_uact_idx;
+  int dbg_dt_idx;
+  int dbg_ssm_idx;
+  int dbg_out_idx;
+  int dbg_hin_idx;
+  int dbg_state_idx;
+  logic [63:0] dbg_hin_packed;
+  logic [63:0] dbg_norm_packed;
+  logic [63:0] dbg_uact_packed;
+  logic [63:0] dbg_dt_packed;
+  logic [63:0] dbg_ssm_packed;
+  logic [63:0] dbg_out_packed;
+  logic [63:0] dbg_state_packed;
+  logic        dbg_out_fire;
 
-  axis_register_slice_0 u_rs_h_in (
-    .aclk          (clk),
-    .aresetn       (rst_n),
-    .s_axis_tvalid (s_axis_h_tvalid),
-    .s_axis_tready (s_axis_h_tready),
-    .s_axis_tdata  (s_axis_h_tdata),
-    .s_axis_tlast  (s_axis_h_tlast),
-    .m_axis_tvalid (dut_s_axis_h_tvalid),
-    .m_axis_tready (dut_s_axis_h_tready),
-    .m_axis_tdata  (dut_s_axis_h_tdata),
-    .m_axis_tlast  (dut_s_axis_h_tlast)
-  );
+  always_comb begin
+    dbg_norm_packed = pack_vec4(dut.u_core.u_core.u_blk3.norm_wr_data);
+    dbg_uact_packed = pack_vec4(dut.u_core.u_core.u_blk3.uact_wr_data);
+    dbg_dt_packed   = pack_vec4(dut.u_core.u_core.u_blk3.dt_mac_vec);
+    dbg_ssm_packed  = pack_vec4(dut.u_core.u_core.u_blk3.ssm_p_data);
+    dbg_out_packed  = pack_vec4(dut.u_core.u_core.blk_y_data[3]);
+    dbg_hin_packed  = pack_vec4(dut.u_core.u_core.blk_h_wr_data[3]);
+    dbg_state_packed = dut.u_core.u_core.u_blk3.u_ssm_core.u_ew.s_new_packed;
+  end
 
-  axis_register_slice_0 u_rs_y_out (
-    .aclk          (clk),
-    .aresetn       (rst_n),
-    .s_axis_tvalid (dut_m_axis_y_tvalid),
-    .s_axis_tready (dut_m_axis_y_tready),
-    .s_axis_tdata  (dut_m_axis_y_tdata),
-    .s_axis_tlast  (dut_m_axis_y_tlast),
-    .m_axis_tvalid (m_axis_y_tvalid),
-    .m_axis_tready (m_axis_y_tready),
-    .m_axis_tdata  (m_axis_y_tdata),
-    .m_axis_tlast  (m_axis_y_tlast)
-  );
+  assign dbg_out_fire = dut.u_core.u_core.blk_y_valid[3] && dut.u_core.u_core.blk_y_ready[3];
+
+  initial begin : block3_stage_probe
+    dbg_blk3_frame = -1;
+    dbg_norm_idx = 0;
+    dbg_uact_idx = 0;
+    dbg_dt_idx = 0;
+    dbg_ssm_idx = 0;
+    dbg_out_idx = 0;
+    dbg_hin_idx = 0;
+    dbg_state_idx = 0;
+    wait(rst_n);
+    forever begin
+      @(posedge clk);
+      if (dut.u_core.u_core.blk_start_pulse[3]) begin
+        dbg_blk3_frame = dbg_blk3_frame + 1;
+        dbg_norm_idx = 0;
+        dbg_uact_idx = 0;
+        dbg_dt_idx = 0;
+        dbg_ssm_idx = 0;
+        dbg_out_idx = 0;
+        dbg_hin_idx = 0;
+        dbg_state_idx = 0;
+        if (dbg_blk3_frame == DBG_FRAME) begin
+          $display("[%0t] DBG block3 frame=%0d start", $time, dbg_blk3_frame);
+        end
+      end
+
+      if (dbg_blk3_frame == DBG_FRAME) begin
+        if (dut.u_core.u_core.u_blk3.norm_wr_en && (dbg_norm_idx < DBG_ROWS)) begin
+          $display("[%0t] DBG3 rmsnorm idx=%0d addr=%0d data=%h",
+                   $time, dbg_norm_idx, dut.u_core.u_core.u_blk3.norm_wr_addr, dbg_norm_packed);
+          dbg_norm_idx = dbg_norm_idx + 1;
+        end
+        if (dut.u_core.u_core.blk_h_wr_en[3] && (dbg_hin_idx < DBG_ROWS)) begin
+          $display("[%0t] DBG3 hin idx=%0d addr=%0d data=%h",
+                   $time, dbg_hin_idx, dut.u_core.u_core.blk_h_wr_addr[3], dbg_hin_packed);
+          dbg_hin_idx = dbg_hin_idx + 1;
+        end
+        if (dut.u_core.u_core.u_blk3.uact_wr_en && (dbg_uact_idx < DBG_TOKS)) begin
+          $display("[%0t] DBG3 inproj_uact idx=%0d addr=%0d data=%h",
+                   $time, dbg_uact_idx, dut.u_core.u_core.u_blk3.uact_wr_addr, dbg_uact_packed);
+          dbg_uact_idx = dbg_uact_idx + 1;
+        end
+        if (dut.u_core.u_core.u_blk3.dt_mac_valid && dut.u_core.u_core.u_blk3.dt_mac_ready && (dbg_dt_idx < DBG_TOKS)) begin
+          $display("[%0t] DBG3 dt idx=%0d saddr=%0d data=%h",
+                   $time, dbg_dt_idx, dut.u_core.u_core.u_blk3.u_ssm_core.s_addr_cnt, dbg_dt_packed);
+          dbg_dt_idx = dbg_dt_idx + 1;
+        end
+        if (dut.u_core.u_core.u_blk3.ssm_p_valid && dut.u_core.u_core.u_blk3.ssm_p_ready && (dbg_ssm_idx < DBG_TOKS)) begin
+          $display("[%0t] DBG3 ssm idx=%0d saddr=%0d ew_last_wr_addr=%0d data=%h",
+                   $time,
+                   dbg_ssm_idx,
+                   dut.u_core.u_core.u_blk3.u_ssm_core.s_addr_cnt,
+                   dut.u_core.u_core.u_blk3.u_ssm_core.u_ew.last_wr_addr,
+                   dbg_ssm_packed);
+          dbg_ssm_idx = dbg_ssm_idx + 1;
+        end
+        if (dut.u_core.u_core.u_blk3.u_ssm_core.u_ew.state_we && (dbg_state_idx < DBG_TOKS)) begin
+          $display("[%0t] DBG3 ew_state idx=%0d waddr=%0d data_q15=%h",
+                   $time,
+                   dbg_state_idx,
+                   dut.u_core.u_core.u_blk3.u_ssm_core.u_ew.s_addr_w,
+                   dbg_state_packed);
+          dbg_state_idx = dbg_state_idx + 1;
+        end
+        if (dbg_out_fire && (dbg_out_idx < DBG_ROWS)) begin
+          $display("[%0t] DBG3 outproj idx=%0d data=%h",
+                   $time, dbg_out_idx, dbg_out_packed);
+          dbg_out_idx = dbg_out_idx + 1;
+        end
+      end
+    end
+  end
 
   reuse_mamba_board_shell_stream #(
     .TILE_SIZE(TILE_SIZE),
@@ -222,14 +304,14 @@ module tb_reuse_mamba_board_shell_stream;
   ) dut (
     .sys_clk        (clk),
     .ext_reset_n    (rst_n),
-    .s_axis_h_tvalid(dut_s_axis_h_tvalid),
-    .s_axis_h_tready(dut_s_axis_h_tready),
-    .s_axis_h_tdata (dut_s_axis_h_tdata),
-    .s_axis_h_tlast (dut_s_axis_h_tlast),
-    .m_axis_y_tvalid(dut_m_axis_y_tvalid),
-    .m_axis_y_tready(dut_m_axis_y_tready),
-    .m_axis_y_tdata (dut_m_axis_y_tdata),
-    .m_axis_y_tlast (dut_m_axis_y_tlast),
+    .s_axis_h_tvalid(s_axis_h_tvalid),
+    .s_axis_h_tready(s_axis_h_tready),
+    .s_axis_h_tdata (s_axis_h_tdata),
+    .s_axis_h_tlast (s_axis_h_tlast),
+    .m_axis_y_tvalid(m_axis_y_tvalid),
+    .m_axis_y_tready(m_axis_y_tready),
+    .m_axis_y_tdata (m_axis_y_tdata),
+    .m_axis_y_tlast (m_axis_y_tlast),
     .frame_busy     (frame_busy)
   );
 

@@ -23,10 +23,10 @@ module reuse_mamba_chain4_core_adapter #(
     parameter string LUT_FILE = "E:/course/smamba/final_hw/ip/sigmoid_lut_q016_2048.hex",
     parameter int S_ADDR_W   = 6,
     parameter int G_FRAC_BITS = 8,
-    parameter string STAGE_DIR_B0 = "E:/course/smamba/final_hw/cases/c01/stages/reuse_mamba_block_top_block0",
-    parameter string STAGE_DIR_B1 = "E:/course/smamba/final_hw/cases/c01/stages/reuse_mamba_block_top_block1",
-    parameter string STAGE_DIR_B2 = "E:/course/smamba/final_hw/cases/c01/stages/reuse_mamba_block_top_block2",
-    parameter string STAGE_DIR_B3 = "E:/course/smamba/final_hw/cases/c01/stages/reuse_mamba_block_top_block3"
+    parameter string STAGE_DIR_B0 = "E:/course/smamba/final_hw/cases/c02/stages/reuse_mamba_block_top_block0",
+    parameter string STAGE_DIR_B1 = "E:/course/smamba/final_hw/cases/c02/stages/reuse_mamba_block_top_block1",
+    parameter string STAGE_DIR_B2 = "E:/course/smamba/final_hw/cases/c02/stages/reuse_mamba_block_top_block2",
+    parameter string STAGE_DIR_B3 = "E:/course/smamba/final_hw/cases/c02/stages/reuse_mamba_block_top_block3"
 )(
     input  logic sys_clk,
     input  logic ext_reset_n,
