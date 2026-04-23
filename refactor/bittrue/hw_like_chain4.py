@@ -46,6 +46,18 @@ def _rshift_rne_vec(x: np.ndarray, shift: int) -> np.ndarray:
     return out.reshape(x.shape)
 
 
+# RTL: reuse_state_scale_pingpong exact integer scale calculation from current u(q8.8).
+def _runtime_scales_from_u_q88(u_q88_rows: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    u_i = u_q88_rows.astype(np.int64)
+    abs_u = np.abs(u_i)
+    abs_u_eff = np.where(abs_u == 0, 256, abs_u).astype(np.int64)
+    u_to_state_q16 = ((int(32767) << 16) + (abs_u_eff >> 1)) // abs_u_eff
+    state_to_q88_q16 = ((abs_u_eff << 16) + int(16383)) // int(32767)
+    u_to_state_q16 = np.clip(u_to_state_q16, 0, 0xFFFFFFFF).astype(np.int64)
+    state_to_q88_q16 = np.clip(state_to_q88_q16, 0, 0xFFFFFFFF).astype(np.int64)
+    return u_to_state_q16, state_to_q88_q16
+
+
 # RTL: helper used by reuse_mamba_chain4_core_adapter / reuse_mamba_4block_chain_top model.
 def _to_u16(v: int) -> int:
     return int(v) & 0xFFFF
@@ -350,11 +362,7 @@ def _ssm_update_q88_from_lam_q016(lam_q016: np.ndarray, u_q88_rows: np.ndarray) 
 def _ssm_update_scaled_state_q15_from_q88(u_q88_rows: np.ndarray, lam_q016_rows: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     state_depth, tile = u_q88_rows.shape
     u_q88 = u_q88_rows.astype(np.int64)
-    u_f = u_q88.astype(np.float32) / 256.0
-    max_abs = np.abs(u_f)
-    state_scale = np.where(max_abs > 0.0, max_abs / 32767.0, 1.0 / 32767.0).astype(np.float64)
-    u_to_state_q16 = np.clip(np.rint((1.0 / (256.0 * state_scale)) * 65536.0), 0, 0xFFFFFFFF).astype(np.uint32)
-    state_to_q88_q16 = np.clip(np.rint((state_scale * 256.0) * 65536.0), 0, 0xFFFFFFFF).astype(np.uint32)
+    u_to_state_q16, state_to_q88_q16 = _runtime_scales_from_u_q88(u_q88_rows)
     u_state = _rshift_rne_vec(u_q88 * u_to_state_q16.astype(np.int64), 16)
     u_state = np.clip(u_state, -(1 << 15), (1 << 15) - 1)
     lam_q15 = np.clip(lam_q016_rows.astype(np.int64) >> 1, 0, 1 << 15)
@@ -435,14 +443,14 @@ def make_scaled_state_runtime(
     fixed_state_to_q88_q16: np.ndarray | None = None,
 ) -> dict:
     state_depth, tile = u_q88_rows.shape
-    u_q88 = u_q88_rows.astype(np.int64)
-    u_f = u_q88.astype(np.float32) / 256.0
-    max_abs = np.abs(u_f)
-    state_scale = np.where(max_abs > 0.0, max_abs / 32767.0, 1.0 / 32767.0).astype(np.float64)
-    u_to_state = 1.0 / (256.0 * state_scale)
-    state_to_q88 = state_scale * 256.0
-    u_to_state_q16 = np.clip(np.rint(u_to_state * 65536.0), 0, 0xFFFFFFFF).astype(np.uint32).astype(np.int64)
-    state_to_q88_q16 = np.clip(np.rint(state_to_q88 * 65536.0), 0, 0xFFFFFFFF).astype(np.uint32).astype(np.int64)
+    if fixed_u_to_state_q16 is not None:
+        u_to_state_q16 = np.asarray(fixed_u_to_state_q16, dtype=np.int64).reshape(state_depth, tile)
+    else:
+        u_to_state_q16, _ = _runtime_scales_from_u_q88(u_q88_rows)
+    if fixed_state_to_q88_q16 is not None:
+        state_to_q88_q16 = np.asarray(fixed_state_to_q88_q16, dtype=np.int64).reshape(state_depth, tile)
+    else:
+        _, state_to_q88_q16 = _runtime_scales_from_u_q88(u_q88_rows)
     return {
         "state_depth": int(state_depth),
         "tile": int(tile),

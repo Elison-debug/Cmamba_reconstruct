@@ -51,9 +51,9 @@ module reuse_ssm_core #(
     input  logic signed [DATA_WIDTH-1:0] xt_d [TILE_SIZE-1:0],
 
     // gate input and final output
-    input  logic                         g_axis_TVALID,
-    output logic                         g_axis_TREADY,
-    input  logic signed [DATA_WIDTH-1:0] g_axis_TDATA [TILE_SIZE-1:0],
+    input  logic                         gate_axis_valid,
+    output logic                         gate_axis_ready,
+    input  logic signed [DATA_WIDTH-1:0] gate_axis_data [TILE_SIZE-1:0],
     output logic                         y_axis_TVALID,
     input  logic                         y_axis_TREADY,
     output logic signed [DATA_WIDTH-1:0] y_axis_TDATA [TILE_SIZE-1:0]
@@ -324,9 +324,9 @@ module reuse_ssm_core #(
     ) u_gate (
         .clk       (clk),
         .rst_n     (rst_n),
-        .g_valid   (g_axis_TVALID),
-        .g_ready   (g_axis_TREADY),
-        .g_vec     (g_axis_TDATA),
+        .g_valid   (gate_axis_valid),
+        .g_ready   (gate_axis_ready),
+        .g_vec     (gate_axis_data),
         .s_valid   (s_out_valid),
         .s_ready   (s_gate_ready),
         .s_vec     (s_out_vec),

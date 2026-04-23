@@ -41,7 +41,6 @@ module reuse_mamba_core_adapter #(
     parameter string OUTPROJ_BANK4_INIT_FILE = "",
     parameter string OUTPROJ_BANK5_INIT_FILE = "",
     parameter string OUTPROJ_SCALE_INIT_FILE = "",
-    parameter bit ENABLE_RMSNORM = 0,
     parameter string NORM_GAMMA_INIT_FILE = "",
     parameter bit USE_SCALED_STATE_SCAN = 0,
     parameter string STATE_U_TO_STATE_SCALE_INIT_FILE = "",
@@ -58,9 +57,6 @@ module reuse_mamba_core_adapter #(
 
     input  logic                         s_axis_tvalid,
     output logic                         s_axis_tready,
-    input  logic                         g_axis_tvalid,
-    output logic                         g_axis_tready,
-    input  logic signed [TILE_SIZE*DATA_WIDTH-1:0] g_axis_tdata,
     output logic                         y_axis_tvalid,
     input  logic                         y_axis_tready,
     output logic signed [TILE_SIZE*DATA_WIDTH-1:0] y_axis_tdata,
@@ -85,7 +81,6 @@ module reuse_mamba_core_adapter #(
     logic [1:0] rst_sync_ff;
     logic       core_rst_n;
 
-    logic signed [DATA_WIDTH-1:0] g_axis_tdata_arr [TILE_SIZE-1:0];
     logic signed [DATA_WIDTH-1:0] y_axis_tdata_arr [TILE_SIZE-1:0];
     logic signed [DATA_WIDTH-1:0] h_wr_data_arr    [TILE_SIZE-1:0];
     logic signed [DATA_WIDTH-1:0] u_rd_data_arr    [TILE_SIZE-1:0];
@@ -103,7 +98,6 @@ module reuse_mamba_core_adapter #(
 
     always_comb begin
         for (int i = 0; i < TILE_SIZE; i++) begin
-            g_axis_tdata_arr[i] = g_axis_tdata[i*DATA_WIDTH +: DATA_WIDTH];
             h_wr_data_arr[i]    = h_wr_data[i*DATA_WIDTH +: DATA_WIDTH];
             y_axis_tdata[i*DATA_WIDTH +: DATA_WIDTH] = y_axis_tdata_arr[i];
             u_rd_data[i*DATA_WIDTH +: DATA_WIDTH]    = u_rd_data_arr[i];
@@ -146,7 +140,6 @@ module reuse_mamba_core_adapter #(
         .OUTPROJ_BANK4_INIT_FILE(OUTPROJ_BANK4_INIT_FILE),
         .OUTPROJ_BANK5_INIT_FILE(OUTPROJ_BANK5_INIT_FILE),
         .OUTPROJ_SCALE_INIT_FILE(OUTPROJ_SCALE_INIT_FILE),
-        .ENABLE_RMSNORM(ENABLE_RMSNORM),
         .NORM_GAMMA_INIT_FILE(NORM_GAMMA_INIT_FILE),
         .USE_SCALED_STATE_SCAN(USE_SCALED_STATE_SCAN),
         .STATE_U_TO_STATE_SCALE_INIT_FILE(STATE_U_TO_STATE_SCALE_INIT_FILE),
@@ -160,9 +153,6 @@ module reuse_mamba_core_adapter #(
         .block_done     (block_done),
         .s_axis_TVALID  (s_axis_tvalid),
         .s_axis_TREADY  (s_axis_tready),
-        .g_axis_TVALID  (g_axis_tvalid),
-        .g_axis_TREADY  (g_axis_tready),
-        .g_axis_TDATA   (g_axis_tdata_arr),
         .y_axis_TVALID  (y_axis_tvalid),
         .y_axis_TREADY  (y_axis_tready),
         .y_axis_TDATA   (y_axis_tdata_arr),
@@ -183,4 +173,3 @@ module reuse_mamba_core_adapter #(
         .outproj_busy   (outproj_busy)
     );
 endmodule
-

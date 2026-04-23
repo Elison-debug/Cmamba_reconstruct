@@ -143,7 +143,6 @@ module reuse_mamba_board_shell #(
     wire                           preload_h_busy;
     wire                           preload_h_done;
     wire                           dma_error;
-    wire                           g_axis_tready_unused;
 
     wire                           h_wr_en;
     wire [4:0]                     h_wr_addr;
@@ -352,9 +351,6 @@ module reuse_mamba_board_shell #(
         .block_done      (block_done),
         .s_axis_tvalid   (core_block_start_pulse),
         .s_axis_tready   (),
-        .g_axis_tvalid   (1'b0),
-        .g_axis_tready   (g_axis_tready_unused),
-        .g_axis_tdata    ({(TILE_SIZE*DATA_WIDTH){1'b0}}),
         .y_axis_tvalid   (m_axis_y_tvalid),
         .y_axis_tready   (m_axis_y_tready),
         .y_axis_tdata    (m_axis_y_tdata),

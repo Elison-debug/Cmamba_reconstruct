@@ -50,7 +50,6 @@ module reuse_mamba_block_top #(
     parameter bit INPROJ_USE_PER_CHANNEL_SCALE = 0,
     parameter bit DT_USE_PER_CHANNEL_SCALE = 0,
     parameter bit OUTPROJ_USE_PER_CHANNEL_SCALE = 0,
-    parameter bit ENABLE_RMSNORM = 0,
     parameter string NORM_GAMMA_INIT_FILE = "",
     parameter string BIAS_INIT_FILE = "",
     parameter bit USE_SCALED_STATE_SCAN = 0,
@@ -70,9 +69,6 @@ module reuse_mamba_block_top #(
     // SSM start / gate / output
     input  logic s_axis_TVALID,
     output logic s_axis_TREADY,
-    input  logic                         g_axis_TVALID,
-    output logic                         g_axis_TREADY,
-    input  logic signed [DATA_WIDTH-1:0] g_axis_TDATA [TILE_SIZE-1:0],
     output logic                         y_axis_TVALID,
     input  logic                         y_axis_TREADY,
     output logic signed [DATA_WIDTH-1:0] y_axis_TDATA [TILE_SIZE-1:0],
@@ -200,8 +196,8 @@ module reuse_mamba_block_top #(
     logic signed [DATA_WIDTH-1:0] z_stream_vec [TILE_SIZE-1:0];
     logic                         silu_valid, silu_ready;
     logic signed [DATA_WIDTH-1:0] silu_vec [TILE_SIZE-1:0];
-    logic                         g_axis_int_valid, g_axis_int_ready;
-    logic signed [DATA_WIDTH-1:0] g_axis_int_data [TILE_SIZE-1:0];
+    logic                         gate_axis_valid, gate_axis_ready;
+    logic signed [DATA_WIDTH-1:0] gate_axis_data [TILE_SIZE-1:0];
     logic                         ssm_p_valid;
     logic                         ssm_p_ready;
     logic signed [DATA_WIDTH-1:0] ssm_p_data [TILE_SIZE-1:0];
@@ -242,11 +238,11 @@ module reuse_mamba_block_top #(
     assign s_axis_TVALID_int = dt_run_active && (dt_issue_count < SSM_TILE_COUNT);
     assign pcap_start = pcap_start_int;
     assign uact_fill_done = (uact_wr_count == 7'd64);
-    assign h_inproj_wr_en = ENABLE_RMSNORM ? norm_wr_en : h_wr_en;
-    assign h_inproj_wr_addr = ENABLE_RMSNORM ? norm_wr_addr : h_wr_addr;
+    assign h_inproj_wr_en = norm_wr_en;
+    assign h_inproj_wr_addr = norm_wr_addr;
     always_comb begin
         for (int i = 0; i < TILE_SIZE; i++) begin
-            h_inproj_wr_data[i] = ENABLE_RMSNORM ? norm_wr_data[i] : h_wr_data[i];
+            h_inproj_wr_data[i] = norm_wr_data[i];
             gamma_wr_zero[i] = '0;
         end
     end
@@ -283,15 +279,10 @@ module reuse_mamba_block_top #(
                 dt_started       <= 1'b0;
                 outproj_started  <= 1'b0;
                 uact_fill_active <= 1'b0;
-                if (ENABLE_RMSNORM) begin
-                    norm_start_int <= 1'b1;
-                    norm_pending   <= 1'b1;
-                end else begin
-                    inproj_start_int <= 1'b1;
-                    norm_pending     <= 1'b0;
-                end
+                norm_start_int <= 1'b1;
+                norm_pending   <= 1'b1;
             end
-            if (ENABLE_RMSNORM && norm_done && norm_pending) begin
+            if (norm_done && norm_pending) begin
                 inproj_start_int <= 1'b1;
                 norm_pending <= 1'b0;
             end
@@ -338,39 +329,30 @@ module reuse_mamba_block_top #(
         end
     end
 
-    if (ENABLE_RMSNORM) begin : g_rmsnorm
-        reuse_rmsnorm_scheduler #(
-            .TILE_SIZE(TILE_SIZE),
-            .DATA_WIDTH(DATA_WIDTH),
-            .H_DEPTH(32),
-            .H_ADDR_W(5),
-            .NORM_GAMMA_INIT_FILE(NORM_GAMMA_INIT_FILE)
-        ) u_rmsnorm (
-            .clk(clk),
-            .rst_n(rst_n),
-            .enable(1'b1),
-            .start(norm_start_int),
-            .busy(norm_busy),
-            .done(norm_done),
-            .h_wr_en(h_wr_en),
-            .h_wr_addr(h_wr_addr),
-            .h_wr_data(h_wr_data),
-            .gamma_wr_en(1'b0),
-            .gamma_wr_addr('0),
-            .gamma_wr_data(gamma_wr_zero),
-            .norm_wr_en(norm_wr_en),
-            .norm_wr_addr(norm_wr_addr),
-            .norm_wr_data(norm_wr_data)
-        );
-    end else begin : g_no_rmsnorm
-        assign norm_busy = 1'b0;
-        assign norm_done = 1'b0;
-        assign norm_wr_en = 1'b0;
-        assign norm_wr_addr = '0;
-        for (genvar i = 0; i < TILE_SIZE; i++) begin : g_norm_zero
-            assign norm_wr_data[i] = '0;
-        end
-    end
+    reuse_rmsnorm_scheduler #(
+        .TILE_SIZE(TILE_SIZE),
+        .DATA_WIDTH(DATA_WIDTH),
+        .H_DEPTH(32),
+        .H_ADDR_W(5),
+        .NORM_GAMMA_INIT_FILE(NORM_GAMMA_INIT_FILE)
+    ) u_rmsnorm (
+        .clk(clk),
+        .rst_n(rst_n),
+        .enable(1'b1),
+        .start(norm_start_int),
+        .busy(norm_busy),
+        .done(norm_done),
+        .h_wr_en(h_wr_en),
+        .h_wr_addr(h_wr_addr),
+        .h_wr_data(h_wr_data),
+        .gamma_wr_en(1'b0),
+        .gamma_wr_addr('0),
+        .gamma_wr_data(gamma_wr_zero),
+        .norm_wr_en(norm_wr_en),
+        .norm_wr_addr(norm_wr_addr),
+        .norm_wr_data(norm_wr_data)
+    );
+
 
     reuse_ssm_dt_scheduler #(
         .TILE_SIZE          (TILE_SIZE),
@@ -668,11 +650,10 @@ module reuse_mamba_block_top #(
     );
 
     always_comb begin
-            g_axis_int_valid = silu_valid;
-            silu_ready       = g_axis_int_ready;
-            g_axis_TREADY    = 1'b0;
-            for (int i = 0; i < TILE_SIZE; i++)
-                g_axis_int_data[i] = silu_vec[i];
+        gate_axis_valid = silu_valid;
+        silu_ready      = gate_axis_ready;
+        for (int i = 0; i < TILE_SIZE; i++)
+            gate_axis_data[i] = silu_vec[i];
     end
 
     reuse_mac_fabric_manager #(
@@ -757,9 +738,9 @@ module reuse_mamba_block_top #(
         .xt_v(xt_v),
         .xt_r_int(xt_r_int),
         .xt_d(xt_d),
-        .g_axis_TVALID(g_axis_int_valid),
-        .g_axis_TREADY(g_axis_int_ready),
-        .g_axis_TDATA(g_axis_int_data),
+        .gate_axis_valid(gate_axis_valid),
+        .gate_axis_ready(gate_axis_ready),
+        .gate_axis_data(gate_axis_data),
         .y_axis_TVALID(ssm_p_valid),
         .y_axis_TREADY(ssm_p_ready),
         .y_axis_TDATA(ssm_p_data)
