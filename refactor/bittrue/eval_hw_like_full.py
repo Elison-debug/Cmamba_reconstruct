@@ -171,6 +171,7 @@ def _forward_full_case_chain4_from_q88(export_json: Path, h_in_q88: np.ndarray, 
 
 
 _MP_EXPORT_JSON_CHAIN: Path | None = None
+_MP_EXPORT_JSON_CPPISH: Path | None = None
 
 
 
@@ -184,6 +185,18 @@ def _mp_eval_case_chain4(item: tuple[int, np.ndarray, np.ndarray]) -> tuple[int,
     idx, h_q88, y_q88 = item
     assert _MP_EXPORT_JSON_CHAIN is not None
     y_out, _ = _forward_full_case_chain4_from_q88(_MP_EXPORT_JSON_CHAIN, h_q88, y_q88)
+    return idx, y_out.astype(np.float32)
+
+
+def _mp_worker_init_cppish(export_json_str: str) -> None:
+    global _MP_EXPORT_JSON_CPPISH
+    _MP_EXPORT_JSON_CPPISH = Path(export_json_str)
+
+
+def _mp_eval_cppish(item: tuple[int, np.ndarray]) -> tuple[int, np.ndarray]:
+    idx, sample = item
+    assert _MP_EXPORT_JSON_CPPISH is not None
+    y_out, _ = _forward_full_cppish(_MP_EXPORT_JSON_CPPISH, sample)
     return idx, y_out.astype(np.float32)
 
 
@@ -313,14 +326,35 @@ def main() -> None:
         y_cppish_all = np.zeros((0, y_cpp_eval.shape[1]), dtype=np.float32)
     if int(y_cppish_all.shape[0]) < int(eval_samples):
         start_i = int(y_cppish_all.shape[0])
-        out_rows = []
-        for i in range(start_i, int(eval_samples)):
-            y_i, _ = _forward_full_cppish(export_json, samples_eval[i])
-            out_rows.append(y_i.astype(np.float32))
-            if int(args.progress_every) > 0 and (((i + 1) - start_i) % int(args.progress_every) == 0):
-                print(f"[eval] cppish cache {i + 1}/{eval_samples}")
-        if out_rows:
-            y_more = np.stack(out_rows, axis=0).astype(np.float32)
+        remain = int(eval_samples) - start_i
+        y_dim = int(y_cpp_eval.shape[1])
+        print(f"[eval] building cppish cache from {start_i} to {eval_samples} with {workers} worker(s)")
+        if remain <= 1 or workers <= 1:
+            y_more = np.zeros((remain, y_dim), dtype=np.float32)
+            done = 0
+            for i in range(start_i, int(eval_samples)):
+                y_i, _ = _forward_full_cppish(export_json, samples_eval[i])
+                y_more[i - start_i] = y_i.astype(np.float32)
+                done += 1
+                if int(args.progress_every) > 0 and (done % int(args.progress_every) == 0):
+                    print(f"[eval] cppish cache {start_i + done}/{eval_samples}")
+        else:
+            y_more = np.zeros((remain, y_dim), dtype=np.float32)
+            items_cppish = [(i, samples_eval[i]) for i in range(start_i, int(eval_samples))]
+            with ProcessPoolExecutor(
+                max_workers=workers,
+                initializer=_mp_worker_init_cppish,
+                initargs=(str(export_json),),
+            ) as ex:
+                futs = [ex.submit(_mp_eval_cppish, it) for it in items_cppish]
+                done = 0
+                for fut in as_completed(futs):
+                    idx, y_out = fut.result()
+                    y_more[idx - start_i] = y_out
+                    done += 1
+                    if int(args.progress_every) > 0 and (done % int(args.progress_every) == 0):
+                        print(f"[eval] cppish cache {start_i + done}/{eval_samples}")
+        if remain > 0:
             if start_i > 0:
                 y_cppish_all = np.concatenate([y_cppish_all, y_more], axis=0)
             else:

@@ -10,6 +10,8 @@ module tb_reuse_mamba_board_shell_stream;
   localparam int H_DEPTH    = 32;
   localparam int Y_DEPTH    = 32;
   localparam int N_FRAMES   = 8;
+  localparam int FILE_FRAMES = 8;
+  localparam int FRAME_BASE = 0;
   localparam string CASE_DIR = `HW_DEBUG_CASE_DIR;
   localparam string STAGE_B0_CONST = {CASE_DIR, "/stages/reuse_mamba_block_top_block0"};
   localparam string STAGE_B1_CONST = {CASE_DIR, "/stages/reuse_mamba_block_top_block1"};
@@ -34,18 +36,18 @@ module tb_reuse_mamba_board_shell_stream;
   logic                           frame_busy;
 
   logic [63:0] h_wr_data_mem [0:H_DEPTH-1];
-  logic [63:0] h_stream_input_mem [0:(N_FRAMES*H_DEPTH)-1];
-  logic [63:0] b1_h_stream_golden_mem [0:(N_FRAMES*H_DEPTH)-1];
-  logic [63:0] b2_h_stream_golden_mem [0:(N_FRAMES*H_DEPTH)-1];
-  logic [63:0] b3_h_stream_golden_mem [0:(N_FRAMES*H_DEPTH)-1];
-  logic [63:0] y_stream_golden_mem  [0:(N_FRAMES*Y_DEPTH)-1];
-  logic [63:0] b0_h_norm_golden_mem [0:(N_FRAMES*H_DEPTH)-1];
-  logic [63:0] b0_u_golden_mem      [0:(N_FRAMES*64)-1];
-  logic [63:0] b0_z_golden_mem      [0:(N_FRAMES*64)-1];
-  logic [63:0] b0_zsilu_golden_mem  [0:(N_FRAMES*64)-1];
-  logic [63:0] b0_dt_golden_mem     [0:(N_FRAMES*64)-1];
-  logic [63:0] b0_ssm_golden_mem    [0:(N_FRAMES*64)-1];
-  logic [63:0] b0_gate_golden_mem   [0:(N_FRAMES*64)-1];
+  logic [63:0] h_stream_input_mem [0:(FILE_FRAMES*H_DEPTH)-1];
+  logic [63:0] b1_h_stream_golden_mem [0:(FILE_FRAMES*H_DEPTH)-1];
+  logic [63:0] b2_h_stream_golden_mem [0:(FILE_FRAMES*H_DEPTH)-1];
+  logic [63:0] b3_h_stream_golden_mem [0:(FILE_FRAMES*H_DEPTH)-1];
+  logic [63:0] y_stream_golden_mem  [0:(FILE_FRAMES*Y_DEPTH)-1];
+  logic [63:0] b0_h_norm_golden_mem [0:(FILE_FRAMES*H_DEPTH)-1];
+  logic [63:0] b0_u_golden_mem      [0:(FILE_FRAMES*64)-1];
+  logic [63:0] b0_z_golden_mem      [0:(FILE_FRAMES*64)-1];
+  logic [63:0] b0_zsilu_golden_mem  [0:(FILE_FRAMES*64)-1];
+  logic [63:0] b0_dt_golden_mem     [0:(FILE_FRAMES*64)-1];
+  logic [63:0] b0_ssm_golden_mem    [0:(FILE_FRAMES*64)-1];
+  logic [63:0] b0_gate_golden_mem   [0:(FILE_FRAMES*64)-1];
   logic [63:0] b0_y_golden_mem [0:Y_DEPTH-1];
   logic [63:0] b1_y_golden_mem [0:Y_DEPTH-1];
   logic [63:0] b2_y_golden_mem [0:Y_DEPTH-1];
@@ -62,7 +64,7 @@ module tb_reuse_mamba_board_shell_stream;
   int blk_frame_idx [0:3];
   int blk_row_idx [0:3];
   int blk_mismatch_total [0:3];
-  int blk_frame_mismatch [0:3][0:N_FRAMES-1];
+  int blk_frame_mismatch [0:3][0:FILE_FRAMES-1];
   int b0_stage_frame;
   int b0_hnorm_row;
   int b0_u_row;
@@ -242,9 +244,13 @@ module tb_reuse_mamba_board_shell_stream;
       blk_mismatch_total[b] = 0;
       blk_last_row0[b] = '0;
       blk_last_row0_valid[b] = 1'b0;
-      for (int f = 0; f < N_FRAMES; f++) begin
+      for (int f = 0; f < FILE_FRAMES; f++) begin
         blk_frame_mismatch[b][f] = 0;
       end
+    end
+    if (!REPEAT_FRAME0_ONLY && ((FRAME_BASE < 0) || ((FRAME_BASE + N_FRAMES) > FILE_FRAMES))) begin
+      $fatal(1, "[%0t] invalid frame window FRAME_BASE=%0d N_FRAMES=%0d FILE_FRAMES=%0d",
+             $time, FRAME_BASE, N_FRAMES, FILE_FRAMES);
     end
     load_case();
     repeat (20) @(posedge clk);
@@ -259,7 +265,9 @@ module tb_reuse_mamba_board_shell_stream;
     repeat (8) @(posedge clk);
     while (tx_idx < total_beats) begin
       s_axis_h_tvalid <= 1'b1;
-      s_axis_h_tdata  <= REPEAT_FRAME0_ONLY ? h_stream_input_mem[tx_idx % H_DEPTH] : h_stream_input_mem[tx_idx];
+      s_axis_h_tdata  <= REPEAT_FRAME0_ONLY
+                         ? h_stream_input_mem[tx_idx % H_DEPTH]
+                         : h_stream_input_mem[frame_row_idx(FRAME_BASE + (tx_idx / H_DEPTH), tx_idx % H_DEPTH, H_DEPTH)];
       s_axis_h_tlast  <= ((tx_idx % H_DEPTH) == (H_DEPTH - 1));
       do @(posedge clk); while (!(s_axis_h_tvalid && s_axis_h_tready));
       tx_idx <= tx_idx + 1;
@@ -304,7 +312,9 @@ module tb_reuse_mamba_board_shell_stream;
         ridx = dut.u_core.u_core.u_blk0.h_wr_addr;
         got_w = pack_vec4(dut.u_core.u_core.u_blk0.h_wr_data);
         if ((b0_hin_writes >= 0) && (b0_hin_writes < (N_FRAMES*H_DEPTH))) begin
-          exp_w = REPEAT_FRAME0_ONLY ? h_stream_input_mem[b0_hin_writes % H_DEPTH] : h_stream_input_mem[b0_hin_writes];
+          exp_w = REPEAT_FRAME0_ONLY
+                  ? h_stream_input_mem[b0_hin_writes % H_DEPTH]
+                  : h_stream_input_mem[frame_row_idx(FRAME_BASE + (b0_hin_writes / H_DEPTH), b0_hin_writes % H_DEPTH, H_DEPTH)];
         end else begin
           exp_w = h_wr_data_mem[ridx];
         end
@@ -330,7 +340,9 @@ module tb_reuse_mamba_board_shell_stream;
         ridx3 = dut.u_core.u_core.u_blk3.h_wr_addr;
         got3 = pack_vec4(dut.u_core.u_core.u_blk3.h_wr_data);
         if ((b3_hin_writes >= 0) && (b3_hin_writes < (N_FRAMES*H_DEPTH))) begin
-          exp3 = REPEAT_FRAME0_ONLY ? b3_h_stream_golden_mem[b3_hin_writes % H_DEPTH] : b3_h_stream_golden_mem[b3_hin_writes];
+          exp3 = REPEAT_FRAME0_ONLY
+                 ? b3_h_stream_golden_mem[b3_hin_writes % H_DEPTH]
+                 : b3_h_stream_golden_mem[frame_row_idx(FRAME_BASE + (b3_hin_writes / H_DEPTH), b3_hin_writes % H_DEPTH, H_DEPTH)];
         end else begin
           exp3 = '0;
         end
@@ -351,7 +363,9 @@ module tb_reuse_mamba_board_shell_stream;
         ridx1 = dut.u_core.u_core.u_blk1.h_wr_addr;
         got1 = pack_vec4(dut.u_core.u_core.u_blk1.h_wr_data);
         exp1 = ((b1_hin_writes >= 0) && (b1_hin_writes < (N_FRAMES*H_DEPTH)))
-               ? (REPEAT_FRAME0_ONLY ? b1_h_stream_golden_mem[b1_hin_writes % H_DEPTH] : b1_h_stream_golden_mem[b1_hin_writes])
+               ? (REPEAT_FRAME0_ONLY
+                  ? b1_h_stream_golden_mem[b1_hin_writes % H_DEPTH]
+                  : b1_h_stream_golden_mem[frame_row_idx(FRAME_BASE + (b1_hin_writes / H_DEPTH), b1_hin_writes % H_DEPTH, H_DEPTH)])
                : '0;
         if (lane_diff_gt_1(got1, exp1)) begin
           b1_hin_mis = b1_hin_mis + 1;
@@ -370,7 +384,9 @@ module tb_reuse_mamba_board_shell_stream;
         ridx2 = dut.u_core.u_core.u_blk2.h_wr_addr;
         got2 = pack_vec4(dut.u_core.u_core.u_blk2.h_wr_data);
         exp2 = ((b2_hin_writes >= 0) && (b2_hin_writes < (N_FRAMES*H_DEPTH)))
-               ? (REPEAT_FRAME0_ONLY ? b2_h_stream_golden_mem[b2_hin_writes % H_DEPTH] : b2_h_stream_golden_mem[b2_hin_writes])
+               ? (REPEAT_FRAME0_ONLY
+                  ? b2_h_stream_golden_mem[b2_hin_writes % H_DEPTH]
+                  : b2_h_stream_golden_mem[frame_row_idx(FRAME_BASE + (b2_hin_writes / H_DEPTH), b2_hin_writes % H_DEPTH, H_DEPTH)])
                : '0;
         if (lane_diff_gt_1(got2, exp2)) begin
           b2_hin_mis = b2_hin_mis + 1;
@@ -399,7 +415,7 @@ module tb_reuse_mamba_board_shell_stream;
         logic [63:0] exp_w;
         ridx = dut.u_core.u_core.u_blk0.norm_wr_addr;
         got_w = pack_vec4(dut.u_core.u_core.u_blk0.norm_wr_data);
-        exp_w = b0_h_norm_golden_mem[frame_row_idx(b0_stage_frame, ridx, H_DEPTH)];
+        exp_w = b0_h_norm_golden_mem[frame_row_idx(FRAME_BASE + b0_stage_frame, ridx, H_DEPTH)];
         if (lane_diff_gt_1(got_w, exp_w)) begin
           b0_hnorm_mis = b0_hnorm_mis + 1;
           if (!b0_hnorm_first) begin
@@ -416,7 +432,7 @@ module tb_reuse_mamba_board_shell_stream;
         logic [63:0] got_w;
         logic [63:0] exp_w;
         got_w = pack_vec4(dut.u_core.u_core.u_blk0.u_stream_vec);
-        exp_w = b0_u_golden_mem[frame_row_idx(b0_stage_frame, b0_u_row, 64)];
+        exp_w = b0_u_golden_mem[frame_row_idx(FRAME_BASE + b0_stage_frame, b0_u_row, 64)];
         if (lane_diff_gt_1(got_w, exp_w)) begin
           b0_u_mis = b0_u_mis + 1;
           if (!b0_u_first) begin
@@ -433,7 +449,7 @@ module tb_reuse_mamba_board_shell_stream;
         logic [63:0] got_w;
         logic [63:0] exp_w;
         got_w = pack_vec4(dut.u_core.u_core.u_blk0.z_stream_vec);
-        exp_w = b0_z_golden_mem[frame_row_idx(b0_stage_frame, b0_z_row, 64)];
+        exp_w = b0_z_golden_mem[frame_row_idx(FRAME_BASE + b0_stage_frame, b0_z_row, 64)];
         if (lane_diff_gt_1(got_w, exp_w)) begin
           b0_z_mis = b0_z_mis + 1;
           if (!b0_z_first) begin
@@ -450,7 +466,7 @@ module tb_reuse_mamba_board_shell_stream;
         logic [63:0] got_w;
         logic [63:0] exp_w;
         got_w = pack_vec4(dut.u_core.u_core.u_blk0.silu_vec);
-        exp_w = b0_zsilu_golden_mem[frame_row_idx(b0_stage_frame, b0_zsilu_row, 64)];
+        exp_w = b0_zsilu_golden_mem[frame_row_idx(FRAME_BASE + b0_stage_frame, b0_zsilu_row, 64)];
         if (lane_diff_gt_1(got_w, exp_w)) begin
           b0_zsilu_mis = b0_zsilu_mis + 1;
           if (!b0_zsilu_first) begin
@@ -467,7 +483,7 @@ module tb_reuse_mamba_board_shell_stream;
         logic [63:0] got_w;
         logic [63:0] exp_w;
         got_w = pack_vec4(dut.u_core.u_core.u_blk0.dt_mac_vec);
-        exp_w = b0_dt_golden_mem[frame_row_idx(b0_stage_frame, b0_dt_row, 64)];
+        exp_w = b0_dt_golden_mem[frame_row_idx(FRAME_BASE + b0_stage_frame, b0_dt_row, 64)];
         if (lane_diff_gt_1(got_w, exp_w)) begin
           b0_dt_mis = b0_dt_mis + 1;
           if (!b0_dt_first) begin
@@ -485,7 +501,7 @@ module tb_reuse_mamba_board_shell_stream;
         logic [63:0] got_w;
         logic [63:0] exp_w;
         got_w = pack_vec4(dut.u_core.u_core.u_blk0.u_ssm_core.s_out_vec);
-        exp_w = b0_ssm_golden_mem[frame_row_idx(b0_stage_frame, b0_ssm_row, 64)];
+        exp_w = b0_ssm_golden_mem[frame_row_idx(FRAME_BASE + b0_stage_frame, b0_ssm_row, 64)];
         if (lane_diff_gt_1(got_w, exp_w)) begin
           b0_ssm_mis = b0_ssm_mis + 1;
           if (!b0_ssm_first) begin
@@ -502,7 +518,7 @@ module tb_reuse_mamba_board_shell_stream;
         logic [63:0] got_w;
         logic [63:0] exp_w;
         got_w = pack_vec4(dut.u_core.u_core.u_blk0.ssm_p_data);
-        exp_w = b0_gate_golden_mem[frame_row_idx(b0_stage_frame, b0_gate_row, 64)];
+        exp_w = b0_gate_golden_mem[frame_row_idx(FRAME_BASE + b0_stage_frame, b0_gate_row, 64)];
         if (lane_diff_gt_1(got_w, exp_w)) begin
           b0_gate_mis = b0_gate_mis + 1;
           if (!b0_gate_first) begin
@@ -529,7 +545,7 @@ module tb_reuse_mamba_board_shell_stream;
           exp_w = blk_golden_word(b, ridx);
           if (lane_diff_gt_1(blk_out_packed[b], exp_w)) begin
             blk_mismatch_total[b] = blk_mismatch_total[b] + 1;
-            if (fidx >= 0 && fidx < N_FRAMES) begin
+            if (fidx >= 0 && fidx < FILE_FRAMES) begin
               blk_frame_mismatch[b][fidx] = blk_frame_mismatch[b][fidx] + 1;
             end
             if (blk_frame_mismatch[b][fidx] <= 4) begin
@@ -547,7 +563,7 @@ module tb_reuse_mamba_board_shell_stream;
           end
           if (ridx == (Y_DEPTH - 1)) begin
             $display("[%0t] BLK%0d frame=%0d done mismatches=%0d",
-                     $time, b, fidx, (fidx >= 0 && fidx < N_FRAMES) ? blk_frame_mismatch[b][fidx] : -1);
+                     $time, b, fidx, (fidx >= 0 && fidx < FILE_FRAMES) ? blk_frame_mismatch[b][fidx] : -1);
             blk_row_idx[b] = 0;
           end else begin
             blk_row_idx[b] = ridx + 1;
@@ -596,16 +612,23 @@ module tb_reuse_mamba_board_shell_stream;
                  $time, rx_frame, rx_row, m_axis_y_tdata, m_axis_y_tlast);
         end
 
-        if ($isunknown(REPEAT_FRAME0_ONLY ? y_stream_golden_mem[rx_row] : y_stream_golden_mem[rx_total_beats])) begin
+        if ($isunknown(REPEAT_FRAME0_ONLY
+                       ? y_stream_golden_mem[rx_row]
+                       : y_stream_golden_mem[frame_row_idx(FRAME_BASE + rx_frame, rx_row, Y_DEPTH)])) begin
           $fatal(1, "[%0t] expected stream golden is X/Z at beat=%0d (check CASE_DIR and mem file)",
                  $time, rx_total_beats);
         end
-        if (lane_diff_gt_1(m_axis_y_tdata, REPEAT_FRAME0_ONLY ? y_stream_golden_mem[rx_row] : y_stream_golden_mem[rx_total_beats])) begin
+        if (lane_diff_gt_1(m_axis_y_tdata,
+                           REPEAT_FRAME0_ONLY
+                           ? y_stream_golden_mem[rx_row]
+                           : y_stream_golden_mem[frame_row_idx(FRAME_BASE + rx_frame, rx_row, Y_DEPTH)])) begin
           mismatch_cnt++;
           if (mismatch_cnt <= 8) begin
             $display("[%0t] stream golden mismatch beat=%0d frame=%0d row=%0d got=%h exp=%h",
                      $time, rx_total_beats, rx_frame, rx_row, m_axis_y_tdata,
-                     (REPEAT_FRAME0_ONLY ? y_stream_golden_mem[rx_row] : y_stream_golden_mem[rx_total_beats]));
+                     (REPEAT_FRAME0_ONLY
+                      ? y_stream_golden_mem[rx_row]
+                      : y_stream_golden_mem[frame_row_idx(FRAME_BASE + rx_frame, rx_row, Y_DEPTH)]));
           end
         end
         rx_total_beats++;
@@ -679,3 +702,4 @@ module tb_reuse_mamba_board_shell_stream;
   defparam dut.u_core.STAGE_DIR_B2 = STAGE_B2_CONST;
   defparam dut.u_core.STAGE_DIR_B3 = STAGE_B3_CONST;
 endmodule
+

@@ -87,6 +87,20 @@ def _clamp_s16_arr(x: np.ndarray) -> np.ndarray:
     return np.clip(x.astype(np.int64), -32768, 32767).astype(np.int16)
 
 
+# RTL: loads packed 4xU32 rows emitted by export_hw_debug for state scale ROMs.
+def _load_packed_u32x4_mem(mem_path: Path) -> np.ndarray:
+    rows: list[list[int]] = []
+    for raw in mem_path.read_text(encoding="utf-8").splitlines():
+        s = raw.strip()
+        if not s:
+            continue
+        w = int(s, 16)
+        rows.append([(w >> (32 * lane)) & 0xFFFFFFFF for lane in range(4)])
+    if not rows:
+        return np.zeros((0, 4), dtype=np.int64)
+    return np.asarray(rows, dtype=np.int64)
+
+
 # RTL: helper used by reuse_mamba_chain4_core_adapter / reuse_mamba_4block_chain_top model.
 def _find_sigmoid_lut() -> Path | None:
     for p in (Path("user/data/sigmoid_lut_q016_2048.hex"), Path("sigmoid_lut_q016_2048.hex")):
@@ -410,6 +424,22 @@ def build_chain4_ctx(export_json: Path, case_dir: Path | None = None) -> dict:
         dt_bias = None
         if blk["ssm"]["dt_proj"].get("bias_file"):
             dt_bias = np.load(base_dir / blk["ssm"]["dt_proj"]["bias_file"]).astype(np.float32).reshape(-1)
+        fixed_u_to_state_q16 = None
+        fixed_state_to_q88_q16 = None
+        if case_dir is not None:
+            stage_dir = case_dir / "stages" / f"reuse_mamba_block_top_block{bi}"
+            u2s_mem = stage_dir / "state_u_to_state_q16.mem"
+            s2q_mem = stage_dir / "state_to_q88_q16.mem"
+            if u2s_mem.exists() and s2q_mem.exists():
+                u2s_arr = _load_packed_u32x4_mem(u2s_mem)
+                s2q_arr = _load_packed_u32x4_mem(s2q_mem)
+                if u2s_arr.shape != s2q_arr.shape:
+                    raise ValueError(
+                        f"state scale mem shape mismatch block{bi}: "
+                        f"u_to_state={u2s_arr.shape} state_to_q88={s2q_arr.shape}"
+                    )
+                fixed_u_to_state_q16 = u2s_arr
+                fixed_state_to_q88_q16 = s2q_arr
         blk_cache.append(
             {
                 "desc": blk,
@@ -418,8 +448,8 @@ def build_chain4_ctx(export_json: Path, case_dir: Path | None = None) -> dict:
                 "dt_w": dt_w,
                 "out_w": out_w,
                 "dt_bias": dt_bias,
-                "fixed_u_to_state_q16": None,
-                "fixed_state_to_q88_q16": None,
+                "fixed_u_to_state_q16": fixed_u_to_state_q16,
+                "fixed_state_to_q88_q16": fixed_state_to_q88_q16,
             }
         )
     return {
