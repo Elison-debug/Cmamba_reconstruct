@@ -150,7 +150,9 @@ def _stage_cfg(stage: str) -> dict:
     }
     all_rtl = sorted(str(p) for p in RTL_DIR.glob("*") if p.is_file() and p.name not in skip_rtl and p.suffix in {".sv", ".v"})
     ip_wrappers = _collect_ip_wrappers()
+    ip_wrappers_no_axis = [p for p in ip_wrappers if "axis_register_slice_0" not in p]
     shared_sources = [*all_rtl, *ip_wrappers]
+    shared_sources_no_axis = [*all_rtl, *ip_wrappers_no_axis]
     if stage == "sigmoid4_vec":
         return {
             "tb_top": "tb_sigmoid4_vec",
@@ -211,7 +213,7 @@ def _stage_cfg(stage: str) -> dict:
             "tb_top": "tb_reuse_mamba_board_shell_ps",
             "tb_file": str(TB_DIR / "tb_reuse_mamba_board_shell_ps.sv"),
             "sources": [
-                *shared_sources,
+                *shared_sources_no_axis,
                 str(RTL_DIR / "reuse_mamba_board_shell.v"),
                 str(RTL_DIR / "reuse_mamba_h_stream_loader.v"),
             ],
@@ -243,7 +245,7 @@ def _stage_cfg(stage: str) -> dict:
             "tb_top": "tb_reuse_mamba_board_shell_stream_ps",
             "tb_file": str(TB_DIR / "tb_reuse_mamba_board_shell_stream_ps.sv"),
             "sources": [
-                *shared_sources,
+                *shared_sources_no_axis,
                 str(RTL_DIR / "reuse_mamba_board_shell_stream.v"),
                 str(RTL_DIR / "reuse_mamba_h_stream_loader.v"),
             ],
@@ -381,7 +383,8 @@ def main() -> None:
 
     xvlog_cmd = [str(vivado_bin / "xvlog.bat"), "--sv", "--relax", "-i", "."]
     axis_rs_hdl_dir = PROJ_IP_GEN_DIR / "axis_register_slice_0" / "hdl"
-    if axis_rs_hdl_dir.exists():
+    uses_axis_rs = any("axis_register_slice_0" in src for src in cfg.get("sources", []))
+    if uses_axis_rs and axis_rs_hdl_dir.exists():
         xvlog_cmd.extend(["-i", str(axis_rs_hdl_dir)])
     for define in xvlog_defines:
         xvlog_cmd.extend(["-d", define])

@@ -53,9 +53,9 @@ module tb_reuse_top_mac_plus_bias_fifo_sigmoid_ew_gate;
   logic s_axis_TVALID;
   logic s_axis_TREADY;
 
-  logic                         g_axis_TVALID;
-  logic                         g_axis_TREADY;
-  logic signed [DATA_WIDTH-1:0] g_axis_TDATA [TILE_SIZE-1:0];
+  logic                         gate_axis_valid;
+  logic                         gate_axis_ready;
+  logic signed [DATA_WIDTH-1:0] gate_axis_data [TILE_SIZE-1:0];
 
   logic                         y_axis_TVALID;
   logic                         y_axis_TREADY;
@@ -82,9 +82,9 @@ module tb_reuse_top_mac_plus_bias_fifo_sigmoid_ew_gate;
       .rst_n         (rst_n),
       .s_axis_TVALID (s_axis_TVALID),
       .s_axis_TREADY (s_axis_TREADY),
-      .g_axis_TVALID (g_axis_TVALID),
-      .g_axis_TREADY (g_axis_TREADY),
-      .g_axis_TDATA  (g_axis_TDATA),
+      .gate_axis_valid (gate_axis_valid),
+      .gate_axis_ready (gate_axis_ready),
+      .gate_axis_data  (gate_axis_data),
       .y_axis_TVALID (y_axis_TVALID),
       .y_axis_TREADY (y_axis_TREADY),
       .y_axis_TDATA  (y_axis_TDATA)
@@ -103,7 +103,7 @@ module tb_reuse_top_mac_plus_bias_fifo_sigmoid_ew_gate;
   always_comb begin
     for (int i=0; i<TILE_SIZE; i++) begin
       dbg_s_out[i*DATA_WIDTH +: DATA_WIDTH]    = dut.s_out_vec[i];
-      dbg_g_in[i*DATA_WIDTH +: DATA_WIDTH]     = g_axis_TDATA[i];
+      dbg_g_in[i*DATA_WIDTH +: DATA_WIDTH]     = gate_axis_data[i];
       dbg_y_out[i*DATA_WIDTH +: DATA_WIDTH]    = y_axis_TDATA[i];
       dbg_fifo2sig[i*DATA_WIDTH +: DATA_WIDTH] = dut.fifo2sig_vec[i];
       dbg_sigmoid[i*DATA_WIDTH +: DATA_WIDTH]  = dut.sigmoid_out_vec[i];
@@ -176,7 +176,7 @@ module tb_reuse_top_mac_plus_bias_fifo_sigmoid_ew_gate;
   int g_enq_cnt;
   int g_sent_cnt;
 
-  wire g_pipe_out_ready = g_axis_TREADY || !g_pipe_valid[G_DELAY-1];
+  wire g_pipe_out_ready = gate_axis_ready || !g_pipe_valid[G_DELAY-1];
   wire s_fire = dut.s_out_valid && dut.s_out_ready;
 
   always_ff @(posedge clk or negedge rst_n) begin
@@ -201,18 +201,18 @@ module tb_reuse_top_mac_plus_bias_fifo_sigmoid_ew_gate;
         end
       end
 
-      if (g_axis_TVALID && g_axis_TREADY)
+      if (gate_axis_valid && gate_axis_ready)
         g_sent_cnt <= g_sent_cnt + 1;
     end
   end
 
-  assign g_axis_TVALID = g_pipe_valid[G_DELAY-1] && (g_sent_cnt < 3);
+  assign gate_axis_valid = g_pipe_valid[G_DELAY-1] && (g_sent_cnt < 3);
   always_comb begin
     for (int i=0; i<TILE_SIZE; i++) begin
-      if (g_axis_TVALID)
-        g_axis_TDATA[i] = g_pipe_data[G_DELAY-1][i];
+      if (gate_axis_valid)
+        gate_axis_data[i] = g_pipe_data[G_DELAY-1][i];
       else
-        g_axis_TDATA[i] = '0;
+        gate_axis_data[i] = '0;
     end
   end
 

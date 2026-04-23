@@ -51,9 +51,9 @@ module reuse_ssm_core #(
     input  logic signed [DATA_WIDTH-1:0] xt_d [TILE_SIZE-1:0],
 
     // gate input and final output
-    input  logic                         g_axis_TVALID,
-    output logic                         g_axis_TREADY,
-    input  logic signed [DATA_WIDTH-1:0] g_axis_TDATA [TILE_SIZE-1:0],
+    input  logic                         gate_axis_valid,
+    output logic                         gate_axis_ready,
+    input  logic signed [DATA_WIDTH-1:0] gate_axis_data [TILE_SIZE-1:0],
     output logic                         y_axis_TVALID,
     input  logic                         y_axis_TREADY,
     output logic signed [DATA_WIDTH-1:0] y_axis_TDATA [TILE_SIZE-1:0]
@@ -236,7 +236,6 @@ module reuse_ssm_core #(
     assign xt_r_int      = join_b_ready;
 
     logic [S_ADDR_W-1:0] s_addr_cnt;
-    wire  [S_ADDR_W-1:0] s_addr_mux = s_addr_cnt;
     wire join_fire = join_out_valid && join_out_ready_int;
     always_ff @(posedge clk) begin
         if (!rst_n) s_addr_cnt <= '0;
@@ -253,39 +252,33 @@ module reuse_ssm_core #(
     logic signed [DATA_WIDTH-1:0] s_out_vec [TILE_SIZE-1:0];
     logic [STATE_SCALE_W-1:0] u_to_state_scale_vec [TILE_SIZE-1:0];
     logic [STATE_SCALE_W-1:0] state_to_q88_scale_vec [TILE_SIZE-1:0];
-    logic [STATE_SCALE_W*TILE_SIZE-1:0] u_to_state_scale_packed;
-    logic [STATE_SCALE_W*TILE_SIZE-1:0] state_to_q88_scale_packed;
+    logic                         scale_pipe_valid;
+    logic [S_ADDR_W-1:0]          scale_pipe_addr;
+    logic [DATA_WIDTH-1:0]        scale_pipe_lam_vec [TILE_SIZE-1:0];
+    logic signed [DATA_WIDTH-1:0] scale_pipe_u_vec   [TILE_SIZE-1:0];
 
-    reuse_packed_scale_mem #(
-        .DEPTH    (D/TILE_SIZE),
-        .ADDR_W   (S_ADDR_W),
-        .DATA_W   (STATE_SCALE_W*TILE_SIZE),
-        .INIT_FILE(STATE_U_TO_STATE_SCALE_INIT_FILE)
-    ) u_state_u_to_state_scale_mem (
-        .clk  (clk),
-        .en   (1'b1),
-        .addr (s_addr_mux),
-        .dout (u_to_state_scale_packed)
+    reuse_state_scale_pingpong #(
+        .TILE_SIZE(TILE_SIZE),
+        .DATA_WIDTH(DATA_WIDTH),
+        .S_ADDR_W(S_ADDR_W),
+        .STATE_SCALE_W(STATE_SCALE_W),
+        .STATE_SCALE_FRAC_BITS(STATE_SCALE_FRAC_BITS)
+    ) u_state_scale_pingpong (
+        .clk(clk),
+        .rst_n(rst_n),
+        .in_valid(join_out_valid),
+        .in_ready(join_out_ready_int),
+        .in_addr(s_addr_cnt),
+        .in_lam_vec(join_lam_vec),
+        .in_u_vec(join_xt_vec_s),
+        .out_valid(scale_pipe_valid),
+        .out_ready(ew_in_ready),
+        .out_addr(scale_pipe_addr),
+        .out_lam_vec(scale_pipe_lam_vec),
+        .out_u_vec(scale_pipe_u_vec),
+        .out_u_to_state_scale_vec(u_to_state_scale_vec),
+        .out_state_to_q88_scale_vec(state_to_q88_scale_vec)
     );
-
-    reuse_packed_scale_mem #(
-        .DEPTH    (D/TILE_SIZE),
-        .ADDR_W   (S_ADDR_W),
-        .DATA_W   (STATE_SCALE_W*TILE_SIZE),
-        .INIT_FILE(STATE_TO_Q88_SCALE_INIT_FILE)
-    ) u_state_to_q88_scale_mem (
-        .clk  (clk),
-        .en   (1'b1),
-        .addr (s_addr_mux),
-        .dout (state_to_q88_scale_packed)
-    );
-
-    always_comb begin
-        for (int i=0; i<TILE_SIZE; i++) begin
-            u_to_state_scale_vec[i] = u_to_state_scale_packed[i*STATE_SCALE_W +: STATE_SCALE_W];
-            state_to_q88_scale_vec[i] = state_to_q88_scale_packed[i*STATE_SCALE_W +: STATE_SCALE_W];
-        end
-    end
 
     ew_update_vec4 #(
         .TILE_SIZE (TILE_SIZE),
@@ -306,18 +299,17 @@ module reuse_ssm_core #(
         .state_force_clear(state_force_clear),
         .state_clear_busy(state_clear_busy),
         .state_clear_done(state_clear_done),
-        .in_valid  (join_out_valid),
+        .in_valid  (scale_pipe_valid),
         .in_ready  (ew_in_ready),
-        .lam_vec   (join_lam_vec),
-        .u_vec     (join_xt_vec_s),
+        .lam_vec   (scale_pipe_lam_vec),
+        .u_vec     (scale_pipe_u_vec),
         .u_to_state_scale_vec(u_to_state_scale_vec),
         .state_to_q88_scale_vec(state_to_q88_scale_vec),
-        .s_addr    (s_addr_mux),
+        .s_addr    (scale_pipe_addr),
         .out_valid (s_out_valid),
         .out_ready (s_out_ready),
         .s_new_vec (s_out_vec)
     );
-    assign join_out_ready_int = ew_in_ready;
 
     logic s_gate_ready;
     assign s_out_ready = s_gate_ready;
@@ -332,9 +324,9 @@ module reuse_ssm_core #(
     ) u_gate (
         .clk       (clk),
         .rst_n     (rst_n),
-        .g_valid   (g_axis_TVALID),
-        .g_ready   (g_axis_TREADY),
-        .g_vec     (g_axis_TDATA),
+        .g_valid   (gate_axis_valid),
+        .g_ready   (gate_axis_ready),
+        .g_vec     (gate_axis_data),
         .s_valid   (s_out_valid),
         .s_ready   (s_gate_ready),
         .s_vec     (s_out_vec),

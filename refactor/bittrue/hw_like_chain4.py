@@ -46,6 +46,18 @@ def _rshift_rne_vec(x: np.ndarray, shift: int) -> np.ndarray:
     return out.reshape(x.shape)
 
 
+# RTL: reuse_state_scale_pingpong exact integer scale calculation from current u(q8.8).
+def _runtime_scales_from_u_q88(u_q88_rows: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    u_i = u_q88_rows.astype(np.int64)
+    abs_u = np.abs(u_i)
+    abs_u_eff = np.where(abs_u == 0, 256, abs_u).astype(np.int64)
+    u_to_state_q16 = ((int(32767) << 16) + (abs_u_eff >> 1)) // abs_u_eff
+    state_to_q88_q16 = ((abs_u_eff << 16) + int(16383)) // int(32767)
+    u_to_state_q16 = np.clip(u_to_state_q16, 0, 0xFFFFFFFF).astype(np.int64)
+    state_to_q88_q16 = np.clip(state_to_q88_q16, 0, 0xFFFFFFFF).astype(np.int64)
+    return u_to_state_q16, state_to_q88_q16
+
+
 # RTL: helper used by reuse_mamba_chain4_core_adapter / reuse_mamba_4block_chain_top model.
 def _to_u16(v: int) -> int:
     return int(v) & 0xFFFF
@@ -85,20 +97,6 @@ def _wrap_s16_arr(x: np.ndarray) -> np.ndarray:
 # RTL: helper used by reuse_mamba_chain4_core_adapter / reuse_mamba_4block_chain_top model.
 def _clamp_s16_arr(x: np.ndarray) -> np.ndarray:
     return np.clip(x.astype(np.int64), -32768, 32767).astype(np.int16)
-
-
-# RTL: loads packed 4xU32 rows emitted by export_hw_debug for state scale ROMs.
-def _load_packed_u32x4_mem(mem_path: Path) -> np.ndarray:
-    rows: list[list[int]] = []
-    for raw in mem_path.read_text(encoding="utf-8").splitlines():
-        s = raw.strip()
-        if not s:
-            continue
-        w = int(s, 16)
-        rows.append([(w >> (32 * lane)) & 0xFFFFFFFF for lane in range(4)])
-    if not rows:
-        return np.zeros((0, 4), dtype=np.int64)
-    return np.asarray(rows, dtype=np.int64)
 
 
 # RTL: helper used by reuse_mamba_chain4_core_adapter / reuse_mamba_4block_chain_top model.
@@ -364,11 +362,7 @@ def _ssm_update_q88_from_lam_q016(lam_q016: np.ndarray, u_q88_rows: np.ndarray) 
 def _ssm_update_scaled_state_q15_from_q88(u_q88_rows: np.ndarray, lam_q016_rows: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     state_depth, tile = u_q88_rows.shape
     u_q88 = u_q88_rows.astype(np.int64)
-    u_f = u_q88.astype(np.float32) / 256.0
-    max_abs = np.abs(u_f)
-    state_scale = np.where(max_abs > 0.0, max_abs / 32767.0, 1.0 / 32767.0).astype(np.float64)
-    u_to_state_q16 = np.clip(np.rint((1.0 / (256.0 * state_scale)) * 65536.0), 0, 0xFFFFFFFF).astype(np.uint32)
-    state_to_q88_q16 = np.clip(np.rint((state_scale * 256.0) * 65536.0), 0, 0xFFFFFFFF).astype(np.uint32)
+    u_to_state_q16, state_to_q88_q16 = _runtime_scales_from_u_q88(u_q88_rows)
     u_state = _rshift_rne_vec(u_q88 * u_to_state_q16.astype(np.int64), 16)
     u_state = np.clip(u_state, -(1 << 15), (1 << 15) - 1)
     lam_q15 = np.clip(lam_q016_rows.astype(np.int64) >> 1, 0, 1 << 15)
@@ -424,22 +418,6 @@ def build_chain4_ctx(export_json: Path, case_dir: Path | None = None) -> dict:
         dt_bias = None
         if blk["ssm"]["dt_proj"].get("bias_file"):
             dt_bias = np.load(base_dir / blk["ssm"]["dt_proj"]["bias_file"]).astype(np.float32).reshape(-1)
-        fixed_u_to_state_q16 = None
-        fixed_state_to_q88_q16 = None
-        if case_dir is not None:
-            stage_dir = case_dir / "stages" / f"reuse_mamba_block_top_block{bi}"
-            u2s_mem = stage_dir / "state_u_to_state_q16.mem"
-            s2q_mem = stage_dir / "state_to_q88_q16.mem"
-            if u2s_mem.exists() and s2q_mem.exists():
-                u2s_arr = _load_packed_u32x4_mem(u2s_mem)
-                s2q_arr = _load_packed_u32x4_mem(s2q_mem)
-                if u2s_arr.shape != s2q_arr.shape:
-                    raise ValueError(
-                        f"state scale mem shape mismatch block{bi}: "
-                        f"u_to_state={u2s_arr.shape} state_to_q88={s2q_arr.shape}"
-                    )
-                fixed_u_to_state_q16 = u2s_arr
-                fixed_state_to_q88_q16 = s2q_arr
         blk_cache.append(
             {
                 "desc": blk,
@@ -448,8 +426,6 @@ def build_chain4_ctx(export_json: Path, case_dir: Path | None = None) -> dict:
                 "dt_w": dt_w,
                 "out_w": out_w,
                 "dt_bias": dt_bias,
-                "fixed_u_to_state_q16": fixed_u_to_state_q16,
-                "fixed_state_to_q88_q16": fixed_state_to_q88_q16,
             }
         )
     return {
@@ -467,18 +443,14 @@ def make_scaled_state_runtime(
     fixed_state_to_q88_q16: np.ndarray | None = None,
 ) -> dict:
     state_depth, tile = u_q88_rows.shape
-    if fixed_u_to_state_q16 is not None and fixed_state_to_q88_q16 is not None:
-        u_to_state_q16 = fixed_u_to_state_q16.astype(np.int64, copy=False)
-        state_to_q88_q16 = fixed_state_to_q88_q16.astype(np.int64, copy=False)
+    if fixed_u_to_state_q16 is not None:
+        u_to_state_q16 = np.asarray(fixed_u_to_state_q16, dtype=np.int64).reshape(state_depth, tile)
     else:
-        u_q88 = u_q88_rows.astype(np.int64)
-        u_f = u_q88.astype(np.float32) / 256.0
-        max_abs = np.abs(u_f)
-        state_scale = np.where(max_abs > 0.0, max_abs / 32767.0, 1.0 / 32767.0).astype(np.float64)
-        u_to_state = 1.0 / (256.0 * state_scale)
-        state_to_q88 = state_scale * 256.0
-        u_to_state_q16 = np.clip(np.rint(u_to_state * 65536.0), 0, 0xFFFFFFFF).astype(np.uint32).astype(np.int64)
-        state_to_q88_q16 = np.clip(np.rint(state_to_q88 * 65536.0), 0, 0xFFFFFFFF).astype(np.uint32).astype(np.int64)
+        u_to_state_q16, _ = _runtime_scales_from_u_q88(u_q88_rows)
+    if fixed_state_to_q88_q16 is not None:
+        state_to_q88_q16 = np.asarray(fixed_state_to_q88_q16, dtype=np.int64).reshape(state_depth, tile)
+    else:
+        _, state_to_q88_q16 = _runtime_scales_from_u_q88(u_q88_rows)
     return {
         "state_depth": int(state_depth),
         "tile": int(tile),
@@ -579,24 +551,10 @@ def block_step_hw_q88_trace(
     state_to_q88_q16 = None
     if scan_mode == "scaled_state":
         if runtime is None:
-            if blk_cache.get("fixed_u_to_state_q16") is not None and blk_cache.get("fixed_state_to_q88_q16") is not None:
-                runtime_local = make_scaled_state_runtime(
-                    u_act_q88,
-                    fixed_u_to_state_q16=blk_cache["fixed_u_to_state_q16"],
-                    fixed_state_to_q88_q16=blk_cache["fixed_state_to_q88_q16"],
-                )
-                ssm_q88 = ssm_update_scaled_state_q15_stateful(u_act_q88, lam_q016, runtime_local)
-            else:
-                ssm_q88, u_to_state_q16, state_to_q88_q16 = _ssm_update_scaled_state_q15_from_q88(u_act_q88, lam_q016)
+            ssm_q88, u_to_state_q16, state_to_q88_q16 = _ssm_update_scaled_state_q15_from_q88(u_act_q88, lam_q016)
         else:
             if runtime.get("state_runtime") is None:
-                runtime.update(
-                    make_scaled_state_runtime(
-                        u_act_q88,
-                        fixed_u_to_state_q16=blk_cache.get("fixed_u_to_state_q16"),
-                        fixed_state_to_q88_q16=blk_cache.get("fixed_state_to_q88_q16"),
-                    )
-                )
+                runtime.update(make_scaled_state_runtime(u_act_q88))
             ssm_q88 = ssm_update_scaled_state_q15_stateful(u_act_q88, lam_q016, runtime)
             u_to_state_q16 = runtime["u_to_state_q16"].copy()
             state_to_q88_q16 = runtime["state_to_q88_q16"].copy()
@@ -606,11 +564,7 @@ def block_step_hw_q88_trace(
     y_q88 = _conv1x1_q88_rne_clamp(blk_cache["out_w"], gate_y_q88.reshape(-1)).reshape(32, 4)
     x_next_q88 = _clamp_s16_arr(h_raw_q88.astype(np.int64).reshape(32, 4) + y_q88.astype(np.int64)).reshape(-1)
     if u_to_state_q16 is None or state_to_q88_q16 is None:
-        runtime_tmp = make_scaled_state_runtime(
-            u_act_q88,
-            fixed_u_to_state_q16=blk_cache.get("fixed_u_to_state_q16"),
-            fixed_state_to_q88_q16=blk_cache.get("fixed_state_to_q88_q16"),
-        )
+        runtime_tmp = make_scaled_state_runtime(u_act_q88)
         u_to_state_q16 = runtime_tmp["u_to_state_q16"].copy()
         state_to_q88_q16 = runtime_tmp["state_to_q88_q16"].copy()
     return {

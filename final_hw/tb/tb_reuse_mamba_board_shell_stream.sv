@@ -19,7 +19,13 @@ module tb_reuse_mamba_board_shell_stream;
   localparam string STAGE_B3_CONST = {CASE_DIR, "/stages/reuse_mamba_block_top_block3"};
   localparam string LUT_PATH_CONST = "E:/course/smamba/user/data/sigmoid_lut_q016_2048.hex";
   localparam bit REPEAT_FRAME0_ONLY = 1'b0;
-  localparam bit CHECK_INTERNAL_SIGNALS = 1'b1;
+  localparam bit CHECK_INTERNAL_SIGNALS = 1'b0;
+  localparam bit USE_AXIS_RS = 1'b0;
+  localparam bit ENABLE_GAP_STIMULUS = 1'b1;
+  localparam int GAP_AFTER_FRAME0_CYCLES = 300;
+  localparam int GAP_BETWEEN_FRAMES_CYCLES = 0;
+  localparam bit ASSERT_FRAME0_AUTO_FLUSH = 1'b1;
+  localparam int FRAME0_FLUSH_TIMEOUT_CYCLES = 300000;
 
   logic clk;
   logic rst_n;
@@ -28,11 +34,20 @@ module tb_reuse_mamba_board_shell_stream;
   logic                           s_axis_h_tready;
   logic [TILE_SIZE*DATA_WIDTH-1:0] s_axis_h_tdata;
   logic                           s_axis_h_tlast;
+  logic                             dut_s_axis_h_tvalid;
+  logic                             dut_s_axis_h_tready;
+  logic [TILE_SIZE*DATA_WIDTH-1:0]  dut_s_axis_h_tdata;
+  logic                             dut_s_axis_h_tlast;
 
   logic                           m_axis_y_tvalid;
   logic                           m_axis_y_tready;
   logic [TILE_SIZE*DATA_WIDTH-1:0] m_axis_y_tdata;
   logic                           m_axis_y_tlast;
+  logic                             dut_m_axis_y_tvalid;
+  logic                             dut_m_axis_y_tready;
+  logic [TILE_SIZE*DATA_WIDTH-1:0]  dut_m_axis_y_tdata;
+  logic                             dut_m_axis_y_tlast;
+  
   logic                           frame_busy;
 
   logic [63:0] h_wr_data_mem [0:H_DEPTH-1];
@@ -257,10 +272,15 @@ module tb_reuse_mamba_board_shell_stream;
     rst_n = 1'b1;
   end
 
-  // Continuous producer: pushes N_FRAMES*H_DEPTH beats with backpressure handling.
+  // Frame-wise producer with optional inter-frame gaps to verify:
+  // 1) first frame can flush without feeding next frame;
+  // 2) after an idle gap, block0/chain can resume when ready.
   initial begin : push_h_stream
     int total_beats;
+    int sent_frames;
+    int wait_cyc;
     total_beats = N_FRAMES * H_DEPTH;
+    sent_frames = 0;
     wait(rst_n);
     repeat (8) @(posedge clk);
     while (tx_idx < total_beats) begin
@@ -270,7 +290,40 @@ module tb_reuse_mamba_board_shell_stream;
                          : h_stream_input_mem[frame_row_idx(FRAME_BASE + (tx_idx / H_DEPTH), tx_idx % H_DEPTH, H_DEPTH)];
       s_axis_h_tlast  <= ((tx_idx % H_DEPTH) == (H_DEPTH - 1));
       do @(posedge clk); while (!(s_axis_h_tvalid && s_axis_h_tready));
-      tx_idx <= tx_idx + 1;
+      tx_idx = tx_idx + 1;
+
+      if ((tx_idx % H_DEPTH) == 0) begin
+        sent_frames = sent_frames + 1;
+
+        // Force a no-input window after frame0 and check frame0 still drains.
+        if (ENABLE_GAP_STIMULUS && (sent_frames == 1)) begin
+          s_axis_h_tvalid <= 1'b0;
+          s_axis_h_tdata  <= '0;
+          s_axis_h_tlast  <= 1'b0;
+
+          if (ASSERT_FRAME0_AUTO_FLUSH) begin
+            wait_cyc = 0;
+            while ((rx_frame < 1) && (wait_cyc < FRAME0_FLUSH_TIMEOUT_CYCLES)) begin
+              @(posedge clk);
+              wait_cyc = wait_cyc + 1;
+            end
+            if (rx_frame < 1) begin
+              $fatal(1, "[%0t] frame0 did not auto-flush within %0d cycles during no-input gap",
+                     $time, FRAME0_FLUSH_TIMEOUT_CYCLES);
+            end
+            $display("[%0t] INFO frame0 auto-flush observed after %0d cycles of no-input gap",
+                     $time, wait_cyc);
+          end
+
+          repeat (GAP_AFTER_FRAME0_CYCLES) @(posedge clk);
+          $display("[%0t] INFO resume feeding after frame0 gap=%0d cycles", $time, GAP_AFTER_FRAME0_CYCLES);
+        end else if (ENABLE_GAP_STIMULUS && (GAP_BETWEEN_FRAMES_CYCLES > 0) && (tx_idx < total_beats)) begin
+          s_axis_h_tvalid <= 1'b0;
+          s_axis_h_tdata  <= '0;
+          s_axis_h_tlast  <= 1'b0;
+          repeat (GAP_BETWEEN_FRAMES_CYCLES) @(posedge clk);
+        end
+      end
     end
     @(posedge clk);
     s_axis_h_tvalid <= 1'b0;
@@ -409,7 +462,7 @@ module tb_reuse_mamba_board_shell_stream;
 
       // block0: RMSNorm output (final ST_NORM writes only)
       if (dut.u_core.u_core.u_blk0.norm_wr_en &&
-          (dut.u_core.u_core.u_blk0.g_rmsnorm.u_rmsnorm.state == 3'd5)) begin
+          (dut.u_core.u_core.u_blk0.u_rmsnorm.state == 3'd5)) begin
         int ridx;
         logic [63:0] got_w;
         logic [63:0] exp_w;
@@ -608,8 +661,10 @@ module tb_reuse_mamba_board_shell_stream;
       end
       if (m_axis_y_tvalid && m_axis_y_tready) begin
         if ($isunknown(m_axis_y_tdata) || $isunknown(m_axis_y_tlast)) begin
-          $fatal(1, "[%0t] X/Z on y payload frame=%0d row=%0d data=%h last=%b",
-                 $time, rx_frame, rx_row, m_axis_y_tdata, m_axis_y_tlast);
+           $fatal(1, "[%0t] X/Z on y payload frame=%0d row=%0d post_rs(data=%h last=%b v=%b r=%b) pre_rs(data=%h last=%b v=%b r=%b)",
+                 $time, rx_frame, rx_row,
+                 m_axis_y_tdata, m_axis_y_tlast, m_axis_y_tvalid, m_axis_y_tready,
+                 dut_m_axis_y_tdata, dut_m_axis_y_tlast, dut_m_axis_y_tvalid, dut_m_axis_y_tready);
         end
 
         if ($isunknown(REPEAT_FRAME0_ONLY
@@ -618,6 +673,7 @@ module tb_reuse_mamba_board_shell_stream;
           $fatal(1, "[%0t] expected stream golden is X/Z at beat=%0d (check CASE_DIR and mem file)",
                  $time, rx_total_beats);
         end
+        
         if (lane_diff_gt_1(m_axis_y_tdata,
                            REPEAT_FRAME0_ONLY
                            ? y_stream_golden_mem[rx_row]
@@ -677,6 +733,46 @@ module tb_reuse_mamba_board_shell_stream;
     $fatal(1, "[%0t] timeout in tb_reuse_mamba_board_shell_stream tx_idx=%0d rx_frame=%0d rx_row=%0d total=%0d tlast=%0d busy=%b",
              $time, tx_idx, rx_frame, rx_row, rx_total_beats, rx_tlast_count, frame_busy);
   end
+  
+  generate
+    if (USE_AXIS_RS) begin : g_axis_rs
+      axis_register_slice_0 u_rs_h_in (
+        .aclk          (clk),
+        .aresetn       (rst_n),
+        .s_axis_tvalid (s_axis_h_tvalid),
+        .s_axis_tready (s_axis_h_tready),
+        .s_axis_tdata  (s_axis_h_tdata),
+        .s_axis_tlast  (s_axis_h_tlast),
+        .m_axis_tvalid (dut_s_axis_h_tvalid),
+        .m_axis_tready (dut_s_axis_h_tready),
+        .m_axis_tdata  (dut_s_axis_h_tdata),
+        .m_axis_tlast  (dut_s_axis_h_tlast)
+      );
+
+      axis_register_slice_0 u_rs_y_out (
+        .aclk          (clk),
+        .aresetn       (rst_n),
+        .s_axis_tvalid (dut_m_axis_y_tvalid),
+        .s_axis_tready (dut_m_axis_y_tready),
+        .s_axis_tdata  (dut_m_axis_y_tdata),
+        .s_axis_tlast  (dut_m_axis_y_tlast),
+        .m_axis_tvalid (m_axis_y_tvalid),
+        .m_axis_tready (m_axis_y_tready),
+        .m_axis_tdata  (m_axis_y_tdata),
+        .m_axis_tlast  (m_axis_y_tlast)
+      );
+    end else begin : g_axis_nors
+      assign dut_s_axis_h_tvalid = s_axis_h_tvalid;
+      assign dut_s_axis_h_tdata  = s_axis_h_tdata;
+      assign dut_s_axis_h_tlast  = s_axis_h_tlast;
+      assign s_axis_h_tready     = dut_s_axis_h_tready;
+
+      assign m_axis_y_tvalid     = dut_m_axis_y_tvalid;
+      assign m_axis_y_tdata      = dut_m_axis_y_tdata;
+      assign m_axis_y_tlast      = dut_m_axis_y_tlast;
+      assign dut_m_axis_y_tready = m_axis_y_tready;
+    end
+  endgenerate
 
   reuse_mamba_board_shell_stream #(
     .TILE_SIZE(TILE_SIZE),
@@ -685,14 +781,14 @@ module tb_reuse_mamba_board_shell_stream;
   ) dut (
     .sys_clk        (clk),
     .ext_reset_n    (rst_n),
-    .s_axis_h_tvalid(s_axis_h_tvalid),
-    .s_axis_h_tready(s_axis_h_tready),
-    .s_axis_h_tdata (s_axis_h_tdata),
-    .s_axis_h_tlast (s_axis_h_tlast),
-    .m_axis_y_tvalid(m_axis_y_tvalid),
-    .m_axis_y_tready(m_axis_y_tready),
-    .m_axis_y_tdata (m_axis_y_tdata),
-    .m_axis_y_tlast (m_axis_y_tlast),
+    .s_axis_h_tvalid(dut_s_axis_h_tvalid),
+    .s_axis_h_tready(dut_s_axis_h_tready),
+    .s_axis_h_tdata (dut_s_axis_h_tdata),
+    .s_axis_h_tlast (dut_s_axis_h_tlast),
+    .m_axis_y_tvalid(dut_m_axis_y_tvalid),
+    .m_axis_y_tready(dut_m_axis_y_tready),
+    .m_axis_y_tdata (dut_m_axis_y_tdata),
+    .m_axis_y_tlast (dut_m_axis_y_tlast),
     .frame_busy     (frame_busy)
   );
 
@@ -702,4 +798,5 @@ module tb_reuse_mamba_board_shell_stream;
   defparam dut.u_core.STAGE_DIR_B2 = STAGE_B2_CONST;
   defparam dut.u_core.STAGE_DIR_B3 = STAGE_B3_CONST;
 endmodule
+
 

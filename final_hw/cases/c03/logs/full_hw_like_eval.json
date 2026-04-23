@@ -1,39 +1,38 @@
 {
   "samples": 2000,
-  "total_available_samples": 34505,
+  "total_available_samples": 2000,
   "limit": 2000,
   "scan_mode": "scaled_state",
   "continuous_state": false,
-  "chain4_input_mode": "cache_hit",
+  "chain4_input_mode": "cache_build",
   "cache_threshold": 64,
   "chain4_cache_validation": {
-    "checked": true,
-    "frames_compared": 8,
-    "match": true
+    "checked": false,
+    "reason": "cache newly built"
   },
   "block_source": "case_chain4",
   "hw_like_vs_cpp": {
-    "mae": 0.30294111371040344,
-    "max_abs": 1.0167574882507324,
+    "mae": 0.021550767123699188,
+    "max_abs": 0.1255495548248291,
     "metrics_vs_y_true": {
       "count": 2000,
-      "mean_err": 0.6326360702514648,
-      "median_err": 0.607586145401001,
-      "p80_err": 0.8397810459136963,
-      "p90_err": 0.9567245841026306,
-      "max_err": 1.3872182369232178
+      "mean_err": 0.2475583851337433,
+      "median_err": 0.2025049924850464,
+      "p80_err": 0.3632414937019348,
+      "p90_err": 0.4706600308418274,
+      "max_err": 1.297986388206482
     }
   },
   "hw_like_vs_float": {
-    "mae": 0.30271604657173157,
-    "max_abs": 1.011631965637207,
+    "mae": 0.02237883023917675,
+    "max_abs": 0.1509789228439331,
     "metrics_vs_y_true": {
       "count": 2000,
-      "mean_err": 0.6326360702514648,
-      "median_err": 0.607586145401001,
-      "p80_err": 0.8397810459136963,
-      "p90_err": 0.9567245841026306,
-      "max_err": 1.3872182369232178
+      "mean_err": 0.2475583851337433,
+      "median_err": 0.2025049924850464,
+      "p80_err": 0.3632414937019348,
+      "p90_err": 0.4706600308418274,
+      "max_err": 1.297986388206482
     }
   },
   "cppish_vs_cpp": {

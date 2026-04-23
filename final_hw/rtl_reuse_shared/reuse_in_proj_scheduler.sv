@@ -508,6 +508,8 @@ module reuse_in_proj_scheduler #(
                 data_cnt       <= '0;
                 tile_cnt       <= '0;
                 drain_cnt      <= 2'd3;
+                row_group_idx  <= '0;
+                row_subtile_idx <= '0;
                 write_row_group_idx <= '0;
                 write_row_subtile_idx <= '0;
                 seen_valid     <= 1'b0;

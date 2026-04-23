@@ -18,20 +18,19 @@ module reuse_mamba_h_stream_loader #(
 
     output reg                               h_wr_en,
     output reg  [H_ADDR_W-1:0]               h_wr_addr,
-    output wire [TILE_SIZE*DATA_WIDTH-1:0]   h_wr_data
+    output reg  [TILE_SIZE*DATA_WIDTH-1:0]   h_wr_data
 );
     reg [15:0] rows_left;
     reg [H_ADDR_W-1:0] wr_addr_q;
 
     assign s_axis_tready = busy;
-    assign h_wr_data = s_axis_tdata;
-
     always @(posedge clk) begin
         if (!rst_n) begin
             busy      <= 1'b0;
             done      <= 1'b0;
             h_wr_en   <= 1'b0;
             h_wr_addr <= {H_ADDR_W{1'b0}};
+            h_wr_data <= {(TILE_SIZE*DATA_WIDTH){1'b0}};
             rows_left <= 16'd0;
             wr_addr_q <= {H_ADDR_W{1'b0}};
         end else begin
@@ -46,6 +45,7 @@ module reuse_mamba_h_stream_loader #(
             end else if (busy && s_axis_tvalid && s_axis_tready) begin
                 h_wr_en   <= 1'b1;
                 h_wr_addr <= wr_addr_q;
+                h_wr_data <= s_axis_tdata;
                 wr_addr_q <= wr_addr_q + 1'b1;
 
                 if (rows_left != 16'd0)

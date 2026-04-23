@@ -18,6 +18,7 @@ module reuse_mamba_board_shell_stream #(
     parameter integer ADDR_BITS   = 11,
     parameter integer S_ADDR_W    = 6,
     parameter integer G_FRAC_BITS = 8,
+    parameter         INTER_BLOCK_PIPELINE = 1'b1,
     parameter integer H_ROWS      = 32
 ) (
     (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME sys_clk, ASSOCIATED_BUSIF s_axis_h:m_axis_y, ASSOCIATED_RESET ext_reset_n, FREQ_HZ 99990005" *)
@@ -60,7 +61,9 @@ module reuse_mamba_board_shell_stream #(
     reg                            preload_h_start_pulse;
     reg                            core_start_pulse;
     reg [15:0]                     y_row_cnt;
-    reg                            core_launch_pending;
+    reg                            frame_loaded;
+    reg                            core_started;
+    reg [1:0]                      ctrl_state;
     wire                           core_busy;
     wire                           core_done;
     wire                           core_rst_n_o;
@@ -102,38 +105,67 @@ module reuse_mamba_board_shell_stream #(
         .h_wr_data    (h_wr_data_flat)
     );
 
+    localparam [1:0] ST_LOAD_REQ   = 2'd0;
+    localparam [1:0] ST_LOAD_WAIT  = 2'd1;
+    localparam [1:0] ST_RUN_REQ    = 2'd2;
+    localparam [1:0] ST_RUN_WAIT   = 2'd3;
+
     always @(posedge sys_clk) begin
         if (!rst_n_int) begin
             preload_h_start_pulse <= 1'b0;
             core_start_pulse      <= 1'b0;
             y_row_cnt             <= 16'd0;
-            core_launch_pending   <= 1'b0;
+            frame_loaded          <= 1'b0;
+            core_started          <= 1'b0;
+            ctrl_state            <= ST_LOAD_REQ;
         end else begin
             preload_h_start_pulse <= 1'b0;
             core_start_pulse      <= 1'b0;
 
-            // Auto-arm next H frame when core and loader are both idle.
-            if (!preload_h_busy && !core_busy && !core_launch_pending && !preload_h_done) begin
-                preload_h_start_pulse <= 1'b1;
-            end
+            case (ctrl_state)
+                ST_LOAD_REQ: begin
+                    if (!preload_h_busy && !core_busy) begin
+                        preload_h_start_pulse <= 1'b1;
+                        ctrl_state <= ST_LOAD_WAIT;
+                    end
+                end
 
-            // Launch compute as soon as one H frame has been loaded.
-            if (preload_h_done && !core_busy) begin
-                core_start_pulse <= 1'b1;
-                core_launch_pending <= 1'b1;
-            end
-            if (core_busy) begin
-                core_launch_pending <= 1'b0;
-            end
+                ST_LOAD_WAIT: begin
+                    if (preload_h_done) begin
+                        frame_loaded <= 1'b1;
+                        ctrl_state <= ST_RUN_REQ;
+                    end
+                end
 
-            if (core_start_pulse) begin
-                y_row_cnt <= 16'd0;
-            end else if (y_fire) begin
-                if (y_row_cnt == (h_rows_safe - 16'd1))
-                    y_row_cnt <= 16'd0;
-                else
-                    y_row_cnt <= y_row_cnt + 16'd1;
-            end
+                ST_RUN_REQ: begin
+                    // Intentional 1-cycle separation from LOAD done event.
+                    if (frame_loaded && !core_busy) begin
+                        core_start_pulse <= 1'b1;
+                        frame_loaded <= 1'b0;
+                        core_started <= 1'b1;
+                        y_row_cnt <= 16'd0;
+                        ctrl_state <= ST_RUN_WAIT;
+                    end
+                end
+
+                ST_RUN_WAIT: begin
+                    if (y_fire) begin
+                        if (y_row_cnt == (h_rows_safe - 16'd1))
+                            y_row_cnt <= 16'd0;
+                        else
+                            y_row_cnt <= y_row_cnt + 16'd1;
+                    end
+
+                    if (core_started && core_done) begin
+                        core_started <= 1'b0;
+                        ctrl_state <= ST_LOAD_REQ;
+                    end
+                end
+
+                default: begin
+                    ctrl_state <= ST_LOAD_REQ;
+                end
+            endcase
         end
     end
 
@@ -152,6 +184,7 @@ module reuse_mamba_board_shell_stream #(
         .ADDR_BITS   (ADDR_BITS),
         .S_ADDR_W    (S_ADDR_W),
         .G_FRAC_BITS (G_FRAC_BITS)
+        ,.INTER_BLOCK_PIPELINE(INTER_BLOCK_PIPELINE)
     ) u_core (
         .sys_clk       (sys_clk),
         .ext_reset_n   (rst_n_int),
