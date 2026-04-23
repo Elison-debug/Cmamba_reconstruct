@@ -28,11 +28,20 @@ module tb_reuse_mamba_board_shell_stream;
   logic                           s_axis_h_tready;
   logic [TILE_SIZE*DATA_WIDTH-1:0] s_axis_h_tdata;
   logic                           s_axis_h_tlast;
+  logic                             dut_s_axis_h_tvalid;
+  logic                             dut_s_axis_h_tready;
+  logic [TILE_SIZE*DATA_WIDTH-1:0]  dut_s_axis_h_tdata;
+  logic                             dut_s_axis_h_tlast;
 
   logic                           m_axis_y_tvalid;
   logic                           m_axis_y_tready;
   logic [TILE_SIZE*DATA_WIDTH-1:0] m_axis_y_tdata;
   logic                           m_axis_y_tlast;
+  logic                             dut_m_axis_y_tvalid;
+  logic                             dut_m_axis_y_tready;
+  logic [TILE_SIZE*DATA_WIDTH-1:0]  dut_m_axis_y_tdata;
+  logic                             dut_m_axis_y_tlast;
+  
   logic                           frame_busy;
 
   logic [63:0] h_wr_data_mem [0:H_DEPTH-1];
@@ -269,8 +278,8 @@ module tb_reuse_mamba_board_shell_stream;
                          ? h_stream_input_mem[tx_idx % H_DEPTH]
                          : h_stream_input_mem[frame_row_idx(FRAME_BASE + (tx_idx / H_DEPTH), tx_idx % H_DEPTH, H_DEPTH)];
       s_axis_h_tlast  <= ((tx_idx % H_DEPTH) == (H_DEPTH - 1));
-      do @(posedge clk); while (!(s_axis_h_tvalid && s_axis_h_tready));
-      tx_idx <= tx_idx + 1;
+      do @(posedge clk); while (!s_axis_h_tready);
+      tx_idx = tx_idx + 1;
     end
     @(posedge clk);
     s_axis_h_tvalid <= 1'b0;
@@ -608,8 +617,10 @@ module tb_reuse_mamba_board_shell_stream;
       end
       if (m_axis_y_tvalid && m_axis_y_tready) begin
         if ($isunknown(m_axis_y_tdata) || $isunknown(m_axis_y_tlast)) begin
-          $fatal(1, "[%0t] X/Z on y payload frame=%0d row=%0d data=%h last=%b",
-                 $time, rx_frame, rx_row, m_axis_y_tdata, m_axis_y_tlast);
+           $fatal(1, "[%0t] X/Z on y payload frame=%0d row=%0d post_rs(data=%h last=%b v=%b r=%b) pre_rs(data=%h last=%b v=%b r=%b)",
+                 $time, rx_frame, rx_row,
+                 m_axis_y_tdata, m_axis_y_tlast, m_axis_y_tvalid, m_axis_y_tready,
+                 dut_m_axis_y_tdata, dut_m_axis_y_tlast, dut_m_axis_y_tvalid, dut_m_axis_y_tready);
         end
 
         if ($isunknown(REPEAT_FRAME0_ONLY
@@ -618,6 +629,7 @@ module tb_reuse_mamba_board_shell_stream;
           $fatal(1, "[%0t] expected stream golden is X/Z at beat=%0d (check CASE_DIR and mem file)",
                  $time, rx_total_beats);
         end
+        
         if (lane_diff_gt_1(m_axis_y_tdata,
                            REPEAT_FRAME0_ONLY
                            ? y_stream_golden_mem[rx_row]
@@ -677,6 +689,32 @@ module tb_reuse_mamba_board_shell_stream;
     $fatal(1, "[%0t] timeout in tb_reuse_mamba_board_shell_stream tx_idx=%0d rx_frame=%0d rx_row=%0d total=%0d tlast=%0d busy=%b",
              $time, tx_idx, rx_frame, rx_row, rx_total_beats, rx_tlast_count, frame_busy);
   end
+  
+     axis_register_slice_0 u_rs_h_in (
+     .aclk          (clk),
+     .aresetn       (rst_n),
+     .s_axis_tvalid (s_axis_h_tvalid),
+     .s_axis_tready (s_axis_h_tready),
+     .s_axis_tdata  (s_axis_h_tdata),
+     .s_axis_tlast  (s_axis_h_tlast),
+     .m_axis_tvalid (dut_s_axis_h_tvalid),
+     .m_axis_tready (dut_s_axis_h_tready),
+     .m_axis_tdata  (dut_s_axis_h_tdata),
+     .m_axis_tlast  (dut_s_axis_h_tlast)
+   );
+
+   axis_register_slice_0 u_rs_y_out (
+     .aclk          (clk),
+     .aresetn       (rst_n),
+     .s_axis_tvalid (dut_m_axis_y_tvalid),
+     .s_axis_tready (dut_m_axis_y_tready),
+     .s_axis_tdata  (dut_m_axis_y_tdata),
+     .s_axis_tlast  (dut_m_axis_y_tlast),
+     .m_axis_tvalid (m_axis_y_tvalid),
+     .m_axis_tready (m_axis_y_tready),
+     .m_axis_tdata  (m_axis_y_tdata),
+     .m_axis_tlast  (m_axis_y_tlast)
+   );
 
   reuse_mamba_board_shell_stream #(
     .TILE_SIZE(TILE_SIZE),
@@ -685,14 +723,14 @@ module tb_reuse_mamba_board_shell_stream;
   ) dut (
     .sys_clk        (clk),
     .ext_reset_n    (rst_n),
-    .s_axis_h_tvalid(s_axis_h_tvalid),
-    .s_axis_h_tready(s_axis_h_tready),
-    .s_axis_h_tdata (s_axis_h_tdata),
-    .s_axis_h_tlast (s_axis_h_tlast),
-    .m_axis_y_tvalid(m_axis_y_tvalid),
-    .m_axis_y_tready(m_axis_y_tready),
-    .m_axis_y_tdata (m_axis_y_tdata),
-    .m_axis_y_tlast (m_axis_y_tlast),
+    .s_axis_h_tvalid(dut_s_axis_h_tvalid),
+    .s_axis_h_tready(dut_s_axis_h_tready),
+    .s_axis_h_tdata (dut_s_axis_h_tdata),
+    .s_axis_h_tlast (dut_s_axis_h_tlast),
+    .m_axis_y_tvalid(dut_m_axis_y_tvalid),
+    .m_axis_y_tready(dut_m_axis_y_tready),
+    .m_axis_y_tdata (dut_m_axis_y_tdata),
+    .m_axis_y_tlast (dut_m_axis_y_tlast),
     .frame_busy     (frame_busy)
   );
 
@@ -702,4 +740,3 @@ module tb_reuse_mamba_board_shell_stream;
   defparam dut.u_core.STAGE_DIR_B2 = STAGE_B2_CONST;
   defparam dut.u_core.STAGE_DIR_B3 = STAGE_B3_CONST;
 endmodule
-

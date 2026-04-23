@@ -2,12 +2,12 @@
   "ckpt": "E:\\course\\smamba\\refactor\\bittrue\\reference.pt",
   "feat_root": "E:\\course\\smamba\\data\\features\\parity_2100",
   "target": "test",
-  "limit": 0,
-  "preload": false,
-  "samples": 34505,
+  "limit": 2000,
+  "preload": true,
+  "samples": 2000,
   "seq_len": 2,
   "din": 2100,
   "rmsnorm_mode": "exact_recip30",
-  "export_json": "E:\\course\\smamba\\export_bittrue\\case1\\export.json",
-  "export_dir": "E:\\course\\smamba\\export_bittrue\\case1"
+  "export_json": "E:\\course\\smamba\\final_hw\\cases\\c03\\export_ir\\export.json",
+  "export_dir": "E:\\course\\smamba\\final_hw\\cases\\c03\\export_ir"
 }
