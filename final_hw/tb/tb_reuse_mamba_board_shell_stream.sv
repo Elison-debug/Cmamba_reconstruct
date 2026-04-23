@@ -1,7 +1,7 @@
 `timescale 1ns/1ps
 
 `ifndef HW_DEBUG_CASE_DIR
-  `define HW_DEBUG_CASE_DIR "E:/course/smamba/final_hw/cases/c02"
+  `define HW_DEBUG_CASE_DIR "E:/course/smamba/final_hw/cases/c03"
 `endif
 
 module tb_reuse_mamba_board_shell_stream;
@@ -16,6 +16,8 @@ module tb_reuse_mamba_board_shell_stream;
   localparam string STAGE_B2_CONST = {CASE_DIR, "/stages/reuse_mamba_block_top_block2"};
   localparam string STAGE_B3_CONST = {CASE_DIR, "/stages/reuse_mamba_block_top_block3"};
   localparam string LUT_PATH_CONST = "E:/course/smamba/user/data/sigmoid_lut_q016_2048.hex";
+  localparam bit REPEAT_FRAME0_ONLY = 1'b0;
+  localparam bit CHECK_INTERNAL_SIGNALS = 1'b1;
 
   logic clk;
   logic rst_n;
@@ -33,15 +35,17 @@ module tb_reuse_mamba_board_shell_stream;
 
   logic [63:0] h_wr_data_mem [0:H_DEPTH-1];
   logic [63:0] h_stream_input_mem [0:(N_FRAMES*H_DEPTH)-1];
+  logic [63:0] b1_h_stream_golden_mem [0:(N_FRAMES*H_DEPTH)-1];
+  logic [63:0] b2_h_stream_golden_mem [0:(N_FRAMES*H_DEPTH)-1];
   logic [63:0] b3_h_stream_golden_mem [0:(N_FRAMES*H_DEPTH)-1];
   logic [63:0] y_stream_golden_mem  [0:(N_FRAMES*Y_DEPTH)-1];
-  logic [63:0] b0_h_norm_golden_mem [0:H_DEPTH-1];
-  logic [63:0] b0_u_golden_mem      [0:63];
-  logic [63:0] b0_z_golden_mem      [0:63];
-  logic [63:0] b0_zsilu_golden_mem  [0:63];
-  logic [63:0] b0_dt_golden_mem     [0:63];
-  logic [63:0] b0_ssm_golden_mem    [0:63];
-  logic [63:0] b0_gate_golden_mem   [0:63];
+  logic [63:0] b0_h_norm_golden_mem [0:(N_FRAMES*H_DEPTH)-1];
+  logic [63:0] b0_u_golden_mem      [0:(N_FRAMES*64)-1];
+  logic [63:0] b0_z_golden_mem      [0:(N_FRAMES*64)-1];
+  logic [63:0] b0_zsilu_golden_mem  [0:(N_FRAMES*64)-1];
+  logic [63:0] b0_dt_golden_mem     [0:(N_FRAMES*64)-1];
+  logic [63:0] b0_ssm_golden_mem    [0:(N_FRAMES*64)-1];
+  logic [63:0] b0_gate_golden_mem   [0:(N_FRAMES*64)-1];
   logic [63:0] b0_y_golden_mem [0:Y_DEPTH-1];
   logic [63:0] b1_y_golden_mem [0:Y_DEPTH-1];
   logic [63:0] b2_y_golden_mem [0:Y_DEPTH-1];
@@ -76,6 +80,10 @@ module tb_reuse_mamba_board_shell_stream;
   int b0_gate_mis;
   int b0_hin_mis;
   int b0_hin_writes;
+  int b1_hin_mis;
+  int b1_hin_writes;
+  int b2_hin_mis;
+  int b2_hin_writes;
   int b3_hin_mis;
   int b3_hin_writes;
   bit b0_hnorm_first;
@@ -137,6 +145,16 @@ module tb_reuse_mamba_board_shell_stream;
     end
   endfunction
 
+  function automatic int frame_row_idx(input int frame_idx, input int row_idx, input int rows_per_frame);
+    begin
+      if (REPEAT_FRAME0_ONLY || (frame_idx < 0)) begin
+        frame_row_idx = row_idx;
+      end else begin
+        frame_row_idx = frame_idx * rows_per_frame + row_idx;
+      end
+    end
+  endfunction
+
   task automatic load_case();
     string stage_b0;
     string stage_b1;
@@ -149,14 +167,16 @@ module tb_reuse_mamba_board_shell_stream;
       stage_b3 = {CASE_DIR, "/stages/reuse_mamba_block_top_block3"};
       $readmemh({stage_b0, "/h_wr_data_s16_q8p8.mem"}, h_wr_data_mem);
       $readmemh({CASE_DIR, "/stages/reuse_mamba_block_top_chain4/stream_h_input_stateless_q88.mem"}, h_stream_input_mem);
+      $readmemh({CASE_DIR, "/stages/reuse_mamba_block_top_chain4/stream_block1_h_in_stateless_q88.mem"}, b1_h_stream_golden_mem);
+      $readmemh({CASE_DIR, "/stages/reuse_mamba_block_top_chain4/stream_block2_h_in_stateless_q88.mem"}, b2_h_stream_golden_mem);
       $readmemh({CASE_DIR, "/stages/reuse_mamba_block_top_chain4/stream_block3_h_in_stateless_q88.mem"}, b3_h_stream_golden_mem);
-      $readmemh({stage_b0, "/h_norm_golden_s16_q8p8.mem"}, b0_h_norm_golden_mem);
-      $readmemh({stage_b0, "/u_golden_q88.mem"}, b0_u_golden_mem);
-      $readmemh({stage_b0, "/z_golden_q88.mem"}, b0_z_golden_mem);
-      $readmemh({stage_b0, "/z_silu_golden_q88.mem"}, b0_zsilu_golden_mem);
-      $readmemh({stage_b0, "/dt_golden_q88.mem"}, b0_dt_golden_mem);
-      $readmemh({stage_b0, "/ssm_golden_q88.mem"}, b0_ssm_golden_mem);
-      $readmemh({stage_b0, "/gate_y_golden_q88.mem"}, b0_gate_golden_mem);
+      $readmemh({CASE_DIR, "/stages/reuse_mamba_block_top_chain4/stream_block0_h_norm_stateless_q88.mem"}, b0_h_norm_golden_mem);
+      $readmemh({CASE_DIR, "/stages/reuse_mamba_block_top_chain4/stream_block0_u_stateless_q88.mem"}, b0_u_golden_mem);
+      $readmemh({CASE_DIR, "/stages/reuse_mamba_block_top_chain4/stream_block0_z_stateless_q88.mem"}, b0_z_golden_mem);
+      $readmemh({CASE_DIR, "/stages/reuse_mamba_block_top_chain4/stream_block0_z_silu_stateless_q88.mem"}, b0_zsilu_golden_mem);
+      $readmemh({CASE_DIR, "/stages/reuse_mamba_block_top_chain4/stream_block0_dt_stateless_q88.mem"}, b0_dt_golden_mem);
+      $readmemh({CASE_DIR, "/stages/reuse_mamba_block_top_chain4/stream_block0_ssm_stateless_q88.mem"}, b0_ssm_golden_mem);
+      $readmemh({CASE_DIR, "/stages/reuse_mamba_block_top_chain4/stream_block0_gate_y_stateless_q88.mem"}, b0_gate_golden_mem);
       $readmemh({stage_b0, "/y_golden_q88.mem"}, b0_y_golden_mem);
       $readmemh({stage_b1, "/y_golden_q88.mem"}, b1_y_golden_mem);
       $readmemh({stage_b2, "/y_golden_q88.mem"}, b2_y_golden_mem);
@@ -201,6 +221,10 @@ module tb_reuse_mamba_board_shell_stream;
     b0_gate_mis = 0;
     b0_hin_mis = 0;
     b0_hin_writes = 0;
+    b1_hin_mis = 0;
+    b1_hin_writes = 0;
+    b2_hin_mis = 0;
+    b2_hin_writes = 0;
     b3_hin_mis = 0;
     b3_hin_writes = 0;
     b0_hnorm_first = 1'b0;
@@ -235,7 +259,7 @@ module tb_reuse_mamba_board_shell_stream;
     repeat (8) @(posedge clk);
     while (tx_idx < total_beats) begin
       s_axis_h_tvalid <= 1'b1;
-      s_axis_h_tdata  <= h_stream_input_mem[tx_idx];
+      s_axis_h_tdata  <= REPEAT_FRAME0_ONLY ? h_stream_input_mem[tx_idx % H_DEPTH] : h_stream_input_mem[tx_idx];
       s_axis_h_tlast  <= ((tx_idx % H_DEPTH) == (H_DEPTH - 1));
       do @(posedge clk); while (!(s_axis_h_tvalid && s_axis_h_tready));
       tx_idx <= tx_idx + 1;
@@ -256,6 +280,9 @@ module tb_reuse_mamba_board_shell_stream;
 
   initial begin : check_block_outputs
     wait(rst_n);
+    if (!CHECK_INTERNAL_SIGNALS) begin
+      forever @(posedge clk);
+    end
     forever begin
       @(posedge clk);
       if (dut.u_core.u_core.blk_start_pulse[0]) begin
@@ -277,7 +304,7 @@ module tb_reuse_mamba_board_shell_stream;
         ridx = dut.u_core.u_core.u_blk0.h_wr_addr;
         got_w = pack_vec4(dut.u_core.u_core.u_blk0.h_wr_data);
         if ((b0_hin_writes >= 0) && (b0_hin_writes < (N_FRAMES*H_DEPTH))) begin
-          exp_w = h_stream_input_mem[b0_hin_writes];
+          exp_w = REPEAT_FRAME0_ONLY ? h_stream_input_mem[b0_hin_writes % H_DEPTH] : h_stream_input_mem[b0_hin_writes];
         end else begin
           exp_w = h_wr_data_mem[ridx];
         end
@@ -303,7 +330,7 @@ module tb_reuse_mamba_board_shell_stream;
         ridx3 = dut.u_core.u_core.u_blk3.h_wr_addr;
         got3 = pack_vec4(dut.u_core.u_core.u_blk3.h_wr_data);
         if ((b3_hin_writes >= 0) && (b3_hin_writes < (N_FRAMES*H_DEPTH))) begin
-          exp3 = b3_h_stream_golden_mem[b3_hin_writes];
+          exp3 = REPEAT_FRAME0_ONLY ? b3_h_stream_golden_mem[b3_hin_writes % H_DEPTH] : b3_h_stream_golden_mem[b3_hin_writes];
         end else begin
           exp3 = '0;
         end
@@ -315,6 +342,44 @@ module tb_reuse_mamba_board_shell_stream;
           end
         end
         b3_hin_writes = b3_hin_writes + 1;
+      end
+
+      if (dut.u_core.u_core.u_blk1.h_wr_en) begin
+        int ridx1;
+        logic [63:0] got1;
+        logic [63:0] exp1;
+        ridx1 = dut.u_core.u_core.u_blk1.h_wr_addr;
+        got1 = pack_vec4(dut.u_core.u_core.u_blk1.h_wr_data);
+        exp1 = ((b1_hin_writes >= 0) && (b1_hin_writes < (N_FRAMES*H_DEPTH)))
+               ? (REPEAT_FRAME0_ONLY ? b1_h_stream_golden_mem[b1_hin_writes % H_DEPTH] : b1_h_stream_golden_mem[b1_hin_writes])
+               : '0;
+        if (lane_diff_gt_1(got1, exp1)) begin
+          b1_hin_mis = b1_hin_mis + 1;
+          if (b1_hin_mis <= 8) begin
+            $display("[%0t] B1-HIN mismatch wr_count=%0d row=%0d got=%h exp=%h",
+                     $time, b1_hin_writes, ridx1, got1, exp1);
+          end
+        end
+        b1_hin_writes = b1_hin_writes + 1;
+      end
+
+      if (dut.u_core.u_core.u_blk2.h_wr_en) begin
+        int ridx2;
+        logic [63:0] got2;
+        logic [63:0] exp2;
+        ridx2 = dut.u_core.u_core.u_blk2.h_wr_addr;
+        got2 = pack_vec4(dut.u_core.u_core.u_blk2.h_wr_data);
+        exp2 = ((b2_hin_writes >= 0) && (b2_hin_writes < (N_FRAMES*H_DEPTH)))
+               ? (REPEAT_FRAME0_ONLY ? b2_h_stream_golden_mem[b2_hin_writes % H_DEPTH] : b2_h_stream_golden_mem[b2_hin_writes])
+               : '0;
+        if (lane_diff_gt_1(got2, exp2)) begin
+          b2_hin_mis = b2_hin_mis + 1;
+          if (b2_hin_mis <= 8) begin
+            $display("[%0t] B2-HIN mismatch wr_count=%0d row=%0d got=%h exp=%h",
+                     $time, b2_hin_writes, ridx2, got2, exp2);
+          end
+        end
+        b2_hin_writes = b2_hin_writes + 1;
       end
 
       // Block3 state clear observability (stateless mode should clear every frame start).
@@ -334,7 +399,7 @@ module tb_reuse_mamba_board_shell_stream;
         logic [63:0] exp_w;
         ridx = dut.u_core.u_core.u_blk0.norm_wr_addr;
         got_w = pack_vec4(dut.u_core.u_core.u_blk0.norm_wr_data);
-        exp_w = b0_h_norm_golden_mem[ridx];
+        exp_w = b0_h_norm_golden_mem[frame_row_idx(b0_stage_frame, ridx, H_DEPTH)];
         if (lane_diff_gt_1(got_w, exp_w)) begin
           b0_hnorm_mis = b0_hnorm_mis + 1;
           if (!b0_hnorm_first) begin
@@ -351,7 +416,7 @@ module tb_reuse_mamba_board_shell_stream;
         logic [63:0] got_w;
         logic [63:0] exp_w;
         got_w = pack_vec4(dut.u_core.u_core.u_blk0.u_stream_vec);
-        exp_w = b0_u_golden_mem[b0_u_row];
+        exp_w = b0_u_golden_mem[frame_row_idx(b0_stage_frame, b0_u_row, 64)];
         if (lane_diff_gt_1(got_w, exp_w)) begin
           b0_u_mis = b0_u_mis + 1;
           if (!b0_u_first) begin
@@ -368,7 +433,7 @@ module tb_reuse_mamba_board_shell_stream;
         logic [63:0] got_w;
         logic [63:0] exp_w;
         got_w = pack_vec4(dut.u_core.u_core.u_blk0.z_stream_vec);
-        exp_w = b0_z_golden_mem[b0_z_row];
+        exp_w = b0_z_golden_mem[frame_row_idx(b0_stage_frame, b0_z_row, 64)];
         if (lane_diff_gt_1(got_w, exp_w)) begin
           b0_z_mis = b0_z_mis + 1;
           if (!b0_z_first) begin
@@ -385,7 +450,7 @@ module tb_reuse_mamba_board_shell_stream;
         logic [63:0] got_w;
         logic [63:0] exp_w;
         got_w = pack_vec4(dut.u_core.u_core.u_blk0.silu_vec);
-        exp_w = b0_zsilu_golden_mem[b0_zsilu_row];
+        exp_w = b0_zsilu_golden_mem[frame_row_idx(b0_stage_frame, b0_zsilu_row, 64)];
         if (lane_diff_gt_1(got_w, exp_w)) begin
           b0_zsilu_mis = b0_zsilu_mis + 1;
           if (!b0_zsilu_first) begin
@@ -402,7 +467,7 @@ module tb_reuse_mamba_board_shell_stream;
         logic [63:0] got_w;
         logic [63:0] exp_w;
         got_w = pack_vec4(dut.u_core.u_core.u_blk0.dt_mac_vec);
-        exp_w = b0_dt_golden_mem[b0_dt_row];
+        exp_w = b0_dt_golden_mem[frame_row_idx(b0_stage_frame, b0_dt_row, 64)];
         if (lane_diff_gt_1(got_w, exp_w)) begin
           b0_dt_mis = b0_dt_mis + 1;
           if (!b0_dt_first) begin
@@ -420,7 +485,7 @@ module tb_reuse_mamba_board_shell_stream;
         logic [63:0] got_w;
         logic [63:0] exp_w;
         got_w = pack_vec4(dut.u_core.u_core.u_blk0.u_ssm_core.s_out_vec);
-        exp_w = b0_ssm_golden_mem[b0_ssm_row];
+        exp_w = b0_ssm_golden_mem[frame_row_idx(b0_stage_frame, b0_ssm_row, 64)];
         if (lane_diff_gt_1(got_w, exp_w)) begin
           b0_ssm_mis = b0_ssm_mis + 1;
           if (!b0_ssm_first) begin
@@ -437,7 +502,7 @@ module tb_reuse_mamba_board_shell_stream;
         logic [63:0] got_w;
         logic [63:0] exp_w;
         got_w = pack_vec4(dut.u_core.u_core.u_blk0.ssm_p_data);
-        exp_w = b0_gate_golden_mem[b0_gate_row];
+        exp_w = b0_gate_golden_mem[frame_row_idx(b0_stage_frame, b0_gate_row, 64)];
         if (lane_diff_gt_1(got_w, exp_w)) begin
           b0_gate_mis = b0_gate_mis + 1;
           if (!b0_gate_first) begin
@@ -531,15 +596,16 @@ module tb_reuse_mamba_board_shell_stream;
                  $time, rx_frame, rx_row, m_axis_y_tdata, m_axis_y_tlast);
         end
 
-        if ($isunknown(y_stream_golden_mem[rx_total_beats])) begin
+        if ($isunknown(REPEAT_FRAME0_ONLY ? y_stream_golden_mem[rx_row] : y_stream_golden_mem[rx_total_beats])) begin
           $fatal(1, "[%0t] expected stream golden is X/Z at beat=%0d (check CASE_DIR and mem file)",
                  $time, rx_total_beats);
         end
-        if (lane_diff_gt_1(m_axis_y_tdata, y_stream_golden_mem[rx_total_beats])) begin
+        if (lane_diff_gt_1(m_axis_y_tdata, REPEAT_FRAME0_ONLY ? y_stream_golden_mem[rx_row] : y_stream_golden_mem[rx_total_beats])) begin
           mismatch_cnt++;
           if (mismatch_cnt <= 8) begin
             $display("[%0t] stream golden mismatch beat=%0d frame=%0d row=%0d got=%h exp=%h",
-                     $time, rx_total_beats, rx_frame, rx_row, m_axis_y_tdata, y_stream_golden_mem[rx_total_beats]);
+                     $time, rx_total_beats, rx_frame, rx_row, m_axis_y_tdata,
+                     (REPEAT_FRAME0_ONLY ? y_stream_golden_mem[rx_row] : y_stream_golden_mem[rx_total_beats]));
           end
         end
         rx_total_beats++;
@@ -572,6 +638,8 @@ module tb_reuse_mamba_board_shell_stream;
     end
     $display("[%0t] B0-STAGE mismatch summary: hin=%0d hnorm=%0d u=%0d z=%0d z_silu=%0d dt=%0d ssm=%0d gate=%0d",
              $time, b0_hin_mis, b0_hnorm_mis, b0_u_mis, b0_z_mis, b0_zsilu_mis, b0_dt_mis, b0_ssm_mis, b0_gate_mis);
+    $display("[%0t] B1-HIN mismatch summary: hin=%0d writes=%0d", $time, b1_hin_mis, b1_hin_writes);
+    $display("[%0t] B2-HIN mismatch summary: hin=%0d writes=%0d", $time, b2_hin_mis, b2_hin_writes);
     $display("[%0t] B3-HIN mismatch summary: hin=%0d writes=%0d", $time, b3_hin_mis, b3_hin_writes);
     if (mismatch_cnt != 0) begin
       $fatal(1, "[%0t] stream multi-frame mismatch count=%0d", $time, mismatch_cnt);
@@ -605,9 +673,9 @@ module tb_reuse_mamba_board_shell_stream;
     .frame_busy     (frame_busy)
   );
 
-  // NOTE:
-  // Keep stream TB path source aligned with stream_ps/post-synth flow by
-  // using adapter defaults. Do not override internal params via defparam.
-  // localparam string LUT_PATH_CONST/STAGE_B*_CONST are retained only for
-  // quick manual bring-up if needed in a dedicated RTL-only debug branch.
+  // Force stage-dir source to current CASE_DIR for adapter-internal ROM init.
+  defparam dut.u_core.STAGE_DIR_B0 = STAGE_B0_CONST;
+  defparam dut.u_core.STAGE_DIR_B1 = STAGE_B1_CONST;
+  defparam dut.u_core.STAGE_DIR_B2 = STAGE_B2_CONST;
+  defparam dut.u_core.STAGE_DIR_B3 = STAGE_B3_CONST;
 endmodule

@@ -1,44 +1,55 @@
 {
-  "samples": 2000,
+  "samples": 16,
   "total_available_samples": 34505,
-  "limit": 2000,
+  "limit": 16,
   "scan_mode": "scaled_state",
   "continuous_state": false,
-  "chain4_input_mode": "stream",
+  "chain4_input_mode": "cache_hit",
   "cache_threshold": 64,
+  "chain4_cache_validation": {
+    "checked": true,
+    "frames_compared": 2,
+    "match": true
+  },
   "block_source": "case_chain4",
   "hw_like_vs_cpp": {
-    "mae": 0.021550767123699188,
-    "max_abs": 0.1255495548248291,
+    "mae": 0.010896038264036179,
+    "max_abs": 0.029443025588989258,
     "metrics_vs_y_true": {
-      "count": 2000,
-      "mean_err": 0.2475583851337433,
-      "median_err": 0.2025049924850464,
-      "p80_err": 0.3632414937019348,
-      "p90_err": 0.4706600308418274,
-      "max_err": 1.297986388206482
+      "count": 16,
+      "mean_err": 0.26237696409225464,
+      "median_err": 0.26372480392456055,
+      "p80_err": 0.2754393219947815,
+      "p90_err": 0.29989469051361084,
+      "max_err": 0.3112618923187256
     }
   },
   "hw_like_vs_float": {
-    "mae": 0.02237883023917675,
-    "max_abs": 0.1509789228439331,
+    "mae": 0.010480191558599472,
+    "max_abs": 0.03002309799194336,
     "metrics_vs_y_true": {
-      "count": 2000,
-      "mean_err": 0.2475583851337433,
-      "median_err": 0.2025049924850464,
-      "p80_err": 0.3632414937019348,
-      "p90_err": 0.4706600308418274,
-      "max_err": 1.297986388206482
+      "count": 16,
+      "mean_err": 0.26237696409225464,
+      "median_err": 0.26372480392456055,
+      "p80_err": 0.2754393219947815,
+      "p90_err": 0.29989469051361084,
+      "max_err": 0.3112618923187256
     }
   },
-  "cppish_vs_cpp": null,
+  "cppish_vs_cpp": {
+    "mae": 0.0001392960548400879,
+    "max_abs": 0.0017902851104736328
+  },
   "block_error_accumulation": {},
   "sample0": {
     "y_cpp": [
       1.1428499221801758,
       -2.2294301986694336
     ],
-    "y_cppish": null,
+    "y_cppish": [
+      1.1428499221801758,
+      -2.2294301986694336
+    ],
     "y_hw_like": [
       1.151540756225586,
       -2.226273775100708
