@@ -271,41 +271,63 @@ def main() -> None:
         )
         chain4_input_mode = "stream_continuous"
     else:
-        cached = load_chain4_cache(case_dir)
-        if cached is not None:
-            ok_cache, cache_validation = validate_chain4_cache_with_stream_golden(
-                case_dir=case_dir,
-                y_batch=cached[0],
-                mode_tag="stateless",
-                max_frames=max(1, min(8, int(eval_samples))),
-            )
-            if not ok_cache:
-                print("[eval] chain4 cache mismatch vs stream golden prefix; rebuilding cache")
-                cached = None
-        if cached is not None and int(cached[0].shape[0]) >= int(eval_samples):
-            print(f"[eval] using chain4 cache prefix for {eval_samples} samples")
-            y_batch, h_batch = cached[0][:eval_samples], cached[1][:eval_samples]
-            chain4_input_mode = "cache_hit"
-        elif cached is not None:
-            have = int(cached[0].shape[0])
-            need = int(eval_samples)
-            print(f"[eval] extending chain4 cache from {have} to {need} samples")
-            y_more, h_more = collect_chain4_q88_parallel(
-                export_json=export_json,
-                case_dir=case_dir,
-                samples_eval=samples_eval[have:need],
-                workers=workers,
-                scan_mode=str(args.scan_mode),
-                progress_every=int(args.progress_every),
-            )
-            y_batch = np.concatenate([cached[0], y_more], axis=0)
-            h_batch = np.concatenate([cached[1], h_more], axis=0)
-            save_chain4_cache(case_dir, y_batch, h_batch)
-            y_batch = y_batch[:eval_samples]
-            h_batch = h_batch[:eval_samples]
-            chain4_input_mode = "cache_extend"
+        # Cache policy:
+        # - eval_samples < cache_threshold: allow cache hit/extend/build
+        # - eval_samples >= cache_threshold: bypass cache and stream-generate
+        # This avoids unintentionally reusing stale/old cache on full-dataset runs.
+        use_cache = int(eval_samples) < int(threshold)
+        if use_cache:
+            cached = load_chain4_cache(case_dir)
+            if cached is not None:
+                ok_cache, cache_validation = validate_chain4_cache_with_stream_golden(
+                    case_dir=case_dir,
+                    y_batch=cached[0],
+                    mode_tag="stateless",
+                    max_frames=max(1, min(8, int(eval_samples))),
+                )
+                if not ok_cache:
+                    print("[eval] chain4 cache mismatch vs stream golden prefix; rebuilding cache")
+                    cached = None
+            if cached is not None and int(cached[0].shape[0]) >= int(eval_samples):
+                print(f"[eval] using chain4 cache prefix for {eval_samples} samples")
+                y_batch, h_batch = cached[0][:eval_samples], cached[1][:eval_samples]
+                chain4_input_mode = "cache_hit"
+            elif cached is not None:
+                have = int(cached[0].shape[0])
+                need = int(eval_samples)
+                print(f"[eval] extending chain4 cache from {have} to {need} samples")
+                y_more, h_more = collect_chain4_q88_parallel(
+                    export_json=export_json,
+                    case_dir=case_dir,
+                    samples_eval=samples_eval[have:need],
+                    workers=workers,
+                    scan_mode=str(args.scan_mode),
+                    progress_every=int(args.progress_every),
+                )
+                y_batch = np.concatenate([cached[0], y_more], axis=0)
+                h_batch = np.concatenate([cached[1], h_more], axis=0)
+                save_chain4_cache(case_dir, y_batch, h_batch)
+                y_batch = y_batch[:eval_samples]
+                h_batch = h_batch[:eval_samples]
+                chain4_input_mode = "cache_extend"
+            else:
+                print(f"[eval] building chain4 cache with {workers} worker(s) for {eval_samples} samples")
+                y_batch, h_batch = collect_chain4_q88_parallel(
+                    export_json=export_json,
+                    case_dir=case_dir,
+                    samples_eval=samples_eval,
+                    workers=workers,
+                    scan_mode=str(args.scan_mode),
+                    progress_every=int(args.progress_every),
+                )
+                save_chain4_cache(case_dir, y_batch, h_batch)
+                chain4_input_mode = "cache_build"
+                cache_validation = {"checked": False, "reason": "cache newly built"}
         else:
-            print(f"[eval] building chain4 cache with {workers} worker(s) for {eval_samples} samples")
+            print(
+                f"[eval] bypass chain4 cache: eval_samples={eval_samples} >= cache_threshold={threshold}; "
+                f"stream-generating with {workers} worker(s)"
+            )
             y_batch, h_batch = collect_chain4_q88_parallel(
                 export_json=export_json,
                 case_dir=case_dir,
@@ -314,9 +336,12 @@ def main() -> None:
                 scan_mode=str(args.scan_mode),
                 progress_every=int(args.progress_every),
             )
-            save_chain4_cache(case_dir, y_batch, h_batch)
-            chain4_input_mode = "cache_build"
-            cache_validation = {"checked": False, "reason": "cache newly built"}
+            chain4_input_mode = "stream_parallel_nocache"
+            cache_validation = {
+                "checked": False,
+                "reason": "cache bypassed by threshold",
+                "cache_threshold": int(threshold),
+            }
 
     # Optional cppish cache for long-run comparison/debug reuse.
     cppish_path = float_dir / "cppish_full.npy"

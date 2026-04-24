@@ -1,0 +1,10 @@
+{
+  "stages": [
+    {
+      "name": "reuse_mamba_block_top_chain4",
+      "rtl_top": "reuse_mamba_board_shell_stream",
+      "status": "active_mainline",
+      "description": "Main chain4 stateless stream export driven by hw_like_chain4."
+    }
+  ]
+}
