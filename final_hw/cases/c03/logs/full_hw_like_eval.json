@@ -1,14 +1,15 @@
 {
   "samples": 2000,
   "total_available_samples": 2000,
-  "limit": 2000,
+  "limit": 0,
   "scan_mode": "scaled_state",
   "continuous_state": false,
-  "chain4_input_mode": "cache_build",
+  "chain4_input_mode": "stream_parallel_nocache",
   "cache_threshold": 64,
   "chain4_cache_validation": {
     "checked": false,
-    "reason": "cache newly built"
+    "reason": "cache bypassed by threshold",
+    "cache_threshold": 64
   },
   "block_source": "case_chain4",
   "hw_like_vs_cpp": {

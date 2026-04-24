@@ -1,0 +1,51 @@
+{
+  "d_model": 128,
+  "d_inner": 256,
+  "files": {
+    "h_wr_addr": "h_wr_addr.mem",
+    "h_wr_data_s16_q8p8": "h_wr_data_s16_q8p8.mem",
+    "h_norm_golden_s16_q8p8": "h_norm_golden_s16_q8p8.mem",
+    "norm_gamma_s16_q8p8": "norm_gamma_s16_q8p8.mem",
+    "norm_rms_s16_q8p8": "norm_rms_s16_q8p8.mem",
+    "u_golden_q88": "u_golden_q88.mem",
+    "z_golden_q88": "z_golden_q88.mem",
+    "u_act_golden_q88": "u_act_golden_q88.mem",
+    "z_silu_golden_q88": "z_silu_golden_q88.mem",
+    "dt_golden_q88": "dt_golden_q88.mem",
+    "bias_ROM": "bias_ROM.mem",
+    "lam_golden_q016": "lam_golden_q016.mem",
+    "ssm_golden_q88": "ssm_golden_q88.mem",
+    "gate_y_golden_q88": "gate_y_golden_q88.mem",
+    "y_golden_q88": "y_golden_q88.mem",
+    "x_next_golden_q88": "x_next_golden_q88.mem",
+    "inproj_scale_q15": "inproj_scale_q15.mem",
+    "dt_scale_q15": "dt_scale_q15.mem",
+    "outproj_scale_q15": "outproj_scale_q15.mem",
+    "state_u_to_state_q16": "state_u_to_state_q16.mem",
+    "state_to_q88_q16": "state_to_q88_q16.mem",
+    "inproj_wbuf": [
+      "inproj_wbuf_bank0.mem",
+      "inproj_wbuf_bank1.mem",
+      "inproj_wbuf_bank2.mem",
+      "inproj_wbuf_bank3.mem",
+      "inproj_wbuf_bank4.mem",
+      "inproj_wbuf_bank5.mem"
+    ],
+    "dt_wbuf": [
+      "dt_wbuf_bank0.mem",
+      "dt_wbuf_bank1.mem",
+      "dt_wbuf_bank2.mem",
+      "dt_wbuf_bank3.mem",
+      "dt_wbuf_bank4.mem",
+      "dt_wbuf_bank5.mem"
+    ],
+    "outproj_wbuf": [
+      "outproj_wbuf_bank0.mem",
+      "outproj_wbuf_bank1.mem",
+      "outproj_wbuf_bank2.mem",
+      "outproj_wbuf_bank3.mem",
+      "outproj_wbuf_bank4.mem",
+      "outproj_wbuf_bank5.mem"
+    ]
+  }
+}

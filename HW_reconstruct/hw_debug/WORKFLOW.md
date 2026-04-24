@@ -19,11 +19,13 @@ Expected executables:
 ## 2. Export HW Debug Package (includes IP init files)
 ```powershell
 python -m refactor.bittrue.export_hw_debug `
-  --out_dir HW_reconstruct/hw_debug/cases/test_case3_smoke `
-  --export_dir export_bittrue/case1 `
+  --out_dir final_hw/cases/04 `
+  --export_dir export_bittrue/final_hw/cases/04 `
   --target test `
   --feat_root data/features/parity_2100 `
-  --workers 0 `
+  --workers 20 `
+  --chain4_stream_frames 200 `
+  --float_cache_dir final_hw/cases/02 `
   --preload
 ```
 
