@@ -1,0 +1,40 @@
+<mxfile host="Electron" agent="Codex">
+  <diagram id="quantization-flow" name="Quantization Flow">
+    <mxGraphModel dx="1030" dy="626" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="520" pageHeight="820" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="layer_sweep" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef4f8;strokeColor=#456b83;fontColor=#1f3d4d;fontFamily=Times New Roman;fontSize=18;fontStyle=1;strokeWidth=1.5;" value="&lt;div&gt;Precision Sweep&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;font style=&quot;font-size: 16px;&quot;&gt;Find quantisation-sensitive layers&lt;/font&gt;&lt;/span&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="72" width="260" x="130" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="error_debug" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3f0e8;strokeColor=#8a7652;fontColor=#463b27;fontFamily=Times New Roman;fontSize=18;fontStyle=1;strokeWidth=1.5;" value="&lt;div&gt;Per-layer Error Analysis&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;font style=&quot;font-size: 16px;&quot;&gt;Locate where HW error grows and adjust quantisation strategy&lt;/font&gt;&lt;/span&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="72" width="260" x="130" y="190" as="geometry" />
+        </mxCell>
+        <mxCell id="format_selection" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#edf3ed;strokeColor=#5f7f5f;fontColor=#2f4b2f;fontFamily=Times New Roman;fontSize=18;fontStyle=1;strokeWidth=1.5;" value="&lt;div&gt;Per-layer Quantisation Strategy&lt;/div&gt;&lt;div&gt;&lt;font style=&quot;font-size: 16px; font-weight: normal;&quot;&gt;Choose Q formats, scales/rounding method&lt;/font&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="82" width="260" x="130" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="hardware_impl" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f1edf5;strokeColor=#74628a;fontColor=#3f314f;fontFamily=Times New Roman;fontSize=18;fontStyle=1;strokeWidth=1.5;" value="&lt;div&gt;RTL Mapping&lt;/div&gt;&lt;div&gt;&lt;font style=&quot;font-size: 16px; font-weight: normal;&quot;&gt;Implement quantisation module&lt;/font&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="72" width="260" x="130" y="420" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_sweep_to_debug" edge="1" parent="1" source="layer_sweep" style="endArrow=block;html=1;rounded=0;strokeWidth=1.5;strokeColor=#5f6570;" target="error_debug" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="260" y="150" as="sourcePoint" />
+            <mxPoint x="260" y="240" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_debug_to_format" edge="1" parent="1" source="error_debug" style="endArrow=block;html=1;rounded=0;strokeWidth=1.5;strokeColor=#5f6570;" target="format_selection" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="260" y="330" as="sourcePoint" />
+            <mxPoint x="260" y="420" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_format_to_hardware" edge="1" parent="1" source="format_selection" style="endArrow=block;html=1;rounded=0;strokeWidth=1.5;strokeColor=#5f6570;" target="hardware_impl" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="260" y="510" as="sourcePoint" />
+            <mxPoint x="260" y="600" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

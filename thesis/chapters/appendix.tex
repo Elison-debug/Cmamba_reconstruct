@@ -1,0 +1,26 @@
+\chapter{Appendix}
+
+\section{Useful Project Paths}
+
+\begin{lstlisting}
+final_hw/docs/quantization_flow_python_cpp_rtl.md
+final_hw/docs/cpp_reference_quant_sweep_summary.md
+final_hw/docs/case04_dt_chain_stage_errors.md
+final_hw/cases/04/logs/dt_chain_debug_sample0.json
+final_hw/cases/04/logs/dt_chain_debug_sample0_scaled_state.json
+final_hw/cases/04/logs/full_hw_like_eval.json
+refactor/bittrue/cpp/ref_infer.cpp
+refactor/bittrue/eval_hw_like_full.py
+refactor/bittrue/hw_like_chain4.py
+\end{lstlisting}
+
+\section{Example Commands}
+
+\begin{lstlisting}
+python -m refactor.bittrue.debug_dt_chain_mismatch \
+  --export_json final_hw/cases/04/export_ir/export.json \
+  --case_dir final_hw/cases/04 \
+  --sample_idx 0 \
+  --scan_mode scaled_state
+\end{lstlisting}
+

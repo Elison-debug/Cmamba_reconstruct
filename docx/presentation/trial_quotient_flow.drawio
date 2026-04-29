@@ -1,0 +1,99 @@
+<mxfile host="Electron" agent="Codex">
+  <diagram id="trial-quotient-flow" name="Trial-quotient Flow">
+    <mxGraphModel dx="1373" dy="835" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="760" pageHeight="860" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;fontFamily=Times New Roman;fontSize=22;fontStyle=1;fontColor=#17365d;align=center;" value="Trial-quotient Reciprocal Generation" vertex="1">
+          <mxGeometry height="34" width="520" x="120" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="dividend" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef4f8;strokeColor=#456b83;fontColor=#1f3d4d;fontFamily=Times New Roman;fontSize=18;fontStyle=1;strokeWidth=1.5;" value="&lt;div&gt;Dividend&lt;/div&gt;&lt;div&gt;&lt;font style=&quot;font-size: 16px; font-weight: normal;&quot;&gt;2&lt;sup&gt;30&lt;/sup&gt; rounded&lt;/font&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="72" width="210" x="90" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="divisor" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef4f8;strokeColor=#456b83;fontColor=#1f3d4d;fontFamily=Times New Roman;fontSize=18;fontStyle=1;strokeWidth=1.5;" value="&lt;div&gt;Divisor&lt;/div&gt;&lt;div&gt;&lt;font style=&quot;font-size: 16px; font-weight: normal;&quot;&gt;rms_q88&lt;/font&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="72" width="210" x="460" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="shift_bit" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f7fbff;strokeColor=#2f5597;fontColor=#17365d;fontFamily=Times New Roman;fontSize=18;fontStyle=1;strokeWidth=1.5;" value="&lt;div&gt;Shift Next Bit&lt;/div&gt;&lt;div&gt;&lt;font style=&quot;font-size: 16px; font-weight: normal;&quot;&gt;Into remainder&lt;/font&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="72" width="230" x="265" y="190" as="geometry" />
+        </mxCell>
+        <mxCell id="compare" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#f3f0e8;strokeColor=#8a7652;fontColor=#463b27;fontFamily=Times New Roman;fontSize=18;fontStyle=1;strokeWidth=1.5;" value="&lt;div&gt;Remainder&lt;/div&gt;&lt;div&gt;&amp;ge; Divisor?&lt;/div&gt;" vertex="1">
+          <mxGeometry height="120" width="190" x="285" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="subtract" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#edf3ed;strokeColor=#5f7f5f;fontColor=#2f4b2f;fontFamily=Times New Roman;fontSize=18;fontStyle=1;strokeWidth=1.5;" value="&lt;div&gt;Subtract Divisor&lt;/div&gt;&lt;div&gt;&lt;font style=&quot;font-size: 16px; font-weight: normal;&quot;&gt;quotient bit = 1&lt;/font&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="72" width="230" x="90" y="480" as="geometry" />
+        </mxCell>
+        <mxCell id="keep" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f1edf5;strokeColor=#74628a;fontColor=#3f314f;fontFamily=Times New Roman;fontSize=18;fontStyle=1;strokeWidth=1.5;" value="&lt;div&gt;Keep Remainder&lt;/div&gt;&lt;div&gt;&lt;font style=&quot;font-size: 16px; font-weight: normal;&quot;&gt;quotient bit = 0&lt;/font&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="72" width="230" x="440" y="480" as="geometry" />
+        </mxCell>
+        <mxCell id="done" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#f3f0e8;strokeColor=#8a7652;fontColor=#463b27;fontFamily=Times New Roman;fontSize=18;fontStyle=1;strokeWidth=1.5;" value="&lt;div&gt;All Bits&lt;/div&gt;&lt;div&gt;Processed?&lt;/div&gt;" vertex="1">
+          <mxGeometry height="120" width="190" x="285" y="610" as="geometry" />
+        </mxCell>
+        <mxCell id="result" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#2f5597;fontColor=#17365d;fontFamily=Times New Roman;fontSize=18;fontStyle=1;strokeWidth=1.5;" value="&lt;div&gt;recip_q30&lt;/div&gt;&lt;div&gt;&lt;font style=&quot;font-size: 16px; font-weight: normal;&quot;&gt;quotient&lt;/font&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="72" width="210" x="275" y="780" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_dividend_to_shift" edge="1" parent="1" source="dividend" style="endArrow=block;html=1;rounded=0;strokeWidth=1.5;strokeColor=#5f6570;" target="shift_bit" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="195" y="142" as="sourcePoint" />
+            <mxPoint x="380" y="190" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_shift_to_compare" edge="1" parent="1" source="shift_bit" style="endArrow=block;html=1;rounded=0;strokeWidth=1.5;strokeColor=#5f6570;" target="compare" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="380" y="262" as="sourcePoint" />
+            <mxPoint x="380" y="310" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_divisor_to_compare" edge="1" parent="1" source="divisor" style="endArrow=block;html=1;rounded=0;strokeWidth=1.5;strokeColor=#5f6570;" target="compare" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <Array as="points">
+              <mxPoint x="565" y="370" />
+            </Array>
+            <mxPoint x="565" y="142" as="sourcePoint" />
+            <mxPoint x="440" y="330" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_compare_yes" edge="1" parent="1" source="compare" style="endArrow=block;html=1;rounded=0;strokeWidth=1.5;strokeColor=#5f7f5f;fontColor=#2f4b2f;fontFamily=Times New Roman;fontSize=16;" target="subtract" value="yes">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="325" y="430" as="sourcePoint" />
+            <mxPoint x="205" y="480" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_compare_no" edge="1" parent="1" source="compare" style="endArrow=block;html=1;rounded=0;strokeWidth=1.5;strokeColor=#74628a;fontColor=#3f314f;fontFamily=Times New Roman;fontSize=16;" target="keep" value="no">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="435" y="430" as="sourcePoint" />
+            <mxPoint x="555" y="480" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_subtract_to_done" edge="1" parent="1" source="subtract" style="endArrow=block;html=1;rounded=0;strokeWidth=1.5;strokeColor=#5f6570;" target="done" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="205" y="552" as="sourcePoint" />
+            <mxPoint x="325" y="610" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_keep_to_done" edge="1" parent="1" source="keep" style="endArrow=block;html=1;rounded=0;strokeWidth=1.5;strokeColor=#5f6570;" target="done" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="555" y="552" as="sourcePoint" />
+            <mxPoint x="435" y="610" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_done_yes" edge="1" parent="1" source="done" style="endArrow=block;html=1;rounded=0;strokeWidth=1.5;strokeColor=#2f5597;fontColor=#17365d;fontFamily=Times New Roman;fontSize=16;" target="result" value="yes">
+          <mxGeometry height="50" relative="1" width="50" x="-0.2" as="geometry">
+            <mxPoint as="offset" />
+            <mxPoint x="380" y="730" as="sourcePoint" />
+            <mxPoint x="380" y="740" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_done_no_loop" edge="1" parent="1" source="done" style="endArrow=block;html=1;rounded=0;strokeWidth=1.5;strokeColor=#5f6570;fontColor=#1f2933;fontFamily=Times New Roman;fontSize=16;" target="shift_bit" value="no">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <Array as="points">
+              <mxPoint x="40" y="670" />
+              <mxPoint x="40" y="226" />
+            </Array>
+            <mxPoint x="285" y="670" as="sourcePoint" />
+            <mxPoint x="265" y="226" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

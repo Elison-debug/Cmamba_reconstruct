@@ -1,0 +1,94 @@
+\chapter{Method}
+\label{ch:method}
+
+\section{Dataset and Output Format}
+
+The model predicts a two-dimensional output vector:
+
+\begin{equation}
+  y = [y_x, y_y].
+\end{equation}
+
+The evaluation compares predicted outputs against the ground-truth labels \texttt{y\_true.npy}.
+
+\section{Python Export}
+
+Python export produces the deployment assets:
+
+\begin{itemize}
+  \item \texttt{export\_ir/export.json}: model structure and file references.
+  \item \texttt{*.npy}: weights, biases, and quantization scales.
+  \item \texttt{float/samples.npy}: input samples.
+  \item \texttt{float/y\_true.npy}: ground-truth labels.
+  \item \texttt{float/y\_float.npy}: PyTorch float model outputs.
+\end{itemize}
+
+\section{C++ Reference Inference}
+
+The C++ reference reads the exported assets and runs fake, int8, or int16 deployment-oriented inference. Its output is stored as:
+
+\begin{lstlisting}
+final_hw/cases/<case>/float/cpp_full_int16.npy
+\end{lstlisting}
+
+This output defines the deployment quantization reference. It is not a cycle-accurate or stage-accurate RTL golden model.
+
+\section{Python Hardware-Like Simulation}
+
+The Python \texttt{hw\_like} path reproduces RTL-oriented fixed-point behavior using NumPy. It models Q8.8 activations, Q0.16 sigmoid outputs, Q1.15 lambda values, rounding, saturation, memory layout, and stage boundaries.
+
+\section{Python C++-Like Trace}
+
+The Python \texttt{cpp\_like} path reproduces the C++ reference semantics in Python. It is used to obtain intermediate stage traces for debug. It does not call the C++ executable.
+
+\section{RTL Asset Generation}
+
+The hardware-like path generates:
+
+\begin{itemize}
+  \item Weight memory files.
+  \item Scale memory files.
+  \item Stage golden files such as \texttt{ssm\_golden\_q88.mem} and \texttt{gate\_y\_golden\_q88.mem}.
+  \item Control files for the RTL testbench.
+\end{itemize}
+
+\section{Error Metrics}
+
+For final two-dimensional predictions, the Euclidean error is:
+
+\begin{equation}
+  e_i = \sqrt{(y_{i,x} - y^{\ast}_{i,x})^2 + (y_{i,y} - y^{\ast}_{i,y})^2}.
+\end{equation}
+
+The reported metrics include mean error, median error, percentile error, and maximum error.
+
+For tensor comparisons, mean absolute error is:
+
+\begin{equation}
+  \mathrm{MAE}(a,b) = \frac{1}{N}\sum_{i=1}^{N}|a_i - b_i|.
+\end{equation}
+
+The maximum absolute error is:
+
+\begin{equation}
+  \mathrm{max\_abs}(a,b) = \max_i |a_i - b_i|.
+\end{equation}
+
+\section{Metric Interpretation}
+
+\begin{table}[h]
+\centering
+\caption{Interpretation of key comparisons.}
+\label{tab:metric-meaning}
+\begin{tabular}{lll}
+\toprule
+Comparison & Purpose & Large value indicates \\
+\midrule
+\texttt{float vs y\_true} & Original model quality & Model accuracy limitation \\
+\texttt{cpp vs float} & Quantization loss & Poor quantization strategy \\
+\texttt{hw\_like vs cpp} & Hardware extra error & Q format, scale, rounding, or stage mismatch \\
+\texttt{stage MAE} & Stage localization & First stage where hardware semantics diverge \\
+\bottomrule
+\end{tabular}
+\end{table}
+

@@ -9,7 +9,6 @@ from pathlib import Path
 import numpy as np
 
 from refactor.bittrue.debug_tools import write_json
-from refactor.bittrue.eval_bittrue import _metric_dict
 from refactor.bittrue.hw_like_chain4 import (
     _ActLut,
     _conv1d_run_integer_desc,
@@ -21,6 +20,18 @@ from refactor.bittrue.hw_like_chain4 import (
     save_chain4_cache,
     validate_chain4_cache_with_stream_golden,
 )
+
+
+def _metric_dict(y_true: np.ndarray, y_pred: np.ndarray) -> dict:
+    err = np.sqrt(np.sum((y_pred - y_true) ** 2, axis=1))
+    return {
+        "count": int(err.shape[0]),
+        "mean_err": float(err.mean()),
+        "median_err": float(np.median(err)),
+        "p80_err": float(np.percentile(err, 80)),
+        "p90_err": float(np.percentile(err, 90)),
+        "max_err": float(err.max()),
+    }
 
 
 

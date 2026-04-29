@@ -1,0 +1,21 @@
+\chapter{Conclusion and Future Work}
+\label{ch:conclusion}
+
+\section{Conclusion}
+
+This thesis presented a quantization and hardware validation workflow connecting Python export, C++ reference inference, Python hardware-like simulation, and RTL testbench validation. The C++ reference sweep showed that int16 inference largely preserves float model behavior, while some layers, particularly patch embedding and input projection, are sensitive to int8 quantization.
+
+Stage-level comparison between \texttt{cpp\_like} and \texttt{hw\_like} traces identified the selective scan as the dominant source of hardware-oriented fixed-point error in case 04. A scaled-state representation reduced the average selective scan MAE from 0.121098 to 0.090323, corresponding to a 25.41\% improvement.
+
+\section{Future Work}
+
+Future work includes:
+
+\begin{itemize}
+  \item Extending the scaled-state method to more datasets and model configurations.
+  \item Automating scale selection across more stages.
+  \item Improving RTL coverage for the full front-end, including patch embedding.
+  \item Evaluating resource, timing, and energy trade-offs of mixed int8/int16 configurations.
+  \item Integrating hardware-in-the-loop validation on FPGA.
+\end{itemize}
+

@@ -1,0 +1,105 @@
+\documentclass[12pt,a4paper,oneside]{report}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{amsmath,amssymb}
+\usepackage{siunitx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{tocloft}
+\usepackage{titlesec}
+\usepackage{caption}
+\usepackage{subcaption}
+
+\geometry{
+  left=30mm,
+  right=25mm,
+  top=25mm,
+  bottom=25mm
+}
+
+\onehalfspacing
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  citecolor=black,
+  urlcolor=blue,
+  pdftitle={Quantization Flow from Python and C++ Reference to RTL Implementation},
+  pdfauthor={Your Name}
+}
+
+\lstdefinestyle{code}{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  columns=fullflexible,
+  keepspaces=true,
+  backgroundcolor=\color{gray!5}
+}
+\lstset{style=code}
+
+\titleformat{\chapter}[hang]
+  {\normalfont\huge\bfseries}
+  {\thechapter}
+  {1em}
+  {}
+
+\begin{document}
+
+\begin{titlepage}
+  \centering
+  \vspace*{2cm}
+  {\Large Master Thesis\par}
+  \vspace{1.5cm}
+  {\huge\bfseries Quantization Flow from Python and C++ Reference to RTL Implementation\par}
+  \vspace{1.5cm}
+  {\Large Your Name\par}
+  \vfill
+  \begin{tabular}{ll}
+    Supervisor: & Supervisor Name \\
+    Program: & Master Program Name \\
+    University: & University Name \\
+    Date: & \today
+  \end{tabular}
+\end{titlepage}
+
+\pagenumbering{roman}
+
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+This thesis investigates an end-to-end quantization workflow for a Mamba-based neural network, covering Python export, C++ reference inference, Python hardware-like simulation, and RTL validation. The work focuses on identifying quantization-sensitive components, defining reproducible case assets, and reducing hardware-oriented fixed-point error in the selective scan path through a scaled-state representation.
+
+\chapter*{Acknowledgements}
+\addcontentsline{toc}{chapter}{Acknowledgements}
+Write acknowledgements here.
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+\clearpage
+\pagenumbering{arabic}
+
+\include{chapters/01_introduction}
+\include{chapters/02_background}
+\include{chapters/03_method}
+\include{chapters/04_results_discussion}
+\include{chapters/05_conclusion}
+
+\appendix
+\include{chapters/appendix}
+
+\bibliographystyle{IEEEtran}
+\bibliography{refs/references}
+
+\end{document}
+
