@@ -5,11 +5,11 @@
    "Addressing View_TopLeft":"10,-359",
    "Default View_Layers":"/zynq_ultra_ps_e_0_pl_resetn0:true|/zynq_ultra_ps_e_0_pl_clk0:true|/proc_sys_reset_0_peripheral_aresetn:true|",
    "Default View_ScaleFactor":"1.14612",
-   "Default View_TopLeft":"1,-285",
+   "Default View_TopLeft":"3,-285",
    "Display-PortTypeClock":"true",
    "Display-PortTypeReset":"true",
    "ExpandedHierarchyInLayout":"",
-   "guistr":"# # String gsaved with Nlview 7.7.1 2023-07-26 3bc4126617 VDI=43 GEI=38 GUI=JA:21.0 threadsafe
+   "guistr":"# # String gsaved with Nlview 7.7.1 2023-07-26 3bc4126617 VDI=43 GEI=38 GUI=JA:21.0
 #  -string -flagsOSRD
 preplace inst zynq_ultra_ps_e_0 -pg 1 -lvl 4 -x 1340 -y 290 -defaultsOSRD
 preplace inst smartconnect_ctrl -pg 1 -lvl 5 -x 1800 -y 290 -defaultsOSRD
