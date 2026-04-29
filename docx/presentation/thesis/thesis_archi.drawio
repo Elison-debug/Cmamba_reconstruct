@@ -1,6 +1,6 @@
-﻿<mxfile host="65bd71144e" pages="4">
+<mxfile host="65bd71144e" pages="4">
     <diagram id="P1" name="P1 System Archi + Board Data Path">
-        <mxGraphModel dx="1521" dy="1099" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+        <mxGraphModel dx="1189" dy="934" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -76,7 +76,7 @@
         </mxGraphModel>
     </diagram>
     <diagram id="p2" name="P2 Shell Input + Block Ctrl Pipeline">
-        <mxGraphModel dx="1293" dy="934" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+        <mxGraphModel dx="1189" dy="934" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -200,7 +200,7 @@
         </mxGraphModel>
     </diagram>
     <diagram id="P3" name="P3 Block MAC Reuse">
-        <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+        <mxGraphModel dx="1189" dy="934" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -222,17 +222,17 @@
                 <mxCell id="fab" value="Shared MAC Fabric&#xa;4x4x4 matrix engine + reduction&#xa;Unified interface for all linear paths" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#2F5597;fillColor=#F7FBFF;fontFamily=Times New Roman;fontSize=16;fontStyle=1;fontColor=#17365D;strokeWidth=1.5;" parent="1" vertex="1">
                     <mxGeometry x="1070" y="265" width="300" height="120" as="geometry"/>
                 </mxCell>
-                <mxCell id="KdFRfT6eKffuvFSlTd69-4" style="edgeStyle=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=1.5;strokeColor=light-dark(#2F5597,#89AAE3);" edge="1" parent="1" source="mem" target="KdFRfT6eKffuvFSlTd69-1">
+                <mxCell id="KdFRfT6eKffuvFSlTd69-4" style="edgeStyle=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=1.5;strokeColor=light-dark(#2F5597,#89AAE3);" parent="1" source="mem" target="KdFRfT6eKffuvFSlTd69-1" edge="1">
                     <mxGeometry relative="1" as="geometry">
                         <Array as="points">
                             <mxPoint x="840" y="580"/>
                         </Array>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="KdFRfT6eKffuvFSlTd69-5" style="edgeStyle=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=1.5;strokeColor=light-dark(#2F5597,#89AAE3);" edge="1" parent="1" source="mem" target="KdFRfT6eKffuvFSlTd69-2">
+                <mxCell id="KdFRfT6eKffuvFSlTd69-5" style="edgeStyle=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=1.5;strokeColor=light-dark(#2F5597,#89AAE3);" parent="1" source="mem" target="KdFRfT6eKffuvFSlTd69-2" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="KdFRfT6eKffuvFSlTd69-6" style="edgeStyle=none;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=1.5;strokeColor=light-dark(#2F5597,#89AAE3);" edge="1" parent="1" source="mem" target="KdFRfT6eKffuvFSlTd69-3">
+                <mxCell id="KdFRfT6eKffuvFSlTd69-6" style="edgeStyle=none;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=1.5;strokeColor=light-dark(#2F5597,#89AAE3);" parent="1" source="mem" target="KdFRfT6eKffuvFSlTd69-3" edge="1">
                     <mxGeometry relative="1" as="geometry">
                         <Array as="points">
                             <mxPoint x="840" y="725"/>
@@ -265,20 +265,20 @@
                         </Array>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="KdFRfT6eKffuvFSlTd69-1" value="u/z" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#2F5597;fillColor=#EAF2FF;fontFamily=Times New Roman;fontSize=15;fontStyle=1;fontColor=#17365D;strokeWidth=1.5;" vertex="1" parent="1">
+                <mxCell id="KdFRfT6eKffuvFSlTd69-1" value="u/z" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#2F5597;fillColor=#EAF2FF;fontFamily=Times New Roman;fontSize=15;fontStyle=1;fontColor=#17365D;strokeWidth=1.5;" parent="1" vertex="1">
                     <mxGeometry x="970" y="555" width="360" height="50" as="geometry"/>
                 </mxCell>
-                <mxCell id="KdFRfT6eKffuvFSlTd69-2" value="&lt;span style=&quot;color: rgb(23, 54, 93); font-size: 16px;&quot;&gt;trunc/xt&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#2F5597;fillColor=#F7FBFF;fontFamily=Times New Roman;fontSize=15;fontStyle=1;fontColor=#17365D;strokeWidth=1.5;" vertex="1" parent="1">
+                <mxCell id="KdFRfT6eKffuvFSlTd69-2" value="&lt;span style=&quot;color: rgb(23, 54, 93); font-size: 16px;&quot;&gt;trunc/xt&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#2F5597;fillColor=#F7FBFF;fontFamily=Times New Roman;fontSize=15;fontStyle=1;fontColor=#17365D;strokeWidth=1.5;" parent="1" vertex="1">
                     <mxGeometry x="970" y="630" width="360" height="45" as="geometry"/>
                 </mxCell>
-                <mxCell id="KdFRfT6eKffuvFSlTd69-3" value="&lt;span style=&quot;color: rgb(23, 54, 93); font-size: 16px;&quot;&gt;y_axis&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#2F5597;fillColor=#EAF2FF;fontFamily=Times New Roman;fontSize=15;fontStyle=1;fontColor=#17365D;strokeWidth=1.5;" vertex="1" parent="1">
+                <mxCell id="KdFRfT6eKffuvFSlTd69-3" value="&lt;span style=&quot;color: rgb(23, 54, 93); font-size: 16px;&quot;&gt;y_axis&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#2F5597;fillColor=#EAF2FF;fontFamily=Times New Roman;fontSize=15;fontStyle=1;fontColor=#17365D;strokeWidth=1.5;" parent="1" vertex="1">
                     <mxGeometry x="970" y="705" width="360" height="40" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>
     </diagram>
     <diagram id="P4" name="P4 Memory Mapping RTL">
-        <mxGraphModel dx="1521" dy="1099" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+        <mxGraphModel dx="1189" dy="934" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
