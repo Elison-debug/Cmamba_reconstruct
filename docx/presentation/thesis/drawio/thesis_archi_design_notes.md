@@ -50,21 +50,14 @@
 ```mermaid
 flowchart LR
     Host[Host SW] -->|AXI-Lite| PS[Zynq PS]
+    DMAY[axi_dma_y] -->|MM2S| PS
     PS -->|MM2S| DMAH[axi_dma_h]
+    Shell -->|m_axis_y| DMAY
     DMAH -->|s_axis_h| Shell[Board Shell]
     Shell --> Core[4-Block Compute Core]
-    Shell -->|m_axis_y| DMAY[axi_dma_y]
-```
-
-### P2
-```mermaid
-flowchart LR
-    In[s_axis_h] --> Loader[h_stream_loader]
-    Loader --> Shadow[h0_shadow_reg]
-    Shadow --> Adapter[chain4_core_adapter]
-    Adapter --> B0[blk0] --> B1[blk1] --> B2[blk2] --> B3[blk3]
-    B3 --> Ctrl[pipeline_ctrl]
-    Ctrl --> Out[m_axis_y]
+    Core[4-Block Compute Core] --> inproj[inproj scheduler]
+    Core[4-Block Compute Core] --> dtproj[dtproj scheduler]
+    Core[4-Block Compute Core] --> outproj[outproj scheduler]
 ```
 
 ### P3
