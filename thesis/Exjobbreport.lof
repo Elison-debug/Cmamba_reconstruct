@@ -1,0 +1,18 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.1}{\ignorespaces Simplified datapath of the Slim Mamba block.}}{6}{}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Diagram of Slim-Mamba overall hardware architecture.}}{8}{}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Trial-quotient square-root computation for the RMS value.}}{14}{}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Reciprocal-based division approximation for RMSNorm.}}{15}{}%
+\contentsline {figure}{\numberline {3.4}{\ignorespaces Comparison between floating-point RMSNorm and the fixed-point hardware approximation.}}{16}{}%
+\contentsline {figure}{\numberline {3.5}{\ignorespaces Comparison between floating-point sigmoid and the fixed-point LUT approximation.}}{17}{}%
+\contentsline {figure}{\numberline {3.6}{\ignorespaces Quantization workflow from precision sweep to RTL mapping.}}{18}{}%
+\contentsline {figure}{\numberline {3.7}{\ignorespaces Slim-Mamba block flow used for stage-level quantization error analysis.}}{20}{}%
+\contentsline {figure}{\numberline {3.8}{\ignorespaces Configurable fixed-point quantization engine for one vector lane.}}{22}{}%
+\contentsline {figure}{\numberline {3.9}{\ignorespaces Ping-pong buffer alignment for runtime dynamic scales in the selective-scan path.}}{22}{}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {A.1}{\ignorespaces A picture or table in the appendix is numbered accordingly.}}{29}{}%

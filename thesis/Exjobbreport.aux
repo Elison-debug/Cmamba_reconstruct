@@ -1,0 +1,168 @@
+\relax 
+\providecommand{\transparent@use}[1]{}
+\citation{cite:Bourdoux2020}
+\citation{cite:Trevlakis2023}
+\citation{cite:Tian2024}
+\citation{cite:Mogyorosi2022}
+\citation{cite:Yaro2023}
+\citation{cite:TianICC2023}
+\citation{cite:Tian2024}
+\citation{cite:Tian2024}
+\citation{cite:TianICC2023}
+\citation{cite:Tian2024}
+\citation{cite:TianICC2023}
+\citation{cite:TianICC2023}
+\citation{cite:Tian2024}
+\citation{cite:TianICC2023}
+\citation{cite:Tian2024}
+\citation{cite:Tian2024}
+\citation{cite:Tian2024}
+\@writefile{toc}{\contentsline {chapter}{\numberline {1}Introduction}{1}{}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\@writefile{toc}{\contentsline {section}{\numberline {1.1}Background}{1}{}\protected@file@percent }
+\citation{cite:Tian2024}
+\citation{cite:Tian2024}
+\citation{cite:Mamba2023}
+\citation{cite:LightMamba2025}
+\citation{cite:FastMamba2025}
+\citation{cite:HCSA2025}
+\@writefile{toc}{\contentsline {section}{\numberline {1.2}Related Work}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {1.3}Goals and Challenges}{2}{}\protected@file@percent }
+\citation{cite:Mamba2023}
+\citation{cite:Mamba2023}
+\@writefile{toc}{\contentsline {chapter}{\numberline {2}Algorithm}{4}{}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\@writefile{toc}{\contentsline {section}{\numberline {2.1}Mamba Basics}{4}{}\protected@file@percent }
+\citation{cite:CMamba2024}
+\citation{cite:Mamba2023}
+\@writefile{toc}{\contentsline {section}{\numberline {2.2}Slim-Mamba}{5}{}\protected@file@percent }
+\newlabel{sec:slim_mamba}{{2.2}{5}{}{section.2.2}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2.1}{\ignorespaces Comparison of results on different models.}}{6}{}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{tab:model_variants}{{2.1}{6}{}{table.2.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.1}{\ignorespaces Simplified datapath of the Slim Mamba block.}}{6}{}\protected@file@percent }
+\newlabel{fig:slim_mamba}{{2.1}{6}{}{figure.2.1}{}}
+\citation{cite:Mamba2023}
+\newlabel{eq:slim_mamba_lambda_conv}{{2.7}{7}{}{equation.2.7}{}}
+\newlabel{eq:slim_mamba_state_update}{{2.8}{7}{}{equation.2.8}{}}
+\newlabel{eq:slim_mamba_output_gate}{{2.9}{7}{}{equation.2.9}{}}
+\newlabel{eq:slim_mamba_output_modulation}{{2.10}{7}{}{equation.2.10}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {3}Method}{8}{}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\@writefile{toc}{\contentsline {section}{\numberline {3.1}Hardware Architecture}{8}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3.1}{\ignorespaces Diagram of Slim-Mamba overall hardware architecture.}}{8}{}\protected@file@percent }
+\newlabel{fig:tcas_hardware_architecture}{{3.1}{8}{}{figure.3.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.2}Linear Layers}{9}{}\protected@file@percent }
+\newlabel{subsec:linear_layer_mac_array}{{3.2}{9}{}{section.3.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.1}Reuse vs.\ Latency Trade-off}{9}{}\protected@file@percent }
+\newlabel{eq:coarse_latency}{{3.1}{10}{}{equation.3.1}{}}
+\newlabel{eq:fine_latency}{{3.2}{10}{}{equation.3.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.2}MAC Array Architecture Selection}{10}{}\protected@file@percent }
+\newlabel{eq:update_gate_projection_linear}{{3.3}{10}{}{equation.3.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3.1}{\ignorespaces Comparison of candidate MAC array organizations for projection computation.}}{11}{}\protected@file@percent }
+\newlabel{tab:mac_array_tradeoff}{{3.1}{11}{}{table.3.1}{}}
+\newlabel{eq:total_mac_ops}{{3.4}{11}{}{equation.3.4}{}}
+\newlabel{eq:cc_min}{{3.5}{11}{}{equation.3.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3.4}{\ignorespaces Weight input scheduling for the pipelined MAC arrays.}}{12}{}\protected@file@percent }
+\newlabel{tab:mac_pipeline_schedule}{{3.4}{12}{}{table.3.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3.2}{\ignorespaces Column starts per sub-array.}}{12}{}\protected@file@percent }
+\newlabel{tab:col_progress}{{3.2}{12}{}{table.3.2}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3.3}{\ignorespaces 12-column array spacing.}}{12}{}\protected@file@percent }
+\newlabel{tab:col_spacing}{{3.3}{12}{}{table.3.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.3}Hardware Implementation of Linear Layers}{12}{}\protected@file@percent }
+\citation{cite:LightMamba2025}
+\citation{cite:FastMamba2025}
+\citation{cite:Sutikno2014Sqrt}
+\@writefile{toc}{\contentsline {section}{\numberline {3.3}Non-linear Layers}{13}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.1}Normalization}{13}{}\protected@file@percent }
+\newlabel{subsec:normalization}{{3.3.1}{13}{}{subsection.3.3.1}{}}
+\newlabel{eq:rms_value_hw}{{3.6}{13}{}{equation.3.6}{}}
+\newlabel{eq:rms_norm_hw}{{3.7}{13}{}{equation.3.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.2}{\ignorespaces Trial-quotient square-root computation for the RMS value.}}{14}{}\protected@file@percent }
+\newlabel{fig:trial_quotient_sqrt}{{3.2}{14}{}{figure.3.2}{}}
+\newlabel{eq:rms_reciprocal_mult}{{3.8}{14}{}{equation.3.8}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.3}{\ignorespaces Reciprocal-based division approximation for RMSNorm.}}{15}{}\protected@file@percent }
+\newlabel{fig:rms_reciprocal_flow}{{3.3}{15}{}{figure.3.3}{}}
+\citation{cite:Istoan2015ReciprocalSqrt}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.4}{\ignorespaces Comparison between floating-point RMSNorm and the fixed-point hardware approximation.}}{16}{}\protected@file@percent }
+\newlabel{fig:rmsnorm_float_vs_hw}{{3.4}{16}{}{figure.3.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.2}Sigmoid and SiLU}{17}{}\protected@file@percent }
+\newlabel{subsec:sigmoid_silu}{{3.3.2}{17}{}{subsection.3.3.2}{}}
+\newlabel{eq:sigmoid_lut_addr}{{3.9}{17}{}{equation.3.9}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.5}{\ignorespaces Comparison between floating-point sigmoid and the fixed-point LUT approximation.}}{17}{}\protected@file@percent }
+\newlabel{fig:sigmoid_lut_compare}{{3.5}{17}{}{figure.3.5}{}}
+\newlabel{eq:silu_hw}{{3.10}{17}{}{equation.3.10}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.4}Quantization}{18}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4.1}Quantization Workflow}{18}{}\protected@file@percent }
+\newlabel{subsec:quant_workflow}{{3.4.1}{18}{}{subsection.3.4.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.6}{\ignorespaces Quantization workflow from precision sweep to RTL mapping.}}{18}{}\protected@file@percent }
+\newlabel{fig:quantization_workflow}{{3.6}{18}{}{figure.3.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4.2}Error Analysis and Layer-wise Quantization Strategy}{19}{}\protected@file@percent }
+\newlabel{subsec:quant_error_strategy}{{3.4.2}{19}{}{subsection.3.4.2}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3.5}{\ignorespaces Fake-quantization precision sweep.}}{19}{}\protected@file@percent }
+\newlabel{tab:precision_sweep}{{3.5}{19}{}{table.3.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.7}{\ignorespaces Slim-Mamba block flow used for stage-level quantization error analysis.}}{20}{}\protected@file@percent }
+\newlabel{fig:mamba_stage_flow}{{3.7}{20}{}{figure.3.7}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3.6}{\ignorespaces Stage-level quantization error before and after dynamic scaling.}}{20}{}\protected@file@percent }
+\newlabel{tab:stage_quant_error}{{3.6}{20}{}{table.3.6}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3.7}{\ignorespaces End-to-end quantization evaluation.}}{21}{}\protected@file@percent }
+\newlabel{tab:quant_final_eval}{{3.7}{21}{}{table.3.7}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3.8}{\ignorespaces Final layer-wise quantization strategy.}}{21}{}\protected@file@percent }
+\newlabel{tab:quant_strategy}{{3.8}{21}{}{table.3.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4.3}Quantization Hardware Module Design}{21}{}\protected@file@percent }
+\newlabel{subsec:quant_hw_module}{{3.4.3}{21}{}{subsection.3.4.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.8}{\ignorespaces Configurable fixed-point quantization engine for one vector lane.}}{22}{}\protected@file@percent }
+\newlabel{fig:fixed_point_vector_lane}{{3.8}{22}{}{figure.3.8}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.9}{\ignorespaces Ping-pong buffer alignment for runtime dynamic scales in the selective-scan path.}}{22}{}\protected@file@percent }
+\newlabel{fig:ping_pong_scale_alignment}{{3.9}{22}{}{figure.3.9}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {4}Results and Discussion}{23}{}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\@writefile{toc}{\contentsline {section}{\numberline {4.1}Accuracy}{23}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4.2}Performance}{23}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4.3}FPGA On-board Validation}{24}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4.4}Discussion}{24}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {5}Conclusion}{25}{}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\@writefile{toc}{\contentsline {section}{\numberline {5.1}Conclusion}{25}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5.2}Future Work}{25}{}\protected@file@percent }
+\citation{cite:NotShort}
+\citation{cite:TeX.SX}
+\citation{cite:CTAN}
+\citation{cite:TeXimpatient}
+\citation{cite:ImportedGraphics}
+\citation{cite:TikZ}
+\@writefile{toc}{\contentsline {chapter}{\numberline {6}Comments on LaTeX references}{26}{}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\bibcite{cite:Bourdoux2020}{1}
+\bibcite{cite:Trevlakis2023}{2}
+\bibcite{cite:Mogyorosi2022}{3}
+\bibcite{cite:Tian2024}{4}
+\bibcite{cite:TianICC2023}{5}
+\bibcite{cite:Yaro2023}{6}
+\bibcite{cite:Mamba2023}{7}
+\bibcite{cite:CMamba2024}{8}
+\bibcite{cite:LightMamba2025}{9}
+\bibcite{cite:FastMamba2025}{10}
+\bibcite{cite:HCSA2025}{11}
+\@writefile{toc}{\contentsline {chapter}{References}{27}{}\protected@file@percent }
+\bibcite{cite:Sutikno2014Sqrt}{12}
+\bibcite{cite:Istoan2015ReciprocalSqrt}{13}
+\bibcite{cite:NotShort}{14}
+\bibcite{cite:TeX.SX}{15}
+\bibcite{cite:CTAN}{16}
+\bibcite{cite:TeXimpatient}{17}
+\bibcite{cite:ImportedGraphics}{18}
+\bibcite{cite:TikZ}{19}
+\@writefile{toc}{\contentsline {chapter}{\numberline {A}Some extra material}{29}{}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\@writefile{lof}{\contentsline {figure}{\numberline {A.1}{\ignorespaces A picture or table in the appendix is numbered accordingly.}}{29}{}\protected@file@percent }
+\newlabel{fig:AppFig}{{A.1}{29}{}{figure.1.1}{}}
+\gdef\svg@ink@ver@settings{{\m@ne }{inkscape}{1}}
+\gdef \@abspage@last{37}

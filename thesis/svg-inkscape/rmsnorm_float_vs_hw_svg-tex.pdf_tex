@@ -1,0 +1,72 @@
+%% Creator: Inkscape 1.4.3 (0d15f75, 2025-12-25), www.inkscape.org
+%% PDF/EPS/PS + LaTeX output extension by Johan Engelen, 2010
+%% Accompanies image file 'rmsnorm_float_vs_hw_svg-tex.pdf' (pdf, eps, ps)
+%%
+%% To include the image in your LaTeX document, write
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics{<filename>.pdf}
+%% To scale the image, write
+%%   \def\svgwidth{<desired width>}
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics[width=<desired width>]{<filename>.pdf}
+%%
+%% Images with a different path to the parent latex file can
+%% be accessed with the `import' package (which may need to be
+%% installed) using
+%%   \usepackage{import}
+%% in the preamble, and then including the image with
+%%   \import{<path to file>}{<filename>.pdf_tex}
+%% Alternatively, one can specify
+%%   \graphicspath{{<path to file>/}}
+%% 
+%% For more information, please see info/svg-inkscape on CTAN:
+%%   http://tug.ctan.org/tex-archive/info/svg-inkscape
+%%
+\begingroup%
+  \makeatletter%
+  \providecommand\color[2][]{%
+    \errmessage{(Inkscape) Color is used for the text in Inkscape, but the package 'color.sty' is not loaded}%
+    \renewcommand\color[2][]{}%
+  }%
+  \providecommand\transparent[1]{%
+    \errmessage{(Inkscape) Transparency is used (non-zero) for the text in Inkscape, but the package 'transparent.sty' is not loaded}%
+    \renewcommand\transparent[1]{}%
+  }%
+  \providecommand\rotatebox[2]{#2}%
+  \newcommand*\fsize{\dimexpr\f@size pt\relax}%
+  \newcommand*\lineheight[1]{\fontsize{\fsize}{#1\fsize}\selectfont}%
+  \ifx\svgwidth\undefined%
+    \setlength{\unitlength}{825bp}%
+    \ifx\svgscale\undefined%
+      \relax%
+    \else%
+      \setlength{\unitlength}{\unitlength * \real{\svgscale}}%
+    \fi%
+  \else%
+    \setlength{\unitlength}{\svgwidth}%
+  \fi%
+  \global\let\svgwidth\undefined%
+  \global\let\svgscale\undefined%
+  \makeatother%
+  \begin{picture}(1,0.56363636)%
+    \lineheight{1}%
+    \setlength\tabcolsep{0pt}%
+    \put(0,0){\includegraphics[width=\unitlength,page=1]{rmsnorm_float_vs_hw_svg-tex.pdf}}%
+    \put(0.06363636,0.54363636){\color[rgb]{0.13333333,0.13333333,0.13333333}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\textbf{RMSNorm Float Reference vs Hardware Fixed-point Approximation}\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=2]{rmsnorm_float_vs_hw_svg-tex.pdf}}%
+    \put(0.01090909,0.51363636){\color[rgb]{0.13333333,0.13333333,0.13333333}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Output\end{tabular}}}}%
+    \put(0.06363636,0.25454545){\color[rgb]{0.13333333,0.13333333,0.13333333}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}min=-3.8633, max=3.1602\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=3]{rmsnorm_float_vs_hw_svg-tex.pdf}}%
+    \put(0.71818182,0.54090909){\color[rgb]{0.13333333,0.13333333,0.13333333}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Float reference\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=4]{rmsnorm_float_vs_hw_svg-tex.pdf}}%
+    \put(0.89090909,0.54090909){\color[rgb]{0.13333333,0.13333333,0.13333333}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}HW approximation\end{tabular}}}}%
+    \put(0.06363636,0.21363636){\color[rgb]{0.13333333,0.13333333,0.13333333}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}\textbf{Absolute Error}\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=5]{rmsnorm_float_vs_hw_svg-tex.pdf}}%
+    \put(0.01090909,0.17272727){\color[rgb]{0.13333333,0.13333333,0.13333333}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Abs err\end{tabular}}}}%
+    \put(0.06363636,0.01818182){\color[rgb]{0.13333333,0.13333333,0.13333333}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Hidden element index\end{tabular}}}}%
+    \put(0.06363636,0.19818182){\color[rgb]{0.13333333,0.13333333,0.13333333}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}mean=0.004211, max=0.015625\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=6]{rmsnorm_float_vs_hw_svg-tex.pdf}}%
+  \end{picture}%
+\endgroup%
