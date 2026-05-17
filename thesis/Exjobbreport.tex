@@ -45,10 +45,63 @@
 \frontmatter    %%% Page numbering for front pages (small roman)
 %%%%% Abstract
 \chapter*{Abstract}
-\lipsum[1-2]
+In recent years, as 6G wireless systems continue to develop, high-accuracy indoor
+localization has become increasingly important for robotics, smart environments, and
+location-aware services. Since indoor wireless measurements can vary over time due to
+multipath propagation and environmental changes, short sequences of observations may
+provide useful information for position estimation. Mamba, a sequence model based on
+selective state-space updates, is therefore a promising candidate for this task because 
+it can jointly process short sequences of wireless observations and
+capture temporal variations in the channel.
+
+This thesis investigates a hardware-oriented Slim-Mamba approach for Massive-MIMO indoor
+localization using the LuViRA dataset. Software evaluation is first used to select a
+simplified Mamba-style model that preserves the recurrent update and gating behavior
+needed for localization while reducing the complexity of larger channel-fusion variants.
+A Zynq MPSoC-based FPGA accelerator is then designed, with PS-side control and
+PL-side input loading, four-block Slim-Mamba computation, and AXI-stream dataflow. 
+We designed a shared \(4\times4\times4\) reconfigurable MAC
+fabric for linear projection layers, together with a fine-grained
+FIFO-based SSM(State-Space Model) pipeline to reduce waiting time between projection, nonlinear, and
+state-update stages. A fixed-point quantization flow is built from Python, to bit-true
+C++ modeling, and finally to RTL. 
+
+Experimental results show that the fixed-point
+implementation introduces only a small accuracy loss compared with the floating-point
+model, while the FPGA accelerator meets the real-time throughput target with a clear
+margin. An on-board validation test further verifies that control, memory movement,
+streaming interfaces, and PL computation operate together as a complete prototype
+system.
 %%%%% Abstract
 \chapter*{Popular Science Summary}
-\lipsum[3-7]
+Finding a person or device outdoors is often easy because satellite navigation can be
+used. Indoors, however, satellite signals are weak or blocked, and positioning becomes
+much harder. Still, many future applications need reliable indoor positioning: a robot
+may need to move safely in a building, a hospital may need to locate equipment, and a
+smart environment may need to understand where people or devices are.
+
+This thesis studies how wireless signals can be used for this purpose. When a radio
+signal travels through a room, it bounces off walls, furniture, and people before it
+reaches the receiver. These reflections create a kind of wireless ``fingerprint'' of the
+environment. If we can learn how these fingerprints relate to positions, then a wireless
+system can estimate where a device is located.
+
+Machine learning is useful for this task because it can learn patterns that are too
+complicated to describe by hand. In this work, we study a modern type of sequence model
+called Mamba. A simple way to think about it is that the model does not look at one
+measurement alone. Instead, it can look at a short sequence of recent measurements and
+remember useful changes over time. This is promising for indoor positioning.
+
+However, a model that works well on a computer is not automatically suitable for small
+and efficient hardware. Therefore, this work is to build a hardware accelerator for 
+this slim model on an FPGA, which is a programmable chip. The accelerator can be seen as a small custom
+factory: data enters from memory, passes through several processing stages, and the final
+position-related output is written back. To make the factory efficient, the same
+calculation units are reused for several parts of the model, and the most time-critical
+steps are arranged like an assembly line so that one step can start before the previous
+one has completely finished.
+
+
 %% ToC etc
 \tableofcontents
 \listoffigures
@@ -1080,39 +1133,345 @@ update path without breaking the fine-grained pipeline.
 
 \chapter{Results and Discussion}
 
+\section{Software Model Evaluation}
+\label{sec:software_model_eval}
+
+This section evaluates the software models before the FPGA-specific results are
+discussed. As reported in Table~\ref{tab:model_variants}, channel mamba
+achieves the lowest test error among the evaluated Mamba-family baselines, but it also
+requires a much larger model and longer training time. Vanilla Mamba v1 has a compact
+model size, but its test error is clearly worse on LuViRA. In contrast, Slim-Mamba keeps
+the test mean error close to channel mamba and the FCNN baseline, while reducing model
+size, training time, and hardware cost proxy. This result suggests that the main benefit
+for this localization task comes from a lightweight recurrent update rather than from a
+large multi-branch fusion backbone.
+
+
+Figure~\ref{fig:cdf_zoom} further compares the localization-error distribution. The
+Slim-Mamba curve remains close to the stronger software baselines in the low-error
+region, indicating that the simplified model preserves most of the useful localization
+behavior. The spatial error example in Fig.~\ref{fig:grid102_error} shows the error
+distribution on grid 102 and is used as a qualitative check that the model error remains
+spatially bounded rather than being dominated by isolated large failures.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.60\linewidth]{cdf_zoom.png}
+  \caption{CDF of localization error for the evaluated software models.}
+  \label{fig:cdf_zoom}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includesvg[inkscapelatex=false,width=0.75\linewidth]{grid102_error_heatmap}
+  \caption{Error heatmap for grid 102.}
+  \label{fig:grid102_error}
+\end{figure}
+
+After selecting Slim-Mamba as the deployment-oriented model, the temporal window length
+\(K\) and patch setting are ablated. Table~\ref{tab:k_ablation} shows that \(K=1\) and
+\(K=2\) both achieve the best test mean error of 0.135~m. Longer windows can reduce the
+evaluation error in some cases, but the test error increases as \(K\) grows. This
+suggests that long temporal contexts add redundant information for the densely sampled
+LuViRA setting and may hurt generalization. Therefore, short-window Slim-Mamba is used
+as the software model target for the subsequent hardware implementation.
+
+\begin{table}[H]
+\centering
+\caption{Ablation on window length \(K\) with patch length and stride variants.}
+\label{tab:k_ablation}
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.12}
+\begin{tabular}{c c c}
+\hline
+\textbf{\(K\) (patch length, stride)} & \textbf{Eval mean err. (m)} &
+\textbf{Test mean err. (m)} \\
+\hline
+1  (1,1) & 0.10068 & \textbf{0.135} \\
+2  (2,2) & 0.09557 & \textbf{0.135} \\
+4  (2,2) & 0.09814 & 0.139 \\
+8  (2,2) & 0.09405 & 0.141 \\
+4  (4,4) & 0.09983 & 0.137 \\
+6  (4,4) & 0.09839 & 0.138 \\
+8  (4,4) & 0.09749 & 0.144 \\
+8  (8,4) & 0.09744 & 0.152 \\
+12 (8,4) & 0.09286 & 0.156 \\
+16 (8,4) & 0.09225 & 0.161 \\
+24 (8,4) & 0.09432 & 0.159 \\
+32 (8,4) & 0.09328 & 0.166 \\
+\hline
+\end{tabular}
+\end{table}
+
 \section{Accuracy}
-\lipsum[1-2]
+
+This section evaluates the localization accuracy across three stages: the
+floating-point Slim-Mamba model, the fake-quantized model, and the hardware fixed-point
+model. The floating-point model is used as the software reference. The fake-quantized
+model inserts quantize and dequantize operations during software inference and is used
+to evaluate the effect of the selected bit-widths. The hardware fixed-point model
+further follows the integer datapath used in RTL, including fixed-point multiplication,
+shifting, rounding, saturation, lookup-table nonlinear functions, and dynamic scaling in
+the selective-scan state path. This layered comparison separates the model accuracy,
+software quantization error, and hardware fixed-point mapping error.
+
+\begin{table}[H]
+\centering
+\caption{Accuracy comparison across floating-point, fake-quantized, and hardware fixed-point models.}
+\label{tab:accuracy_eval}
+\small
+\setlength{\tabcolsep}{5pt}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{l c c c}
+\hline
+\textbf{Model stage} & \textbf{Numerical format} & \textbf{Output MAE vs. float} &
+\textbf{Mean localization error (m)} \\
+\hline
+Floating-point Slim-Mamba & Float32 & -- & 0.13500 \\
+Fake-quantized Slim-Mamba & Software fake quant & -- & 0.13695 \\
+Hardware fixed-point model & Fixed-point with dynamic scale & 0.02081 & 0.14103 \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+Table~\ref{tab:accuracy_eval} shows that fake quantization introduces almost no
+additional localization error compared with the floating-point Slim-Mamba model. This
+indicates that the unified 16-bit datapath and the selected Q formats are sufficient for
+the main computation paths. The hardware fixed-point model increases the mean
+localization error from 0.13500~m to 0.14103~m. It also gives an output MAE of 0.02081
+with respect to the floating-point output. This confirms that fixed-point arithmetic
+does introduce numerical differences, but these differences are not strongly amplified
+in the final localization result.
+
+The main accuracy loss therefore comes from the hardware fixed-point mapping stage
+rather than from the software fake-quantization stage. This is expected because the
+hardware fixed-point model includes concrete RTL-oriented numerical behavior, such as
+round-to-nearest-even, saturation clamp, LUT-based nonlinear approximation, fixed-point
+scale multiplication, and dynamic scaling for the selective-scan state. Nevertheless,
+the final mean localization error remains below 0.15~m and is only about 0.006~m higher
+than the floating-point result. This validates the quantization strategy described in
+Section~\ref{subsec:quant_error_strategy}, including the unified 16-bit datapath,
+Q8.8/Q0.16/Q1.15 formats, saturation handling, and selective-scan dynamic scaling.
 
 \section{Performance}
-\lipsum[3-4]
+
+This section evaluates the FPGA accelerator in terms of throughput, resource
+utilization, power, and block-level latency. The target real-time requirement is
+100~frames/s. The implemented design closes timing at 100~MHz and achieves an estimated
+throughput of 471~frames/s, which is about \(4.7\times\) higher than the requirement.
+This corresponds to an average processing time of about 2.12~ms per frame, compared with
+the 10~ms frame interval allowed by the target requirement.
+
+\begin{table}[H]
+\caption{Throughput summary at 100~MHz.}
+\label{tab:throughput_summary}
+\centering
+\small
+\begin{tabular}{l c}
+\hline
+\textbf{Metric} & \textbf{Value} \\
+\hline
+Target clock frequency & 100~MHz \\
+Required throughput & 100~frames/s \\
+Achieved throughput & 471~frames/s \\
+Average time per frame & 2.12~ms \\
+Requirement time per frame & 10~ms \\
+\hline
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:resource_utilization} reports the post-synthesis resource utilization
+under the 100~MHz constraint. The design uses 22.21\% of LUTs, 14.11\% of flip-flops,
+30.59\% of BRAM tiles, and 19.68\% of DSP blocks. The BRAM usage mainly comes from
+on-chip weight memories, intermediate buffers, state SRAM, and lookup tables. The DSP
+usage is dominated by the shared MAC fabric, RMSNorm, element-wise multiplication, and
+scale-related fixed-point multiplications. Overall, the utilization remains well below
+the device capacity, leaving room for further optimization or model scaling.
+
+\begin{table}[H]
+\caption{Post-synthesis resource utilization at 100~MHz.}
+\label{tab:resource_utilization}
+\centering
+\small
+\begin{tabular}{l c c c}
+\hline
+\textbf{Resource} & \textbf{Used} & \textbf{Available} & \textbf{Utilization} \\
+\hline
+LUT & 60868 & 274080 & 22.21\% \\
+FF & 77345 & 548160 & 14.11\% \\
+BRAM tiles & 279 & 912 & 30.59\% \\
+DSP & 496 & 2520 & 19.68\% \\
+Bonded IOB & 0 & 328 & 0\% \\
+\hline
+\end{tabular}
+\end{table}
+
+The on-chip power estimate is summarized in Table~\ref{tab:power_summary}. The total
+on-chip power is 4.292~W, including 3.562~W dynamic power and 0.729~W static power. The
+processing system contributes 2.622~W of the dynamic power, which is about 74\% of the
+dynamic component. This indicates that the total system power is not only determined by
+the programmable logic compute array, but also by the PS-side control, DDR access, and
+DMA-based data movement.
+
+\begin{table}[H]
+\caption{On-chip power estimate.}
+\label{tab:power_summary}
+\centering
+\small
+\begin{tabular}{l c c}
+\hline
+\textbf{Power item} & \textbf{Power} & \textbf{Share} \\
+\hline
+Total on-chip power & 4.292~W & 100\% \\
+Dynamic power & 3.562~W & 83\% \\
+Static power & 0.729~W & 17\% \\
+PS dynamic power & 2.622~W & 74\% of dynamic power \\
+\hline
+\end{tabular}
+\end{table}
+
+Before optimizing the hardware schedule, a function-level profiling study is used to
+identify the dominant computation. As shown in Table~\ref{tab:ssm_profile}, the SSM
+path is the most important part of the workload. The SSM \(dt\) projection accounts for
+36.18\% of the profiled time, and the selective-scan state update accounts for 41.34\%.
+Together, they contribute more than 77\% of the listed execution time. This motivates
+the fine-grained pipeline design for the SSM path, since improving this part has the
+largest impact on the end-to-end block latency.
+
+\begin{table}[H]
+\caption{Function-level profiling summary.}
+\label{tab:ssm_profile}
+\centering
+\scriptsize
+\begin{tabular}{l|c|c}
+\hline
+\textbf{Function} & \textbf{Time} & \textbf{Share (\%)} \\
+\hline
+Linear projection (in/out)         & 30  & 7.75  \\
+Normalization (RMSNorm)            & 57  & 14.73 \\
+SSM \(dt\) projection (MVM + sigmoid) & 140 & 36.18 \\
+SSM selective scan (state update)  & 160 & 41.34 \\
+\hline
+Total (listed)                     & 387 & 100.00 \\
+\hline
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:block_latency} gives the per-block latency breakdown. The total latency
+of one Slim-Mamba block is 5301 cycles, or 53.01~\(\mu\)s at 100~MHz. Input projection
+takes 2305 cycles, while the complete SSM part takes 1828 cycles. These two parts are
+useful for comparison because their main projection workloads have the same theoretical
+number of MAC operations. In the RTL configuration, the input projection maps a
+128-dimensional vector to a 512-dimensional output, corresponding to
+\(128 \times 512 = 65{,}536\) MAC operations. The SSM \(dt\) projection maps a
+256-dimensional vector to a 256-dimensional vector, also corresponding to
+\(256 \times 256 = 65{,}536\) MAC operations. However, the SSM path also includes
+sigmoid generation, selective-scan state update, element-wise operations, and scale
+alignment. Even with these extra operations, the SSM latency remains lower than the
+input-projection latency. This is mainly due to the fine-grained FIFO-based pipeline:
+the \(dt\) projection output is forwarded to the selective-scan and gating-related
+stages at tile granularity, instead of waiting for the full vector to be generated.
+
+\begin{table}[H]
+\caption{Latency breakdown per Slim-Mamba block.}
+\label{tab:block_latency}
+\centering
+\small
+\begin{tabular}{l c c}
+\hline
+\textbf{Category} & \textbf{Clock cycles} & \textbf{Share} \\
+\hline
+RMSNorm & 134 & 2.5\% \\
+Input projection & 2305 & 47.25\% \\
+Ping-pong buffer & 199 & 3.75\% \\
+SSM & 1828 & 34.48\% \\
+Output projection & 833 & 15.71\% \\
+\hline
+Total & 5301 & 100\% \\
+\hline
+\end{tabular}
+\end{table}
+
+Overall, the accelerator satisfies the real-time throughput target with a large margin
+while keeping resource utilization moderate. The profiling and latency results also
+confirm the effectiveness of the SSM fine-grained pipeline: the most critical software
+workload is mapped to a streaming hardware schedule that reduces waiting time between
+the projection, nonlinear, and state-update stages.
 
 \section{FPGA On-board Validation}
-\lipsum[9-10]
 
-\section{Discussion}
-\lipsum[6]
+The final step is to validate that the FPGA platform can execute the complete hardware
+path on board. The purpose of this test is not to run the full LuViRA test set, but to
+confirm that the processing system, DDR buffers, AXI DMA channels, AXI-Lite control
+registers, stream loader, four-block compute chain, and output write-back path are all
+connected correctly. The validation flow is shown in Fig.~\ref{fig:board_validate}.
 
+\begin{figure}[H]
+  \centering
+  \includesvg[inkscapelatex=false,width=0.75\linewidth]{board_validate}
+  \caption{FPGA on-board validation flow.}
+  \label{fig:board_validate}
+\end{figure}
+
+In the current bring-up experiment, the SD card boot and model-file loading path is not
+used as part of the test. Instead, the host-side program prepares a large input matrix
+file containing a subset of validation samples. This matrix is loaded by the processing
+system into the DDR input buffer. The PS then programs the AXI DMA and the AXI-Lite
+control registers, starts the input preload and computation sequence, and waits for the
+completion status from the PL. During execution, the MM2S DMA channel streams the input
+matrix from DDR to the PL, and the board shell feeds the data into the four-block
+Slim-Mamba chain. After computation, the S2MM DMA channel writes the output stream back
+to the DDR output buffer, where it is read by the host-side program for checking.
+
+The on-board test uses only a partial dataset, so it should be interpreted as a platform
+validation rather than a full accuracy evaluation. Nevertheless, the test passes with
+the expected completion status and output transfer behavior. This confirms that the
+main FPGA platform components are functional as an integrated system: PS-side control,
+DDR buffering, AXI-Lite register access, AXI DMA streaming, PL-side input loading,
+four-block computation, and output write-back are all exercised in one run. Therefore,
+the current result demonstrates that the accelerator has been successfully brought up on
+the FPGA platform.
 \chapter{Conclusion}
 
 \section{Conclusion}
-\lipsum[1]
+
+This thesis investigated the use of Mamba-family models for Massive MIMO indoor
+localization and developed a hardware-oriented Slim-Mamba accelerator on FPGA. The work
+combined software evaluation, fixed-point quantization, and RTL implementation. Based
+on LuViRA experiments, Slim-Mamba was selected as a deployment-oriented model because it
+keeps the recurrent update and gating behavior needed for localization while avoiding
+unnecessary multi-branch fusion and full selective-scan complexity.
+
+The accelerator was implemented on a Zynq MPSoC platform with PS-side DDR/DMA control
+and a PL-side four-block Slim-Mamba compute chain. The design uses a shared
+\(4\times4\times4\) MAC fabric, hardware nonlinear units, configurable quantization
+modules, and a dynamic-scale state path. The hardware fixed-point model reaches a mean
+localization error of 0.14103~m, close to the floating-point result of 0.13500~m. The
+RTL design closes timing at 100~MHz and achieves 471~frames/s, exceeding the
+100~frames/s requirement, while reconfigurable MAC architecture keeps a low utilization
+(22.21\% LUTs, 14.11\% FFs, 30.59\% BRAM tiles, and
+19.68\% DSPs). Board-level validation confirms that PS control, DDR buffering, AXI DMA
+streaming, PL computation, and output write-back are connected and functional.
 
 \section{Future Work}
-\lipsum[2]
 
-\chapter{Comments on LaTeX references}
-If you want to know more about \LaTeX\ there is a (free) manual at
-\cite{cite:NotShort}. For more specific questions, it is recommended to have a look at
-the forum StackExchange \cite{cite:TeX.SX}, where the most common questions already
-have answers. All official packets can be found, and downloaded, from CTAN
-\cite{cite:CTAN}. Finally, for the hardcore programmer who thinks \LaTeX\ is a bit
-inflexible, I can recommend the \TeX\ introduction in \cite{cite:TeXimpatient}.
+Although the current design demonstrates the feasibility of a Slim-Mamba FPGA
+accelerator, several directions remain for future work.
 
-For questions about how you should do to get your imported graphics as you want, have a
-look at \cite{cite:ImportedGraphics}. If you instead want to do the images inline from
-the \TeX\ code you are recommended to use TikZ \cite{cite:TikZ}. However, it is known
-to have a relatively high learning threshold.
+\begin{itemize}
+  \item \textbf{Full end-to-end board evaluation:} The current on-board validation uses a
+  partial input matrix and does not yet use SD-card model loading. Future work should run
+  the full LuViRA set on board and integrate model loading, DDR buffer preparation, and
+  output checking.
 
+  \item \textbf{Finer-grained whole-architecture pipeline:} In the current design, the SSM
+  path is fine-grained, while RMSNorm, input projection, output projection, residual
+  preload, and block-level scheduling still use coarser boundaries. These stages can be
+  further overlapped to reduce end-to-end latency.
+
+\end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% References
@@ -1130,12 +1489,6 @@ to have a relatively high learning threshold.
 \bibitem{cite:HCSA2025} X. Jin, H. Zheng, M. Nie, et al., ``HCSAs: Hybrid computing systolic arrays for accelerating Mamba models with unified state space buffers and energy-efficient dataflow,'' in \textit{Great Lakes Symposium on VLSI 2025}, New York: ACM, 2025, pp. 457--462, doi: 10.1145/3716368.3735187.
 \bibitem{cite:Sutikno2014Sqrt} T. Sutikno, A. Z. Jidin, A. Jidin, and N. R. N. Idris, ``Strategies for FPGA implementation of non-restoring square root algorithm,'' \textit{International Journal of Electrical \& Computer Engineering}, 2014.
 \bibitem{cite:Istoan2015ReciprocalSqrt} M. Istoan and B. Pasca, ``Fixed-point implementations of the reciprocal, square root and reciprocal square root functions,'' 2015. Available: \url{https://hal.science/hal-01229538}.
-\bibitem{cite:NotShort} T. Oetiker, H. Partl, I. Hyna, and E. Schlegl, \textit{A (Not So) Short Introduction to \LaTeX2e}.
-\bibitem{cite:TeX.SX} \TeX\ StackExchange.
-\bibitem{cite:CTAN} The Comprehensive \TeX\ Archive Network.
-\bibitem{cite:TeXimpatient} P. Abrahams, K. Hargreaves, and K. Berry, \textit{TeX for the Impatient}.
-\bibitem{cite:ImportedGraphics} K. Reckdahl, \textit{Using Imported Graphics in LaTeX and pdfLaTeX}.
-\bibitem{cite:TikZ} T. Tantau, \textit{The TikZ and PGF Packages}.
 \end{thebibliography}
 
 

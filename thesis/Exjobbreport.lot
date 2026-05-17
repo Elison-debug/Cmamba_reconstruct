@@ -11,6 +11,12 @@
 \contentsline {table}{\numberline {3.7}{\ignorespaces End-to-end quantization evaluation.}}{21}{}%
 \contentsline {table}{\numberline {3.8}{\ignorespaces Final layer-wise quantization strategy.}}{21}{}%
 \addvspace {10\p@ }
-\addvspace {10\p@ }
+\contentsline {table}{\numberline {4.1}{\ignorespaces Ablation on window length \(K\) with patch length and stride variants.}}{25}{}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces Accuracy comparison across floating-point, fake-quantized, and hardware fixed-point models.}}{25}{}%
+\contentsline {table}{\numberline {4.3}{\ignorespaces Throughput summary at 100~MHz.}}{26}{}%
+\contentsline {table}{\numberline {4.4}{\ignorespaces Post-synthesis resource utilization at 100~MHz.}}{27}{}%
+\contentsline {table}{\numberline {4.5}{\ignorespaces On-chip power estimate.}}{27}{}%
+\contentsline {table}{\numberline {4.6}{\ignorespaces Function-level profiling summary.}}{27}{}%
+\contentsline {table}{\numberline {4.7}{\ignorespaces Latency breakdown per Slim-Mamba block.}}{28}{}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
