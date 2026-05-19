@@ -113,42 +113,145 @@ one has completely finished.
 
 \chapter{Introduction}
 \section{Background}
-Indoor localization is becoming an important capability for future 6G wireless systems,
-since 6G is expected to support not only ubiquitous communication but also
-high-accuracy localization and high-resolution sensing
-services~\cite{cite:Bourdoux2020}. Localization is also regarded as a key enabler for
-future 6G wireless systems~\cite{cite:Trevlakis2023}. With the development of
-location-aware applications such as robotic navigation, emergency healthcare, and smart
-transportation, wireless localization is expected to support a wider range of
-location-aware services~\cite{cite:Tian2024}. At the same time, real-time indoor
-positioning has long remained a challenging problem~\cite{cite:Mogyorosi2022}. In
-indoor wireless localization systems, localization performance is affected by
-environmental factors such as multipath and non-line-of-sight
-propagation~\cite{cite:Yaro2023}.In this context, Massive MIMO is particularly
-promising for high-precision indoor localization because large antenna arrays can
-provide higher angular resolution and support excellent localization accuracy even
-under limited bandwidth \cite{cite:TianICC2023}.
+\subsection{Indoor Localization and Massive MIMO}
+\label{subsec:indoor_localization_massive_mimo}
 
-From an algorithmic perspective, traditional localization methods include proximity,
-triangulation or trilateration, fingerprint matching, and SLAM~\cite{cite:Tian2024}.
-However, conventional signal-processing-based methods often suffer from high
-algorithmic complexity and may require base-station array
-calibration~\cite{cite:Tian2024}. Machine learning provides an attractive alternative,
-since wireless localization can be formulated as a regression task from channel state
-information to user positions~\cite{cite:TianICC2023}. ML models can exploit raw
-transfer functions, received signal strength, power delay profiles, angular spectra,
-and correlation functions as input channel features~\cite{cite:Tian2024}.
-Measurement-based studies using the Lund University Massive MIMO testbed show that
-spatial covariance matrices can capture angular-domain information, while channel
-impulse responses can capture delay-domain information~\cite{cite:TianICC2023}. By
-combining angular-domain and delay-domain information, the proposed ML-based pipeline
-has achieved centimeter-level localization accuracy in an indoor measurement
-scenario~\cite{cite:TianICC2023}. However, as the number of antennas increases, the
-size of neural networks increases significantly, which adds complexity to training,
-deployment, and inference~\cite{cite:Tian2024}. Therefore, efficient neural
-architectures and hardware accelerators are needed for practical Massive-MIMO-based
-indoor localization systems.
+Indoor localization is becoming an important capability for future 6G wireless
+systems, since 6G is expected to support not only ubiquitous communication but
+also high-accuracy localization and high-resolution sensing
+services~\cite{cite:Bourdoux2020}. Localization is also regarded as a key
+enabler for future 6G wireless systems~\cite{cite:Trevlakis2023}. With the
+development of location-aware applications such as robotic navigation,
+emergency healthcare, and smart transportation, wireless localization is
+expected to support a wider range of location-aware
+services~\cite{cite:Tian2024}. At the same time, real-time indoor positioning
+has long remained a challenging problem~\cite{cite:Mogyorosi2022}. In indoor
+wireless localization systems, localization performance is affected by
+environmental factors such as multipath and non-line-of-sight propagation,
+which makes accurate positioning challenging~\cite{cite:Yaro2023}.
 
+In this context, massive multiple-input multiple-output (Massive MIMO) provides
+a promising measurement platform for radio-based indoor localization. By
+equipping the base station with a large antenna array, Massive MIMO provides
+rich spatial channel observations that can be exploited for localization.
+Previous work has used the instantaneous spatial covariance matrix to capture
+angular information and the channel impulse response to capture delay
+information~\cite{cite:TianICC2023}. These angular-domain and delay-domain
+features are useful because they provide complementary descriptions of the
+location-dependent radio channel in complex indoor environments. Therefore,
+Massive MIMO can provide favorable conditions for high-precision indoor
+positioning by enabling location-dependent channel information to be extracted
+from measured radio signals~\cite{cite:TianICC2023}.
+
+Figure~\ref{fig:lumami_setup} illustrates a representative Massive-MIMO-based
+indoor localization setup. A user equipment (UE) or mobile platform moves inside
+the measurement area, while a base-station antenna array records the radio
+channel from different positions. As the UE moves, the propagation paths and the
+measured channel response change with its location, which makes the radio
+measurement useful as a position-dependent fingerprint.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.90\linewidth]{lumami.png}
+  \caption{Massive MIMO indoor localization measurement setup with moving user equipment, adapted from~\cite{cite:Tian2024}.}
+  \label{fig:lumami_setup}
+\end{figure}
+
+However, Massive MIMO provides high-dimensional spatial channel
+measurements, while the final positioning accuracy still depends on how the
+channel information is represented and how the localization model extracts
+useful features from it.
+
+\subsection{Radio-Based Positioning Methods}
+\label{subsec:radio_positioning_methods}
+
+Radio localization estimates the position of a user equipment or mobile platform
+from measured wireless channel information. In the LuViRA dataset, the radio
+modality is described as the channel response between a 5G massive
+multiple-input multiple-output testbed and user equipment~\cite{cite:LuViRA2024}.
+The localization system uses radio measurements whose values depend on the
+relative position between the transmitter, the receiver array, and the
+surrounding indoor environment. Since the radio channel changes with the
+position of the transmitter, these measured channel responses can be used as
+location dependent fingerprints for positioning.
+
+For localization with Massive MIMO, previous work roughly classifies the
+methods into three groups: methods based on angle estimation, methods based on
+position estimation, and methods based on fingerprinting~\cite{cite:Tian2024}.
+Traditional angle estimation and position estimation methods usually rely on
+explicit geometric or signal processing assumptions, while fingerprinting and
+learning based methods use measured channel features as position related
+signatures. In the LuViRA setting, the radio measurements are collected in a
+realistic indoor environment, where a transmit antenna is mounted on a moving
+service robot and the channel response is recorded together with accurate ground
+truth pose labels~\cite{cite:LuViRA2024}. This provides paired data between
+radio channel measurements and position labels, which can be used to train
+supervised fingerprinting or regression models for localization.
+
+Machine learning naturally extends this fingerprinting idea by learning the
+mapping from channel observations to user positions from data. In this
+formulation, ML models take radio channel fingerprints as inputs and estimate
+the localization of the user equipment. This is
+attractive for Massive MIMO indoor localization because the measured channel
+contains rich spatial and delay information that may be difficult to fully
+represent using explicit geometric or model based assumptions. Previous work
+has also shown that multiple processing chains can be trained with different
+channel fingerprints and then combined to improve localization
+performance~\cite{cite:Tian2024}.
+
+\subsection{LuViRA Radio Dataset Used in This Thesis}
+\label{subsec:luviva_radio_dataset}
+
+The experimental data used in this thesis are taken from the radio modality of
+the Lund University Vision, Radio, and Audio (LuViRA) dataset. LuViRA is a
+synchronized multi-sensor dataset for indoor localization, including color
+images, depth maps, inertial measurement unit readings, radio channel responses,
+audio recordings, and accurate six-degree-of-freedom ground truth pose
+measurements~\cite{cite:LuViRA2024}. Although the full dataset contains several
+sensing modalities, this thesis focuses only on the grid data from the radio
+measurements, since the target application is Massive MIMO indoor localization.
+
+In the radio part of LuViRA, the measured data are described as the channel
+response between a 5G massive multiple-input multiple-output testbed and user
+equipment~\cite{cite:LuViRA2024}. In the measurement setup, a transmit antenna
+is mounted on a slowly moving service robot together with the other
+sensors~\cite{cite:LuViRA2024}. Therefore, the object localized in this thesis
+is the moving platform, represented by the radio transmitter mounted on the
+robot. The ground truth position is provided by the motion capture system, which
+is used to verify the localization results obtained from the sensor
+measurements~\cite{cite:LuViRA2024}.
+
+The LuViRA dataset contains 89 recorded trajectories, and each trajectory
+includes approximately 20 to 50 seconds of synchronized sensor data and ground
+truth labels~\cite{cite:LuViRA2024}. In this thesis, however, the full
+multi-modal dataset is not used. Only the radio grid data are used as model
+inputs, while the corresponding ground truth positions are used as supervision
+during training and as reference labels for evaluating localization error. An
+example of the grid trajectory layout used in the LuViRA radio measurements is
+shown in Fig.~\ref{fig:luviva_grid_trajectory}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.65\linewidth]{trajectory.png}
+  \caption{Example grid trajectory layout in the LuViRA radio dataset, adapted from~\cite{cite:Tian2024}.}
+  \label{fig:luviva_grid_trajectory}
+\end{figure}
+
+The dataset used in this work is divided into three non-overlapping subsets:
+training, evaluation, and test. Following the same data split strategy as the
+FCNN baseline used for comparison~\cite{cite:TianICC2023,cite:Tian2024}, the
+test set and the training/evaluation pool are separated according to the parity
+of the grid index. The even-grid data are used as the test set, while the
+odd-grid data are used as the training and evaluation pool. The evaluation set
+is then formed by randomly selecting two groups from the odd-grid data, and the
+remaining odd-grid data are used for training.
+
+This split keeps the training, evaluation, and test sets separated at the grid
+level while following the same experimental setting as the FCNN baseline. As a
+result, the proposed Mamba based models and the previous FCNN based method can
+be compared under a consistent data partition, making differences in localization
+accuracy more attributable to the model design rather than to different dataset
+splits.
 
 \section{Related Work}
 In recent years, machine learning has been investigated for Massive-MIMO-based indoor
@@ -158,14 +261,14 @@ delay-domain information, achieving centimeter-level accuracy in indoor Massive 
 measurements~\cite{cite:TianICC2023}. Their later work further introduced an ML-based
 localization pipeline with multiple processing chains and ensemble learning to fuse
 different channel fingerprints~\cite{cite:Tian2024}. However, these studies also show
-that neural network size increases significantly with the number of antennas in Massive
-MIMO systems, making training and fine-tuning more challenging~\cite{cite:Tian2024}.
+that network training and fine tuning can become challenging due to the
+increase in network size~\cite{cite:Tian2024}.
 Although subarray-based processing can reduce network size, efficient and
 hardware-friendly model design remains an important issue for practical
 deployment~\cite{cite:Tian2024}.
 
 However, most existing ML-based Massive MIMO indoor localization methods rely on FCNNs,
-CNNs, KNN, or other conventional machine-learning models to process high-dimensional
+CNNs, KNN,~\cite{cite:Tian2024} or other conventional machine-learning models to process high-dimensional
 channel fingerprints~\cite{cite:Tian2024}. These methods can effectively exploit
 channel features, but for densely connected models such as FCNNs, higher-dimensional
 inputs usually lead to larger network sizes, more parameters, and higher training and
@@ -1506,6 +1609,7 @@ accelerator, several directions remain for future work.
 \bibitem{cite:Mogyorosi2022} F. Mogyor\'osi, P. Revisnyei, A. Pa\v{s}i\'c, et al., ``Positioning in 5G and 6G networks---A survey,'' \textit{Sensors}, vol. 22, no. 13, p. 4757, 2022.
 \bibitem{cite:Tian2024} G. Tian, I. Yaman, M. Sandra, et al., ``Deep-learning-based high-precision localization with Massive MIMO,'' \textit{IEEE Transactions on Machine Learning in Communications and Networking}, vol. 2, pp. 19--34, 2024.
 \bibitem{cite:TianICC2023} G. Tian, I. Yaman, M. Sandra, et al., ``High-precision machine-learning based indoor localization with Massive MIMO system,'' in \textit{ICC 2023 --- IEEE International Conference on Communications}, Rome, Italy, 2023, pp. 3690--3695.
+\bibitem{cite:LuViRA2024} I. Yaman, G. Tian, M. Larsson, P. Persson, M. Sandra, A. D\"urr, E. Tegler, N. Challa, H. Garde, F. Tufvesson, K. \AA str\"om, O. Edfors, S. Malkowsky, and L. Liu, ``The LuViRA Dataset: Synchronized vision, radio, and audio sensors for indoor localization,'' in \textit{2024 IEEE International Conference on Robotics and Automation (ICRA)}, 2024, pp. 11920--11926, doi: 10.1109/ICRA57147.2024.10610237.
 \bibitem{cite:Yaro2023} A. S. Yaro, F. Maly, and P. Prazak, ``A survey of the performance-limiting factors of a 2-dimensional RSS fingerprinting-based indoor wireless localization system,'' \textit{Sensors}, vol. 23, no. 5, p. 2545, 2023.
 \bibitem{cite:Mamba2023} A. Gu and T. Dao, ``Mamba: Linear-time sequence modeling with selective state spaces,'' arXiv preprint arXiv:2312.00752, 2023.
 \bibitem{cite:CMamba2024} C. Zeng, Z. Liu, G. Zheng, and L. Kong, ``CMamba: Channel correlation enhanced state space models for multivariate time series forecasting,'' arXiv preprint arXiv:2406.05316, 2024.
