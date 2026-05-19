@@ -123,34 +123,38 @@
 \@writefile{lot}{\addvspace {10\p@ }}
 \@writefile{toc}{\contentsline {section}{\numberline {4.1}Software Model Evaluation}{23}{}\protected@file@percent }
 \newlabel{sec:software_model_eval}{{4.1}{23}{}{section.4.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4.1}{\ignorespaces CDF of localization error for the evaluated software models.}}{24}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.1}{\ignorespaces Cumulative distribution of localization error for Slim-Mamba and two channel mamba reference runs under matched and augmented input settings.}}{24}{}\protected@file@percent }
 \newlabel{fig:cdf_zoom}{{4.1}{24}{}{figure.4.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4.2}{\ignorespaces Error heatmap for grid 102.}}{24}{}\protected@file@percent }
-\newlabel{fig:grid102_error}{{4.2}{24}{}{figure.4.2}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {4.1}{\ignorespaces Ablation on window length \(K\) with patch length and stride variants.}}{25}{}\protected@file@percent }
-\newlabel{tab:k_ablation}{{4.1}{25}{}{table.4.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.2}Accuracy}{25}{}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {4.2}{\ignorespaces Accuracy comparison across floating-point, fake-quantized, and hardware fixed-point models.}}{25}{}\protected@file@percent }
-\newlabel{tab:accuracy_eval}{{4.2}{25}{}{table.4.2}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.3}Performance}{26}{}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {4.3}{\ignorespaces Throughput summary at 100~MHz.}}{26}{}\protected@file@percent }
-\newlabel{tab:throughput_summary}{{4.3}{26}{}{table.4.3}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {4.4}{\ignorespaces Post-synthesis resource utilization at 100~MHz.}}{27}{}\protected@file@percent }
-\newlabel{tab:resource_utilization}{{4.4}{27}{}{table.4.4}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {4.5}{\ignorespaces On-chip power estimate.}}{27}{}\protected@file@percent }
-\newlabel{tab:power_summary}{{4.5}{27}{}{table.4.5}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {4.6}{\ignorespaces Function-level profiling summary.}}{27}{}\protected@file@percent }
-\newlabel{tab:ssm_profile}{{4.6}{27}{}{table.4.6}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {4.7}{\ignorespaces Latency breakdown per Slim-Mamba block.}}{28}{}\protected@file@percent }
-\newlabel{tab:block_latency}{{4.7}{28}{}{table.4.7}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.4}FPGA On-board Validation}{28}{}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {4.3}{\ignorespaces FPGA on-board validation flow.}}{28}{}\protected@file@percent }
-\newlabel{fig:board_validate}{{4.3}{28}{}{figure.4.3}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {5}Conclusion}{30}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.2}{\ignorespaces Per-grid mean localization error of the final Slim-Mamba model on the test set, sorted from best to worst.}}{24}{}\protected@file@percent }
+\newlabel{fig:slim_grid_ranking}{{4.2}{24}{}{figure.4.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.3}{\ignorespaces Trajectory-level comparisons on low-, mid-, and high-error grids for Slim-Mamba (top) and channel mamba (bottom).}}{25}{}\protected@file@percent }
+\newlabel{fig:software_eval_panel}{{4.3}{25}{}{figure.4.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.4}{\ignorespaces Cumulative distribution of localization error for representative Slim-Mamba temporal-window configurations.}}{26}{}\protected@file@percent }
+\newlabel{fig:k_ablation_cdf}{{4.4}{26}{}{figure.4.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4.1}{\ignorespaces Ablation on window length \(K\) with patch length and stride variants.}}{26}{}\protected@file@percent }
+\newlabel{tab:k_ablation}{{4.1}{26}{}{table.4.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.2}Accuracy}{26}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4.2}{\ignorespaces Accuracy comparison across floating-point, fake-quantized, and hardware fixed-point models.}}{27}{}\protected@file@percent }
+\newlabel{tab:accuracy_eval}{{4.2}{27}{}{table.4.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.3}Performance}{27}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4.3}{\ignorespaces Throughput summary at 100~MHz.}}{28}{}\protected@file@percent }
+\newlabel{tab:throughput_summary}{{4.3}{28}{}{table.4.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4.4}{\ignorespaces Post-synthesis resource utilization at 100~MHz.}}{28}{}\protected@file@percent }
+\newlabel{tab:resource_utilization}{{4.4}{28}{}{table.4.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4.5}{\ignorespaces On-chip power estimate.}}{28}{}\protected@file@percent }
+\newlabel{tab:power_summary}{{4.5}{28}{}{table.4.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4.6}{\ignorespaces Function-level profiling summary.}}{29}{}\protected@file@percent }
+\newlabel{tab:ssm_profile}{{4.6}{29}{}{table.4.6}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4.7}{\ignorespaces Latency breakdown per Slim-Mamba block.}}{29}{}\protected@file@percent }
+\newlabel{tab:block_latency}{{4.7}{29}{}{table.4.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.4}FPGA On-board Validation}{29}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.5}{\ignorespaces FPGA on-board validation flow.}}{30}{}\protected@file@percent }
+\newlabel{fig:board_validate}{{4.5}{30}{}{figure.4.5}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {5}Conclusion}{31}{}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {section}{\numberline {5.1}Conclusion}{30}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {5.2}Future Work}{30}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5.1}Conclusion}{31}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5.2}Future Work}{31}{}\protected@file@percent }
 \bibcite{cite:Bourdoux2020}{1}
 \bibcite{cite:Trevlakis2023}{2}
 \bibcite{cite:Mogyorosi2022}{3}
@@ -162,13 +166,13 @@
 \bibcite{cite:LightMamba2025}{9}
 \bibcite{cite:FastMamba2025}{10}
 \bibcite{cite:HCSA2025}{11}
-\@writefile{toc}{\contentsline {chapter}{References}{31}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{References}{32}{}\protected@file@percent }
 \bibcite{cite:Sutikno2014Sqrt}{12}
 \bibcite{cite:Istoan2015ReciprocalSqrt}{13}
-\@writefile{toc}{\contentsline {chapter}{\numberline {A}Some extra material}{33}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {A}Some extra material}{34}{}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\@writefile{lof}{\contentsline {figure}{\numberline {A.1}{\ignorespaces A picture or table in the appendix is numbered accordingly.}}{33}{}\protected@file@percent }
-\newlabel{fig:AppFig}{{A.1}{33}{}{figure.1.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {A.1}{\ignorespaces A picture or table in the appendix is numbered accordingly.}}{34}{}\protected@file@percent }
+\newlabel{fig:AppFig}{{A.1}{34}{}{figure.1.1}{}}
 \gdef\svg@ink@ver@settings{{\m@ne }{inkscape}{1}}
-\gdef \@abspage@last{40}
+\gdef \@abspage@last{41}

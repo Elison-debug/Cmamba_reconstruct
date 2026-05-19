@@ -1137,44 +1137,69 @@ update path without breaking the fine-grained pipeline.
 \label{sec:software_model_eval}
 
 This section evaluates the software models before the FPGA-specific results are
-discussed. As reported in Table~\ref{tab:model_variants}, channel mamba
-achieves the lowest test error among the evaluated Mamba-family baselines, but it also
-requires a much larger model and longer training time. Vanilla Mamba v1 has a compact
-model size, but its test error is clearly worse on LuViRA. In contrast, Slim-Mamba keeps
-the test mean error close to channel mamba and the FCNN baseline, while reducing model
-size, training time, and hardware cost proxy. This result suggests that the main benefit
-for this localization task comes from a lightweight recurrent update rather than from a
-large multi-branch fusion backbone.
-
-
-Figure~\ref{fig:cdf_zoom} further compares the localization-error distribution. The
-Slim-Mamba curve remains close to the stronger software baselines in the low-error
-region, indicating that the simplified model preserves most of the useful localization
-behavior. The spatial error example in Fig.~\ref{fig:grid102_error} shows the error
-distribution on grid 102 and is used as a qualitative check that the model error remains
-spatially bounded rather than being dominated by isolated large failures.
+discussed. Table~\ref{tab:model_variants} shows that channel mamba attains the lowest
+mean localization error among the compared software models. However, that best result is
+obtained with an augmented input that includes 100 additional channel-amplitude features,
+and is therefore not a strictly input-matched comparison against Slim-Mamba. To clarify
+this point, Fig.~\ref{fig:cdf_zoom} plots the final Slim-Mamba model together with two
+saved channel mamba reference runs: one with the same CIR+Power input as Slim-Mamba, and
+one with the augmented CIR+Power plus amplitude input. The augmented-input channel mamba
+run gives the most favorable error distribution, whereas the input-matched channel mamba
+run is consistently worse than Slim-Mamba over most of the plotted range. Taken
+together, these results suggest that channel mamba can exploit the additional
+multi-channel amplitude cues effectively, but its advantage is not preserved under the
+same input condition used by Slim-Mamba. For the subsequent hardware study, Slim-Mamba
+remains the more suitable deployment-oriented model because it combines competitive
+accuracy with much smaller model size, shorter training time, and a simpler datapath.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.60\linewidth]{cdf_zoom.png}
-  \caption{CDF of localization error for the evaluated software models.}
+  \includegraphics[width=0.68\linewidth]{generated_figures/software_eval_model_comparison_cdf.png}
+  \caption{Cumulative distribution of localization error for Slim-Mamba and two channel mamba reference runs under matched and augmented input settings.}
   \label{fig:cdf_zoom}
 \end{figure}
 
 \begin{figure}[H]
   \centering
-  \includesvg[inkscapelatex=false,width=0.75\linewidth]{grid102_error_heatmap}
-  \caption{Error heatmap for grid 102.}
-  \label{fig:grid102_error}
+  \includegraphics[width=0.88\linewidth]{generated_figures/software_eval_slim_grid_ranking.png}
+  \caption{Per-grid mean localization error of the final Slim-Mamba model on the test set, sorted from best to worst.}
+  \label{fig:slim_grid_ranking}
+\end{figure}
+
+The grid-level ranking in Fig.~\ref{fig:slim_grid_ranking} shows that the final
+Slim-Mamba model maintains a stable error level over most of the test set, while the
+remaining variation across grids is correlated with the local trajectory coverage around
+each query position. When a test trajectory lies in a region that is surrounded by more
+training trajectories, the localization error is generally lower; when the nearby
+trajectory coverage becomes sparser, the error tends to increase. Therefore,
+Fig.~\ref{fig:software_eval_panel} presents representative examples from the low-error,
+mid-error, and high-error parts of the ranking to illustrate this spatial trend on the
+test set.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.94\linewidth]{generated_figures/software_eval_best_typical_worst_panel.png}
+  \caption{Trajectory-level comparisons on low-, mid-, and high-error grids for Slim-Mamba (top) and channel mamba (bottom).}
+  \label{fig:software_eval_panel}
 \end{figure}
 
 After selecting Slim-Mamba as the deployment-oriented model, the temporal window length
 \(K\) and patch setting are ablated. Table~\ref{tab:k_ablation} shows that \(K=1\) and
-\(K=2\) both achieve the best test mean error of 0.135~m. Longer windows can reduce the
-evaluation error in some cases, but the test error increases as \(K\) grows. This
-suggests that long temporal contexts add redundant information for the densely sampled
-LuViRA setting and may hurt generalization. Therefore, short-window Slim-Mamba is used
-as the software model target for the subsequent hardware implementation.
+\(K=2\) both achieve the best test mean error of about 0.135~m, while longer temporal
+windows gradually increase the test error. The CDF comparison in
+Fig.~\ref{fig:k_ablation_cdf} shows the same trend from a distributional perspective:
+short-window configurations keep more samples in the low-error region, whereas larger
+\(K\) values mainly broaden the error tail. This suggests that, under the current LuViRA
+sampling density, extending the temporal context introduces more redundancy than useful
+additional localization cues. Therefore, short-window Slim-Mamba is used as the software
+model target for the subsequent hardware implementation.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.78\linewidth]{generated_figures/software_eval_k_ablation_cdf.png}
+  \caption{Cumulative distribution of localization error for representative Slim-Mamba temporal-window configurations.}
+  \label{fig:k_ablation_cdf}
+\end{figure}
 
 \begin{table}[H]
 \centering
