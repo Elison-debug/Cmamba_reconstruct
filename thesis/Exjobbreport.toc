@@ -1,33 +1,33 @@
 \contentsline {chapter}{\numberline {1}Introduction}{1}{}%
-\contentsline {section}{\numberline {1.1}Background}{1}{}%
-\contentsline {subsection}{\numberline {1.1.1}Indoor Localization and Massive MIMO}{1}{}%
-\contentsline {subsection}{\numberline {1.1.2}Radio-Based Positioning Methods}{2}{}%
-\contentsline {subsection}{\numberline {1.1.3}LuViRA Radio Dataset Used in This Thesis}{3}{}%
-\contentsline {section}{\numberline {1.2}Related Work}{4}{}%
-\contentsline {section}{\numberline {1.3}Goals and Challenges}{4}{}%
-\contentsline {chapter}{\numberline {2}Algorithm}{6}{}%
-\contentsline {section}{\numberline {2.1}Mamba Basics}{6}{}%
-\contentsline {section}{\numberline {2.2}Slim-Mamba}{7}{}%
-\contentsline {chapter}{\numberline {3}Method}{10}{}%
-\contentsline {section}{\numberline {3.1}Hardware Architecture}{10}{}%
-\contentsline {section}{\numberline {3.2}Linear Layers}{11}{}%
-\contentsline {subsection}{\numberline {3.2.1}Reuse vs.\ Latency Trade-off}{11}{}%
-\contentsline {subsection}{\numberline {3.2.2}MAC Array Architecture Selection}{12}{}%
-\contentsline {subsection}{\numberline {3.2.3}Hardware Implementation of Linear Layers}{14}{}%
-\contentsline {section}{\numberline {3.3}Non-linear Layers}{15}{}%
-\contentsline {subsection}{\numberline {3.3.1}Normalization}{15}{}%
-\contentsline {subsection}{\numberline {3.3.2}Sigmoid and SiLU}{19}{}%
-\contentsline {section}{\numberline {3.4}Quantization}{20}{}%
-\contentsline {subsection}{\numberline {3.4.1}Quantization Workflow}{20}{}%
-\contentsline {subsection}{\numberline {3.4.2}Error Analysis and Layer-wise Quantization Strategy}{21}{}%
-\contentsline {subsection}{\numberline {3.4.3}Quantization Hardware Module Design}{23}{}%
-\contentsline {chapter}{\numberline {4}Results and Discussion}{25}{}%
-\contentsline {section}{\numberline {4.1}Software Model Evaluation}{25}{}%
-\contentsline {section}{\numberline {4.2}Accuracy}{28}{}%
-\contentsline {section}{\numberline {4.3}Performance}{29}{}%
-\contentsline {section}{\numberline {4.4}FPGA On-board Validation}{31}{}%
-\contentsline {chapter}{\numberline {5}Conclusion}{33}{}%
-\contentsline {section}{\numberline {5.1}Conclusion}{33}{}%
-\contentsline {section}{\numberline {5.2}Future Work}{33}{}%
-\contentsline {chapter}{References}{34}{}%
-\contentsline {chapter}{\numberline {A}Some extra material}{36}{}%
+\contentsline {section}{\numberline {1.1}Related Work}{1}{}%
+\contentsline {section}{\numberline {1.2}Goals and Challenges}{2}{}%
+\contentsline {chapter}{\numberline {2}Background}{4}{}%
+\contentsline {section}{\numberline {2.1}Indoor Localization and Massive MIMO}{4}{}%
+\contentsline {section}{\numberline {2.2}Radio-Based Positioning Methods}{5}{}%
+\contentsline {section}{\numberline {2.3}LuViRA Radio Dataset Used in This Thesis}{5}{}%
+\contentsline {chapter}{\numberline {3}Algorithm}{8}{}%
+\contentsline {section}{\numberline {3.1}Mamba Basics}{8}{}%
+\contentsline {section}{\numberline {3.2}Slim-Mamba}{9}{}%
+\contentsline {chapter}{\numberline {4}Method}{13}{}%
+\contentsline {section}{\numberline {4.1}Hardware Architecture}{13}{}%
+\contentsline {section}{\numberline {4.2}Linear Layers}{14}{}%
+\contentsline {subsection}{\numberline {4.2.1}Reuse vs.\ Latency Trade-off}{14}{}%
+\contentsline {subsection}{\numberline {4.2.2}MAC Array Architecture Selection}{15}{}%
+\contentsline {subsection}{\numberline {4.2.3}Hardware Implementation of Linear Layers}{18}{}%
+\contentsline {section}{\numberline {4.3}Non-linear Layers}{19}{}%
+\contentsline {subsection}{\numberline {4.3.1}Normalization}{19}{}%
+\contentsline {subsection}{\numberline {4.3.2}Sigmoid and SiLU}{22}{}%
+\contentsline {section}{\numberline {4.4}Quantization}{23}{}%
+\contentsline {subsection}{\numberline {4.4.1}Quantization Workflow}{23}{}%
+\contentsline {subsection}{\numberline {4.4.2}Error Analysis and Layer-wise Quantization Strategy}{25}{}%
+\contentsline {subsection}{\numberline {4.4.3}Quantization Hardware Module Design}{27}{}%
+\contentsline {chapter}{\numberline {5}Results and Discussion}{29}{}%
+\contentsline {section}{\numberline {5.1}Software Model Evaluation}{29}{}%
+\contentsline {section}{\numberline {5.2}Accuracy}{32}{}%
+\contentsline {section}{\numberline {5.3}Performance}{33}{}%
+\contentsline {section}{\numberline {5.4}FPGA On-board Validation}{35}{}%
+\contentsline {chapter}{\numberline {6}Conclusion}{37}{}%
+\contentsline {section}{\numberline {6.1}Conclusion}{37}{}%
+\contentsline {section}{\numberline {6.2}Future Work}{37}{}%
+\contentsline {chapter}{References}{38}{}%
+\contentsline {chapter}{\numberline {A}Some extra material}{40}{}%

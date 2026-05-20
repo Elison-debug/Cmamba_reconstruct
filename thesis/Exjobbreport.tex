@@ -112,10 +112,6 @@ one has completely finished.
 %%%%%
 
 \chapter{Introduction}
-\section{Background}
-\subsection{Indoor Localization and Massive MIMO}
-\label{subsec:indoor_localization_massive_mimo}
-
 Indoor localization is becoming an important capability for future 6G wireless
 systems, since 6G is expected to support not only ubiquitous communication but
 also high-accuracy localization and high-resolution sensing
@@ -130,7 +126,104 @@ wireless localization systems, localization performance is affected by
 environmental factors such as multipath and non-line-of-sight propagation,
 which makes accurate positioning challenging~\cite{cite:Yaro2023}.
 
-In this context, massive multiple-input multiple-output (Massive MIMO) provides
+Machine-learning-based radio localization provides a data-driven way to learn
+the relationship between wireless measurements and localizations. In
+Massive-MIMO-based indoor localization, rich radio channel observations can be
+used as location-dependent ML features, and previous work has demonstrated
+centimeter-level localization accuracy using measured indoor Massive MIMO
+data~\cite{cite:TianICC2023,cite:Tian2024}. However, practical deployment
+still faces challenges. High-dimensional radio features can lead to
+large neural networks, high memory demand, and increased training and inference
+cost. These issues become more critical when the localization model needs to be
+implemented on dedicated hardware with limited computation resources, memory
+capacity, and power budget.
+
+This motivates the study of compact and hardware-friendly neural architectures
+for Massive MIMO indoor localization. Mamba~\cite{cite:Mamba2023}, as a new model proposed in recent years has the potential capability in small parameter size, because it removed complex neural network layers and use a simple recurrent state-space model(SSM). In this thesis, Mamba-like models are
+investigated as a possible alternative to large fully connected localization
+models, with the aim of studying the trade-off among localization accuracy,
+model size, and hardware implementation complexity.
+
+
+\section{Related Work}
+In recent years, machine learning has been investigated for Massive-MIMO-based indoor
+localization. Tian et al. proposed FCNN-based localization methods that use spatial
+covariance matrices and truncated channel impulse responses to capture angular- and
+delay-domain information, achieving centimeter-level accuracy in indoor Massive MIMO
+measurements~\cite{cite:TianICC2023}. Their later work further introduced an ML-based
+localization pipeline with multiple processing chains and ensemble learning to fuse
+different channel fingerprints. However, these studies also show
+that network training and fine tuning can become challenging due to the
+increase in network size.
+Although subarray-based processing can reduce network size, efficient and
+hardware-friendly model design remains an important issue for practical
+deployment~\cite{cite:Tian2024}.
+
+Most existing ML-based Massive MIMO indoor localization methods rely on FCNNs,
+CNNs~\cite{cite:Colpaert2023},
+KNN~\cite{cite:Cunningham2022KNN}, or other conventional machine-learning models to process high-dimensional
+channel fingerprints~\cite{cite:Tian2024}. These methods can effectively exploit
+channel features, but for densely connected models such as FCNNs, higher-dimensional
+inputs usually lead to larger network sizes, more parameters, and higher training and
+inference cost. Existing work also points out that, when ML-based localization methods
+are applied to Massive MIMO systems, the increase in network size can make training and
+fine-tuning more challenging~\cite{cite:Tian2024}. Therefore, reducing model size,
+computational complexity, and hardware deployment cost while maintaining localization
+accuracy remains an important research problem in Massive-MIMO-based indoor
+localization.
+
+Mamba was originally proposed by Gu and Dao as a selective state-space sequence
+model~\cite{cite:Mamba2023}. Different from attention-based architectures,
+Mamba processes sequences through recurrent state updates and makes part of the
+state-space model parameters input-dependent. This allows the model to
+selectively propagate or forget information according to the current input,
+while maintaining linear scaling with sequence length~\cite{cite:Mamba2023}.
+The original Mamba work also emphasizes a hardware-aware implementation of the
+selective scan, making the architecture attractive not only from an algorithmic
+perspective but also from a computation-structure perspective.
+
+For Massive MIMO indoor localization, Mamba is worth investigating because the
+radio input can be organized as short sequences or tokenized channel features,
+and the recurrent state update may provide a compact way to aggregate useful
+contextual information. Also, the original Mamba architecture was not
+designed specifically for radio localization or FPGA deployment. Directly
+adopting it may introduce unnecessary model complexity and hardware mapping
+overhead. This motivates the development of a task-driven Slim Mamba variant
+and a corresponding accelerator design for the target localization workload.
+
+\section{Goals and Challenges}
+The goal of this thesis is to investigate the feasibility and effectiveness of
+Mamba-like architectures for Massive MIMO indoor localization, with a particular
+focus on localization accuracy, model size, and hardware implementation
+complexity. In addition, this thesis further explores FPGA-based acceleration of
+the proposed Mamba-like model. 
+
+Compared with previous FCNN-based methods that mainly operate on single snapshots or
+fixed fingerprints, Mamba can process short sequences of observations recurrently in the wireless channel. This thesis aims to
+evaluate Mamba-family models for LuViRA indoor localization, design a hardware-friendly
+Mamba-like architecture, and implement the key Mamba datapath on FPGA with
+quantization-aware considerations. The main challenges include preserving localization
+accuracy after model simplification and quantization, handling the memory and
+computation pressure caused by high-dimensional CSI, and balancing latency, power,
+resource utilization, and localization accuracy in the final accelerator design. Recent
+studies have explored Mamba acceleration in other application scenarios, including
+FPGA-based quantization and hardware co-design with computation reordering and
+fine-grained tiling, pipelined vector processing units, and hybrid dataflows with
+state-space buffers~\cite{cite:LightMamba2025,cite:FastMamba2025,cite:HCSA2025}.
+Motivated by these works, this thesis further investigates how the Slim Mamba datapath
+can be reused for indoor localization, with particular attention to datapath reuse,
+memory access organization, and pipeline granularity.
+
+\chapter{Background}
+This section introduces the background needed for the rest of the thesis. The
+discussion is limited to three aspects: Massive MIMO as the radio measurement
+platform, radio-based positioning methods, and the LuViRA radio dataset used in
+this work.
+
+\section{Indoor Localization and Massive MIMO}
+\label{subsec:indoor_localization_massive_mimo}
+
+Massive multiple-input multiple-output (MIMO) provides
 a promising measurement platform for radio-based indoor localization. By
 equipping the base station with a large antenna array, Massive MIMO provides
 rich spatial channel observations that can be exploited for localization.
@@ -144,25 +237,23 @@ positioning by enabling location-dependent channel information to be extracted
 from measured radio signals~\cite{cite:TianICC2023}.
 
 Figure~\ref{fig:lumami_setup} illustrates a representative Massive-MIMO-based
-indoor localization setup. A user equipment (UE) or mobile platform moves inside
+indoor localization setup. An user equipment (UE) carried by mobile industrial robot moves inside
 the measurement area, while a base-station antenna array records the radio
-channel from different positions. As the UE moves, the propagation paths and the
-measured channel response change with its location, which makes the radio
-measurement useful as a position-dependent fingerprint.
+channel from different positions.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.90\linewidth]{lumami.png}
+  \includegraphics[width=0.90\linewidth]{generated_figures/lumami.png}
   \caption{Massive MIMO indoor localization measurement setup with moving user equipment, adapted from~\cite{cite:Tian2024}.}
   \label{fig:lumami_setup}
 \end{figure}
 
-However, Massive MIMO provides high-dimensional spatial channel
-measurements, while the final positioning accuracy still depends on how the
+Even though massive MIMO provides high-dimensional spatial channel
+measurements, the final positioning accuracy still depends on how the
 channel information is represented and how the localization model extracts
 useful features from it.
 
-\subsection{Radio-Based Positioning Methods}
+\section{Radio-Based Positioning Methods}
 \label{subsec:radio_positioning_methods}
 
 Radio localization estimates the position of a user equipment or mobile platform
@@ -171,27 +262,16 @@ modality is described as the channel response between a 5G massive
 multiple-input multiple-output testbed and user equipment~\cite{cite:LuViRA2024}.
 The localization system uses radio measurements whose values depend on the
 relative position between the transmitter, the receiver array, and the
-surrounding indoor environment. Since the radio channel changes with the
-position of the transmitter, these measured channel responses can be used as
+surrounding indoor environment. These measured channel responses can be used as
 location dependent fingerprints for positioning.
 
-For localization with Massive MIMO, previous work roughly classifies the
-methods into three groups: methods based on angle estimation, methods based on
-position estimation, and methods based on fingerprinting~\cite{cite:Tian2024}.
-Traditional angle estimation and position estimation methods usually rely on
-explicit geometric or signal processing assumptions, while fingerprinting and
-learning based methods use measured channel features as position related
-signatures. In the LuViRA setting, the radio measurements are collected in a
-realistic indoor environment, where a transmit antenna is mounted on a moving
-service robot and the channel response is recorded together with accurate ground
-truth pose labels~\cite{cite:LuViRA2024}. This provides paired data between
+Traditional localization methods belong to
+the signal processing family. The main challenges
+are high algorithm complexity and requirements of the base station (BS) array calibration~\cite{cite:Tian2024}, while learning based methods provides a more flexible data driven framework, where different radio features can be used as learning features. In the LuViRA dataset, the radio measurements are collected in the same measurement campaign as the motion-capture ground truth. The channel responses are recorded by the Massive MIMO radio system, while the accurate pose labels are obtained from the motion capture system. These data streams are synchronized so that each radio observation can be paired with the corresponding ground-truth pose~\cite{cite:LuViRA2024}. This provides paired data between
 radio channel measurements and position labels, which can be used to train
 supervised fingerprinting or regression models for localization.
 
-Machine learning naturally extends this fingerprinting idea by learning the
-mapping from channel observations to user positions from data. In this
-formulation, ML models take radio channel fingerprints as inputs and estimate
-the localization of the user equipment. This is
+ML models take radio channel fingerprints as inputs and estimate the localization of the user equipment. This is
 attractive for Massive MIMO indoor localization because the measured channel
 contains rich spatial and delay information that may be difficult to fully
 represent using explicit geometric or model based assumptions. Previous work
@@ -199,7 +279,7 @@ has also shown that multiple processing chains can be trained with different
 channel fingerprints and then combined to improve localization
 performance~\cite{cite:Tian2024}.
 
-\subsection{LuViRA Radio Dataset Used in This Thesis}
+\section{LuViRA Radio Dataset Used in This Thesis}
 \label{subsec:luviva_radio_dataset}
 
 The experimental data used in this thesis are taken from the radio modality of
@@ -212,38 +292,47 @@ sensing modalities, this thesis focuses only on the grid data from the radio
 measurements, since the target application is Massive MIMO indoor localization.
 
 In the radio part of LuViRA, the measured data are described as the channel
-response between a 5G massive multiple-input multiple-output testbed and user
-equipment~\cite{cite:LuViRA2024}. In the measurement setup, a transmit antenna
+response between LuMaMi~\cite{cite:LuMaMi2017} and user
+equipment. In the measurement setup, a transmit antenna
 is mounted on a slowly moving service robot together with the other
 sensors~\cite{cite:LuViRA2024}. Therefore, the object localized in this thesis
 is the moving platform, represented by the radio transmitter mounted on the
 robot. The ground truth position is provided by the motion capture system, which
 is used to verify the localization results obtained from the sensor
-measurements~\cite{cite:LuViRA2024}.
+measurements.
 
 The LuViRA dataset contains 89 recorded trajectories, and each trajectory
 includes approximately 20 to 50 seconds of synchronized sensor data and ground
-truth labels~\cite{cite:LuViRA2024}. In this thesis, however, the full
-multi-modal dataset is not used. Only the radio grid data are used as model
-inputs, while the corresponding ground truth positions are used as supervision
-during training and as reference labels for evaluating localization error. An
+truth labels~\cite{cite:LuViRA2024}. An
 example of the grid trajectory layout used in the LuViRA radio measurements is
-shown in Fig.~\ref{fig:luviva_grid_trajectory}.
+shown in Fig.~\ref{fig:luviva_grid_trajectory}. In this thesis, the radio grid data are used as model inputs, and the
+corresponding ground-truth positions are used as supervised labels during
+training. Following the FCNN-based localization baseline, the model is trained
+by minimizing the position loss between the predicted position and the
+ground-truth position~\cite{cite:TianICC2023}. For evaluation, the localization
+error of the $i$-th sample is defined as the Euclidean distance between the
+estimated position $\hat{\mathbf{p}}_i$ and the ground-truth position
+$\mathbf{p}_i$,
+\[
+e_i = \|\hat{\mathbf{p}}_i-\mathbf{p}_i\|_2 .
+\]
+The mean of $e_i$ over the test set is used to report localization
+accuracy.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.65\linewidth]{trajectory.png}
+  \includegraphics[width=0.65\linewidth]{generated_figures/trajectory.png}
   \caption{Example grid trajectory layout in the LuViRA radio dataset, adapted from~\cite{cite:Tian2024}.}
   \label{fig:luviva_grid_trajectory}
 \end{figure}
 
 The dataset used in this work is divided into three non-overlapping subsets:
 training, evaluation, and test. Following the same data split strategy as the
-FCNN baseline used for comparison~\cite{cite:TianICC2023,cite:Tian2024}, the
+FCNN baseline used for comparison~\cite{cite:LuViRAValidation2024}, the
 test set and the training/evaluation pool are separated according to the parity
 of the grid index. The even-grid data are used as the test set, while the
 odd-grid data are used as the training and evaluation pool. The evaluation set
-is then formed by randomly selecting two groups from the odd-grid data, and the
+is then formed by randomly selecting two grids from the odd-grid data, and the
 remaining odd-grid data are used for training.
 
 This split keeps the training, evaluation, and test sets separated at the grid
@@ -252,61 +341,6 @@ result, the proposed Mamba based models and the previous FCNN based method can
 be compared under a consistent data partition, making differences in localization
 accuracy more attributable to the model design rather than to different dataset
 splits.
-
-\section{Related Work}
-In recent years, machine learning has been investigated for Massive-MIMO-based indoor
-localization. Tian et al. proposed FCNN-based localization methods that use spatial
-covariance matrices and truncated channel impulse responses to capture angular- and
-delay-domain information, achieving centimeter-level accuracy in indoor Massive MIMO
-measurements~\cite{cite:TianICC2023}. Their later work further introduced an ML-based
-localization pipeline with multiple processing chains and ensemble learning to fuse
-different channel fingerprints~\cite{cite:Tian2024}. However, these studies also show
-that network training and fine tuning can become challenging due to the
-increase in network size~\cite{cite:Tian2024}.
-Although subarray-based processing can reduce network size, efficient and
-hardware-friendly model design remains an important issue for practical
-deployment~\cite{cite:Tian2024}.
-
-However, most existing ML-based Massive MIMO indoor localization methods rely on
-FCNNs~\cite{cite:Tian2024}, CNNs~\cite{cite:Colpaert2023},
-KNN~\cite{cite:Cunningham2022KNN}, or other conventional machine-learning models to
-process high-dimensional channel fingerprints. These methods can effectively exploit
-channel features, but for densely connected models such as FCNNs, higher-dimensional
-inputs usually lead to larger network sizes, more parameters, and higher training and
-inference cost. Existing work also points out that, when ML-based localization methods
-are applied to Massive MIMO systems, the increase in network size can make training and
-fine-tuning more challenging~\cite{cite:Tian2024}. Therefore, reducing model size,
-computational complexity, and hardware deployment cost while maintaining localization
-accuracy remains an important research problem in Massive-MIMO-based indoor
-localization.
-
-
-\section{Goals and Challenges}
-The goal of this thesis is to investigate the efficiency of Mamba-like architectures
-for Massive-MIMO indoor localization and further explore their FPGA-based hardware
-acceleration. Mamba is a selective state-space sequence model that uses input-dependent
-state updates to selectively propagate or forget information along the sequence
-dimension, while maintaining linear scaling with sequence length~\cite{cite:Mamba2023}.
-This property makes Mamba attractive for continuous wireless measurement sequences,
-because it uses recurrent state updates without the parameter explosion commonly
-associated with FCNNs when the input dimension increases.
-
-Compared with previous FCNN-based methods that mainly operate on single snapshots or
-fixed fingerprints, Mamba can process short sequences of observations jointly and
-exploit temporal dynamics in the wireless channel. Therefore, this thesis aims to
-evaluate Mamba-family models for LuViRA indoor localization, design a hardware-friendly
-slim Mamba-like architecture, and implement the key Mamba datapath on FPGA with
-quantization-aware considerations. The main challenges include preserving localization
-accuracy after model simplification and quantization, handling the memory and
-computation pressure caused by high-dimensional CSI, and balancing latency, power,
-resource utilization, and localization accuracy in the final accelerator design. Recent
-studies have explored Mamba acceleration in other application scenarios, including
-FPGA-based quantization and hardware co-design with computation reordering and
-fine-grained tiling, pipelined vector processing units, and hybrid dataflows with
-state-space buffers~\cite{cite:LightMamba2025,cite:FastMamba2025,cite:HCSA2025}.
-Motivated by these works, this thesis further investigates how the Slim Mamba datapath
-can be reused for indoor localization, with particular attention to datapath reuse,
-memory access organization, and pipeline granularity.
 
 
 \chapter{Algorithm}
@@ -344,9 +378,31 @@ is the current output. The discretized parameters can be written as
 
 The key idea of Mamba is to make part of the SSM parameters input-dependent. For
 example, $\Delta_t$, $B_t$, and $C_t$ can be generated from the current input $x_t$
-through lightweight linear projections. In this way, the model can dynamically decide
-what information should be preserved, updated, or forgotten according to the current
-input. Gu and Dao show that making SSM parameters functions of the input allows the
+through lightweight linear projections. A linear projection maps an input token to another feature space through an
+affine transformation:
+\begin{equation}
+\mathrm{Linear}_{W,b}(x_t) = W x_t + b,
+\label{eq:linear_projection_general}
+\end{equation}
+where $x_t$ is the input token, $W$ is a learnable weight matrix, and $b$ is a
+learnable bias vector. In the original Mamba model, input-dependent parameters
+such as $\Delta_t$, $B_t$, and $C_t$ are generated from the current input using
+such lightweight projections:
+\begin{equation}
+\tilde{\Delta}_t = W_{\Delta}x_t + b_{\Delta}, \quad
+B_t = W_B x_t + b_B, \quad
+C_t = W_C x_t + b_C .
+\label{eq:mamba_input_dependent_projection}
+\end{equation}
+The time-step parameter is then usually constrained to be positive by applying a
+nonlinear function such as softplus:
+\begin{equation}
+\Delta_t = \mathrm{softplus}(\tilde{\Delta}_t).
+\label{eq:mamba_delta_softplus}
+\end{equation}
+
+In this way, the model can dynamically decide what information should be
+preserved, updated, or forgotten according to the current input. Gu and Dao show that making SSM parameters functions of the input allows the
 model to selectively propagate or forget information along the sequence dimension,
 while Mamba maintains linear scaling with sequence length~\cite{cite:Mamba2023}.
 
@@ -446,7 +502,7 @@ modulation.
 
 \begin{figure}[H]
   \centering
-  \includesvg[width=0.70\linewidth]{ssm_block_flownew}
+  \includesvg[width=0.70\linewidth]{generated_figures/ssm_block_flow}
   \caption{Simplified datapath of the Slim Mamba block.}
   \label{fig:slim_mamba}
 \end{figure}
@@ -459,7 +515,11 @@ coefficient $\lambda_t$ from the current state input:
 \lambda_t = \sigma(W_{\lambda} * u_t + b_{\lambda}),
 \label{eq:slim_mamba_lambda_conv}
 \end{equation}
-where $*$ denotes the convolution operation, $\sigma(\cdot)$ is the sigmoid function,
+where $*$ denotes the convolution operation, $\sigma(\cdot)$ is the sigmoid function, defined as
+\begin{equation}
+\sigma(x) = \frac{1}{1+e^{-x}}.
+\label{eq:sigmoid_function}
+\end{equation}
 and $\lambda_t$ is constrained to the range $(0,1)$ so that it can control the
 interpolation between the previous state and the current input. The recurrent state
 update is computed as
@@ -478,12 +538,18 @@ parameterization and low-rank discretization in the original Mamba, this formula
 leads to a more regular computation path and is more suitable for hardware
 implementation~\cite{cite:Mamba2023}.
 
-In parallel, the gate branch is passed through a SiLU activation to generate the output
-gate:
+In parallel, the gate branch is passed through a SiLU activation, defined as
+\begin{equation}
+\mathrm{SiLU}(x) = x \cdot \sigma(x) = \frac{x}{1+e^{-x}}.
+\label{eq:silu_function}
+\end{equation} 
+
+Therefore, the output gate is computed as
 \begin{equation}
 g_t = \mathrm{SiLU}(v_t).
 \label{eq:slim_mamba_output_gate}
 \end{equation}
+
 The output gate then modulates the updated state through element-wise multiplication:
 \begin{equation}
 z_t = s_t \odot g_t.
@@ -522,7 +588,7 @@ control.
 
 \begin{figure}[H]
   \centering
-  \includesvg[width=0.9\linewidth]{tcas_hardware_architecture}
+  \includesvg[width=0.9\linewidth]{generated_figures/tcas_hardware_architecture}
   \caption{Diagram of Slim-Mamba overall hardware architecture.}
   \label{fig:tcas_hardware_architecture}
 \end{figure}
@@ -656,33 +722,27 @@ workload, three candidate MAC array organizations are compared in
 Table~\ref{tab:mac_array_tradeoff}. Here, the number of ``+'' symbols qualitatively
 indicates the relative wiring complexity.
 
-\begin{table}[t]
-\centering
-\caption{Comparison of candidate MAC array organizations for projection computation.}
-\label{tab:mac_array_tradeoff}
-\resizebox{\linewidth}{!}{%
-\begin{tabular}{lccc}
-\hline
- & $16\times16$ Systolic & $64\times1$ GEMV & $4\times4\times4$ Pipeline \\
-\hline
-Wires & +++ & + & ++ \\
-DSPs & 256 & 64 & 64 \\
-BW (weights/cycle) & 256 & 64 & 64 \\
-Clock cycles for $(256,256)$ MVM & 256 & 1024 & 1024 \\
-\hline
-\end{tabular}%
-}
-\end{table}
-
 A large $16\times16$ systolic array provides high spatial parallelism and a low
-theoretical cycle count. However, for the projection workload in this design, the
-computation is dominated by GEMV rather than large-batch GEMM. Therefore, the
-two-dimensional data reuse advantage of a large systolic array is not fully exploited,
-while the larger PE scale introduces higher global routing, control, and data-supply
-pressure.
+theoretical cycle count. A systolic array is a regular grid of processing
+elements in which data are rhythmically passed between neighboring PEs, allowing
+multiply-accumulate operations to be performed in a pipelined dataflow, as shown in Fig.~\ref{fig:systolic}. However, for the projection workload in this design, the
+computation is dominated by GEMV (general matrix-vector multiplication) rather than large-batch GEMM (general matrix-matrix multiplication). Therefore, the
+two-dimensional data reuse advantage of a large systolic array is not fully exploited. The array effectively behaves like
+multiple narrow GEMV columns operating in parallel, while still introducing the
+routing, control, and data-supply pressure of a large two-dimensional PE array.
 
+\begin{figure}[H]
+  \centering
+  \includesvg[width=0.9\linewidth]{generated_figures/systolic_array_ws}
+  \caption{An example of Systolic Array.}
+  \label{fig:systolic}
+\end{figure}
 
-A $64\times1$ GEMV engine is more directly matched to matrix-vector multiplication.
+A $64\times1$ GEMV engine is more directly matched to matrix-vector multiplication. As illustrated in Fig.~\ref{fig:gemv}, the input vector
+is sent to a column of MAC units, where each PE multiplies one input
+element with the corresponding matrix weight; the resulting products are then
+accumulated through a reduction tree to form the partial sum of one output
+channel.
 However, in a typical $64\times1$ GEMV engine, if all 64 MACs serve one output lane, 64
 products are generated in one cycle and must be reduced into one partial sum for that
 output channel. This usually requires a 64-input adder tree, or a multi-stage pipelined
@@ -691,11 +751,17 @@ adder-tree fan-in may increase the number of adder stages, routing complexity, a
 pressure of pipeline register insertion, making timing closure more challenging on
 FPGA.
 
+\begin{figure}[H]
+  \centering
+  \includesvg[width=0.9\linewidth]{generated_figures/gemv_pe_array_tcas}
+  \caption{$64\times1$ GEMV engine.}
+  \label{fig:gemv}
+\end{figure}
 
 The proposed $4\times4\times4$ MAC array organizes the 64 PEs as four cascaded
 $4\times4$ sub-arrays. Each sub-array processes a small input-weight tile, while the
 four sub-arrays are activated with a staggered schedule to combine local spatial
-parallelism and inter-array pipelining. The comparison above shows the advantage of
+parallelism and inter-array pipelining, as shown in Fig.~\ref{fig:tcas_hardware_architecture} (d). The comparison above shows the advantage of
 this organization. Compared with a $64\times1$ GEMV engine, it provides higher
 vector-output parallelism and reduces the pressure of a large top-level reduction
 tree. Compared with a large $16\times16$ systolic array, it avoids excessive global
@@ -703,6 +769,22 @@ routing and data-supply pressure for the MVM-dominated workload. Therefore, the
 $4\times4\times4$ structure is selected as a balanced shared MAC fabric in terms of
 resource cost, pipeline regularity, and timing closure.
 
+\begin{table}[H]
+\centering
+\caption{Comparison of candidate MAC array organizations for projection computation.}
+\label{tab:mac_array_tradeoff}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lccc}
+\hline
+ & $16\times16$ Systolic & $64\times1$ GEMV & $4\times4\times4$ Pipeline \\
+\hline
+DSPs & 256 & 64 & 64 \\
+BW (weights/cycle) & 256 & 64 & 64 \\
+Clock cycles for $(256,256)$ MVM & 256 & 1024 & 1024 \\
+\hline
+\end{tabular}%
+}
+\end{table}
 
 At each cycle, a sub-array receives a 4-element slice of the input vector together
 with a $4\times4$ weight block. The first sub-array starts a new output tile, and
@@ -878,7 +960,7 @@ normalization stage.
 
 \begin{figure}[H]
   \centering
-  \includesvg[width=0.72\linewidth]{trial_quotient_flow}
+  \includesvg[width=0.72\linewidth]{generated_figures/trial_quotient_flow}
   \caption{Trial-quotient square-root computation for the RMS value.}
   \label{fig:trial_quotient_sqrt}
 \end{figure}
@@ -910,7 +992,7 @@ shifting, rounding, and saturation.
 
 \begin{figure}[H]
   \centering
-  \includesvg[width=0.72\linewidth]{rms_approximation_flow}
+  \includesvg[width=0.72\linewidth]{generated_figures/rms_approximation_flow}
   \caption{Reciprocal-based division approximation for RMSNorm.}
   \label{fig:rms_reciprocal_flow}
 \end{figure}
@@ -946,7 +1028,7 @@ absolute error of 0.004211 in the validation case.
 
 \begin{figure}[H]
   \centering
-  \includesvg[inkscapelatex=false,width=0.95\linewidth]{rmsnorm_float_vs_hw}
+  \includesvg[inkscapelatex=false,width=0.95\linewidth]{generated_figures/rmsnorm_float_vs_hw}
   \caption{Comparison between floating-point RMSNorm and the fixed-point hardware approximation.}
   \label{fig:rmsnorm_float_vs_hw}
 \end{figure}
@@ -978,7 +1060,7 @@ close approximation.
 
 \begin{figure}[H]
   \centering
-  \includesvg[width=0.82\linewidth]{sigmoid_float_vs_hw_lut}
+  \includesvg[width=0.82\linewidth]{generated_figures/sigmoid_float_vs_hw_lut}
   \caption{Comparison between floating-point sigmoid and the fixed-point LUT approximation.}
   \label{fig:sigmoid_lut_compare}
 \end{figure}
@@ -1019,7 +1101,7 @@ and control parameters. Its output is compared against the C++ fixed-point refer
 
 \begin{figure}[H]
   \centering
-  \includesvg[width=0.38\linewidth]{quantization_flow}
+  \includesvg[width=0.38\linewidth]{generated_figures/quantization_flow}
   \caption{Quantization workflow from precision sweep to RTL mapping.}
   \label{fig:quantization_workflow}
 \end{figure}
@@ -1097,7 +1179,7 @@ output projection, and block-output errors.
 
 \begin{figure}[H]
   \centering
-  \includesvg[inkscapelatex=false,width=0.45\linewidth]{MAMBAFlow}
+  \includesvg[inkscapelatex=false,width=0.85\linewidth]{generated_figures/MAMBAFlow}
   \caption{Slim-Mamba block flow used for stage-level quantization error analysis.}
   \label{fig:mamba_stage_flow}
 \end{figure}
@@ -1208,7 +1290,7 @@ configuration parameters.
 
 \begin{figure}[H]
   \centering
-  \includesvg[inkscapelatex=false,width=0.95\linewidth]{fixed_point_vector_lane}
+  \includesvg[inkscapelatex=false,width=0.95\linewidth]{generated_figures/fixed_point_vector_lane}
   \caption{Configurable fixed-point quantization engine for one vector lane.}
   \label{fig:fixed_point_vector_lane}
 \end{figure}
@@ -1230,7 +1312,7 @@ update path without breaking the fine-grained pipeline.
 
 \begin{figure}[H]
   \centering
-  \includesvg[inkscapelatex=false,width=0.95\linewidth]{ping_pong_scale_alignment}
+  \includesvg[inkscapelatex=false,width=0.95\linewidth]{generated_figures/ping_pong_scale_alignment}
   \caption{Ping-pong buffer alignment for runtime dynamic scales in the selective-scan path.}
   \label{fig:ping_pong_scale_alignment}
 \end{figure}
@@ -1258,7 +1340,7 @@ accuracy with much smaller model size, shorter training time, and a simpler data
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.68\linewidth]{generated_figures/software_eval_model_comparison_cdf.png}
+  \includegraphics[width=0.88\linewidth]{generated_figures/software_eval_model_comparison_cdf.png}
   \caption{Cumulative distribution of localization error for Slim-Mamba and two channel mamba reference runs under matched and augmented input settings.}
   \label{fig:cdf_zoom}
 \end{figure}
@@ -1539,7 +1621,7 @@ connected correctly. The validation flow is shown in Fig.~\ref{fig:board_validat
 
 \begin{figure}[H]
   \centering
-  \includesvg[inkscapelatex=false,width=0.75\linewidth]{board_validate}
+  \includesvg[inkscapelatex=false,width=0.75\linewidth]{generated_figures/board_validate}
   \caption{FPGA on-board validation flow.}
   \label{fig:board_validate}
 \end{figure}
@@ -1604,24 +1686,9 @@ accelerator, several directions remain for future work.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% References
-\begin{thebibliography}{99}
-\bibitem{cite:Bourdoux2020} A. Bourdoux, A. N. Barreto, B. Van Liempd, et al., ``6G white paper on localization and sensing,'' arXiv preprint arXiv:2006.01779, 2020.
-\bibitem{cite:Trevlakis2023} S. E. Trevlakis, A. A. A. Boulogeorgos, D. Pliatsios, et al., ``Localization as a key enabler of 6G wireless systems: A comprehensive survey and an outlook,'' \textit{IEEE Open Journal of the Communications Society}, 2023.
-\bibitem{cite:Mogyorosi2022} F. Mogyor\'osi, P. Revisnyei, A. Pa\v{s}i\'c, et al., ``Positioning in 5G and 6G networks---A survey,'' \textit{Sensors}, vol. 22, no. 13, p. 4757, 2022.
-\bibitem{cite:Tian2024} G. Tian, I. Yaman, M. Sandra, et al., ``Deep-learning-based high-precision localization with Massive MIMO,'' \textit{IEEE Transactions on Machine Learning in Communications and Networking}, vol. 2, pp. 19--34, 2024.
-\bibitem{cite:TianICC2023} G. Tian, I. Yaman, M. Sandra, et al., ``High-precision machine-learning based indoor localization with Massive MIMO system,'' in \textit{ICC 2023 --- IEEE International Conference on Communications}, Rome, Italy, 2023, pp. 3690--3695.
-\bibitem{cite:LuViRA2024} I. Yaman, G. Tian, M. Larsson, P. Persson, M. Sandra, A. D\"urr, E. Tegler, N. Challa, H. Garde, F. Tufvesson, K. \AA str\"om, O. Edfors, S. Malkowsky, and L. Liu, ``The LuViRA Dataset: Synchronized vision, radio, and audio sensors for indoor localization,'' in \textit{2024 IEEE International Conference on Robotics and Automation (ICRA)}, 2024, pp. 11920--11926, doi: 10.1109/ICRA57147.2024.10610237.
-\bibitem{cite:Colpaert2023} A. Colpaert, S. De Bast, R. Beerten, A. P. Guevara, Z. Cui, and S. Pollin, ``Massive MIMO channel measurement data set for localization and communication,'' \textit{IEEE Communications Magazine}, vol. 61, no. 9, pp. 114--120, Sep. 2023.
-\bibitem{cite:Cunningham2022KNN} P. Cunningham and S. J. Delany, ``K-nearest neighbour classifiers---A tutorial,'' \textit{ACM Computing Surveys}, vol. 54, no. 6, pp. 1--25, Jul. 2022.
-\bibitem{cite:Yaro2023} A. S. Yaro, F. Maly, and P. Prazak, ``A survey of the performance-limiting factors of a 2-dimensional RSS fingerprinting-based indoor wireless localization system,'' \textit{Sensors}, vol. 23, no. 5, p. 2545, 2023.
-\bibitem{cite:Mamba2023} A. Gu and T. Dao, ``Mamba: Linear-time sequence modeling with selective state spaces,'' arXiv preprint arXiv:2312.00752, 2023.
-\bibitem{cite:CMamba2024} C. Zeng, Z. Liu, G. Zheng, and L. Kong, ``CMamba: Channel correlation enhanced state space models for multivariate time series forecasting,'' arXiv preprint arXiv:2406.05316, 2024.
-\bibitem{cite:LightMamba2025} R. Wei, S. Xu, L. Zhong, et al., ``LightMamba: Efficient Mamba acceleration on FPGA with quantization and hardware co-design,'' in \textit{2025 Design, Automation \& Test in Europe Conference (DATE)}, IEEE, 2025. Available: \url{https://arxiv.org/abs/2502.15260}.
-\bibitem{cite:FastMamba2025} A. Wang, H. Shao, S. Ma, et al., ``FastMamba: A high-speed and efficient Mamba accelerator on FPGA with accurate quantization,'' arXiv preprint arXiv:2505.18975, 2025. Available: \url{https://arxiv.org/abs/2505.18975}.
-\bibitem{cite:HCSA2025} X. Jin, H. Zheng, M. Nie, et al., ``HCSAs: Hybrid computing systolic arrays for accelerating Mamba models with unified state space buffers and energy-efficient dataflow,'' in \textit{Great Lakes Symposium on VLSI 2025}, New York: ACM, 2025, pp. 457--462, doi: 10.1145/3716368.3735187.
-\bibitem{cite:Sutikno2014Sqrt} T. Sutikno, A. Z. Jidin, A. Jidin, and N. R. N. Idris, ``Strategies for FPGA implementation of non-restoring square root algorithm,'' \textit{International Journal of Electrical \& Computer Engineering}, 2014.
-\bibitem{cite:Istoan2015ReciprocalSqrt} M. Istoan and B. Pasca, ``Fixed-point implementations of the reciprocal, square root and reciprocal square root functions,'' 2015. Available: \url{https://hal.science/hal-01229538}.
-\end{thebibliography}
+\clearpage
+\bibliographystyle{IEEEtran}
+\bibliography{bibliography/thesisbib}
 
 
 %%%%%%%%%%%%%%%%%%
