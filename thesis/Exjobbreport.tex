@@ -1078,6 +1078,36 @@ mechanism as the sigmoid unit, while adding only the alignment FIFO and vector
 multiplication required by the \(x\cdot\sigma(x)\) formulation.
 
 \section{Quantization}
+Quantization converts floating-point values into fixed-point or integer
+representations so that the model can be hardware-friendly. In a
+floating-point model, values are stored with a flexible exponent and mantissa, while in
+a fixed-point datapath the binary point is fixed and each value is represented by an
+integer together with a scale factor. In this work, a real-valued number \(x\) is
+represented by an integer value \(q\) and a scale factor \(s\) and \(\hat{x}\) is the reconstructed real value
+after dequantization:
+\begin{equation}
+x \approx \hat{x} = s q .
+\label{eq:fixed_point_basic}
+\end{equation}
+For a binary fixed-point format with \(n\) fractional bits, the scale is
+\(s=2^{-n}\). In this thesis, the notation Q\(m.n\) denotes a fixed-point format
+with \(n\) fractional bits and a binary point placed \(n\) bits from the least
+significant bit. For example, signed Q8.8 uses the scale \(2^{-8}\), unsigned
+Q0.16 uses the scale \(2^{-16}\), and signed Q1.15 uses the scale \(2^{-15}\).
+The corresponding quantization and dequantization operations are written as
+\begin{equation}
+q = \mathrm{sat}_{[q_{\min},q_{\max}]}
+\left(
+\mathrm{round}\left(\frac{x}{s}\right)
+\right),
+\label{eq:quantize_basic}
+\end{equation}
+\begin{equation}
+\hat{x}=s q .
+\label{eq:dequantize_basic}
+\end{equation}
+Here, \(\mathrm{round}(\cdot)\) denotes the selected rounding rule and
+\(\mathrm{sat}(\cdot)\) clamps the integer result to the representable range.
 
 \subsection{Quantization Workflow}
 \label{subsec:quant_workflow}
@@ -1108,12 +1138,8 @@ and control parameters. Its output is compared against the C++ fixed-point refer
 
 As shown in Fig.~\ref{fig:quantization_workflow}, the workflow starts with a precision
 sweep to determine the required precision for different computation stages. A baseline
-error profiling step is then performed using a unified projection requantization
-configuration. In this baseline, the input projection, \(dt\) projection, and output
-projection use identity Q15 scales, while the MAC results are written back using
-round-to-nearest ties-to-even and saturation clamp. For nonlinear layers, the sigmoid
-and SiLU path uses a Q0.16 sigmoid LUT output, while RMSNorm uses a Q30 reciprocal scale
-followed by fixed-point shifting, rounding, and saturation. If the final output error is
+error profiling step is then performed using a unified requantization
+configuration. If the final output error is
 too large, per-layer error analysis is used to locate where the mismatch grows. Based on
 this analysis, the layer-wise quantization strategy is refined and then mapped to the
 RTL quantization modules and memory initialization files.
@@ -1163,7 +1189,119 @@ Mixed candidate & \texttt{dt\_proj=int8}, \texttt{ssm\_state=int8}, \texttt{gate
 \end{table}
 
 After the layer precision is selected, a unified fixed-scale quantization scheme is first
-evaluated as the baseline. In this baseline, the output differs
+evaluated as the baseline. In this baseline, the input projection, \(dt\) projection, output
+projection and selective-scan state use identity Q8.8 scales, while the MAC results are written back using
+round-to-nearest ties-to-even and saturation clamp. Therefore, the real value represented by an
+integer \(q\) is
+\begin{equation}
+x \approx \hat{x} = \frac{q}{2^8}.
+\label{eq:q88_value}
+\end{equation}
+Equivalently, the quantization scale is \(s=2^{-8}=1/256\). When two Q8.8 values
+are multiplied, the product contains 16 fractional bits. After MAC accumulation,
+the result is shifted right by 8 bits to return to Q8.8:
+\begin{equation}
+z = \frac{\mathrm{acc}}{2^8},
+\label{eq:q88_mac_shift}
+\end{equation}
+where \(\mathrm{acc}\) is the integer accumulation result before the final Q8.8
+conversion.
+
+The shifted value is rounded using round-to-nearest-even. This rule rounds a
+value to the closest integer; when the value lies exactly halfway between two
+integers, it chooses the even integer to reduce systematic rounding bias:
+\begin{equation}
+\mathrm{RNE}(z)=
+\begin{cases}
+\lfloor z \rfloor, & z-\lfloor z \rfloor < 0.5,\\
+\lceil z \rceil, & z-\lfloor z \rfloor > 0.5,\\
+\text{the nearest even integer}, & z-\lfloor z \rfloor = 0.5.
+\end{cases}
+\label{eq:rne}
+\end{equation}
+Finally, the rounded integer is clamped to the signed 16-bit range:
+\begin{equation}
+\mathrm{sat}_{16}(q)
+=
+\min(\max(q,-32768),32767).
+\label{eq:sat16}
+\end{equation}
+Since signed int16 ranges from \(-32768\) to \(32767\), the corresponding
+real-value range of signed Q8.8 is
+\[
+[-32768/256,\;32767/256] = [-128,\;127.996].
+\]
+
+
+The nonlinear layers are also mapped with fixed Q formats. The sigmoid LUT is generated
+offline. Each table entry stores a pre-quantized unsigned Q0.16 approximation of
+the corresponding floating-point sigmoid value:
+\begin{equation}
+q_{\sigma} =
+\mathrm{sat}_{[0,65535]}
+\left(
+\mathrm{round}_{\mathrm{nearest}}
+\left(
+\sigma(x)2^{16}
+\right)
+\right),
+\label{eq:sigmoid_lut_quant}
+\end{equation}
+
+where \(q_{\sigma}\) is the stored LUT value and
+\(\mathrm{round}_{\mathrm{nearest}}(\cdot)\) denotes the offline rounding to the
+nearest integer used during LUT generation. At runtime, the Q8.8 input is first 
+clamped to the sigmoid range \([-4,+4)\), which is selected based on the observed 
+value distribution in real data. After clamping, the input is shifted and converted to an unsigned integer index,
+and the LUT address is then generated using the fixed-point address
+mapping in Eq.~\eqref{eq:sigmoid_lut_addr}.
+
+The SiLU path reuses the same Q0.16 sigmoid output. The Q0.16 sigmoid value is
+multiplied with the signed Q8.8 input and then shifted back to Q8.8:
+\begin{equation}
+q_{\mathrm{SiLU}} =
+\left(q_{\sigma} q_x\right) \gg 16 ,
+\label{eq:silu_quant}
+\end{equation}
+where \(q_x\) is the signed Q8.8 input integer. 
+
+RMSNorm uses a Q30 reciprocal factor to preserve the precision of the shared
+normalization scale. The reciprocal integer is computed as
+\begin{equation}
+r_q =
+\mathrm{round}_{\mathrm{nearest}}
+\left(
+\frac{2^{30}}{\mathrm{RMS}(\mathbf{x})}
+\right),
+\qquad
+\widehat{r} = \frac{r_q}{2^{30}} .
+\label{eq:rms_recip_q30}
+\end{equation}
+Here, \(r_q\) is the stored Q30 reciprocal integer, \(\widehat{r}\) is the
+dequantized approximation of \(1/\mathrm{RMS}(\mathbf{x})\), and
+\(\mathrm{round}_{\mathrm{nearest}}(\cdot)\) denotes rounding to the nearest
+integer during reciprocal generation. The Q30 format gives a reciprocal
+resolution of \(2^{-30}\). A higher fractional precision is used here because the
+reciprocal is shared across all feature channels in one RMSNorm operation, so its
+quantization error is applied to the entire normalized vector.
+
+After the reciprocal multiplication, the Q30 product is shifted back to the Q8.8
+output format. Before this shift, a signed round-to-nearest rule is applied:
+\begin{equation}
+q_{\mathrm{norm}} =
+\begin{cases}
+\lfloor z \rfloor, & z-\lfloor z \rfloor < 0.5,\\
+\lceil z \rceil, & z-\lfloor z \rfloor \ge 0.5.
+\end{cases}
+\label{eq:rmsnorm_round_shift}
+\end{equation}
+
+where \(z\) is the scaled value after the Q30 factor has been removed. The
+rounded result is then clamped to the signed Q8.8 range using the same saturation
+definition as in Eq.~\eqref{eq:sat16}.
+
+
+With the above baseline quantization settings, however, the output differs
 substantially from the floating-point output, with an MAE of 0.17987 and a mean
 localization error of 0.35543 m. To locate the error sources, the Slim-Mamba block is decomposed
 according to the dataflow in Fig.~\ref{fig:mamba_stage_flow}, and the error is measured
@@ -1197,7 +1335,7 @@ output projection, and block-output errors.
 \texttt{norm} & 0.004498 & 0.004498 \\
 \texttt{inproj\_u} & 0.010917 & 0.010917 \\
 \texttt{inproj\_z} & 0.011069 & 0.011069 \\
-\texttt{silu\_u} & 0.006183 & 0.006183 \\
+\texttt{sigmoid\_u} & 0.006183 & 0.006183 \\
 \texttt{silu\_gate} & 0.005931 & 0.005931 \\
 \texttt{dtproj} & 0.010139 & 0.010139 \\
 \texttt{dt\_sigmoid} & 0.002118 & 0.002118 \\
@@ -1220,11 +1358,11 @@ fake-quantization reference of 0.13695 m.
 \caption{End-to-end quantization evaluation.}
 \label{tab:quant_final_eval}
 \small
-\setlength{\tabcolsep}{5pt}
+\setlength{\tabcolsep}{6pt}
 \resizebox{\linewidth}{!}{%
 \begin{tabular}{l c c c}
 \hline
-\textbf{Evaluation} & \textbf{Samples} & \textbf{HW-like vs. float MAE} &
+\textbf{Evaluation} & \textbf{Samples} & \textbf{HW vs. float MAE} &
 \textbf{Mean localization error (m)} \\
 \hline
 fixed-scale & 32 & 0.17987 & 0.35543 \\
@@ -1240,34 +1378,81 @@ in Table~\ref{tab:quant_strategy}. Most intermediate values use signed Q8.8 with
 scale of \(1/256\). The sigmoid-related values use unsigned Q0.16, which matches the
 range of the sigmoid output. The selective-scan coefficient \(\lambda\) is represented
 as signed Q1.15, while the selective-scan state stored in SRAM uses a dynamic signed
-int16 scale. For rounding, the main rule is round-to-nearest-even after MAC operations,
-Q-format conversion, state update, and scale multiplication. Final Q8.8 values are
-clamped to the signed int16 range \([-32768,32767]\), corresponding to approximately
-\([-128,127.996]\), to prevent overflow or sign errors after multiplication,
-accumulation, and residual addition.
+int16 scale. The RMSNorm reciprocal uses a higher-precision Q30 format to preserve 
+the accuracy.
+
+For rounding, round-to-nearest-even (RNE) is used in the projection requantization
+path and in the selective-scan state conversion path. These paths include repeated MAC
+accumulation, state update, and scale multiplication, where biased rounding errors can
+accumulate across channels and layers. The sigmoid LUT is rounded offline using nearest
+rounding (NR) when the table is generated, while the runtime sigmoid path only performs
+clamping and table lookup. RMSNorm also uses a signed NR conversion after reciprocal
+multiplication. The value denoted as \texttt{dt\_lambda} is the Q0.16 sigmoid output
+generated after the \(dt\) projection. It is then converted to the the Q1.15 
+selective-scan coefficient \(\lambda\) by a one-bit right shift before the 
+selective-scan update because the state update needs both \(\lambda\) and \(1-\lambda\). 
+In Q1.15, the value 1.0 is represented as \(2^{15}\), so \(1-\lambda\) can 
+be computed directly as \(2^{15}-q_{\lambda}\). This step is a value-format
+conversion between two fixed-point representations, rather than a separate
+quantization or rounding operation.
+
+For saturation, each format is clamped to its valid representable range. Signed Q8.8
+values are clamped to the signed Q8.8 range \([-32768,32767]\). Unsigned Q0.16 
+sigmoid-related values are clamped to
+\([0,65535]\), while the selective-scan coefficient is limited to the sigmoid range
+\([0,1]\) in Q1.15. The dynamic-scale state is also stored as a signed int16 value
+under its selected runtime scale. These saturation rules prevent overflow or sign
+errors after multiplication, accumulation, state update, and residual addition.
 
 \begin{table}[H]
 \centering
 \caption{Final layer-wise quantization strategy.}
 \label{tab:quant_strategy}
-\small
-\setlength{\tabcolsep}{5pt}
-\resizebox{\linewidth}{!}{%
-\begin{tabular}{l l l}
+\footnotesize
+\setlength{\tabcolsep}{1pt}
+\renewcommand{\arraystretch}{1.0}
+\begin{tabular}{p{0.28\linewidth} p{0.14\linewidth} p{0.14\linewidth} p{0.24\linewidth} p{0.18\linewidth}}
 \hline
-\textbf{Scale} & \textbf{Q format} & \textbf{Layer or signal} \\
+\textbf{Stage} & \textbf{Scale} & \textbf{Q format} &
+\textbf{Rounding} & \textbf{Saturation} \\
 \hline
-\(1/256\) & Signed int16 Q8.8 &
-RMSNorm output, \texttt{in\_proj}, \texttt{dt\_proj}, \texttt{out\_proj}, \texttt{gate\_y} \\
-\(1/65536\) & Unsigned Q0.16 &
-Sigmoid LUT output, SiLU sigmoid path, \texttt{dt\_lambda} \\
-\(1/32768\) & Signed Q1.15 &
-Selective-scan \(\lambda\) \\
-Dynamic scale & Scaled signed int16 &
-Selective-scan state SRAM \\
+RMSNorm output &
+\(1/256\) & Q8.8 &
+RNE & \([-32768,32767]\) \\
+RMSNorm reciprocal &
+\(1/2^{30}\) & Q30 &
+NR & \([-32768,32767]\) \\
+\texttt{in\_proj} &
+\(1/256\) & Q8.8 &
+RNE & \([-32768,32767]\) \\
+\texttt{dt\_proj} &
+\(1/256\) & Q8.8 &
+RNE & \([-32768,32767]\) \\
+\texttt{out\_proj} &
+\(1/256\) & Q8.8 &
+RNE & \([-32768,32767]\) \\
+\texttt{gate\_y} &
+\(1/256\) & Q8.8 &
+RNE & \([-32768,32767]\) \\
+Sigmoid LUT output &
+\(1/65536\) & Q0.16 &
+NR & \([0,65535]\) \\
+SiLU sigmoid path &
+\(1/65536\) & Q0.16 &
+NR & \([0,65535]\) \\
+\texttt{dt\_lambda} &
+\(1/65536\) & Q0.16 &
+NR & \([0,65535]\) \\
+Selective-scan \(\lambda\) &
+\(1/32768\) & Q1.15 &
+No rounding, Shift & \([0,1]\) \\
+Selective-scan state &
+Dynamic & Q8.8 &
+RNE & \([-32768,32767]\) \\
 \hline
-\end{tabular}%
-}
+\end{tabular}
+% \caption*{\footnotesize RNE denotes round-to-nearest-even. NR denotes nearest rounding,
+% which rounds to the nearest representable integer without the tie-to-even rule.}
 \end{table}
 
 \subsection{Quantization Hardware Module Design}

@@ -12,16 +12,16 @@
 \contentsline {figure}{\numberline {4.5}{\ignorespaces Reciprocal-based division approximation for RMSNorm.}}{21}{}%
 \contentsline {figure}{\numberline {4.6}{\ignorespaces Comparison between floating-point RMSNorm and the fixed-point hardware approximation.}}{22}{}%
 \contentsline {figure}{\numberline {4.7}{\ignorespaces Comparison between floating-point sigmoid and the fixed-point LUT approximation.}}{23}{}%
-\contentsline {figure}{\numberline {4.8}{\ignorespaces Quantization workflow from precision sweep to RTL mapping.}}{24}{}%
-\contentsline {figure}{\numberline {4.9}{\ignorespaces Slim-Mamba block flow used for stage-level quantization error analysis.}}{26}{}%
-\contentsline {figure}{\numberline {4.10}{\ignorespaces Configurable fixed-point quantization engine for one vector lane.}}{28}{}%
-\contentsline {figure}{\numberline {4.11}{\ignorespaces Ping-pong buffer alignment for runtime dynamic scales in the selective-scan path.}}{28}{}%
+\contentsline {figure}{\numberline {4.8}{\ignorespaces Quantization workflow from precision sweep to RTL mapping.}}{25}{}%
+\contentsline {figure}{\numberline {4.9}{\ignorespaces Slim-Mamba block flow used for stage-level quantization error analysis.}}{28}{}%
+\contentsline {figure}{\numberline {4.10}{\ignorespaces Configurable fixed-point quantization engine for one vector lane.}}{30}{}%
+\contentsline {figure}{\numberline {4.11}{\ignorespaces Ping-pong buffer alignment for runtime dynamic scales in the selective-scan path.}}{31}{}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {5.1}{\ignorespaces Cumulative distribution of localization error for Slim-Mamba and two channel mamba reference runs under matched and augmented input settings.}}{30}{}%
-\contentsline {figure}{\numberline {5.2}{\ignorespaces Per-grid mean localization error of the final Slim-Mamba model on the test set, sorted from best to worst.}}{30}{}%
-\contentsline {figure}{\numberline {5.3}{\ignorespaces Trajectory-level comparisons on low-, mid-, and high-error grids for Slim-Mamba (top) and channel mamba (bottom).}}{31}{}%
-\contentsline {figure}{\numberline {5.4}{\ignorespaces Cumulative distribution of localization error for representative Slim-Mamba temporal-window configurations.}}{32}{}%
-\contentsline {figure}{\numberline {5.5}{\ignorespaces FPGA on-board validation flow.}}{36}{}%
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Cumulative distribution of localization error for Slim-Mamba and two channel mamba reference runs under matched and augmented input settings.}}{33}{}%
+\contentsline {figure}{\numberline {5.2}{\ignorespaces Per-grid mean localization error of the final Slim-Mamba model on the test set, sorted from best to worst.}}{33}{}%
+\contentsline {figure}{\numberline {5.3}{\ignorespaces Trajectory-level comparisons on low-, mid-, and high-error grids for Slim-Mamba (top) and channel mamba (bottom).}}{34}{}%
+\contentsline {figure}{\numberline {5.4}{\ignorespaces Cumulative distribution of localization error for representative Slim-Mamba temporal-window configurations.}}{35}{}%
+\contentsline {figure}{\numberline {5.5}{\ignorespaces FPGA on-board validation flow.}}{39}{}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {A.1}{\ignorespaces A picture or table in the appendix is numbered accordingly.}}{40}{}%
+\contentsline {figure}{\numberline {A.1}{\ignorespaces A picture or table in the appendix is numbered accordingly.}}{43}{}%
