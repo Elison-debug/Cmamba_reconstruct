@@ -43,6 +43,31 @@
 \MakeTitlePage  %%% Print title page and copyright page
 %%%%%% 
 \frontmatter    %%% Page numbering for front pages (small roman)
+%%%%% Acknowledgments
+\chapter*{Acknowledgments}
+We would like to express our sincere gratitude to our supervisor, Ilayda Yaman. Thank
+you for your continuous guidance, support, and feedback throughout this thesis work.
+Your advice helped us define the research direction, improve the structure of the
+thesis, and better understand how the proposed model could be connected with practical
+indoor localization applications. Working with you has been a very valuable experience in
+our master's study.
+
+We would also like to thank our second supervisor, Sijia Cheng, for her helpful
+technical discussions and suggestions during the project. Her feedback was especially
+valuable for improving the hardware implementation and evaluating the FPGA accelerator.
+
+We are also grateful to the Department of Electrical and Information Technology at Lund
+University for providing the academic environment and resources needed to carry out
+this thesis. We also thank the researchers and engineers whose previous work on
+Massive MIMO indoor localization, the LuViRA dataset, and FPGA acceleration provided an
+important foundation for our study.
+
+Finally, we would like to thank our families and friends for their patience,
+encouragement, and support during this period.
+\begin{center}
+\textit{Shengjie Chen and Chenxi Zhang}\\
+\textit{May 2026}
+\end{center}
 %%%%% Abstract
 \chapter*{Abstract}
 In recent years, as 6G wireless systems continue to develop, high-accuracy indoor
@@ -62,7 +87,7 @@ A Zynq MPSoC-based FPGA accelerator is then designed, with PS-side control and
 PL-side input loading, four-block Slim-Mamba computation, and AXI-stream dataflow. 
 We designed a shared \(4\times4\times4\) reconfigurable MAC
 fabric for linear projection layers, together with a fine-grained
-FIFO-based SSM(State-Space Model) pipeline to reduce waiting time between projection, nonlinear, and
+FIFO-based state-space model (SSM) pipeline to reduce waiting time between projection, nonlinear, and
 state-update stages. A fixed-point quantization flow is built from Python, to bit-true
 C++ modeling, and finally to RTL. 
 
@@ -139,10 +164,14 @@ implemented on dedicated hardware with limited computation resources, memory
 capacity, and power budget.
 
 This motivates the study of compact and hardware-friendly neural architectures
-for Massive MIMO indoor localization. Mamba~\cite{cite:Mamba2023}, as a new model proposed in recent years has the potential capability in small parameter size, because it removed complex neural network layers and use a simple recurrent state-space model(SSM). In this thesis, Mamba-like models are
-investigated as a possible alternative to large fully connected localization
-models, with the aim of studying the trade-off among localization accuracy,
-model size, and hardware implementation complexity.
+for Massive MIMO indoor localization. Mamba~\cite{cite:Mamba2023}, proposed as
+a recent sequence model based on recurrent state-space updates, is attractive
+in this context because it replaces several more complex neural-network
+components with a relatively compact recurrent state-space model (SSM)
+backbone. In this thesis, Mamba-family models are investigated as a possible
+alternative to large fully connected localization models, with the aim of
+studying the trade-off among localization accuracy, model size, and hardware
+implementation complexity.
 
 
 \section{Related Work}
@@ -159,9 +188,10 @@ Although subarray-based processing can reduce network size, efficient and
 hardware-friendly model design remains an important issue for practical
 deployment~\cite{cite:Tian2024}.
 
-Most existing ML-based Massive MIMO indoor localization methods rely on FCNNs,
-CNNs~\cite{cite:Colpaert2023},
-KNN~\cite{cite:Cunningham2022KNN}, or other conventional machine-learning models to process high-dimensional
+Most existing ML-based Massive MIMO indoor localization methods rely on fully
+connected neural networks (FCNNs), convolutional neural networks
+(CNNs)~\cite{cite:Colpaert2023}, k-nearest neighbors
+(KNN)~\cite{cite:Cunningham2022KNN}, or other conventional machine-learning models to process high-dimensional
 channel fingerprints~\cite{cite:Tian2024}. These methods can effectively exploit
 channel features, but for densely connected models such as FCNNs, higher-dimensional
 inputs usually lead to larger network sizes, more parameters, and higher training and
@@ -188,7 +218,7 @@ and the recurrent state update may provide a compact way to aggregate useful
 contextual information. Also, the original Mamba architecture was not
 designed specifically for radio localization or FPGA deployment. Directly
 adopting it may introduce unnecessary model complexity and hardware mapping
-overhead. This motivates the development of a task-driven Slim Mamba variant
+overhead. This motivates the development of a task-driven Slim-Mamba variant
 and a corresponding accelerator design for the target localization workload.
 
 \section{Goals and Challenges}
@@ -199,18 +229,19 @@ complexity. In addition, this thesis further explores FPGA-based acceleration of
 the proposed Mamba-like model. 
 
 Compared with previous FCNN-based methods that mainly operate on single snapshots or
-fixed fingerprints, Mamba can process short sequences of observations recurrently in the wireless channel. This thesis aims to
-evaluate Mamba-family models for LuViRA indoor localization, design a hardware-friendly
-Mamba-like architecture, and implement the key Mamba datapath on FPGA with
+fixed fingerprints, Mamba can process short sequences of observations and capture
+temporal structure in the wireless channel. This thesis aims to evaluate
+Mamba-family models for LuViRA indoor localization, design a hardware-friendly
+Slim-Mamba architecture, and implement the key Mamba datapath on FPGA with
 quantization-aware considerations. The main challenges include preserving localization
 accuracy after model simplification and quantization, handling the memory and
-computation pressure caused by high-dimensional CSI, and balancing latency, power,
-resource utilization, and localization accuracy in the final accelerator design. Recent
+computation pressure caused by high-dimensional channel state information (CSI), and
+balancing latency, power, resource utilization, and localization accuracy in the final accelerator design. Recent
 studies have explored Mamba acceleration in other application scenarios, including
 FPGA-based quantization and hardware co-design with computation reordering and
 fine-grained tiling, pipelined vector processing units, and hybrid dataflows with
 state-space buffers~\cite{cite:LightMamba2025,cite:FastMamba2025,cite:HCSA2025}.
-Motivated by these works, this thesis further investigates how the Slim Mamba datapath
+Motivated by these works, this thesis further investigates how the Slim-Mamba datapath
 can be reused for indoor localization, with particular attention to datapath reuse,
 memory access organization, and pipeline granularity.
 
@@ -316,8 +347,13 @@ $\mathbf{p}_i$,
 \[
 e_i = \|\hat{\mathbf{p}}_i-\mathbf{p}_i\|_2 .
 \]
-The mean of $e_i$ over the test set is used to report localization
-accuracy.
+The reported localization accuracy is the mean localization error over all
+windowed test samples,
+\[
+\bar{e}_{\mathrm{test}}=\frac{1}{N_{\mathrm{test}}}\sum_{i=1}^{N_{\mathrm{test}}} e_i,
+\]
+where $N_{\mathrm{test}}$ is the number of test windows after sequence
+construction.
 
 \begin{figure}[H]
   \centering
@@ -342,14 +378,44 @@ be compared under a consistent data partition, making differences in localizatio
 accuracy more attributable to the model design rather than to different dataset
 splits.
 
+In this pipeline, one localization sample is constructed from a window of
+\(K\) consecutive radio observations, represented as a
+\(K\times D_{\mathrm{in}}\) input matrix \(\mathbf{X}_i\), together with the target position of the
+corresponding window endpoint. With the current setting used throughout the
+software and hardware flow, the input window contains the \(K\) observations
+immediately preceding the target index. This definition of sequence length is
+used consistently in training, software evaluation, export, and FPGA-side
+reference inference.
+
 
 \chapter{Algorithm}
 
 \section{Mamba Basics}
 Mamba is a sequence modeling architecture based on selective state-space models
 (selective SSMs). A state-space model represents historical information using a hidden
-state and describes the dynamics of an input sequence through state transitions. A
-continuous-time state-space model can be written as
+state and describes the dynamics of an input sequence through state transitions.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{generated_figures/model_family_sequence_overview.png}
+  \caption{Comparison of common localization backbones in terms of how temporal context is represented and how data dependencies are introduced during inference.}
+  \label{fig:model_family_overview}
+\end{figure}
+
+Figure~\ref{fig:model_family_overview} places Mamba in the context of other
+backbone families relevant to localization. FCNNs and CNNs mainly realize
+feed-forward mappings over a single snapshot or a fixed local window. RNNs and
+Mamba instead propagate an explicit state step by step, while Transformers
+jointly process all tokens within a window through attention. For this thesis,
+the distinction matters because it changes whether temporal information is
+captured by a fixed combinational mapping or by a sequential state update. In
+the present implementation, the sequence length \(K\) denotes the number of
+consecutive radio observations in one input window. After channel projection and
+patch embedding with patch length \(P\) and stride \(S\), the recurrent
+backbone receives \(L=(K-P)/S+1\) tokens.
+
+A continuous-time state-space model can be written as
+
 \begin{equation}
 \dot{h}(t)=Ah(t)+Bx(t),
 \end{equation}
@@ -459,6 +525,41 @@ input-dependent modulation mechanisms that are most relevant to the localization
 while removing complex multi-branch fusion structures and the full selective-scan
 parameterization.
 
+The deployment configuration used in the later hardware chapters is
+\(D_{\mathrm{in}}=2100\), \(K=2\), \(\text{proj\_dim}=64\),
+\(d_{\mathrm{model}}=128\), \(n_{\mathrm{layer}}=4\), patch length \(P=2\),
+and stride \(S=2\). Table~\ref{tab:slim_param_breakdown} breaks down the
+trainable parameters of this deployed path by function. Most parameters are
+concentrated in the repeated in-proj and \(dt\)-proj stages inside the four
+Slim-Mamba blocks, which is consistent with the parts later mapped to the main
+matrix-vector and state-update datapaths in hardware. The software module still
+contains an alternative pooled output head for ablation convenience, but that
+branch is not used in the deployed flat-head path and is therefore excluded from
+the table.
+
+\begin{table}[H]
+\centering
+\caption{Trainable parameter breakdown of the deployed Slim-Mamba configuration.}
+\label{tab:slim_param_breakdown}
+\begin{tabular}{l r}
+\hline
+\textbf{Component} & \textbf{Parameters} \\
+\hline
+Input projection \(D_{\mathrm{in}}\rightarrow\text{proj\_dim}\) & 134,464 \\
+Patch embedding Conv1d & 16,512 \\
+Four block RMSNorm layers & 512 \\
+Four block in-proj layers & 262,144 \\
+Four block selective-scan \(dt\)-proj layers & 263,168 \\
+Four block out-proj layers & 131,072 \\
+Final RMSNorm & 128 \\
+Flat output layer & 8,256 \\
+Regression head \(\text{proj\_dim}\rightarrow 2\) & 130 \\
+\hline
+\textbf{Total} & \textbf{816,386} \\
+\hline
+\end{tabular}
+\end{table}
+
 
 Table~\ref{tab:model_variants} summarizes the measured comparison among the FCNN
 baseline, channel mamba, vanilla Mamba v1, and slim mamba on the LuViRA dataset.
@@ -481,7 +582,7 @@ task.
     Model & Input & Size & Time & it/s & Err. & HW Cost \\
           & Features & (MB) & (s/epoch) & & (cm) & Proxy \\
     \hline
-    FCNN & CIR & 440 & N/A & N/A & $\sim$13 & High \\
+    FCNN\cite{cite:TianICC2023} & CIR & 789 & N/A & N/A & $\sim$13 & High \\
     channel mamba & CIR + Power & 40.4 & 73 & 13.18 & 12.9 & High \\
     Vanilla Mamba v1 & CIR + Power & 3.38 & 33 & 32.62 & 24.74 & Medium \\
     slim mamba & CIR + Power & 3.40 & 13 & 75.30 & 13.5 & Low \\
@@ -502,17 +603,19 @@ modulation.
 
 \begin{figure}[H]
   \centering
-  \includesvg[width=0.70\linewidth]{generated_figures/ssm_block_flow}
+  \includesvg[width=0.70\linewidth]{generated_figures/ssm_block_flownew.svg}
   \caption{Simplified datapath of the Slim Mamba block.}
   \label{fig:slim_mamba}
 \end{figure}
 
 \FloatBarrier
 
-In the state input branch, the update gate generator produces an input-dependent update
-coefficient $\lambda_t$ from the current state input:
+After the input projection and branch split, the token feature at time step $t$ is
+denoted by $x_t^{(s)}$ on the state-update branch and by $x_t^{(g)}$ on the gate
+branch. In the state branch, the update gate generator produces an input-dependent
+coefficient $\lambda_t$ from the current input feature:
 \begin{equation}
-\lambda_t = \sigma(W_{\lambda} * u_t + b_{\lambda}),
+\lambda_t = \sigma(W_{\lambda} * x_t^{(s)} + b_{\lambda}),
 \label{eq:slim_mamba_lambda_conv}
 \end{equation}
 where $*$ denotes the convolution operation, $\sigma(\cdot)$ is the sigmoid function, defined as
@@ -524,10 +627,10 @@ and $\lambda_t$ is constrained to the range $(0,1)$ so that it can control the
 interpolation between the previous state and the current input. The recurrent state
 update is computed as
 \begin{equation}
-s_t = \lambda_t \odot s_{t-1} + (1-\lambda_t) \odot u_t,
+h_t = \lambda_t \odot h_{t-1} + (1-\lambda_t) \odot x_t^{(s)},
 \label{eq:slim_mamba_state_update}
 \end{equation}
-where $s_{t-1}$ is the previous state, $u_t$ is the current state input, and
+where $h_{t-1}$ is the previous state, $x_t^{(s)}$ is the current state-branch input, and
 $\lambda_t$ is the update gate that controls the balance between the historical state
 and the current input. When $\lambda_t$ is fixed, this recurrence is equivalent to an
 exponential moving average, since older inputs receive weights that decay as powers of
@@ -538,6 +641,13 @@ parameterization and low-rank discretization in the original Mamba, this formula
 leads to a more regular computation path and is more suitable for hardware
 implementation~\cite{cite:Mamba2023}.
 
+With this notation, the simplified recurrence remains consistent with the general SSM
+description in Section~3.1: $h_t$ is the hidden state, while $x_t^{(s)}$ and
+$x_t^{(g)}$ are branch-wise features derived from the current input token. The main
+difference is that Slim Mamba does not instantiate the full $(A,B,C,D)$
+parameterization explicitly. Instead, the state-transition behavior is absorbed into
+the input-dependent coefficient $\lambda_t$ and the subsequent gated output path.
+
 In parallel, the gate branch is passed through a SiLU activation, defined as
 \begin{equation}
 \mathrm{SiLU}(x) = x \cdot \sigma(x) = \frac{x}{1+e^{-x}}.
@@ -546,13 +656,13 @@ In parallel, the gate branch is passed through a SiLU activation, defined as
 
 Therefore, the output gate is computed as
 \begin{equation}
-g_t = \mathrm{SiLU}(v_t).
+g_t = \mathrm{SiLU}(x_t^{(g)}).
 \label{eq:slim_mamba_output_gate}
 \end{equation}
 
 The output gate then modulates the updated state through element-wise multiplication:
 \begin{equation}
-z_t = s_t \odot g_t.
+y_t = h_t \odot g_t.
 \label{eq:slim_mamba_output_modulation}
 \end{equation}
 This gating operation allows the model to regulate the effective information from the
@@ -1257,13 +1367,13 @@ and the LUT address is then generated using the fixed-point address
 mapping in Eq.~\eqref{eq:sigmoid_lut_addr}.
 
 The SiLU path reuses the same Q0.16 sigmoid output. The Q0.16 sigmoid value is
-multiplied with the signed Q8.8 input and then shifted back to Q8.8:
+multiplied by the signed Q8.8 input and then shifted back to Q8.8:
 \begin{equation}
 q_{\mathrm{SiLU}} =
 \left(q_{\sigma} q_x\right) \gg 16 ,
 \label{eq:silu_quant}
 \end{equation}
-where \(q_x\) is the signed Q8.8 input integer. 
+where \(q_x\) is the signed input integer Q8.8. 
 
 RMSNorm uses a Q30 reciprocal factor to preserve the precision of the shared
 normalization scale. The reciprocal integer is computed as
@@ -1279,13 +1389,13 @@ r_q =
 \end{equation}
 Here, \(r_q\) is the stored Q30 reciprocal integer, \(\widehat{r}\) is the
 dequantized approximation of \(1/\mathrm{RMS}(\mathbf{x})\), and
-\(\mathrm{round}_{\mathrm{nearest}}(\cdot)\) denotes rounding to the nearest
+\(\mathrm{round}_{\mathrm{nearest}}(\cdot)\) denotes the rounding to the nearest
 integer during reciprocal generation. The Q30 format gives a reciprocal
 resolution of \(2^{-30}\). A higher fractional precision is used here because the
 reciprocal is shared across all feature channels in one RMSNorm operation, so its
 quantization error is applied to the entire normalized vector.
 
-After the reciprocal multiplication, the Q30 product is shifted back to the Q8.8
+After reciprocal multiplication, the Q30 product is shifted back to the Q8.8
 output format. Before this shift, a signed round-to-nearest rule is applied:
 \begin{equation}
 q_{\mathrm{norm}} =
@@ -1301,11 +1411,11 @@ rounded result is then clamped to the signed Q8.8 range using the same saturatio
 definition as in Eq.~\eqref{eq:sat16}.
 
 
-With the above baseline quantization settings, however, the output differs
-substantially from the floating-point output, with an MAE of 0.17987 and a mean
+However, with the above baseline quantization settings, the output differs
+substantially from the floating-point output, with a mean absolute error(MAE) of 0.17987 and a mean
 localization error of 0.35543 m. To locate the error sources, the Slim-Mamba block is decomposed
-according to the dataflow in Fig.~\ref{fig:mamba_stage_flow}, and the error is measured
-after each computation stage. The corresponding mean absolute error (MAE) values are
+according to the data flow in Fig.~\ref{fig:mamba_stage_flow}, and the error is measured
+after each computation stage. The corresponding MAE values are
 listed in Table~\ref{tab:stage_quant_error}. This stage-level analysis shows that the
 largest error increase occurs in the selective scan stage. Since this stage repeatedly
 updates the recurrent state, its value range changes across channels and time steps, so
@@ -1454,7 +1564,6 @@ RNE & \([-32768,32767]\) \\
 % \caption*{\footnotesize RNE denotes round-to-nearest-even. NR denotes nearest rounding,
 % which rounds to the nearest representable integer without the tie-to-even rule.}
 \end{table}
-
 \subsection{Quantization Hardware Module Design}
 \label{subsec:quant_hw_module}
 
@@ -1605,8 +1714,10 @@ model target for the subsequent hardware implementation.
 This section evaluates the localization accuracy across three stages: the
 floating-point Slim-Mamba model, the fake-quantized model, and the hardware fixed-point
 model. The floating-point model is used as the software reference. The fake-quantized
-model inserts quantize and dequantize operations during software inference and is used
-to evaluate the effect of the selected bit-widths. The hardware fixed-point model
+model inserts quantize and dequantize operations during software inference, while all
+intermediate tensors are still accumulated in floating point, and is used to evaluate
+the effect of the selected bit-widths without introducing RTL-specific arithmetic. The
+hardware fixed-point model
 further follows the integer datapath used in RTL, including fixed-point multiplication,
 shifting, rounding, saturation, lookup-table nonlinear functions, and dynamic scaling in
 the selective-scan state path. This layered comparison separates the model accuracy,
