@@ -38,7 +38,7 @@
   \newcommand*\fsize{\dimexpr\f@size pt\relax}%
   \newcommand*\lineheight[1]{\fontsize{\fsize}{#1\fsize}\selectfont}%
   \ifx\svgwidth\undefined%
-    \setlength{\unitlength}{444.375bp}%
+    \setlength{\unitlength}{444.75bp}%
     \ifx\svgscale\undefined%
       \relax%
     \else%
@@ -50,65 +50,9 @@
   \global\let\svgwidth\undefined%
   \global\let\svgscale\undefined%
   \makeatother%
-  \begin{picture}(1,1.05824763)%
+  \begin{picture}(1,1.09274874)%
     \lineheight{1}%
     \setlength\tabcolsep{0pt}%
     \put(0,0){\includegraphics[width=\unitlength,page=1]{ssm_block_flow_svg-tex.pdf}}%
-    \put(0.64050633,0.95951345){\color[rgb]{0.24705882,0.19215686,0.30980392}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{RMSNorm}\end{tabular}}}}%
-    \put(0,0){\includegraphics[width=\unitlength,page=2]{ssm_block_flow_svg-tex.pdf}}%
-    \put(0.49535865,0.66921809){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{Conv}\end{tabular}}}}%
-    \put(0,0){\includegraphics[width=\unitlength,page=3]{ssm_block_flow_svg-tex.pdf}}%
-    \put(0.69113924,0.34516746){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{Elementwise multiplication...}\end{tabular}}}}%
-    \put(0,0){\includegraphics[width=\unitlength,page=4]{ssm_block_flow_svg-tex.pdf}}%
-    \put(0.76371308,0.53757252){\color[rgb]{0.24705882,0.19215686,0.30980392}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{SiLU}\end{tabular}}}}%
-    \put(0,0){\includegraphics[width=\unitlength,page=5]{ssm_block_flow_svg-tex.pdf}}%
-    \put(0.80084388,0.58820543){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}vt\end{tabular}}}}%
-    \put(0,0){\includegraphics[width=\unitlength,page=6]{ssm_block_flow_svg-tex.pdf}}%
-    \put(0.61350211,1.03546282){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}xt\end{tabular}}}}%
-    \put(0,0){\includegraphics[width=\unitlength,page=7]{ssm_block_flow_svg-tex.pdf}}%
-    \put(0.64050633,0.85824763){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Linear...\end{tabular}}}}%
-    \put(0,0){\includegraphics[width=\unitlength,page=8]{ssm_block_flow_svg-tex.pdf}}%
-    \put(0.69620253,0.21352189){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Linear...\end{tabular}}}}%
-    \put(0,0){\includegraphics[width=\unitlength,page=9]{ssm_block_flow_svg-tex.pdf}}%
-    \put(0.51223629,0.44980881){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}SSM\end{tabular}}}}%
-    \put(0,0){\includegraphics[width=\unitlength,page=10]{ssm_block_flow_svg-tex.pdf}}%
-    \put(0.96793249,0.56964003){\rotatebox{-90}{\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Residual Connection\end{tabular}}}}}%
-    \put(0,0){\includegraphics[width=\unitlength,page=11]{ssm_block_flow_svg-tex.pdf}}%
-    \put(0.45485232,0.74010417){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}ut\end{tabular}}}}%
-    \put(0,0){\includegraphics[width=\unitlength,page=12]{ssm_block_flow_svg-tex.pdf}}%
-    \put(0.49367089,0.57639109){\color[rgb]{0.24705882,0.19215686,0.30980392}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{Sigmoid}\end{tabular}}}}%
-    \put(0,0){\includegraphics[width=\unitlength,page=13]{ssm_block_flow_svg-tex.pdf}}%
-    \put(0.45485232,0.51731936){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}$\lambda_t$\end{tabular}}}}%
-    \put(0,0){\includegraphics[width=\unitlength,page=14]{ssm_block_flow_svg-tex.pdf}}%
-    \put(0.80084388,0.41942906){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}gt\end{tabular}}}}%
-    \put(0,0){\includegraphics[width=\unitlength,page=15]{ssm_block_flow_svg-tex.pdf}}%
-    \put(0.61181435,0.51394383){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}ut\end{tabular}}}}%
-    \put(0,0){\includegraphics[width=\unitlength,page=16]{ssm_block_flow_svg-tex.pdf}}%
-    \put(0.72489451,0.41942906){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}st\end{tabular}}}}%
-    \put(0,0){\includegraphics[width=\unitlength,page=17]{ssm_block_flow_svg-tex.pdf}}%
-    \put(0.1257384,0.50888054){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}×\end{tabular}}}}%
-    \put(0,0){\includegraphics[width=\unitlength,page=18]{ssm_block_flow_svg-tex.pdf}}%
-    \put(0.1257384,0.61858518){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}st-1\end{tabular}}}}%
-    \put(0,0){\includegraphics[width=\unitlength,page=19]{ssm_block_flow_svg-tex.pdf}}%
-    \put(0.29451477,0.50888054){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}×\end{tabular}}}}%
-    \put(0,0){\includegraphics[width=\unitlength,page=20]{ssm_block_flow_svg-tex.pdf}}%
-    \put(0.21012658,0.53419699){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}$1-\lambda_t$\end{tabular}}}}%
-    \put(0,0){\includegraphics[width=\unitlength,page=21]{ssm_block_flow_svg-tex.pdf}}%
-    \put(0.29451477,0.61858518){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}ut\end{tabular}}}}%
-    \put(0,0){\includegraphics[width=\unitlength,page=22]{ssm_block_flow_svg-tex.pdf}}%
-    \put(0.21012658,0.3569818){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}+\end{tabular}}}}%
-    \put(0,0){\includegraphics[width=\unitlength,page=23]{ssm_block_flow_svg-tex.pdf}}%
-    \put(0.21012658,0.24727716){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}st\end{tabular}}}}%
-    \put(0,0){\includegraphics[width=\unitlength,page=24]{ssm_block_flow_svg-tex.pdf}}%
-    \put(0.18481013,0.68947126){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}state update\end{tabular}}}}%
-    \put(0,0){\includegraphics[width=\unitlength,page=25]{ssm_block_flow_svg-tex.pdf}}%
-    \put(0.04978903,0.53588476){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}$\lambda_t$\end{tabular}}}}%
-    \put(0,0){\includegraphics[width=\unitlength,page=26]{ssm_block_flow_svg-tex.pdf}}%
-    \put(0.66582278,0.04812104){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}yt\end{tabular}}}}%
-    \put(0,0){\includegraphics[width=\unitlength,page=27]{ssm_block_flow_svg-tex.pdf}}%
-    \put(0.69113924,0.09031514){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}+\end{tabular}}}}%
-    \put(0,0){\includegraphics[width=\unitlength,page=28]{ssm_block_flow_svg-tex.pdf}}%
-    \put(0.70801688,0.79073708){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Split(u,v)\end{tabular}}}}%
-    \put(0,0){\includegraphics[width=\unitlength,page=29]{ssm_block_flow_svg-tex.pdf}}%
   \end{picture}%
 \endgroup%

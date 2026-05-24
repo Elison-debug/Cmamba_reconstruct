@@ -7,8 +7,7 @@
 \providecommand{\BIBentrySTDinterwordspacing}{\spaceskip=0pt\relax}
 \providecommand{\BIBentryALTinterwordstretchfactor}{4}
 \providecommand{\BIBentryALTinterwordspacing}{\spaceskip=\fontdimen2\font plus
-\BIBentryALTinterwordstretchfactor\fontdimen3\font minus
-  \fontdimen4\font\relax}
+\BIBentryALTinterwordstretchfactor\fontdimen3\font minus \fontdimen4\font\relax}
 \providecommand{\BIBforeignlanguage}[2]{{%
 \expandafter\ifx\csname l@#1\endcsname\relax
 \typeout{** WARNING: IEEEtran.bst: No hyphenation pattern has been}%
@@ -22,116 +21,67 @@
 \BIBdecl
 
 \bibitem{cite:Tian2024}
-G.~Tian, I.~Yaman, M.~Sandra, X.~Cai, L.~Liu, and F.~Tufvesson,
-  ``Deep-learning-based high-precision localization with massive {MIMO},''
-  \emph{IEEE Transactions on Machine Learning in Communications and
-  Networking}, vol.~2, pp. 19--33, 2024.
+G.~Tian, I.~Yaman, M.~Sandra, X.~Cai, L.~Liu, and F.~Tufvesson, ``Deep-learning-based high-precision localization with massive {MIMO},'' \emph{IEEE Transactions on Machine Learning in Communications and Networking}, vol.~2, pp. 19--33, 2024.
 
 \bibitem{cite:Mamba2023}
 \BIBentryALTinterwordspacing
-A.~Gu and T.~Dao, ``Mamba: Linear-time sequence modeling with selective state
-  spaces,'' 2023. [Online]. Available: \url{https://arxiv.org/abs/2312.00752}
+A.~Gu and T.~Dao, ``Mamba: Linear-time sequence modeling with selective state spaces,'' 2023. [Online]. Available: \url{https://arxiv.org/abs/2312.00752}
 \BIBentrySTDinterwordspacing
 
 \bibitem{cite:Bourdoux2020}
 \BIBentryALTinterwordspacing
-A.~Bourdoux, A.~N. Barreto, B.~van Liempd, C.~H.~M. de~Lima, D.~Dardari,
-  D.~Belot, E.~S. Lohan, G.~Seco-Granados, H.~Sarieddeen, H.~Wymeersch
-  \emph{et~al.}, ``{6G} white paper on localization and sensing,'' 2020.
-  [Online]. Available: \url{https://arxiv.org/abs/2006.01779}
+A.~Bourdoux, A.~N. Barreto, B.~van Liempd, C.~H.~M. de~Lima, D.~Dardari, D.~Belot, E.~S. Lohan, G.~Seco-Granados, H.~Sarieddeen, H.~Wymeersch \emph{et~al.}, ``{6G} white paper on localization and sensing,'' 2020. [Online]. Available: \url{https://arxiv.org/abs/2006.01779}
 \BIBentrySTDinterwordspacing
 
 \bibitem{cite:Trevlakis2023}
-S.~E. Trevlakis, A.-A.~A. Boulogeorgos, D.~Pliatsios, J.~Querol, K.~Ntontin,
-  P.~Sarigiannidis, S.~Chatzinotas, and M.~Di~Renzo, ``Localization as a key
-  enabler of {6G} wireless systems: A comprehensive survey and an outlook,''
-  \emph{IEEE Open Journal of the Communications Society}, vol.~4, pp.
-  2733--2801, 2023.
+S.~E. Trevlakis, A.-A.~A. Boulogeorgos, D.~Pliatsios, J.~Querol, K.~Ntontin, P.~Sarigiannidis, S.~Chatzinotas, and M.~Di~Renzo, ``Localization as a key enabler of {6G} wireless systems: A comprehensive survey and an outlook,'' \emph{IEEE Open Journal of the Communications Society}, vol.~4, pp. 2733--2801, 2023.
 
 \bibitem{cite:Mogyorosi2022}
-F.~Mogyor{\'o}si, P.~Revisnyei, A.~Pa{\v{s}}i{\'c}, Z.~Papp, G.~T{\'o}th, and
-  P.~Varga, ``Positioning in {5G} and {6G} networks---a survey,''
-  \emph{Sensors}, vol.~22, no.~13, p. 4757, 2022.
+F.~Mogyor{\'o}si, P.~Revisnyei, A.~Pa{\v{s}}i{\'c}, Z.~Papp, G.~T{\'o}th, and P.~Varga, ``Positioning in {5G} and {6G} networks---a survey,'' \emph{Sensors}, vol.~22, no.~13, p. 4757, 2022.
 
 \bibitem{cite:Yaro2023}
-A.~S. Yaro, F.~Maly, and P.~Prazak, ``A survey of the performance-limiting
-  factors of a 2-dimensional {RSS} fingerprinting-based indoor wireless
-  localization system,'' \emph{Sensors}, vol.~23, no.~5, p. 2545, 2023.
+A.~S. Yaro, F.~Maly, and P.~Prazak, ``A survey of the performance-limiting factors of a 2-dimensional {RSS} fingerprinting-based indoor wireless localization system,'' \emph{Sensors}, vol.~23, no.~5, p. 2545, 2023.
 
 \bibitem{cite:TianICC2023}
-G.~Tian, I.~Yaman, M.~Sandra, X.~Cai, L.~Liu, and F.~Tufvesson,
-  ``High-precision machine-learning based indoor localization with massive
-  {MIMO} system,'' in \emph{ICC 2023 -- IEEE International Conference on
-  Communications}, Rome, Italy, 2023, pp. 3690--3695.
+G.~Tian, I.~Yaman, M.~Sandra, X.~Cai, L.~Liu, and F.~Tufvesson, ``High-precision machine-learning based indoor localization with massive {MIMO} system,'' in \emph{ICC 2023 -- IEEE International Conference on Communications}, Rome, Italy, 2023, pp. 3690--3695.
 
 \bibitem{cite:Colpaert2023}
-A.~Colpaert, S.~De~Bast, R.~Beerten, A.~P. Guevara, Z.~Cui, and S.~Pollin,
-  ``Massive {MIMO} channel measurement data set for localization and
-  communication,'' \emph{IEEE Communications Magazine}, vol.~61, no.~9, pp.
-  114--120, Sep. 2023.
+A.~Colpaert, S.~De~Bast, R.~Beerten, A.~P. Guevara, Z.~Cui, and S.~Pollin, ``Massive {MIMO} channel measurement data set for localization and communication,'' \emph{IEEE Communications Magazine}, vol.~61, no.~9, pp. 114--120, Sep. 2023.
 
 \bibitem{cite:Cunningham2022KNN}
-P.~Cunningham and S.~J. Delany, ``K-nearest neighbour classifiers---a
-  tutorial,'' \emph{ACM Computing Surveys}, vol.~54, no.~6, pp. 1--25, 2022.
+P.~Cunningham and S.~J. Delany, ``K-nearest neighbour classifiers---a tutorial,'' \emph{ACM Computing Surveys}, vol.~54, no.~6, pp. 1--25, 2022.
 
 \bibitem{cite:LightMamba2025}
-R.~Wei, S.~Xu, L.~Zhong, Z.~Yang, Q.~Guo, Y.~Wang, R.~Wang, and M.~Li,
-  ``{LightMamba}: Efficient mamba acceleration on {FPGA} with quantization and
-  hardware co-design,'' in \emph{2025 Design, Automation \& Test in Europe
-  Conference (DATE)}, 2025.
+R.~Wei, S.~Xu, L.~Zhong, Z.~Yang, Q.~Guo, Y.~Wang, R.~Wang, and M.~Li, ``{LightMamba}: Efficient mamba acceleration on {FPGA} with quantization and hardware co-design,'' in \emph{2025 Design, Automation \& Test in Europe Conference (DATE)}, 2025.
 
 \bibitem{cite:FastMamba2025}
 \BIBentryALTinterwordspacing
-A.~Wang, H.~Shao, S.~Ma, and Z.~Wang, ``{FastMamba}: A high-speed and efficient
-  mamba accelerator on {FPGA} with accurate quantization,'' 2025. [Online].
-  Available: \url{https://arxiv.org/abs/2505.18975}
+A.~Wang, H.~Shao, S.~Ma, and Z.~Wang, ``{FastMamba}: A high-speed and efficient mamba accelerator on {FPGA} with accurate quantization,'' 2025. [Online]. Available: \url{https://arxiv.org/abs/2505.18975}
 \BIBentrySTDinterwordspacing
 
 \bibitem{cite:HCSA2025}
-X.~Jin, H.~Zheng, M.~Nie, J.~Wang, and C.~R. Shi, ``{HCSAs}: Hybrid computing
-  systolic arrays for accelerating mamba models with unified state space
-  buffers and energy-efficient dataflow,'' in \emph{Proceedings of the Great
-  Lakes Symposium on VLSI 2025}.\hskip 1em plus 0.5em minus 0.4em\relax New
-  York, NY, USA: ACM, 2025, pp. 457--462.
+X.~Jin, H.~Zheng, M.~Nie, J.~Wang, and C.~R. Shi, ``{HCSAs}: Hybrid computing systolic arrays for accelerating mamba models with unified state space buffers and energy-efficient dataflow,'' in \emph{Proceedings of the Great Lakes Symposium on VLSI 2025}.\hskip 1em plus 0.5em minus 0.4em\relax New York, NY, USA: ACM, 2025, pp. 457--462.
 
 \bibitem{cite:LuViRA2024}
-I.~Yaman, G.~Tian, M.~Larsson, P.~Persson, M.~Sandra, A.~D{\"u}rr, E.~Tegler,
-  N.~Challa, H.~Garde, F.~Tufvesson, K.~{\AA}str{\"o}m, O.~Edfors,
-  S.~Malkowsky, and L.~Liu, ``The {LuViRA} dataset: Synchronized vision, radio,
-  and audio sensors for indoor localization,'' in \emph{2024 IEEE International
-  Conference on Robotics and Automation (ICRA)}, 2024, pp. 11\,920--11\,926.
+I.~Yaman, G.~Tian, M.~Larsson, P.~Persson, M.~Sandra, A.~D{\"u}rr, E.~Tegler, N.~Challa, H.~Garde, F.~Tufvesson, K.~{\AA}str{\"o}m, O.~Edfors, S.~Malkowsky, and L.~Liu, ``The {LuViRA} dataset: Synchronized vision, radio, and audio sensors for indoor localization,'' in \emph{2024 IEEE International Conference on Robotics and Automation (ICRA)}, 2024, pp. 11\,920--11\,926.
 
 \bibitem{cite:LuMaMi2017}
-S.~Malkowsky, J.~Vieira, L.~Liu, P.~Harris, K.~Nieman, N.~Kundargi, I.~C. Wong,
-  F.~Tufvesson, V.~{\"O}wall, and O.~Edfors, ``The world's first real-time
-  testbed for massive {MIMO}: Design, implementation, and validation,''
-  \emph{IEEE Access}, vol.~5, pp. 9073--9088, 2017.
+S.~Malkowsky, J.~Vieira, L.~Liu, P.~Harris, K.~Nieman, N.~Kundargi, I.~C. Wong, F.~Tufvesson, V.~{\"O}wall, and O.~Edfors, ``The world's first real-time testbed for massive {MIMO}: Design, implementation, and validation,'' \emph{IEEE Access}, vol.~5, pp. 9073--9088, 2017.
 
 \bibitem{cite:LuViRAValidation2024}
-I.~Yaman, G.~Tian, E.~Tegler, J.~Gulin, N.~Challa, F.~Tufvesson, O.~Edfors,
-  K.~{\AA}str{\"o}m, S.~Malkowsky, and L.~Liu, ``{LuViRA} dataset validation
-  and discussion: Comparing vision, radio, and audio sensors for indoor
-  localization,'' \emph{IEEE Journal of Indoor and Seamless Positioning and
-  Navigation}, vol.~2, pp. 240--250, 2024.
+I.~Yaman, G.~Tian, E.~Tegler, J.~Gulin, N.~Challa, F.~Tufvesson, O.~Edfors, K.~{\AA}str{\"o}m, S.~Malkowsky, and L.~Liu, ``{LuViRA} dataset validation and discussion: Comparing vision, radio, and audio sensors for indoor localization,'' \emph{IEEE Journal of Indoor and Seamless Positioning and Navigation}, vol.~2, pp. 240--250, 2024.
 
 \bibitem{cite:CMamba2024}
 \BIBentryALTinterwordspacing
-C.~Zeng, Z.~Liu, G.~Zheng, and L.~Kong, ``{CMamba}: Channel correlation
-  enhanced state space models for multivariate time series forecasting,'' 2024.
-  [Online]. Available: \url{https://arxiv.org/abs/2406.05316}
+C.~Zeng, Z.~Liu, G.~Zheng, and L.~Kong, ``{CMamba}: Channel correlation enhanced state space models for multivariate time series forecasting,'' 2024. [Online]. Available: \url{https://arxiv.org/abs/2406.05316}
 \BIBentrySTDinterwordspacing
 
 \bibitem{cite:Sutikno2014Sqrt}
-T.~Sutikno, A.~Z. Jidin, A.~Jidin, and N.~R.~N. Idris, ``Strategies for {FPGA}
-  implementation of non-restoring square root algorithm,'' \emph{International
-  Journal of Electrical and Computer Engineering}, vol.~4, no.~4, pp. 548--556,
-  2014.
+T.~Sutikno, A.~Z. Jidin, A.~Jidin, and N.~R.~N. Idris, ``Strategies for {FPGA} implementation of non-restoring square root algorithm,'' \emph{International Journal of Electrical and Computer Engineering}, vol.~4, no.~4, pp. 548--556, 2014.
 
 \bibitem{cite:Istoan2015ReciprocalSqrt}
 \BIBentryALTinterwordspacing
-M.~Istoan and B.~Pasca, ``Fixed-point implementations of the reciprocal, square
-  root and reciprocal square root functions,'' 2015. [Online]. Available:
-  \url{https://hal.science/hal-01229538}
+M.~Istoan and B.~Pasca, ``Fixed-point implementations of the reciprocal, square root and reciprocal square root functions,'' 2015. [Online]. Available: \url{https://hal.science/hal-01229538}
 \BIBentrySTDinterwordspacing
 
 \end{thebibliography}
