@@ -14,7 +14,6 @@
 \usepackage{graphicx}   % Included graphics and some resizable boxes
 \usepackage{url}        % nice urls with line breaks
 \usepackage{indentfirst} % indent the first paragraph after section headings
-\usepackage{lipsum}     % nonsense text blocks
 \usepackage{amsmath}
 
 \usepackage{float}
@@ -49,8 +48,8 @@ We would like to express our sincere gratitude to our supervisor, Ilayda Yaman. 
 you for your continuous guidance, support, and feedback throughout this thesis work.
 Your advice helped us define the research direction, improve the structure of the
 thesis, and better understand how the proposed model could be connected with practical
-indoor localization applications. Working with you has been a very valuable experience in
-our master's study.
+indoor localization applications. Working with you has been a valuable experience during
+our master's studies.
 
 We would also like to thank our second supervisor, Sijia Cheng, for her helpful
 technical discussions and suggestions during the project. Her feedback was especially
@@ -107,7 +106,7 @@ smart environment may need to understand where people or devices are.
 
 This thesis studies how wireless signals can be used for this purpose. When a radio
 signal travels through a room, it bounces off walls, furniture, and people before it
-reaches the receiver. These reflections create a kind of wireless ``fingerprint'' of the
+reaches the receiver. These reflections create a wireless ``fingerprint'' of the
 environment. If we can learn how these fingerprints relate to positions, then a wireless
 system can estimate where a device is located.
 
@@ -118,13 +117,13 @@ measurement alone. Instead, it can look at a short sequence of recent measuremen
 remember useful changes over time. This is promising for indoor positioning.
 
 However, a model that works well on a computer is not automatically suitable for small
-and efficient hardware. Therefore, this work is to build a hardware accelerator for 
-this slim model on an FPGA, which is a programmable chip. The accelerator can be seen as a small custom
-factory: data enters from memory, passes through several processing stages, and the final
-position-related output is written back. To make the factory efficient, the same
-calculation units are reused for several parts of the model, and the most time-critical
-steps are arranged like an assembly line so that one step can start before the previous
-one has completely finished.
+and efficient hardware. Therefore, this work builds a hardware accelerator for this
+slim model on an FPGA, which is a programmable chip. The accelerator can be seen as a
+small custom factory: data enters from memory, passes through several processing
+stages, and the final position-related output is written back. To make the factory
+efficient, the same calculation units are reused for several parts of the model, and
+the most time-critical steps are arranged like an assembly line so that one step can
+start before the previous one has completely finished.
 
 
 %% ToC etc
@@ -152,7 +151,7 @@ environmental factors such as multipath and non-line-of-sight propagation,
 which makes accurate positioning challenging~\cite{cite:Yaro2023}.
 
 Machine-learning-based radio localization provides a data-driven way to learn
-the relationship between wireless measurements and localizations. In
+the relationship between wireless measurements and user positions. In
 Massive-MIMO-based indoor localization, rich radio channel observations can be
 used as location-dependent ML features, and previous work has demonstrated
 centimeter-level localization accuracy using measured indoor Massive MIMO
@@ -176,13 +175,13 @@ implementation complexity.
 
 \section{Related Work}
 In recent years, machine learning has been investigated for Massive-MIMO-based indoor
-localization. Tian et al. proposed FCNN-based localization methods that use spatial
+localization. Tian et al. proposed fully connected neural network (FCNN)-based localization methods that use spatial
 covariance matrices and truncated channel impulse responses to capture angular- and
 delay-domain information, achieving centimeter-level accuracy in indoor Massive MIMO
 measurements~\cite{cite:TianICC2023}. Their later work further introduced an ML-based
 localization pipeline with multiple processing chains and ensemble learning to fuse
 different channel fingerprints. However, these studies also show
-that network training and fine tuning can become challenging due to the
+that network training and fine-tuning can become challenging due to the
 increase in network size.
 Although subarray-based processing can reduce network size, efficient and
 hardware-friendly model design remains an important issue for practical
@@ -226,13 +225,13 @@ The goal of this thesis is to investigate the feasibility and effectiveness of
 Mamba-like architectures for Massive MIMO indoor localization, with a particular
 focus on localization accuracy, model size, and hardware implementation
 complexity. In addition, this thesis further explores FPGA-based acceleration of
-the proposed Mamba-like model. 
+the proposed Mamba-like architecture.
 
 Compared with previous FCNN-based methods that mainly operate on single snapshots or
 fixed fingerprints, Mamba can process short sequences of observations and capture
 temporal structure in the wireless channel. This thesis aims to evaluate
 Mamba-family models for LuViRA indoor localization, design a hardware-friendly
-Slim-Mamba architecture, and implement the key Mamba datapath on FPGA with
+Mamba-like architecture, and implement the key Mamba datapath on FPGA with
 quantization-aware considerations. The main challenges include preserving localization
 accuracy after model simplification and quantization, handling the memory and
 computation pressure caused by high-dimensional channel state information (CSI), and
@@ -268,9 +267,9 @@ positioning by enabling location-dependent channel information to be extracted
 from measured radio signals~\cite{cite:TianICC2023}.
 
 Figure~\ref{fig:lumami_setup} illustrates a representative Massive-MIMO-based
-indoor localization setup. An user equipment (UE) carried by mobile industrial robot moves inside
-the measurement area, while a base-station antenna array records the radio
-channel from different positions.
+indoor localization setup. A user equipment (UE) mounted on a mobile industrial robot
+moves inside the measurement area, while a base-station antenna array records the
+radio channel from different positions.
 
 \begin{figure}[H]
   \centering
@@ -294,18 +293,25 @@ multiple-input multiple-output testbed and user equipment~\cite{cite:LuViRA2024}
 The localization system uses radio measurements whose values depend on the
 relative position between the transmitter, the receiver array, and the
 surrounding indoor environment. These measured channel responses can be used as
-location dependent fingerprints for positioning.
+location-dependent fingerprints for positioning.
 
-Traditional localization methods belong to
-the signal processing family. The main challenges
-are high algorithm complexity and requirements of the base station (BS) array calibration~\cite{cite:Tian2024}, while learning based methods provides a more flexible data driven framework, where different radio features can be used as learning features. In the LuViRA dataset, the radio measurements are collected in the same measurement campaign as the motion-capture ground truth. The channel responses are recorded by the Massive MIMO radio system, while the accurate pose labels are obtained from the motion capture system. These data streams are synchronized so that each radio observation can be paired with the corresponding ground-truth pose~\cite{cite:LuViRA2024}. This provides paired data between
-radio channel measurements and position labels, which can be used to train
-supervised fingerprinting or regression models for localization.
+Traditional localization methods mainly belong to the signal-processing-based family.
+Their main challenges are high algorithmic complexity and strict base-station (BS)
+array-calibration requirements~\cite{cite:Tian2024}. In contrast, learning-based
+methods provide a more flexible data-driven framework in which different radio
+representations can be used as model inputs. In the LuViRA dataset, the radio
+measurements are collected in the same measurement campaign as the motion-capture
+ground truth. The channel responses are recorded by the Massive MIMO radio system,
+while the accurate pose labels are obtained from the motion capture system. These data
+streams are synchronized so that each radio observation can be paired with the
+corresponding ground-truth pose~\cite{cite:LuViRA2024}. This yields paired radio
+measurements and position labels that can be used to train supervised fingerprinting
+or regression models for localization.
 
-ML models take radio channel fingerprints as inputs and estimate the localization of the user equipment. This is
-attractive for Massive MIMO indoor localization because the measured channel
-contains rich spatial and delay information that may be difficult to fully
-represent using explicit geometric or model based assumptions. Previous work
+ML models take radio channel fingerprints as inputs and estimate the position of the
+user equipment. This is attractive for Massive MIMO indoor localization because the
+measured channel contains rich spatial and delay information that may be difficult to
+fully represent using explicit geometric or model-based assumptions. Previous work
 has also shown that multiple processing chains can be trained with different
 channel fingerprints and then combined to improve localization
 performance~\cite{cite:Tian2024}.
@@ -373,7 +379,7 @@ remaining odd-grid data are used for training.
 
 This split keeps the training, evaluation, and test sets separated at the grid
 level while following the same experimental setting as the FCNN baseline. As a
-result, the proposed Mamba based models and the previous FCNN based method can
+result, the proposed Mamba-based models and the previous FCNN-based method can
 be compared under a consistent data partition, making differences in localization
 accuracy more attributable to the model design rather than to different dataset
 splits.
@@ -398,7 +404,7 @@ state and describes the dynamics of an input sequence through state transitions.
 \begin{figure}[H]
   \centering
   \includegraphics[width=\linewidth]{generated_figures/model_family_sequence_overview.png}
-  \caption{Comparison of common localization backbones in terms of how temporal context is represented and how data dependencies are introduced during inference.}
+  \caption{Comparison of temporal processing patterns in common localization backbones.}
   \label{fig:model_family_overview}
 \end{figure}
 
@@ -491,22 +497,22 @@ snapshots, where neighboring snapshots may contain short-term contextual informa
 useful for position estimation. Compared with FCNN-based methods that mainly operate on
 single snapshots or fixed channel fingerprints, Mamba can progressively aggregate
 historical observations through its recurrent state and adaptively update the state
-according to the current input. Therefore, Mamba provides a model candidate that can
-exploit temporal context while maintaining linear sequence complexity, making it
-suitable for further investigation in terms of accuracy, efficiency, and hardware
-implementation for Massive-MIMO-based indoor localization.
+according to the current input. Therefore, Mamba provides a promising model family that
+can exploit temporal context while maintaining linear sequence complexity, making it
+suitable for further investigation from the perspectives of accuracy, efficiency, and
+hardware implementation for Massive-MIMO-based indoor localization.
 
 
 \section{Slim-Mamba}
 \label{sec:slim_mamba}
-In this work, Slim Mamba is designed as a lightweight Mamba variant for
+In this work, Slim-Mamba is designed as a lightweight Mamba variant for
 Massive-MIMO-based indoor localization. The model is not obtained by directly adopting
 the original Mamba architecture, but rather through a task-driven simplification
 process based on preliminary model exploration. The initial design followed a
 channel-aware Mamba direction, where multi-branch structures were used to fuse
 different types of radio features, such as the real and imaginary parts of the channel
 impulse response (CIR), power features, and first-order difference features. A similar
-motivation can be found in CMamba, where vanilla Mamba is considered insufficient for
+motivation can be found in CMamba, where Vanilla Mamba is considered insufficient for
 modeling cross-channel dependencies in multivariate time series, and additional
 channel-correlation modeling is introduced to enhance interactions among different
 channels~\cite{cite:CMamba2024}. For the LuViRA indoor localization task, different
@@ -514,9 +520,9 @@ radio-domain features may also contain complementary location-related informatio
 making channel-fusion design a reasonable initial direction.
 
 However, preliminary experiments showed that the additional channel-fusion branches
-provided only limited accuracy improvement for the current localization task, while
-significantly increasing model size, training time, and hardware mapping complexity. At
-the same time, the vanilla Mamba v1 baseline, implemented following the original Mamba
+provided only limited accuracy improvement for the current localization task while
+significantly increasing model size, training time, and hardware mapping complexity. In
+addition, the Vanilla Mamba v1 baseline, implemented following the original Mamba
 architecture proposed by Gu and Dao~\cite{cite:Mamba2023}, showed a clear
 generalization gap on LuViRA, whereas short temporal windows were already sufficient to
 provide useful localization information. Therefore, the final model follows a
@@ -525,7 +531,7 @@ input-dependent modulation mechanisms that are most relevant to the localization
 while removing complex multi-branch fusion structures and the full selective-scan
 parameterization.
 
-The deployment configuration used in the later hardware chapters is
+The deployed configuration used in the later hardware chapters is
 \(D_{\mathrm{in}}=2100\), \(K=2\), \(\text{proj\_dim}=64\),
 \(d_{\mathrm{model}}=128\), \(n_{\mathrm{layer}}=4\), patch length \(P=2\),
 and stride \(S=2\). Table~\ref{tab:slim_param_breakdown} breaks down the
@@ -561,20 +567,20 @@ Regression head \(\text{proj\_dim}\rightarrow 2\) & 130 \\
 \end{table}
 
 
-Table~\ref{tab:model_variants} summarizes the measured comparison among the FCNN
-baseline, channel mamba, vanilla Mamba v1, and slim mamba on the LuViRA dataset.
-Compared with channel mamba, slim mamba achieves a comparable test mean error while
+Table~\ref{tab:model_variants} summarizes the empirical comparison among the FCNN
+baseline, channel mamba, Vanilla Mamba v1, and Slim-Mamba on the LuViRA dataset.
+Compared with channel mamba, Slim-Mamba achieves a comparable test mean error while
 reducing the model size from 40.4~MB to 3.40~MB and the training time from 73~s to 13~s
-per epoch. Compared with vanilla Mamba v1, slim mamba significantly improves
+per epoch. Compared with Vanilla Mamba v1, Slim-Mamba significantly improves
 localization accuracy while maintaining a similarly compact model size. These results
-indicate that slim mamba provides a better trade-off among localization accuracy, model
+indicate that Slim-Mamba provides a better trade-off among localization accuracy, model
 complexity, training efficiency, and hardware cost for the target indoor localization
 task.
 
 
 \begin{table}[!htbp]
   \centering
-  \caption{Comparison of results on different models.}
+  \caption{Comparison of localization accuracy and implementation cost across model variants.}
   \label{tab:model_variants}
   \resizebox{\linewidth}{!}{%
   \begin{tabular}{lcccccc}
@@ -585,7 +591,7 @@ task.
     FCNN\cite{cite:TianICC2023} & CIR & 789 & N/A & N/A & $\sim$13 & High \\
     channel mamba & CIR + Power & 40.4 & 73 & 13.18 & 12.9 & High \\
     Vanilla Mamba v1 & CIR + Power & 3.38 & 33 & 32.62 & 24.74 & Medium \\
-    slim mamba & CIR + Power & 3.40 & 13 & 75.30 & 13.5 & Low \\
+    Slim-Mamba & CIR + Power & 3.40 & 13 & 75.30 & 13.5 & Low \\
     \hline
   \end{tabular}%
 }
@@ -593,18 +599,18 @@ task.
 
 \FloatBarrier
 
-As illustrated in Fig.~\ref{fig:slim_mamba}, the Slim Mamba block first applies
+As illustrated in Fig.~\ref{fig:slim_mamba}, the Slim-Mamba block first applies
 normalization to the input tokens, followed by a linear input projection that maps the
 input into an internal feature space. The projected representation is then split into
 two paths: a state input branch and a gate branch. The state input branch is used for
-state-space model (SSM) state updating, while the gate branch is used for output
+recurrent state updating, while the gate branch is used for output
 modulation.
 
 
 \begin{figure}[H]
   \centering
-  \includesvg[width=0.70\linewidth]{generated_figures/ssm_block_flownew.svg}
-  \caption{Simplified datapath of the Slim Mamba block.}
+  \includesvg[width=0.70\linewidth]{generated_figures/ssm_block_flow.svg}
+  \caption{Simplified datapath of a Slim-Mamba block.}
   \label{fig:slim_mamba}
 \end{figure}
 
@@ -634,7 +640,7 @@ where $h_{t-1}$ is the previous state, $x_t^{(s)}$ is the current state-branch i
 $\lambda_t$ is the update gate that controls the balance between the historical state
 and the current input. When $\lambda_t$ is fixed, this recurrence is equivalent to an
 exponential moving average, since older inputs receive weights that decay as powers of
-$\lambda$. In Slim Mamba, however, $\lambda_t$ is dynamically generated from the
+$\lambda$. In Slim-Mamba, however, $\lambda_t$ is dynamically generated from the
 current input, and the module is therefore more accurately described as an
 input-dependent gated state update. Compared with the full $(A,B,C,D)$ selective-scan
 parameterization and low-rank discretization in the original Mamba, this formulation
@@ -644,7 +650,7 @@ implementation~\cite{cite:Mamba2023}.
 With this notation, the simplified recurrence remains consistent with the general SSM
 description in Section~3.1: $h_t$ is the hidden state, while $x_t^{(s)}$ and
 $x_t^{(g)}$ are branch-wise features derived from the current input token. The main
-difference is that Slim Mamba does not instantiate the full $(A,B,C,D)$
+difference is that Slim-Mamba does not instantiate the full $(A,B,C,D)$
 parameterization explicitly. Instead, the state-transition behavior is absorbed into
 the input-dependent coefficient $\lambda_t$ and the subsequent gated output path.
 
@@ -669,12 +675,12 @@ This gating operation allows the model to regulate the effective information fro
 SSM output according to the current input. The result is then passed through a linear
 output projection and added back to the input tokens through a residual connection. The
 residual path helps preserve the original input information and improves training
-stability. Overall, Slim Mamba retains the recurrent state update and gated modulation
+stability. Overall, Slim-Mamba retains the recurrent state update and gated modulation
 mechanisms of Mamba, while removing complex channel-fusion branches that provide
 limited benefit for the current task.
 
-Compared with channel mamba, Slim Mamba adopts a single-path backbone and reduces
-branch control and cross-channel fusion overhead. Compared with vanilla Mamba, it
+Compared with channel mamba, Slim-Mamba adopts a single-path backbone and reduces
+branch control and cross-channel fusion overhead. Compared with Vanilla Mamba v1, it
 simplifies the state-update parameterization and concentrates the main computation on
 regular operators such as linear projection, update gate generation, state update,
 element-wise multiplication, and output projection. This structure is more suitable for
@@ -690,8 +696,8 @@ accelerator. The design is deployed on a Zynq MPSoC platform, where the processi
 system (PS) handles software control and DDR management, while the programmable logic
 (PL) implements the accelerator datapath. The PS-side DDR4 is used as off-chip runtime
 storage for input and output buffers. The input vector $x_t$ is read from DDR through
-the memory-mapped to stream (MM2S) channel of the AXI DMA and sent to the PL as an
-AXI-Stream. The output $y_t$ is written back to DDR through the stream to memory-mapped
+the memory-mapped-to-stream (MM2S) channel of the AXI DMA and sent to the PL as an
+AXI-Stream. The output $y_t$ is written back to DDR through the stream-to-memory-mapped
 (S2MM) channel. The PS configures the accelerator through AXI-Lite control/status
 registers, including input preload, computation start, status polling, and interrupt
 control.
@@ -699,14 +705,14 @@ control.
 \begin{figure}[H]
   \centering
   \includesvg[width=0.9\linewidth]{generated_figures/tcas_hardware_architecture}
-  \caption{Diagram of Slim-Mamba overall hardware architecture.}
+  \caption{Overall hardware architecture of the Slim-Mamba accelerator.}
   \label{fig:tcas_hardware_architecture}
 \end{figure}
 
 Inside the PL, the board shell connects the external AXI interfaces to the compute
 pipeline formed by four Slim-Mamba blocks. The AXI-Lite CSR first starts the input
 stream loader, which writes the incoming AXI-Stream data into the on-chip input buffer
-of the first block. After the preload stage is completed, the shell allows the 4-block
+of the first block. After the preload stage is completed, the shell allows the four-block
 controller to start computation. The controller schedules the four blocks sequentially.
 Between adjacent blocks, the output of the current block is added to the residual using
 saturated fixed-point arithmetic and then preloaded into the input buffer of the next
@@ -738,15 +744,15 @@ mainly used for runtime input and output data movement.
 \label{subsec:linear_layer_mac_array}
 
 
-As discussed in Section~\ref{sec:slim_mamba}, the Slim Mamba algorithm can be mapped to
+As discussed in Section~\ref{sec:slim_mamba}, the Slim-Mamba algorithm can be mapped to
 three major hardware primitives. The first primitive is matrix-vector multiplication
 (MVM) implemented with multiply-accumulate (MAC) operations, which is mainly used for
-the input projection, the update-gate projection(dt projection), and the output
-projection. The second primitive is element-wise multiplication, or EWM, which is used
+the input projection, the update-gate projection, and the output
+projection. The second primitive is element-wise multiplication (EWM), which is used
 for the weighted terms in the state update and for output gating. The third primitive is
-element-wise addition, or EWA, which is used for the state update and residual addition.
-In the SSM datapath, these three primitives correspond to the projection computation,
-the recurrent state update, and the output gating operation, respectively.
+element-wise addition (EWA), which is used for the state update and residual addition.
+In the state-update datapath, these three primitives correspond to projection
+computation, recurrent state update, and output gating, respectively.
 
 \subsection{Reuse vs.\ Latency Trade-off}
 From a hardware design perspective, these primitives can be mapped with different
@@ -764,8 +770,8 @@ connected in a finer-grained streaming pipeline.
 
 Therefore, the current implementation adopts a compromise between resource reuse and
 pipeline granularity. The underlying PE array is capable of supporting MAC, EWM, and
-EWA modes through a unified mode signal. In the current Slim Mamba accelerator,
-however, the input projection, dt projection, and output projection paths mainly use
+EWA modes through a unified mode signal. In the current Slim-Mamba accelerator,
+however, the input projection, update-gate projection, and output projection paths mainly use
 the shared MAC fabric in MAC mode. The element-wise multiply/add operations in the SSM
 state update and the element-wise multiplication in output gating are implemented using
 dedicated vector modules. In other words, the design preserves the reconfigurable
@@ -811,7 +817,7 @@ feature, while the output projection maps the gated result back to the block out
 dimension. These projections are all MAC operations and can therefore reuse the same
 MAC fabric with different input buffers, weight buffers, and output destinations.
 
-Take SSM projection workload for example, a typical linear layer can be modeled as the
+Taking the state-update projection workload as an example, a typical linear layer can be modeled as the
 multiplication between a $256\times256$ matrix and a $256\times1$ vector, resulting in
 \begin{equation}
 256 \times 256 = 65,536
@@ -844,7 +850,7 @@ routing, control, and data-supply pressure of a large two-dimensional PE array.
 \begin{figure}[H]
   \centering
   \includesvg[width=0.9\linewidth]{generated_figures/systolic_array_ws}
-  \caption{An example of Systolic Array.}
+  \caption{Example of a systolic array.}
   \label{fig:systolic}
 \end{figure}
 
@@ -1216,7 +1222,7 @@ q = \mathrm{sat}_{[q_{\min},q_{\max}]}
 \hat{x}=s q .
 \label{eq:dequantize_basic}
 \end{equation}
-Here, \(\mathrm{round}(\cdot)\) denotes the selected rounding rule and
+Here, \(\mathrm{round}(\cdot)\) denotes the selected rounding rule, and
 \(\mathrm{sat}(\cdot)\) clamps the integer result to the representable range.
 
 \subsection{Quantization Workflow}
@@ -1225,7 +1231,7 @@ Here, \(\mathrm{round}(\cdot)\) denotes the selected rounding rule and
 This subsection describes the quantization flow from the floating-point Slim-Mamba
 model to the fixed-point RTL implementation. In this design, quantization is not only a
 conversion of floating-point weights into integer values. The fixed-point rounding and
-saturation behavior in linear layers, nonlinear functions, state updates must also be 
+saturation behavior in linear layers, nonlinear functions, and state updates must also be 
 considered. Therefore, the proposed flow uses
 three validation levels: a Python model, a C++ fixed-point model, and an RTL
 implementation.
@@ -1301,7 +1307,7 @@ Mixed candidate & \texttt{dt\_proj=int8}, \texttt{ssm\_state=int8}, \texttt{gate
 After the layer precision is selected, a unified fixed-scale quantization scheme is first
 evaluated as the baseline. In this baseline, the input projection, \(dt\) projection, output
 projection and selective-scan state use identity Q8.8 scales, while the MAC results are written back using
-round-to-nearest ties-to-even and saturation clamp. Therefore, the real value represented by an
+round-to-nearest ties-to-even and saturation. Therefore, the real value represented by an
 integer \(q\) is
 \begin{equation}
 x \approx \hat{x} = \frac{q}{2^8}.
@@ -1412,7 +1418,7 @@ definition as in Eq.~\eqref{eq:sat16}.
 
 
 However, with the above baseline quantization settings, the output differs
-substantially from the floating-point output, with a mean absolute error(MAE) of 0.17987 and a mean
+substantially from the floating-point output, with a mean absolute error (MAE) of 0.17987 and a mean
 localization error of 0.35543 m. To locate the error sources, the Slim-Mamba block is decomposed
 according to the data flow in Fig.~\ref{fig:mamba_stage_flow}, and the error is measured
 after each computation stage. The corresponding MAE values are
@@ -1617,20 +1623,21 @@ update path without breaking the fine-grained pipeline.
 \label{sec:software_model_eval}
 
 This section evaluates the software models before the FPGA-specific results are
-discussed. Table~\ref{tab:model_variants} shows that channel mamba attains the lowest
-mean localization error among the compared software models. However, that best result is
-obtained with an augmented input that includes 100 additional channel-amplitude features,
-and is therefore not a strictly input-matched comparison against Slim-Mamba. To clarify
-this point, Fig.~\ref{fig:cdf_zoom} plots the final Slim-Mamba model together with two
-saved channel mamba reference runs: one with the same CIR+Power input as Slim-Mamba, and
-one with the augmented CIR+Power plus amplitude input. The augmented-input channel mamba
-run gives the most favorable error distribution, whereas the input-matched channel mamba
-run is consistently worse than Slim-Mamba over most of the plotted range. Taken
-together, these results suggest that channel mamba can exploit the additional
-multi-channel amplitude cues effectively, but its advantage is not preserved under the
-same input condition used by Slim-Mamba. For the subsequent hardware study, Slim-Mamba
-remains the more suitable deployment-oriented model because it combines competitive
-accuracy with much smaller model size, shorter training time, and a simpler datapath.
+discussed. Table~\ref{tab:model_variants} shows that channel mamba achieves the lowest
+mean localization error among the compared software models. However, that best result
+uses an augmented input that includes 100 additional channel-amplitude features and is
+therefore not a strictly input-matched comparison against Slim-Mamba. To make this
+distinction explicit, Fig.~\ref{fig:cdf_zoom} compares the final Slim-Mamba model with
+two saved channel mamba reference runs: one using the same CIR+Power input as
+Slim-Mamba and one using the augmented CIR+Power plus amplitude input. The
+augmented-input channel mamba run yields the most favorable error distribution,
+whereas the input-matched channel mamba run is consistently worse than Slim-Mamba over
+most of the plotted range. These results indicate that channel mamba benefits from the
+additional multi-channel amplitude cues, but that advantage is not retained under the
+same input condition used by Slim-Mamba. For the subsequent hardware study,
+Slim-Mamba remains the more suitable deployment-oriented model because it combines
+competitive accuracy with much smaller model size, shorter training time, and a
+simpler datapath.
 
 \begin{figure}[H]
   \centering
@@ -1736,14 +1743,14 @@ software quantization error, and hardware fixed-point mapping error.
 \textbf{Mean localization error (m)} \\
 \hline
 Floating-point Slim-Mamba & Float32 & -- & 0.13500 \\
-Fake-quantized Slim-Mamba & Software fake quant & -- & 0.13695 \\
+Fake-quantized Slim-Mamba & Software fake quantization & -- & 0.13695 \\
 Hardware fixed-point model & Fixed-point with dynamic scale & 0.02081 & 0.14103 \\
 \hline
 \end{tabular}%
 }
 \end{table}
 
-Table~\ref{tab:accuracy_eval} shows that fake quantization introduces almost no
+Table~\ref{tab:accuracy_eval} shows that software fake quantization introduces almost no
 additional localization error compared with the floating-point Slim-Mamba model. This
 indicates that the unified 16-bit datapath and the selected Q formats are sufficient for
 the main computation paths. The hardware fixed-point model increases the mean
@@ -1755,7 +1762,7 @@ in the final localization result.
 The main accuracy loss therefore comes from the hardware fixed-point mapping stage
 rather than from the software fake-quantization stage. This is expected because the
 hardware fixed-point model includes concrete RTL-oriented numerical behavior, such as
-round-to-nearest-even, saturation clamp, LUT-based nonlinear approximation, fixed-point
+round-to-nearest-even, saturation, LUT-based nonlinear approximation, fixed-point
 scale multiplication, and dynamic scaling for the selective-scan state. Nevertheless,
 the final mean localization error remains below 0.15~m and is only about 0.006~m higher
 than the floating-point result. This validates the quantization strategy described in
@@ -1765,7 +1772,8 @@ Q8.8/Q0.16/Q1.15 formats, saturation handling, and selective-scan dynamic scalin
 \section{Performance}
 
 This section evaluates the FPGA accelerator in terms of throughput, resource
-utilization, power, and block-level latency. The target real-time requirement is
+utilization, power, and block-level latency. Here, one frame denotes one end-to-end
+input window processed by the accelerator. The target real-time requirement is
 100~frames/s. The implemented design closes timing at 100~MHz and achieves an estimated
 throughput of 471~frames/s, which is about \(4.7\times\) higher than the requirement.
 This corresponds to an average processing time of about 2.12~ms per frame, compared with
@@ -1818,8 +1826,8 @@ Bonded IOB & 0 & 328 & 0\% \\
 The on-chip power estimate is summarized in Table~\ref{tab:power_summary}. The total
 on-chip power is 4.292~W, including 3.562~W dynamic power and 0.729~W static power. The
 processing system contributes 2.622~W of the dynamic power, which is about 74\% of the
-dynamic component. This indicates that the total system power is not only determined by
-the programmable logic compute array, but also by the PS-side control, DDR access, and
+dynamic component. This indicates that the total system power is determined not only by
+the programmable-logic compute array, but also by PS-side control, DDR access, and
 DMA-based data movement.
 
 \begin{table}[H]
@@ -1986,17 +1994,5 @@ accelerator, several directions remain for future work.
 \bibliographystyle{IEEEtran}
 \bibliography{bibliography/thesisbib}
 
-
-%%%%%%%%%%%%%%%%%%
-\appendix
-%%%%%%%%%%%%%%%%%%
-\chapter{Some extra material}
-\lipsum[1]
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.6\linewidth]{example-image}
-  \caption{A picture or table in the appendix is numbered accordingly.}
-  \label{fig:AppFig}
-\end{figure}
 
 \end{document}

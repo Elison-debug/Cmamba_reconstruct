@@ -10,24 +10,23 @@
 \contentsline {section}{\numberline {3.2}Slim-Mamba}{10}{}%
 \contentsline {chapter}{\numberline {4}Method}{14}{}%
 \contentsline {section}{\numberline {4.1}Hardware Architecture}{14}{}%
-\contentsline {section}{\numberline {4.2}Linear Layers}{15}{}%
-\contentsline {subsection}{\numberline {4.2.1}Reuse vs.\ Latency Trade-off}{15}{}%
-\contentsline {subsection}{\numberline {4.2.2}MAC Array Architecture Selection}{16}{}%
-\contentsline {subsection}{\numberline {4.2.3}Hardware Implementation of Linear Layers}{19}{}%
-\contentsline {section}{\numberline {4.3}Non-linear Layers}{20}{}%
-\contentsline {subsection}{\numberline {4.3.1}Normalization}{20}{}%
-\contentsline {subsection}{\numberline {4.3.2}Sigmoid and SiLU}{23}{}%
-\contentsline {section}{\numberline {4.4}Quantization}{24}{}%
-\contentsline {subsection}{\numberline {4.4.1}Quantization Workflow}{25}{}%
-\contentsline {subsection}{\numberline {4.4.2}Error Analysis and Layer-wise Quantization Strategy}{26}{}%
-\contentsline {subsection}{\numberline {4.4.3}Quantization Hardware Module Design}{31}{}%
-\contentsline {chapter}{\numberline {5}Results and Discussion}{33}{}%
-\contentsline {section}{\numberline {5.1}Software Model Evaluation}{33}{}%
-\contentsline {section}{\numberline {5.2}Accuracy}{36}{}%
-\contentsline {section}{\numberline {5.3}Performance}{37}{}%
-\contentsline {section}{\numberline {5.4}FPGA On-board Validation}{39}{}%
-\contentsline {chapter}{\numberline {6}Conclusion}{41}{}%
-\contentsline {section}{\numberline {6.1}Conclusion}{41}{}%
-\contentsline {section}{\numberline {6.2}Future Work}{41}{}%
-\contentsline {chapter}{References}{42}{}%
-\contentsline {chapter}{\numberline {A}Some extra material}{44}{}%
+\contentsline {section}{\numberline {4.2}Linear Layers}{16}{}%
+\contentsline {subsection}{\numberline {4.2.1}Reuse vs.\ Latency Trade-off}{16}{}%
+\contentsline {subsection}{\numberline {4.2.2}MAC Array Architecture Selection}{17}{}%
+\contentsline {subsection}{\numberline {4.2.3}Hardware Implementation of Linear Layers}{20}{}%
+\contentsline {section}{\numberline {4.3}Non-linear Layers}{21}{}%
+\contentsline {subsection}{\numberline {4.3.1}Normalization}{21}{}%
+\contentsline {subsection}{\numberline {4.3.2}Sigmoid and SiLU}{24}{}%
+\contentsline {section}{\numberline {4.4}Quantization}{25}{}%
+\contentsline {subsection}{\numberline {4.4.1}Quantization Workflow}{26}{}%
+\contentsline {subsection}{\numberline {4.4.2}Error Analysis and Layer-wise Quantization Strategy}{27}{}%
+\contentsline {subsection}{\numberline {4.4.3}Quantization Hardware Module Design}{32}{}%
+\contentsline {chapter}{\numberline {5}Results and Discussion}{34}{}%
+\contentsline {section}{\numberline {5.1}Software Model Evaluation}{34}{}%
+\contentsline {section}{\numberline {5.2}Accuracy}{37}{}%
+\contentsline {section}{\numberline {5.3}Performance}{38}{}%
+\contentsline {section}{\numberline {5.4}FPGA On-board Validation}{40}{}%
+\contentsline {chapter}{\numberline {6}Conclusion}{42}{}%
+\contentsline {section}{\numberline {6.1}Conclusion}{42}{}%
+\contentsline {section}{\numberline {6.2}Future Work}{42}{}%
+\contentsline {chapter}{References}{43}{}%
