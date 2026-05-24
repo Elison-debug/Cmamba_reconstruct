@@ -21,6 +21,9 @@
 \usepackage{placeins}
 \usepackage{caption}
 \usepackage{xcolor}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{makecell}
 \raggedbottom
 \makeatletter
 \renewcommand\chapter{\clearpage\sh@chapter}
@@ -530,6 +533,83 @@ task-driven simplification principle: it preserves the recurrent state update an
 input-dependent modulation mechanisms that are most relevant to the localization task,
 while removing complex multi-branch fusion structures and the full selective-scan
 parameterization.
+
+Figure~\ref{fig:mamba_v1_slim_replacement} summarizes the block-level replacement from
+the original Mamba design to Slim-Mamba. The front-end and back-end structure is
+retained: both blocks use normalization, input projection and split, output gating,
+output projection, and a residual connection. The modification is concentrated in the
+state-update path. In the original Mamba block, the state branch generates
+input-dependent \(\Delta_t\), \(B_t\), and \(C_t\), then uses \(\Delta_t\) to
+discretize the continuous-time parameters \(A\) and \(B\) before applying the
+selective scan recurrence~\cite{cite:Mamba2023}. Thus, \(\Delta_t\) is not itself the
+recurrent update coefficient; it controls the conversion from the continuous-time SSM
+to the discrete-time recurrence through
+\((\bar{A}_t,\bar{B}_t)=\mathrm{discretize}(\Delta_t,A,B)\). The resulting state is
+then mapped to the output through the explicit readout
+\(C_t h_t + D\tilde{x}^{(s)}_t\).
+
+Slim-Mamba replaces this sequence with a direct discrete-time update. The state branch
+generates a single input-dependent gate \(\lambda_t\), and the state is updated as a
+convex combination of the previous state and the current state-branch input.
+Accordingly, \(\lambda_t\) does not play the role of \(\Delta_t\): it is not used for
+discretization, but enters the recurrence directly. The explicit \((C_t,D)\)-based
+readout is also removed, so the recurrent state is sent directly to the output-gating
+path. Table~\ref{tab:mamba_operator_compare} summarizes these substitutions in compact
+operator form, and Eqs.~\eqref{eq:slim_mamba_lambda_conv}--
+\eqref{eq:slim_mamba_output_modulation} define the final recurrence used in the
+remainder of this thesis.
+
+\begin{figure}[H]
+  \centering
+  \includesvg[inkscapelatex=false,width=0.95\linewidth]{generated_figures/mamba_v1_slim_replacement}
+  \caption{Original Mamba block and its Slim-Mamba replacement.}
+  \label{fig:mamba_v1_slim_replacement}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Main operator substitutions between the original Mamba block~\cite{cite:Mamba2023} and the Slim-Mamba block used in this work.}
+\label{tab:mamba_operator_compare}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.32}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.21\linewidth}
+                >{\raggedright\arraybackslash}p{0.34\linewidth}
+                >{\raggedright\arraybackslash}p{0.40\linewidth}}
+\hline
+\textbf{Stage} & \textbf{Original Mamba~\cite{cite:Mamba2023}} & \textbf{Slim-Mamba in this work} \\
+\hline
+ \makecell[tl]{Block skeleton} &
+ \makecell[tl]{RMSNorm $\rightarrow$ in-proj $\rightarrow$ split\\
+ $\rightarrow$ gate $\rightarrow$ out-proj $\rightarrow$ residual} &
+ \makecell[tl]{RMSNorm $\rightarrow$ in-proj $\rightarrow$ split\\
+ $\rightarrow$ gate $\rightarrow$ out-proj $\rightarrow$ residual} \\[2pt]
+
+ \makecell[tl]{State branch} &
+ \makecell[tl]{Conv + SiLU} &
+ \makecell[tl]{DWConv + SiLU} \\[2pt]
+
+ \makecell[tl]{Parameter\\generation} &
+ \makecell[tl]{$B_t,\ C_t,\ \Delta_t$\\
+ $\mathrm{discretize}(\Delta_t,A,B)$} &
+ \makecell[tl]{$\lambda_t$} \\[6pt]
+
+ \makecell[tl]{State update} &
+ \makecell[tl]{$h_t=\bar{A}_t h_{t-1}+\bar{B}_t \tilde{x}^{(s)}_t$} &
+ \makecell[tl]{$h_t=\lambda_t \odot h_{t-1}+(1-\lambda_t)\odot \tilde{x}^{(s)}_t$} \\[2pt]
+
+ \makecell[tl]{Readout} &
+ \makecell[tl]{$r_t=C_t h_t + D\tilde{x}^{(s)}_t$} &
+ \makecell[tl]{$r_t=h_t$} \\[2pt]
+
+ \makecell[tl]{Output} &
+ \makecell[tl]{$g_t=\mathrm{SiLU}(x^{(g)}_t)$\\
+ $y_t=W_{\mathrm{out}}(r_t \odot g_t)$} &
+ \makecell[tl]{$g_t=\mathrm{SiLU}(x^{(g)}_t)$\\
+ $y_t=W_{\mathrm{out}}(r_t \odot g_t)$} \\
+\hline
+\end{tabular}
+\end{table}
 
 The deployed configuration used in the later hardware chapters is
 \(D_{\mathrm{in}}=2100\), \(K=2\), \(\text{proj\_dim}=64\),
