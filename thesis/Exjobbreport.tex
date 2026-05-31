@@ -47,25 +47,15 @@
 \frontmatter    %%% Page numbering for front pages (small roman)
 %%%%% Acknowledgments
 \chapter*{Acknowledgments}
-We would like to express our sincere gratitude to our supervisor, Ilayda Yaman. Thank
-you for your continuous guidance, support, and feedback throughout this thesis work.
-Your advice helped us define the research direction, improve the structure of the
-thesis, and better understand how the proposed model could be connected with practical
-indoor localization applications. Working with you has been a valuable experience during
-our master's studies.
+We would like to express our sincere gratitude to our supervisor, Ilayda Yaman, for her continuous guidance, support, and feedback throughout this thesis work. Her advice helped us define the research direction, improve the structure of the thesis, and better understand how the proposed model could be connected with practical indoor localization applications. Working with her has been a valuable experience during our master’s studies.
 
-We would also like to thank our second supervisor, Sijia Cheng, for her helpful
-technical discussions and suggestions during the project. Her feedback was especially
-valuable for improving the hardware implementation and evaluating the FPGA accelerator.
+We would also like to thank our second supervisor, Sijia Cheng, for her helpful technical discussions and suggestions during the project. Her feedback was especially valuable in improving the hardware implementation and evaluating the FPGA accelerator.
 
-We are also grateful to the Department of Electrical and Information Technology at Lund
-University for providing the academic environment and resources needed to carry out
-this thesis. We also thank the researchers and engineers whose previous work on
-Massive MIMO indoor localization, the LuViRA dataset, and FPGA acceleration provided an
-important foundation for our study.
+We are sincerely grateful to Professor Liang Liu for his valuable guidance and support throughout this project. We greatly appreciate his involvement in the supervision process and his constructive feedback during the thesis review and presentation preparation stages. His academic insights and suggestions were highly valuable to the completion of this work.
 
-Finally, we would like to thank our families and friends for their patience,
-encouragement, and support during this period.
+We are also grateful to the Department of Electrical and Information Technology at Lund University for providing the academic environment and resources needed to carry out this thesis. We also thank the researchers and engineers whose previous work on Massive MIMO indoor localization, the LuViRA dataset, and FPGA acceleration provided an important foundation for our study.
+
+Finally, we would like to thank our families and friends for their patience, encouragement, and support throughout this period.
 \begin{center}
 \textit{Shengjie Chen and Chenxi Zhang}\\
 \textit{May 2026}
@@ -73,37 +63,44 @@ encouragement, and support during this period.
 %%%%% Abstract
 \chapter*{Abstract}
 In recent years, as 6G wireless systems continue to develop, high-accuracy indoor
-localization has become increasingly important for robotics, smart environments, and
-location-aware services. Since indoor wireless measurements can vary over time due to
+localization has become increasingly important for for future
+wireless systems. At the same time, reliable indoor positioning is needed by many location-aware
+applications, such as robotic navigation, emergency healthcare, and smart
+transportation. Since indoor wireless measurements can vary over time due to
 multipath propagation and environmental changes, short sequences of observations may
 provide useful information for position estimation. Mamba, a sequence model based on
 selective state-space updates, is therefore a promising candidate for this task because 
 it can jointly process short sequences of wireless observations and
 capture temporal variations in the channel.
 
-This thesis investigates a hardware-oriented Slim-Mamba approach for Massive-MIMO indoor
+This thesis investigates a hardware-friendly Slim-Mamba approach for Massive-MIMO indoor
 localization using the LuViRA dataset. Software evaluation is first used to select a
 simplified Mamba-style model that preserves the recurrent update and gating behavior
 needed for localization while reducing the complexity of larger channel-fusion variants.
-A Zynq MPSoC-based FPGA accelerator is then designed, with PS-side control and
-PL-side input loading, four-block Slim-Mamba computation, and AXI-stream dataflow. 
+A Zynq MPSoC-based FPGA accelerator is then designed, with processor-side control, programmable-logic input loading, four-block Slim-Mamba computation, and AXI-stream dataflow. 
 We designed a shared \(4\times4\times4\) reconfigurable MAC
 fabric for linear projection layers, together with a fine-grained
 FIFO-based state-space model (SSM) pipeline to reduce waiting time between projection, nonlinear, and
 state-update stages. A fixed-point quantization flow is built from Python, to bit-true
 C++ modeling, and finally to RTL. 
 
-Experimental results show that the fixed-point
-implementation introduces only a small accuracy loss compared with the floating-point
-model, while the FPGA accelerator meets the real-time throughput target with a clear
-margin. An on-board validation test further verifies that control, memory movement,
-streaming interfaces, and PL computation operate together as a complete prototype
-system.
+On our software localization evaluation, the floating-point Slim-Mamba model
+achieves a mean localization error of 0.13500~m, while the fixed-point hardware model
+achieves 0.14103~m with an output MAE of 0.02081 against the floating-point output.
+The FPGA design closes timing at 100~MHz and reaches an estimated throughput of
+471~frames/s, exceeding the 100~frames/s real-time target. The post-synthesis
+on-chip power estimate is 4.292~W, where processor-side control and data
+movement dominate the dynamic power; the programmable-logic accelerator itself
+accounts for about 0.94~W of dynamic power. An on-board validation test further
+verifies that processor control, memory movement, streaming interfaces, and FPGA
+computation operate together as a complete prototype system.
 %%%%% Abstract
 \chapter*{Popular Science Summary}
-Finding a person or device outdoors is often easy because satellite navigation can be
-used. Indoors, however, satellite signals are weak or blocked, and positioning becomes
-much harder. Still, many future applications need reliable indoor positioning: a robot
+Positioning a person or device is often supported by satellite navigation in
+open outdoor environments. However, satellite-based positioning can become
+unreliable when signals are blocked or reflected by buildings, trees, or dense
+urban surroundings. Indoors, this problem is usually even more severe, because
+satellite signals are often weak or unavailable. Still, many future applications need reliable indoor positioning: a robot
 may need to move safely in a building, a hospital may need to locate equipment, and a
 smart environment may need to understand where people or devices are.
 
@@ -139,7 +136,7 @@ start before the previous one has completely finished.
 %%%%%
 
 \chapter{Introduction}
-Indoor localization is becoming an important capability for future 6G wireless
+Indoor localization is becoming an important feature for future 6G wireless
 systems, since 6G is expected to support not only ubiquitous communication but
 also high-accuracy localization and high-resolution sensing
 services~\cite{cite:Bourdoux2020}. Localization is also regarded as a key
@@ -158,7 +155,7 @@ the relationship between wireless measurements and user positions. In
 Massive-MIMO-based indoor localization, rich radio channel observations can be
 used as location-dependent ML features, and previous work has demonstrated
 centimeter-level localization accuracy using measured indoor Massive MIMO
-data~\cite{cite:TianICC2023,cite:Tian2024}. However, practical deployment
+data~\cite{cite:Tian2024,cite:TianICC2023}. However, practical deployment
 still faces challenges. High-dimensional radio features can lead to
 large neural networks, high memory demand, and increased training and inference
 cost. These issues become more critical when the localization model needs to be
@@ -184,9 +181,7 @@ delay-domain information, achieving centimeter-level accuracy in indoor Massive 
 measurements~\cite{cite:TianICC2023}. Their later work further introduced an ML-based
 localization pipeline with multiple processing chains and ensemble learning to fuse
 different channel fingerprints. However, these studies also show
-that network training and fine-tuning can become challenging due to the
-increase in network size.
-Although subarray-based processing can reduce network size, efficient and
+that although subarray-based processing can reduce network size, efficient and
 hardware-friendly model design remains an important issue for practical
 deployment~\cite{cite:Tian2024}.
 
@@ -212,15 +207,13 @@ selectively propagate or forget information according to the current input,
 while maintaining linear scaling with sequence length~\cite{cite:Mamba2023}.
 The original Mamba work also emphasizes a hardware-aware implementation of the
 selective scan, making the architecture attractive not only from an algorithmic
-perspective but also from a computation-structure perspective.
+perspective but also from a hardware computation-structure perspective.
 
 For Massive MIMO indoor localization, Mamba is worth investigating because the
 radio input can be organized as short sequences or tokenized channel features,
-and the recurrent state update may provide a compact way to aggregate useful
+and the recurrent state update may provide a compact way to integrate useful
 contextual information. Also, the original Mamba architecture was not
-designed specifically for radio localization or FPGA deployment. Directly
-adopting it may introduce unnecessary model complexity and hardware mapping
-overhead. This motivates the development of a task-driven Slim-Mamba variant
+designed specifically for radio localization or FPGA deployment, which motivates the development of a task-driven Slim-Mamba variant
 and a corresponding accelerator design for the target localization workload.
 
 \section{Goals and Challenges}
@@ -235,7 +228,9 @@ fixed fingerprints, Mamba can process short sequences of observations and captur
 temporal structure in the wireless channel. This thesis aims to evaluate
 Mamba-family models for LuViRA indoor localization, design a hardware-friendly
 Mamba-like architecture, and implement the key Mamba datapath on FPGA with
-quantization-aware considerations. The main challenges include preserving localization
+quantization-aware considerations. 
+
+The main challenges include preserving localization
 accuracy after model simplification and quantization, handling the memory and
 computation pressure caused by high-dimensional channel state information (CSI), and
 balancing latency, power, resource utilization, and localization accuracy in the final accelerator design. Recent
@@ -244,7 +239,7 @@ FPGA-based quantization and hardware co-design with computation reordering and
 fine-grained tiling, pipelined vector processing units, and hybrid dataflows with
 state-space buffers~\cite{cite:LightMamba2025,cite:FastMamba2025,cite:HCSA2025}.
 Motivated by these works, this thesis further investigates how the Slim-Mamba datapath
-can be reused for indoor localization, with particular attention to datapath reuse,
+can be reused for indoor localization, with particular attention to reconfigurable architechture,
 memory access organization, and pipeline granularity.
 
 \chapter{Background}
@@ -314,7 +309,7 @@ or regression models for localization.
 ML models take radio channel fingerprints as inputs and estimate the position of the
 user equipment. This is attractive for Massive MIMO indoor localization because the
 measured channel contains rich spatial and delay information that may be difficult to
-fully represent using explicit geometric or model-based assumptions. Previous work
+fully represent using explicit geometric methods. Previous work
 has also shown that multiple processing chains can be trained with different
 channel fingerprints and then combined to improve localization
 performance~\cite{cite:Tian2024}.
@@ -689,7 +684,7 @@ modulation.
 
 \begin{figure}[H]
   \centering
-  \includesvg[width=0.70\linewidth]{generated_figures/ssm_block_flow.svg}
+  \includesvg[width=0.70\linewidth]{generated_figures/ssm_block_flow}
   \caption{Simplified datapath of a Slim-Mamba block.}
   \label{fig:slim_mamba}
 \end{figure}
@@ -784,7 +779,7 @@ control.
 
 \begin{figure}[H]
   \centering
-  \includesvg[width=0.9\linewidth]{generated_figures/tcas_hardware_architecture}
+  \includesvg[width=0.87\linewidth]{generated_figures/tcas_hardware_architecture}
   \caption{Overall hardware architecture of the Slim-Mamba accelerator.}
   \label{fig:tcas_hardware_architecture}
 \end{figure}

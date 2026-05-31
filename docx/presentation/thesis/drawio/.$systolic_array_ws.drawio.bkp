@@ -74,7 +74,7 @@
           <mxGeometry height="54" width="112" x="780" y="204" as="geometry" />
         </mxCell>
         <mxCell id="psum_out_label" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Times New Roman;fontSize=20;fontColor=#333333;" value="Partial Sum&lt;br&gt;(to PE below)" vertex="1">
-          <mxGeometry height="54" width="125" x="618.5" y="420" as="geometry" />
+          <mxGeometry height="54" width="125" x="610" y="418" as="geometry" />
         </mxCell>
         <mxCell id="mul_node" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;strokeColor=#2F5597;fillColor=#FFFFFF;fontFamily=Times New Roman;fontSize=28;fontColor=#17365D;strokeWidth=1.5;" value="&lt;b&gt;×&lt;/b&gt;" vertex="1">
           <mxGeometry height="44" width="44" x="560" y="238" as="geometry" />
@@ -170,13 +170,28 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="pe_add_to_acc" edge="1" parent="1" source="add_node" style="endArrow=block;endFill=1;html=1;rounded=0;strokeColor=#70AD47;strokeWidth=1.5;jumpStyle=arc;jumpSize=8;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="psum_out_label" value="">
+        <mxCell id="pe_add_to_acc" edge="1" parent="1" source="add_node" style="endArrow=block;endFill=1;html=1;rounded=0;strokeColor=#70AD47;strokeWidth=1.5;jumpStyle=arc;jumpSize=8;" value="">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="681" y="376.0899999999999" as="targetPoint" />
           </mxGeometry>
         </mxCell>
+        <mxCell id="pe_psum_out" edge="1" parent="1" source="5cHIHAZewnCvNqqqXP5N-1" style="endArrow=block;endFill=1;html=1;rounded=0;strokeColor=#70AD47;strokeWidth=1.5;jumpStyle=arc;jumpSize=8;entryX=0.445;entryY=0.059;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryPerimeter=0;" target="psum_out_label" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="715.9999999999998" y="381.26923076923083" as="sourcePoint" />
+            <mxPoint x="759" y="373" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
         <mxCell id="weight_reg" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=6;strokeColor=#7F7F7F;fillColor=#F5F5F5;fontFamily=Times New Roman;fontSize=16;fontColor=#333333;strokeWidth=1.2;" value="Preload Weight" vertex="1">
           <mxGeometry height="26" width="114" x="546" y="178" as="geometry" />
+        </mxCell>
+        <mxCell id="ToizOuxlB3X3-XjceGA5-1" edge="1" parent="1" source="weight_reg" style="endArrow=block;endFill=1;html=1;rounded=0;strokeColor=#70AD47;strokeWidth=1.5;exitX=0.84;exitY=1.031;exitDx=0;exitDy=0;exitPerimeter=0;jumpStyle=arc;jumpSize=8;entryX=0.75;entryY=1;entryDx=0;entryDy=0;" target="5cHIHAZewnCvNqqqXP5N-1" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="631" y="204" as="sourcePoint" />
+            <mxPoint x="630" y="239" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5cHIHAZewnCvNqqqXP5N-1" parent="1" style="shape=trapezoid;perimeter=trapezoidPerimeter;whiteSpace=wrap;html=1;fixedSize=1;rotation=-180;" value="" vertex="1">
+          <mxGeometry height="14" width="90" x="620" y="376" as="geometry" />
         </mxCell>
         <mxCell id="ToizOuxlB3X3-XjceGA5-4" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Times New Roman;fontSize=24;fontStyle=1;fontColor=#333333;rotation=90;" value="..." vertex="1">
           <mxGeometry height="42" width="28" x="138" y="200" as="geometry" />
