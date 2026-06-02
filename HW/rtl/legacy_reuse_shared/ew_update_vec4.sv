@@ -1,0 +1,478 @@
+// ============================================================
+// ew_update_vec4.sv
+// EMA update stage (mini-top for EMA step):
+//   s_new = lam ⊙ s_prev + (1-lam) ⊙ u
+//
+// Expected formats (recommended):
+//   lam: Q0.16 unsigned
+    //   s:   Q8.8 signed
+    //   u:   Q8.8 signed
+// ============================================================
+module ew_update_vec4 #(
+    parameter int TILE_SIZE  = 4,
+    parameter int W          = 16,
+    parameter int S_ADDR_W   = 10,   // state depth = 2^S_ADDR_W (example)
+    parameter bit USE_RAM    = 1,
+    parameter bit USE_SCALED_STATE = 0,
+    parameter int SCALE_W = 32,
+    parameter int SCALE_FRAC_BITS = 16,
+    parameter int MUL_ROUND_MODE = 0,
+    parameter int MUL_SAT_MODE   = 0,
+    parameter int ADD_ROUND_MODE = 0,
+    parameter int ADD_SAT_MODE   = 0
+)(
+    input  logic clk,
+    input  logic rst_n,
+    // state clear controls
+    input  logic                 state_frame_start,
+    input  logic                 state_continuous_en,
+    input  logic                 state_force_clear,
+    output logic                 state_clear_busy,
+    output logic                 state_clear_done,
+
+    // input stream (from join)
+    input  logic                 in_valid,
+    output logic                 in_ready,
+    input  logic [W-1:0]         lam_vec [TILE_SIZE-1:0], // Q0.16 unsigned
+    input  logic signed [W-1:0]  u_vec   [TILE_SIZE-1:0], // e.g. Q8.8 signed or already aligned
+    input  logic [SCALE_W-1:0]   u_to_state_scale_vec [TILE_SIZE-1:0],
+    input  logic [SCALE_W-1:0]   state_to_q88_scale_vec [TILE_SIZE-1:0],
+
+    // state index for this token (你可以来自 tile_id / timestep counter)
+    input  logic [S_ADDR_W-1:0]  s_addr,
+
+    // output stream (s_new, y_t)
+    output logic                 out_valid,
+    input  logic                 out_ready,
+    output logic signed [W-1:0]  s_new_vec [TILE_SIZE-1:0]
+);
+
+    // ------------------------------------------------------------
+    // 0) State storage (s_prev) — external RAM
+    // ------------------------------------------------------------
+    localparam int MEM_W     = W*TILE_SIZE;
+    localparam int MEM_BYTES = MEM_W/8;
+    logic signed [W-1:0] s_prev_vec [TILE_SIZE-1:0];
+    logic [W-1:0]        s_prev_vec_u [TILE_SIZE-1:0];
+    logic [MEM_W-1:0]    s_dout_packed;
+    wire                  s_dout_unknown = (^s_dout_packed === 1'bx);
+    wire [MEM_W-1:0]      s_dout_safe   = s_dout_unknown ? {MEM_W{1'b0}} : s_dout_packed;
+    
+    // 地址寄存
+    logic [S_ADDR_W-1:0] s_addr_r;
+    logic [S_ADDR_W-1:0] s_addr_w;
+
+    // 最近一次写入的旁路，用于在 BRAM 尚未返回新数据时提供有效值
+    logic                 last_wr_valid;
+    logic [S_ADDR_W-1:0]  last_wr_addr;
+    logic [MEM_W-1:0]     last_wr_data;
+    wire [MEM_W-1:0]      s_dout_mux = (last_wr_valid && (last_wr_addr == s_addr_r)) ? last_wr_data : s_dout_safe;
+    logic [MEM_W-1:0]    s_new_packed;
+
+
+    // FSM: in -> RD1 -> RD2 -> CALC (2-cycle RAM read latency)
+    typedef enum logic [2:0] {ST_IDLE, ST_RD1, ST_RD2, ST_CALC, ST_SC1, ST_SC2, ST_WAIT, ST_HOLD} st_t;
+    st_t st;
+
+    // latch input
+    logic [W-1:0]        lam_r [TILE_SIZE-1:0];
+    logic [W-1:0] u_r   [TILE_SIZE-1:0];
+    logic [SCALE_W-1:0]  u_to_state_scale_r [TILE_SIZE-1:0];
+    logic [SCALE_W-1:0]  state_to_q88_scale_r [TILE_SIZE-1:0];
+
+    // intermediate
+    logic [W-1:0] one_minus [TILE_SIZE-1:0];
+    logic [W-1:0] u_aligned [TILE_SIZE-1:0]; // TODO: align u to Q0.16 if needed
+
+    // EWM outputs
+    logic ewm1_v, ewm1_r;
+    logic ewm2_v, ewm2_r;
+    logic calc_operands_ready;
+    logic calc_issue_done;
+    wire  ewm_in_fire = (!USE_SCALED_STATE) && (st == ST_CALC) && calc_operands_ready && !calc_issue_done && ewm1_r && ewm2_r;
+    logic [W-1:0] mul_a [TILE_SIZE-1:0];
+    logic [W-1:0] mul_b [TILE_SIZE-1:0];
+
+    // EWA output
+    logic ewa_v, ewa_r;
+    logic [W-1:0] sum_y [TILE_SIZE-1:0];
+    wire  state_we;
+    logic calc_done; // latch successful CALC handshake
+
+    logic [W-1:0] scaled_u_state [TILE_SIZE-1:0];
+    logic [W-1:0] scaled_u_state_r [TILE_SIZE-1:0];
+    logic signed [33:0] scaled_acc [TILE_SIZE-1:0];
+    logic [W-1:0] scaled_state_next [TILE_SIZE-1:0];
+    logic [W-1:0] scaled_state_next_r [TILE_SIZE-1:0];
+    logic [W-1:0] scaled_state_q88 [TILE_SIZE-1:0];
+    logic [15:0] scaled_dummy_scale [TILE_SIZE-1:0];
+    logic                 state_clr_wr_en;
+    logic [S_ADDR_W-1:0]  state_clr_wr_addr;
+    logic [MEM_W-1:0]     state_clr_wr_data;
+    logic                 state_quiesce_req;
+    logic                 state_compute_hold;
+    logic                 state_pipe_quiescent;
+    logic                 ram_we;
+    logic [S_ADDR_W-1:0]  ram_waddr;
+    logic [MEM_W-1:0]     ram_wdata;
+
+    // ------------------------------------------------------------
+    // 1) input accept + state read scheduling
+    // ------------------------------------------------------------
+    // in_ready: 只有在内部空闲且后续不会阻塞时才接 token
+    assign in_ready = (st == ST_IDLE) && !state_compute_hold;
+    assign state_pipe_quiescent = (st == ST_IDLE) && !out_valid;
+
+    always_ff @(posedge clk) begin
+        if (!rst_n) begin
+            st <= ST_IDLE;
+            s_addr_r <= '0;
+            out_valid <= 1'b0;
+            calc_done <= 1'b0;
+            calc_operands_ready <= 1'b0;
+            calc_issue_done <= 1'b0;
+            for (int i=0;i<TILE_SIZE;i++) s_new_vec[i] <= '0;
+            s_new_packed <= '0;
+            for (int i=0;i<TILE_SIZE;i++) begin
+                lam_r[i] <= '0;
+                u_r[i]   <= '0;
+                u_to_state_scale_r[i] <= '0;
+                state_to_q88_scale_r[i] <= '0;
+                scaled_u_state_r[i] <= '0;
+                scaled_state_next_r[i] <= '0;
+            end
+            last_wr_valid <= 1'b0;
+            last_wr_addr  <= '0;
+            last_wr_data  <= '0;
+        end else begin
+            // output handshake
+            if (out_valid && out_ready) out_valid <= 1'b0;
+            if (calc_done && st==ST_WAIT) calc_done <= 1'b0;
+            if (state_clr_wr_en) last_wr_valid <= 1'b0;
+
+            case (st)
+                ST_IDLE: begin
+                    if (in_valid && in_ready) begin
+                        // latch token
+                        for (int i=0;i<TILE_SIZE;i++) begin
+                            // fixed mode: Q0.16 -> Q8.8. scaled-state mode: Q0.16 -> Q1.15.
+                            lam_r[i] <= USE_SCALED_STATE ? (lam_vec[i] >> 1) : (lam_vec[i] >>> 8);
+                            u_r[i]   <= u_vec[i];
+                            u_to_state_scale_r[i] <= u_to_state_scale_vec[i];
+                            state_to_q88_scale_r[i] <= state_to_q88_scale_vec[i];
+                        end
+                        s_addr_r <= s_addr;
+                        st <= ST_RD1;
+                        calc_done <= 1'b0;
+                        calc_operands_ready <= 1'b0;
+                        calc_issue_done <= 1'b0;
+                        // 如果需要，可以在此重置 last_wr_valid，当地址改变时旁路失效
+                        if (last_wr_valid && (last_wr_addr != s_addr)) last_wr_valid <= 1'b0;
+                    end
+                end
+
+                ST_RD1: begin
+                    // first read latency cycle
+                    st <= ST_RD2;
+                end
+
+                ST_RD2: begin
+                    // second read latency cycle
+                    st <= ST_CALC;
+                    calc_operands_ready <= 1'b0;
+                end
+
+                ST_CALC: begin
+                    if (!calc_operands_ready)
+                        calc_operands_ready <= 1'b1;
+                    if (ewm_in_fire)
+                        calc_issue_done <= 1'b1;
+                    // scaled-state mode: pipeline the requant chain to cut critical path.
+                    if (USE_SCALED_STATE && calc_operands_ready) begin
+                        for (int i=0;i<TILE_SIZE;i++) begin
+                            scaled_u_state_r[i] <= scaled_u_state[i];
+                        end
+                        st <= ST_SC1;
+                    end else if (!USE_SCALED_STATE && ewa_v && ewa_r) begin
+                        // 当 EWA 的结果有效并且我们能推出去时，准备写回 + 输出
+                        for (int i=0;i<TILE_SIZE;i++) begin
+                            s_new_vec[i]       <= $signed(sum_y[i]);
+                            s_new_packed[i*W +: W] <= $signed(sum_y[i]);
+                        end
+                        out_valid <= 1'b1;
+                        calc_done <= 1'b1;
+                        st <= ST_WAIT; // 插一拍气泡，下一拍执行写回
+                    end
+                end
+
+                ST_SC1: begin
+                    for (int i=0;i<TILE_SIZE;i++) begin
+                        scaled_state_next_r[i] <= scaled_state_next[i];
+                    end
+                    st <= ST_SC2;
+                end
+
+                ST_SC2: begin
+                    if (out_ready) begin
+                        for (int i=0;i<TILE_SIZE;i++) begin
+                            s_new_vec[i]       <= $signed(scaled_state_q88[i]);
+                            s_new_packed[i*W +: W] <= $signed(scaled_state_next_r[i]);
+                        end
+                        out_valid <= 1'b1;
+                        calc_done <= 1'b1;
+                        st <= ST_WAIT;
+                    end
+                end
+
+                ST_WAIT: begin
+                    // 写回在此拍进行（state_we=1），随后回到 IDLE
+                    if (state_we) begin
+                        last_wr_valid <= 1'b1;
+                        last_wr_addr  <= s_addr_w;
+                        last_wr_data  <= s_new_packed;
+                    end
+                    st <= ST_HOLD;
+                end
+
+                ST_HOLD: begin
+                    calc_operands_ready <= 1'b0;
+                    calc_issue_done <= 1'b0;
+                    st <= ST_IDLE;
+                end
+            endcase
+        end
+    end
+
+    // ------------------------------------------------------------
+    // 2) produce s_prev_vec from mem (sync read model)
+    // ------------------------------------------------------------
+    // 2-cycle read latency：address 在 ST_RD1 发出，ST_CALC 拍拿到 RAM 输出
+    always_ff @(posedge clk) begin
+        if (!rst_n) begin
+            for (int i=0;i<TILE_SIZE;i++) begin
+                s_prev_vec[i] <= '0;
+            end
+        end else if (st == ST_CALC) begin
+            for (int i=0;i<TILE_SIZE;i++) begin
+                s_prev_vec[i] <= $signed(s_dout_mux[i*W +: W]);
+            end
+        end
+    end
+
+    // use registered s_prev_vec to break the addr->DSP combinational path
+    always_comb begin
+        for (int i=0;i<TILE_SIZE;i++) begin
+            s_prev_vec_u[i] = s_prev_vec[i];
+        end
+    end
+
+    // ------------------------------------------------------------
+    // 3) compute (1 - lam) and align u
+    // ------------------------------------------------------------
+    always_comb begin
+        for (int i=0;i<TILE_SIZE;i++) begin
+            if (USE_SCALED_STATE) begin
+                // Q1.15: 1.0 == 0x8000.
+                one_minus[i] = 16'h8000 - lam_r[i];
+                u_aligned[i] = scaled_u_state[i];
+            end else begin
+                // Q8.8: 1.0 == 0x0100.
+                one_minus[i] = 16'h0100 - lam_r[i];
+                // s、u、lam 都是 Q8.8：乘积 Q16.16，右移 8bits 回到 Q8.8
+                u_aligned[i] = u_r[i];
+            end
+        end
+    end
+
+    requant_round_sat_engine #(
+        .TILE_SIZE       (TILE_SIZE),
+        .IN_W            (W),
+        .OUT_W           (W),
+        .SHIFT           (0),
+        .SCALE_W         (SCALE_W),
+        .SCALE_FRAC_BITS (SCALE_FRAC_BITS),
+        .SIGNED_IN       (1),
+        .SIGNED_OUT      (1),
+        .USE_SCALE       (1),
+        .ROUND_MODE      (1),
+        .SAT_MODE        (1)
+    ) u_to_state_requant (
+        .in_vec    (u_r),
+        .scale_vec (u_to_state_scale_r),
+        .out_vec   (scaled_u_state)
+    );
+
+    always_comb begin
+        for (int i=0;i<TILE_SIZE;i++) begin
+            scaled_acc[i] =
+                ($signed({1'b0, lam_r[i]}) * $signed(s_prev_vec[i])) +
+                ($signed({1'b0, one_minus[i]}) * $signed(scaled_u_state_r[i]));
+            scaled_dummy_scale[i] = 16'h0001;
+        end
+    end
+    
+    logic [33:0] scaled_acc_bits [TILE_SIZE-1:0];
+
+    genvar gi;
+    generate
+        for (gi = 0; gi < TILE_SIZE; gi++) begin : g_norm_bits
+            assign scaled_acc_bits[gi] = scaled_acc[gi];
+        end
+    endgenerate
+    
+
+    requant_round_sat_engine #(
+        .TILE_SIZE       (TILE_SIZE),
+        .IN_W            (34),
+        .OUT_W           (W),
+        .SHIFT           (15),
+        .SCALE_W         (16),
+        .SCALE_FRAC_BITS (0),
+        .SIGNED_IN       (1),
+        .SIGNED_OUT      (1),
+        .USE_SCALE       (0),
+        .ROUND_MODE      (1),
+        .SAT_MODE        (1)
+    ) u_scaled_state_update_requant (
+        .in_vec    (scaled_acc_bits),
+        .scale_vec (scaled_dummy_scale),
+        .out_vec   (scaled_state_next)
+    );
+
+    requant_round_sat_engine #(
+        .TILE_SIZE       (TILE_SIZE),
+        .IN_W            (W),
+        .OUT_W           (W),
+        .SHIFT           (0),
+        .SCALE_W         (SCALE_W),
+        .SCALE_FRAC_BITS (SCALE_FRAC_BITS),
+        .SIGNED_IN       (1),
+        .SIGNED_OUT      (1),
+        .USE_SCALE       (1),
+        .ROUND_MODE      (1),
+        .SAT_MODE        (1)
+    ) u_state_to_q88_requant (
+        .in_vec    (scaled_state_next_r),
+        .scale_vec (state_to_q88_scale_r),
+        .out_vec   (scaled_state_q88)
+    );
+
+    // ------------------------------------------------------------
+    // 5) state RAM instance (True dual port, 64-bit wide, depth=64)
+    // ------------------------------------------------------------
+    // 在 ST_WAIT 写回，需确保上一拍完成计算
+    assign state_we = (st == ST_WAIT) && calc_done;
+    assign ram_we   = state_clr_wr_en || state_we;
+
+    // A 口在读流水线阶段保持使能，包含 ST_WAIT 以捕获 2-cycle 延迟输出
+    wire ena_a = (st == ST_RD1) || (st == ST_RD2) || (st == ST_CALC) || (st == ST_WAIT);
+
+    // 写地址 = 读地址 + 1，期望下一次读到上一次写入（地址空间回绕）
+    assign s_addr_w = s_addr_r + 1'b1;
+    assign ram_waddr = state_clr_wr_en ? state_clr_wr_addr : s_addr_w;
+    assign ram_wdata = state_clr_wr_en ? state_clr_wr_data : s_new_packed;
+
+    reuse_ssm_state_reset_ctrl #(
+        .S_ADDR_W(S_ADDR_W),
+        .DATA_W  (MEM_W)
+    ) u_state_reset_ctrl (
+        .clk                (clk),
+        .rst_n              (rst_n),
+        .frame_start        (state_frame_start),
+        .force_clear        (state_force_clear),
+        .continuous_state_en(state_continuous_en),
+        .pipe_quiescent     (state_pipe_quiescent),
+        .clear_busy         (state_clear_busy),
+        .clear_done         (state_clear_done),
+        .quiesce_req        (state_quiesce_req),
+        .compute_hold       (state_compute_hold),
+        .state_wr_en        (state_clr_wr_en),
+        .state_wr_addr      (state_clr_wr_addr),
+        .state_wr_data      (state_clr_wr_data)
+    );
+
+    s_buffer u_s_buffer (
+        .clka   (clk),
+        .ena    (ena_a),
+        .wea    (1'b0),
+        .addra  (s_addr_r),
+        .dina   ({MEM_W{1'b0}}),
+        .douta  (s_dout_packed),
+
+        .clkb   (clk),
+        .enb    (ram_we),
+        .web    (ram_we),
+        .addrb  (ram_waddr),
+        .dinb   (ram_wdata),
+        .doutb  ()
+    );
+
+    // ------------------------------------------------------------
+    // 4) Two parallel EWM + one EWA
+    // ------------------------------------------------------------
+    // EWM1: lam * s_prev
+    ewm_vec4 #(
+        .TILE_SIZE (TILE_SIZE),
+        .IN_W      (W),
+        .OUT_W     (W),
+        .FRAC_BITS (USE_SCALED_STATE ? 15 : 8),
+        .SIGNED_A  (0),
+        .SIGNED_B  (1),
+        .ROUND_MODE(MUL_ROUND_MODE),
+        .SAT_MODE  (MUL_SAT_MODE)
+    ) u_ewm1 (
+        .clk      (clk),
+        .rst_n    (rst_n),
+        .in_valid (ewm_in_fire),
+        .in_ready (ewm1_r),
+        .out_ready(ewa_r),
+        .out_valid(ewm1_v),
+        .a_vec    (lam_r),
+        .b_vec    (s_prev_vec_u),
+        .y_vec    (mul_a)
+    );
+
+    // EWM2: (1-lam) * u
+    ewm_vec4 #(
+        .TILE_SIZE (TILE_SIZE),
+        .IN_W      (W),
+        .OUT_W     (W),
+        .FRAC_BITS (USE_SCALED_STATE ? 15 : 8),
+        .SIGNED_A  (0),
+        .SIGNED_B  (1),
+        .ROUND_MODE(MUL_ROUND_MODE),
+        .SAT_MODE  (MUL_SAT_MODE)
+    ) u_ewm2 (
+        .clk      (clk),
+        .rst_n    (rst_n),
+        .in_valid (ewm_in_fire),
+        .in_ready (ewm2_r),
+        .out_ready(ewa_r),
+        .out_valid(ewm2_v),
+        .a_vec    (one_minus),
+        .b_vec    (u_aligned),
+        .y_vec    (mul_b)
+    );
+
+    // EWA: mul_a + mul_b
+    wire both_mul_valid = ewm1_v && ewm2_v;
+
+    ewa_vec4 #(
+        .TILE_SIZE (TILE_SIZE),
+        .W         (W),
+        .SIGNED_IO (1),
+        .ROUND_MODE(ADD_ROUND_MODE),
+        .SAT_MODE  (ADD_SAT_MODE)
+    ) u_ewa (
+        .clk      (clk),
+        .rst_n    (rst_n),
+        .in_valid (both_mul_valid),
+        .in_ready (ewa_r),
+        .out_ready(out_ready),
+        .out_valid(ewa_v),
+        .a_vec    (mul_a),
+        .b_vec    (mul_b),
+        .y_vec    (sum_y)
+    );
+
+endmodule

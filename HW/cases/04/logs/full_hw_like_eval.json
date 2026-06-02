@@ -1,0 +1,66 @@
+{
+  "samples": 34505,
+  "total_available_samples": 34505,
+  "limit": 0,
+  "scan_mode": "scaled_state",
+  "continuous_state": false,
+  "chain4_input_mode": "stream_parallel_nocache",
+  "cache_threshold": 64,
+  "chain4_cache_validation": {
+    "checked": false,
+    "reason": "cache bypassed by threshold",
+    "cache_threshold": 64
+  },
+  "block_source": "case_chain4",
+  "hw_like_vs_cpp": {
+    "mae": 0.02027415856719017,
+    "max_abs": 0.13866055011749268,
+    "metrics_vs_y_true": {
+      "count": 34505,
+      "mean_err": 0.14102698862552643,
+      "median_err": 0.10338680446147919,
+      "p80_err": 0.20948609709739685,
+      "p90_err": 0.2980819642543793,
+      "max_err": 1.352704405784607
+    }
+  },
+  "hw_like_vs_float": {
+    "mae": 0.02080618590116501,
+    "max_abs": 0.15172845125198364,
+    "metrics_vs_y_true": {
+      "count": 34505,
+      "mean_err": 0.14102698862552643,
+      "median_err": 0.10338680446147919,
+      "p80_err": 0.20948609709739685,
+      "p90_err": 0.2980819642543793,
+      "max_err": 1.352704405784607
+    }
+  },
+  "cppish_vs_cpp": {
+    "mae": 3.219388599973172e-05,
+    "max_abs": 0.004042811691761017
+  },
+  "block_error_accumulation": {},
+  "sample0": {
+    "y_cpp": [
+      1.1428499221801758,
+      -2.2294301986694336
+    ],
+    "y_cppish": [
+      1.1428499221801758,
+      -2.2294301986694336
+    ],
+    "y_hw_like": [
+      1.151540756225586,
+      -2.226273775100708
+    ],
+    "y_true": [
+      1.3823806047439575,
+      -2.376539468765259
+    ],
+    "y_float": [
+      1.1567325592041016,
+      -2.2258055210113525
+    ]
+  }
+}
