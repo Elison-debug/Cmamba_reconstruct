@@ -71,7 +71,7 @@ on FPGA.
 \end{abstract}
 
 \begin{IEEEkeywords}
-Article submission, IEEE, IEEEtran, journal, \LaTeX, paper, template, typesetting.
+Massive MIMO indoor localization, Mamba, FPGA accelerator, quantization, reconfigurable architecture, edge AI.
 \end{IEEEkeywords}
 
 \section{Introduction}
@@ -126,8 +126,169 @@ uses fine-grained FIFO-based pipelining to reduce waiting time between projectio
 nonlinear activation, state update, and output gating. 
 
 
-\section{Mamba-Based Localization Models Exploration}
+\section{Mamba-Based Model Exploration for Localization}
 \label{sec:algorithm}
+
+\subsection{Localization Task and Sequence Input}
+
+The target task is radio-based indoor localization on the LuViRA dataset, where
+each sample is represented by a short sequence of Massive MIMO channel
+observations. In the deployed setting, each observation contains 2100 input
+features derived from the CIR and power representation used consistently in
+training, software evaluation, and hardware export. For one inference window,
+the model receives
+\(\mathbf{X}=[\mathbf{x}_{t-K+1},\ldots,\mathbf{x}_t]\), where
+\(\mathbf{x}_i \in \mathbb{R}^{D_{\mathrm{in}}}\) and
+\(D_{\mathrm{in}}=2100\), and predicts the two-dimensional user position. In
+this task, the useful temporal information is concentrated in short-range
+channel variation rather than in long-range sequence dependency.
+
+This property guides the model exploration. The original Mamba block is
+attractive because it combines recurrent state propagation with input-dependent
+modulation, but its full selective state-space parameterization was introduced
+for more general sequence modeling problems. For the present localization
+setting, the main requirement is to retain short-window temporal tracking while
+keeping the operator set regular enough for fixed-point FPGA mapping.
+Accordingly, the model exploration in this work seeks the smallest
+Mamba-like recurrent structure that preserves the localization accuracy required
+for deployment.
+
+\subsection{From Original Mamba to Slim-Mamba}
+
+The exploration considered two reference directions. The first was a Vanilla
+Mamba v1 implementation following the original selective state-space block. The
+second was a channel-aware variant with additional feature-fusion branches for
+stronger cross-channel interaction modeling. The channel-aware variant achieved
+the best software-only accuracy when augmented input features were available,
+but at the cost of substantially larger model size, longer training time, and a
+more complex hardware mapping. In contrast, the Vanilla Mamba baseline showed
+that the full selective-scan path was not necessary to capture the short-window
+localization dynamics in LuViRA. These observations motivated the final
+Slim-Mamba design.
+
+Slim-Mamba follows a task-driven simplification principle. It retains the
+front-end and back-end skeleton of the original Mamba block, including
+normalization, input projection and split, output gating, output projection,
+and residual addition. The main modification is confined to the state path, so
+Table~\ref{tab:mamba_operator_compare_tcas} lists only the operators that are
+replaced. In the original Mamba block, the state branch generates
+input-dependent \(\Delta_t\), \(B_t\), and \(C_t\), discretizes the
+continuous-time parameters \((A,B)\), and then applies a selective scan
+recurrence. Slim-Mamba replaces this sequence with a direct discrete-time gated
+update that is easier to quantize and implement in hardware.
+
+\begin{figure}[!t]
+  \centering
+  \includesvg[width=0.95\linewidth]{TCASfig/mamba_v1_slim_replacement}
+  \caption{Block-level replacement from the original Mamba state path to the Slim-Mamba state path.}
+  \label{fig:mamba_v1_slim_replacement_tcas}
+\end{figure}
+
+Figure~\ref{fig:mamba_v1_slim_replacement_tcas} summarizes the replacement. The
+state branch first applies depthwise convolution and SiLU to produce the
+state-branch feature \(\tilde{\mathbf{x}}^{(s)}_t\). A single input-dependent
+update coefficient is then generated as
+\begin{equation}
+\lambda_t = \sigma \!\left(W_{\lambda} * \tilde{\mathbf{x}}^{(s)}_t + b_{\lambda}\right),
+\label{eq:slim_mamba_lambda}
+\end{equation}
+where \(\sigma(\cdot)\) denotes the sigmoid function. Instead of discretizing a
+continuous-time state-space model, Slim-Mamba updates the recurrent state
+directly as
+\begin{equation}
+\mathbf{h}_t = \lambda_t \odot \mathbf{h}_{t-1}
+ + (1-\lambda_t)\odot \tilde{\mathbf{x}}^{(s)}_t.
+\label{eq:slim_mamba_state_update_alg}
+\end{equation}
+The updated state is then modulated by the gate branch
+\begin{equation}
+\mathbf{g}_t = \mathrm{SiLU}(\mathbf{x}^{(g)}_t),
+\label{eq:slim_mamba_gate}
+\end{equation}
+and mapped to the block output through
+\begin{equation}
+\mathbf{y}_t = W_{\mathrm{out}}(\mathbf{h}_t \odot \mathbf{g}_t).
+\label{eq:slim_mamba_output}
+\end{equation}
+
+Compared with the original Mamba block, this replacement removes three major
+sources of hardware complexity: time-varying generation of multiple SSM
+parameters, the discretization step from \(\Delta_t\) to
+\((\bar{A}_t,\bar{B}_t)\), and the explicit \((C_t,D)\)-based readout. The
+resulting model remains recurrent and input-dependent, but its operator set is
+reduced to projection, element-wise nonlinearities, gated state update, and
+output modulation. This reduced operator set is the main reason why Slim-Mamba
+is better suited to shared MAC reuse, fixed-point quantization, and fine-grained
+pipelining.
+
+\begin{table}[!t]
+\centering
+\caption{Main operator substitutions from original Mamba to Slim-Mamba.}
+\label{tab:mamba_operator_compare_tcas}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.14}
+\begin{tabular}{p{0.18\linewidth} p{0.35\linewidth} p{0.40\linewidth}}
+\hline
+\textbf{Stage} & \textbf{Original Mamba} & \textbf{Slim-Mamba} \\
+\hline
+Local mixing &
+Conv + SiLU &
+DWConv + SiLU \\
+Parameter generation &
+\(B_t,\ C_t,\ \Delta_t\), then \(\mathrm{discretize}(\Delta_t,A,B)\) &
+Single update gate \(\lambda_t\) \\
+State update &
+\(\mathbf{h}_t=\bar{A}_t\mathbf{h}_{t-1}+\bar{B}_t\tilde{\mathbf{x}}^{(s)}_t\) &
+\(\mathbf{h}_t=\lambda_t\odot\mathbf{h}_{t-1}+(1-\lambda_t)\odot\tilde{\mathbf{x}}^{(s)}_t\) \\
+Readout &
+\(\mathbf{r}_t=C_t\mathbf{h}_t + D\tilde{\mathbf{x}}^{(s)}_t\) &
+Direct state readout \(\mathbf{r}_t=\mathbf{h}_t\) \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Deployed Configuration}
+
+The deployed Slim-Mamba configuration uses
+\(D_{\mathrm{in}}=2100\), \(K=2\), \(\text{proj\_dim}=64\),
+\(d_{\mathrm{model}}=128\), \(n_{\mathrm{layer}}=4\), patch length \(P=2\),
+and stride \(S=2\). This setting was selected because it preserves the compact
+short-window behavior observed in software while keeping the projection and
+state-update dimensions aligned with the intended FPGA datapath. The final model
+contains 816,386 trainable parameters and occupies 3.40\,MB.
+
+\begin{table}[!t]
+\centering
+\caption{Trainable parameter breakdown of the deployed Slim-Mamba configuration.}
+\label{tab:slim_param_breakdown_tcas}
+\small
+\begin{tabular}{l r}
+\hline
+\textbf{Component} & \textbf{Parameters} \\
+\hline
+Input projection \(D_{\mathrm{in}}\rightarrow\text{proj\_dim}\) & 134,464 \\
+Patch embedding Conv1d & 16,512 \\
+Four block RMSNorm layers & 512 \\
+Four block in-proj layers & 262,144 \\
+Four block update-gate projection layers & 263,168 \\
+Four block out-proj layers & 131,072 \\
+Final RMSNorm & 128 \\
+Flat output layer & 8,256 \\
+Regression head \(\text{proj\_dim}\rightarrow 2\) & 130 \\
+\hline
+\textbf{Total} & \textbf{816,386} \\
+\hline
+\end{tabular}
+\end{table}
+
+This parameter distribution is also relevant from the hardware perspective. Most
+trainable weights are concentrated in the repeated input projection, update-gate
+projection, and output projection paths. These are exactly the stages later
+mapped to the shared reconfigurable MAC fabric. Therefore, the algorithmic
+simplification and the hardware architecture are aligned not only at the level
+of recurrence definition, but also at the level of parameter concentration and
+dataflow structure.
 
 \section{Quantization Workflow and Hardware Implementation}
 \label{sec:quant_hw}
@@ -289,9 +450,6 @@ converted to the Q1.15 state-update coefficient $\lambda$ by a one-bit right
 shift. Since $1.0$ is represented as $2^{15}$ in Q1.15, the complement
 $(1-\lambda)$ can be computed directly as $2^{15}-q_{\lambda}$, avoiding an
 extra quantization step.
-% TODO: After Section II is written, cite the Slim-Mamba state-update equation here,
-% e.g., Eq.~\eqref{eq:slim_mamba_state_update}, to justify the use of both
-% $\lambda$ and $(1-\lambda)$ in the selective-scan datapath.
 
 \begin{table}[!t]
 \begin{center}
@@ -684,63 +842,246 @@ alignment and vector multiplication.
 
 \section{Results}
 
-\section{Conlusions}
+\subsection{Software-Side Model Selection}
 
-\section*{Acknowledgments}
-This should be a simple paragraph before the References to thank those individuals and institutions who have supported your work on this article.
+Before presenting the FPGA measurements, we first justify the selection of
+Slim-Mamba as the deployment target. Table~\ref{tab:model_variants_tcas}
+summarizes the main software-side model variants explored on LuViRA. The FCNN
+baseline provides a strong localization reference but at very large model size.
+Vanilla Mamba v1 is much more compact, but its localization accuracy is
+substantially worse on this task. The channel-aware Mamba variant achieves the
+best software-only mean error when augmented input features are used, but at
+the cost of substantially larger model size, longer training time, and a more
+complex multi-branch hardware mapping.
 
+\begin{table*}[!t]
+\begin{center}
+\caption{Software-side model comparison.}
+\label{tab:model_variants_tcas}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabular}{|p{0.18\textwidth}|p{0.24\textwidth}|>{\centering\arraybackslash}p{0.10\textwidth}|>{\centering\arraybackslash}p{0.12\textwidth}|>{\centering\arraybackslash}p{0.08\textwidth}|>{\centering\arraybackslash}p{0.10\textwidth}|>{\centering\arraybackslash}p{0.10\textwidth}|}
+\hline
+\textbf{Model} & \textbf{Input features} & \textbf{Size (MB)} & \textbf{Time (s/epoch)} & \textbf{it/s} & \textbf{Err. (cm)} & \textbf{HW cost proxy} \\
+\hline
+FCNN~\cite{TianICC2023} & CIR & 789 & N/A & N/A & \(\sim 13\) & High \\
+\hline
+channel mamba & CIR + Power + amplitude & 40.4 & 73 & 13.18 & 12.9 & High \\
+\hline
+Vanilla Mamba v1 & CIR + Power & 3.38 & 33 & 32.62 & 24.74 & Medium \\
+\hline
+Slim-Mamba & CIR + Power & 3.40 & 13 & 75.30 & 13.5 & Low \\
+\hline
+\end{tabular}
+\end{center}
+\end{table*}
 
+The best channel mamba result is not a strictly input-matched comparison
+against Slim-Mamba because it uses additional amplitude information.
+Figure~\ref{fig:model_comparison_cdf_tcas} therefore compares Slim-Mamba with
+two channel mamba runs: one with the same
+\(\mathrm{CIR}+\mathrm{Power}\) input as Slim-Mamba and one with the augmented
+input setting. Under matched input conditions, Slim-Mamba consistently
+outperforms channel mamba over most of the plotted range. This makes
+Slim-Mamba the more suitable deployment-oriented model, as it combines
+competitive localization accuracy with a much simpler operator structure.
 
-{\appendix[Proof of the Zonklar Equations]
-Use $\backslash${\tt{appendix}} if you have a single appendix:
-Do not use $\backslash${\tt{section}} anymore after $\backslash${\tt{appendix}}, only $\backslash${\tt{section*}}.
-If you have multiple appendixes use $\backslash${\tt{appendices}} then use $\backslash${\tt{section}} to start each appendix.
-You must declare a $\backslash${\tt{section}} before using any $\backslash${\tt{subsection}} or using $\backslash${\tt{label}} ($\backslash${\tt{appendices}} by itself
- starts a section numbered zero.)}
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=0.92\linewidth]{TCASfig/software_eval_model_comparison_cdf.png}
+  \caption{Localization-error CDF for Slim-Mamba and two channel mamba reference runs under matched and augmented input settings.}
+  \label{fig:model_comparison_cdf_tcas}
+\end{figure}
 
+The temporal window length was also studied because it directly affects both
+algorithmic context and hardware buffering cost. Table~\ref{tab:k_ablation_tcas}
+shows that short windows are already sufficient for this task. In particular,
+\(K=2\) yields the same test mean error as \(K=1\) while providing a slightly
+lower evaluation error. Longer windows do not improve the final test accuracy
+and may even degrade it, despite occasionally reducing the evaluation error.
+This supports the use of a short deployed sequence window.
 
+\begin{table}[!t]
+\centering
+\caption{Ablation on temporal window length \(K\) with patch length and stride variants.}
+\label{tab:k_ablation_tcas}
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.10}
+\begin{tabular}{c c c}
+\hline
+\textbf{\(K\) (patch length, stride)} & \textbf{Eval mean err. (m)} & \textbf{Test mean err. (m)} \\
+\hline
+1  (1,1) & 0.10068 & \textbf{0.135} \\
+2  (2,2) & 0.09557 & \textbf{0.135} \\
+4  (2,2) & 0.09814 & 0.139 \\
+8  (2,2) & 0.09405 & 0.141 \\
+4  (4,4) & 0.09983 & 0.137 \\
+6  (4,4) & 0.09839 & 0.138 \\
+8  (4,4) & 0.09749 & 0.144 \\
+8  (8,4) & 0.09744 & 0.152 \\
+12 (8,4) & 0.09286 & 0.156 \\
+16 (8,4) & 0.09225 & 0.161 \\
+24 (8,4) & 0.09432 & 0.159 \\
+32 (8,4) & 0.09328 & 0.166 \\
+\hline
+\end{tabular}
+\end{table}
 
-%{\appendices
-%\section*{Proof of the First Zonklar Equation}
-%Appendix one text goes here.
-% You can choose not to have a title for an appendix if you want by leaving the argument blank
-%\section*{Proof of the Second Zonklar Equation}
-%Appendix two text goes here.}
+\subsection{Quantization Accuracy}
 
+The second part of the evaluation concerns numerical consistency after
+fixed-point mapping. As summarized in Table~\ref{tab:quant_final_eval}, the
+early fixed-scale baseline produces a large output mismatch and a mean
+localization error of 0.35543\,m. After introducing the final layer-wise
+quantization strategy and dynamic scaling for the recurrent state path, the
+hardware fixed-point model reaches an output MAE of 0.02081 with respect to the
+floating-point reference and a mean localization error of 0.14103\,m. This is
+close to the software fake-quantization reference of 0.13695\,m.
 
+These results indicate that the main challenge is not fixed-point arithmetic
+itself, but the dynamic range of the recurrent state path. Once that path is
+stabilized by dynamic scaling, the hardware-oriented numerical behavior remains
+close to the floating-point model while using a unified 16-bit datapath in the
+main accelerator.
+
+\subsection{Throughput, Resource Utilization, and Power}
+
+Table~\ref{tab:throughput_summary_tcas} summarizes the main throughput result.
+At 100\,MHz, the accelerator reaches 471\,frames/s, or about \(4.7\times\) the
+100\,frames/s real-time target. This corresponds to an average processing time
+of 2.12\,ms per frame.
+
+\begin{table}[!t]
+\caption{Throughput summary at 100\,MHz.}
+\label{tab:throughput_summary_tcas}
+\centering
+\small
+\begin{tabular}{l c}
+\hline
+\textbf{Metric} & \textbf{Value} \\
+\hline
+Target clock frequency & 100\,MHz \\
+Required throughput & 100\,frames/s \\
+Achieved throughput & 471\,frames/s \\
+Average time per frame & 2.12\,ms \\
+Requirement time per frame & 10\,ms \\
+\hline
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:resource_utilization_tcas} reports the post-synthesis resource
+usage. The design occupies 22.21\% of LUTs, 14.11\% of flip-flops, 30.59\% of
+BRAM tiles, and 19.68\% of DSPs. These numbers indicate that the shared MAC
+fabric and time-multiplexed block organization keep the implementation well
+within the device budget while supporting end-to-end deployment.
+
+\begin{table}[!t]
+\caption{Post-synthesis resource utilization at 100\,MHz.}
+\label{tab:resource_utilization_tcas}
+\centering
+\small
+\begin{tabular}{l c c c}
+\hline
+\textbf{Resource} & \textbf{Used} & \textbf{Available} & \textbf{Utilization} \\
+\hline
+LUT & 60868 & 274080 & 22.21\% \\
+FF & 77345 & 548160 & 14.11\% \\
+BRAM tiles & 279 & 912 & 30.59\% \\
+DSP & 496 & 2520 & 19.68\% \\
+\hline
+\end{tabular}
+\end{table}
+
+The power breakdown is shown in Table~\ref{tab:power_summary_tcas}. The total
+on-chip power is 4.292\,W, of which 3.562\,W is dynamic and 0.729\,W is static.
+The programmable logic accounts for about 0.94\,W of dynamic power, while most
+of the dynamic component is contributed by the processing system and data
+movement. This indicates that further system-level optimization should target
+memory traffic and platform overhead in addition to arithmetic efficiency.
+
+\begin{table}[!t]
+\caption{On-chip power estimate.}
+\label{tab:power_summary_tcas}
+\centering
+\small
+\begin{tabular}{l c c}
+\hline
+\textbf{Metric} & \textbf{Value} & \textbf{Share} \\
+\hline
+Total on-chip power & 4.292\,W & 100\% \\
+Dynamic power & 3.562\,W & 83\% \\
+Static power & 0.729\,W & 17\% \\
+PS dynamic power & 2.622\,W & 74\% of dynamic power \\
+PL dynamic power & 0.940\,W & 26\% of dynamic power \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Latency Reduction from Fine-Grained Pipelining}
+
+The final set of results concerns the FIFO-based fine-grained pipeline
+introduced in the SSM path. As analyzed in
+Section~\ref{sec:reconfigurable_hw}, the coarse schedule can be approximated by
+\(T_{\mathrm{coarse}}=29N\), whereas the fine-grained schedule becomes
+\(T_{\mathrm{fine}}=22N+7\). For \(N=64\) tiles, this reduces the SSM-path
+latency from 1856 cycles to 1415 cycles, corresponding to a 23.8\% reduction.
+
+The per-block latency breakdown is reported in
+Table~\ref{tab:block_latency_tcas}. One Slim-Mamba block requires 5301 cycles,
+or 53.01\(\,\mu\)s at 100\,MHz. Input projection remains the dominant stage,
+but the latency-sensitive state path is no longer the main bottleneck. This is
+the intended effect of the fine-grained pipeline: the recurrence and nonlinear
+stages start on partial tiles instead of waiting for a full projection vector.
+
+\begin{table}[!t]
+\caption{Latency breakdown per Slim-Mamba block.}
+\label{tab:block_latency_tcas}
+\centering
+\small
+\begin{tabular}{l c c}
+\hline
+\textbf{Stage} & \textbf{Cycles} & \textbf{Time at 100\,MHz} \\
+\hline
+Input projection & 2292 & 22.92\,\(\mu\)s \\
+SSM path & 1415 & 14.15\,\(\mu\)s \\
+Output projection & 1093 & 10.93\,\(\mu\)s \\
+Control / alignment overhead & 501 & 5.01\,\(\mu\)s \\
+\hline
+\textbf{Total per block} & \textbf{5301} & \textbf{53.01\,\(\mu\)s} \\
+\hline
+\end{tabular}
+\end{table}
+
+Overall, the results support the main claim of this work. Slim-Mamba is not
+only a compact Mamba-like localization model, but also a more practical
+hardware target than the heavier software-oriented alternatives explored during
+model selection. The algorithmic simplification, layer-wise quantization
+strategy, and reconfigurable hardware architecture together produce an FPGA
+implementation that preserves localization accuracy, exceeds the real-time
+requirement with margin, and uses moderate resources on the target Zynq MPSoC
+platform.
+
+\section{Conclusions}
+
+This paper presented Slim-Mamba, a compact Mamba-based localization model and
+its reconfigurable FPGA accelerator for Massive MIMO indoor localization. The
+proposed approach combines task-driven model simplification, layer-wise
+fixed-point quantization, and hardware architecture co-design. Relative to the
+original Mamba state path, Slim-Mamba retains recurrent temporal modeling and
+input-dependent gating while removing the discretization and selective-scan
+operators that are less suitable for the target deployment setting. The
+resulting accelerator achieves a mean localization error of 0.14103\,m,
+reaches 471\,frames/s at 100\,MHz, and uses moderate FPGA resources on the
+target Zynq MPSoC platform. These results show that Slim-Mamba provides an
+effective deployment-oriented tradeoff among localization accuracy, numerical
+efficiency, and hardware cost.
 
 \bibliographystyle{IEEEtran}
 \bibliography{thesisbib}
 
 
-\newpage
 
-\section{Biography Section}
-If you have an EPS/PDF photo (graphicx package needed), extra braces are
- needed around the contents of the optional argument to biography to prevent
- the LaTeX parser from getting confused when it sees the complicated
- $\backslash${\tt{includegraphics}} command within an optional argument. (You can create
- your own custom macro containing the $\backslash${\tt{includegraphics}} command to make things
- simpler here.)
- 
-\vspace{11pt}
-
-\bf{If you include a photo:}\vspace{-33pt}
-\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{fig1}}]{Michael Shell}
-Use $\backslash${\tt{begin\{IEEEbiography\}}} and then for the 1st argument use $\backslash${\tt{includegraphics}} to declare and link the author photo.
-Use the author name as the 3rd argument followed by the biography text.
-\end{IEEEbiography}
-
-\vspace{11pt}
-
-\bf{If you will not include a photo:}\vspace{-33pt}
-\begin{IEEEbiographynophoto}{John Doe}
-Use $\backslash${\tt{begin\{IEEEbiographynophoto\}}} and the author name as the argument followed by the biography text.
-\end{IEEEbiographynophoto}
-
-
-
-
-\vfill
 
 \end{document}
