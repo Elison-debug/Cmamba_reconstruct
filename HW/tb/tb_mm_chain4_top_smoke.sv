@@ -1,4 +1,4 @@
-﻿`timescale 1ns/1ps
+`timescale 1ns/1ps
 
 module tb_mm_chain4_top_smoke;
   localparam int TIMEOUT_CYCLES = 40000;

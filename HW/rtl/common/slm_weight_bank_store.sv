@@ -1,0 +1,50 @@
+`timescale 1ns/1ps
+//---------------------------------------------------------------
+// Module: slm_weight_bank_store
+// Function:
+//   Shared read-only banked weight store for Slim-Mamba linear operators.
+//   The module exposes four independent read slots, each of which selects a
+//   bank, an address, and a physical port. The underlying storage is the
+//   common multi-bank block-ROM implementation used by the linear operators.
+//---------------------------------------------------------------
+module slm_weight_bank_store #(
+    parameter int N_BANK  = 6,
+    parameter int DEPTH   = 683,
+    parameter int ADDR_W  = $clog2(DEPTH),
+    parameter int DATA_W  = 256,
+    parameter string BANK0_INIT_FILE = "",
+    parameter string BANK1_INIT_FILE = "",
+    parameter string BANK2_INIT_FILE = "",
+    parameter string BANK3_INIT_FILE = "",
+    parameter string BANK4_INIT_FILE = "",
+    parameter string BANK5_INIT_FILE = ""
+)(
+    input  logic                           clk,
+    input  logic                           rst_n,
+    input  logic [3:0][$clog2(N_BANK)-1:0] bank_sel,
+    input  logic [3:0][ADDR_W-1:0]         addr_sel,
+    input  logic [3:0]                     en_sel,
+    input  logic [3:0]                     port_sel,
+    output logic [3:0][DATA_W-1:0]         dout_sel
+);
+    slim_multi_bank_wbuf_dp #(
+        .N_BANK          (N_BANK),
+        .DEPTH           (DEPTH),
+        .ADDR_W          (ADDR_W),
+        .DATA_W          (DATA_W),
+        .BANK0_INIT_FILE (BANK0_INIT_FILE),
+        .BANK1_INIT_FILE (BANK1_INIT_FILE),
+        .BANK2_INIT_FILE (BANK2_INIT_FILE),
+        .BANK3_INIT_FILE (BANK3_INIT_FILE),
+        .BANK4_INIT_FILE (BANK4_INIT_FILE),
+        .BANK5_INIT_FILE (BANK5_INIT_FILE)
+    ) u_weight_store (
+        .clk      (clk),
+        .rst_n    (rst_n),
+        .bank_sel (bank_sel),
+        .addr_sel (addr_sel),
+        .en_sel   (en_sel),
+        .port_sel (port_sel),
+        .dout_sel (dout_sel)
+    );
+endmodule

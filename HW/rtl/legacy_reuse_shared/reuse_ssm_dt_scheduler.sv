@@ -4,6 +4,8 @@
 // Function:
 //   CPP-aligned dt_proj scheduler using the shared 4x4x4 MAC fabric.
 //   One transaction computes one output row tile (4 channels).
+//   The weight tiles are now supplied by the common banked weight-store
+//   backend used by the other linear operators.
 //---------------------------------------------------------------
 module reuse_ssm_dt_scheduler #(
     parameter int TILE_SIZE  = 4,
@@ -102,6 +104,10 @@ module reuse_ssm_dt_scheduler #(
 
     logic [WADDR_W-1:0]             w_addr_cur;
     logic                           w_rd_en_cur;
+    logic [3:0][2:0]                w_bank_sel_cur;
+    logic [3:0][WADDR_W-1:0]        w_addr_sel_cur;
+    logic [3:0]                     w_en_sel_cur;
+    logic [3:0]                     w_port_sel_cur;
     logic [3:0][DATA_W-1:0]         w_dout_sel;
     logic                           scale_rd_en;
     logic [SCALE_ADDR_W-1:0]        scale_rd_addr;
@@ -200,107 +206,26 @@ module reuse_ssm_dt_scheduler #(
         .out_vec (reduced_trunc_u)
     );
 
-`ifdef SYNTHESIS
-    reuse_weight_bank_rom #(
-        .DEPTH     (WDEPTH),
-        .ADDR_W    (WADDR_W),
-        .DATA_W    (DATA_W),
-        .INIT_FILE (DT_BANK0_INIT_FILE)
-    ) u_dt_wbuf_bank0 (
-        .clk    (clk),
-        .en_a   (w_rd_en_cur),
-        .addr_a (w_addr_cur),
-        .dout_a (w_dout_sel[0]),
-        .en_b   (1'b0),
-        .addr_b ('0),
-        .dout_b ()
+    slm_weight_bank_store #(
+        .N_BANK          (N_BANK),
+        .DEPTH           (WDEPTH),
+        .ADDR_W          (WADDR_W),
+        .DATA_W          (DATA_W),
+        .BANK0_INIT_FILE (DT_BANK0_INIT_FILE),
+        .BANK1_INIT_FILE (DT_BANK1_INIT_FILE),
+        .BANK2_INIT_FILE (DT_BANK2_INIT_FILE),
+        .BANK3_INIT_FILE (DT_BANK3_INIT_FILE),
+        .BANK4_INIT_FILE (""),
+        .BANK5_INIT_FILE ("")
+    ) u_dt_weight_store (
+        .clk      (clk),
+        .rst_n    (rst_n),
+        .bank_sel (w_bank_sel_cur),
+        .addr_sel (w_addr_sel_cur),
+        .en_sel   (w_en_sel_cur),
+        .port_sel (w_port_sel_cur),
+        .dout_sel (w_dout_sel)
     );
-    reuse_weight_bank_rom #(
-        .DEPTH     (WDEPTH),
-        .ADDR_W    (WADDR_W),
-        .DATA_W    (DATA_W),
-        .INIT_FILE (DT_BANK1_INIT_FILE)
-    ) u_dt_wbuf_bank1 (
-        .clk    (clk),
-        .en_a   (w_rd_en_cur),
-        .addr_a (w_addr_cur),
-        .dout_a (w_dout_sel[1]),
-        .en_b   (1'b0),
-        .addr_b ('0),
-        .dout_b ()
-    );
-    reuse_weight_bank_rom #(
-        .DEPTH     (WDEPTH),
-        .ADDR_W    (WADDR_W),
-        .DATA_W    (DATA_W),
-        .INIT_FILE (DT_BANK2_INIT_FILE)
-    ) u_dt_wbuf_bank2 (
-        .clk    (clk),
-        .en_a   (w_rd_en_cur),
-        .addr_a (w_addr_cur),
-        .dout_a (w_dout_sel[2]),
-        .en_b   (1'b0),
-        .addr_b ('0),
-        .dout_b ()
-    );
-    reuse_weight_bank_rom #(
-        .DEPTH     (WDEPTH),
-        .ADDR_W    (WADDR_W),
-        .DATA_W    (DATA_W),
-        .INIT_FILE (DT_BANK3_INIT_FILE)
-    ) u_dt_wbuf_bank3 (
-        .clk    (clk),
-        .en_a   (w_rd_en_cur),
-        .addr_a (w_addr_cur),
-        .dout_a (w_dout_sel[3]),
-        .en_b   (1'b0),
-        .addr_b ('0),
-        .dout_b ()
-    );
-`else
-    logic [DATA_W-1:0] dt_wbuf_mem_sim0 [0:WDEPTH-1];
-    logic [DATA_W-1:0] dt_wbuf_mem_sim1 [0:WDEPTH-1];
-    logic [DATA_W-1:0] dt_wbuf_mem_sim2 [0:WDEPTH-1];
-    logic [DATA_W-1:0] dt_wbuf_mem_sim3 [0:WDEPTH-1];
-    logic [DATA_W-1:0] dt_wbuf_dout_r [4];
-
-    initial begin : init_dt_wbuf_mem_sim
-        for (int addr = 0; addr < WDEPTH; addr++) begin
-            dt_wbuf_mem_sim0[addr] = '0;
-            dt_wbuf_mem_sim1[addr] = '0;
-            dt_wbuf_mem_sim2[addr] = '0;
-            dt_wbuf_mem_sim3[addr] = '0;
-        end
-        if (DT_BANK0_INIT_FILE != "") $readmemh(DT_BANK0_INIT_FILE, dt_wbuf_mem_sim0);
-        if (DT_BANK1_INIT_FILE != "") $readmemh(DT_BANK1_INIT_FILE, dt_wbuf_mem_sim1);
-        if (DT_BANK2_INIT_FILE != "") $readmemh(DT_BANK2_INIT_FILE, dt_wbuf_mem_sim2);
-        if (DT_BANK3_INIT_FILE != "") $readmemh(DT_BANK3_INIT_FILE, dt_wbuf_mem_sim3);
-    end
-
-    function automatic [DATA_W-1:0] dt_mem_read_sim(input int bank_idx, input [WADDR_W-1:0] addr_idx);
-        case (bank_idx)
-            0: dt_mem_read_sim = dt_wbuf_mem_sim0[addr_idx];
-            1: dt_mem_read_sim = dt_wbuf_mem_sim1[addr_idx];
-            2: dt_mem_read_sim = dt_wbuf_mem_sim2[addr_idx];
-            3: dt_mem_read_sim = dt_wbuf_mem_sim3[addr_idx];
-            default: dt_mem_read_sim = '0;
-        endcase
-    endfunction
-
-    always_ff @(posedge clk) begin
-        if (!rst_n) begin
-            for (int b = 0; b < 4; b++)
-                dt_wbuf_dout_r[b] <= '0;
-        end else if (w_rd_en_cur) begin
-            for (int b = 0; b < 4; b++)
-                dt_wbuf_dout_r[b] <= dt_mem_read_sim(b, w_addr_cur);
-        end
-    end
-    always_comb begin
-        for (int b = 0; b < 4; b++)
-            w_dout_sel[b] = dt_wbuf_dout_r[b];
-    end
-`endif
 
     always_comb begin
         u_vec_rd_en   = 1'b0;
@@ -313,6 +238,18 @@ module reuse_ssm_dt_scheduler #(
 
     assign w_rd_en_cur = valid_in;
     assign w_addr_cur  = row_idx * GROUPS + data_cnt;
+
+    always_comb begin
+        w_bank_sel_cur[0] = 3'd0;
+        w_bank_sel_cur[1] = 3'd1;
+        w_bank_sel_cur[2] = 3'd2;
+        w_bank_sel_cur[3] = 3'd3;
+        for (int i = 0; i < 4; i++) begin
+            w_addr_sel_cur[i] = w_addr_cur;
+            w_en_sel_cur[i]   = w_rd_en_cur;
+            w_port_sel_cur[i] = 1'b0;
+        end
+    end
 
     always_comb begin
         arr_en_sel[0] = (state == RUN_PIPELINE) && (tile_cnt >= 0) && (tile_cnt < GROUPS);

@@ -1,16 +1,15 @@
-﻿`timescale 1ns/1ps
+`timescale 1ns/1ps
 //---------------------------------------------------------------
 // Module: slm_ssm_stage
 // Function:
-//   Exact SSM-stage decomposition for the refactored block pipeline.
+//   Slim-Mamba state stage.
 //   This stage owns:
 //     - dt projection scheduling on the shared MAC fabric
-//     - z-branch stream and SiLU gate preparation
-//     - exact state update / gating via reuse_ssm_core
-//     - capture of p_t rows for the later out_proj stage
+//     - z-branch stream and gate preparation
+//     - state update and clear control
+//     - streamed emission of p_t rows toward the later out_proj stage
 //
-// Numeric behavior is preserved by reusing the proven low-level operators,
-// but the control boundary is now explicit and self-contained.
+// The control boundary is explicit and self-contained.
 //---------------------------------------------------------------
 
 import slm_linear_cfg_pkg::*;
@@ -62,9 +61,9 @@ module slm_ssm_stage #(
     output logic [XT_ADDR_W-1:0]         z_rd_addr,
     input  logic signed [DATA_WIDTH-1:0] z_rd_data [TILE_SIZE-1:0],
 
-    output logic                         p_wr_en,
-    output logic [S_ADDR_W-1:0]          p_wr_addr,
-    output logic signed [DATA_WIDTH-1:0] p_wr_data [TILE_SIZE-1:0],
+    output logic                         p_stream_valid,
+    input  logic                         p_stream_ready,
+    output logic signed [DATA_WIDTH-1:0] p_stream_data [TILE_SIZE-1:0],
 
     output logic [1:0]                    fabric_mode,
     output logic [6:0]                    fabric_col_blocks,
@@ -93,10 +92,10 @@ module slm_ssm_stage #(
     logic dt_desc_active;
     logic [7:0] dt_issue_count;
     logic dt_run_active;
-    logic pcap_done;
-    logic pcap_done_d;
     logic stage_busy_q;
     logic stage_done_q;
+    logic [7:0] p_stream_count;
+    logic p_stream_done;
 
     logic s_axis_TVALID_int;
     logic s_axis_TREADY_int;
@@ -119,13 +118,16 @@ module slm_ssm_stage #(
     logic ssm_p_valid;
     logic ssm_p_ready;
     logic signed [DATA_WIDTH-1:0] ssm_p_data [TILE_SIZE-1:0];
-    logic pcap_start_int;
     slm_linear_desc_t dt_desc_active_q;
 
     localparam slm_linear_desc_t DTPROJ_DESC = BLOCK_CFG.dt_desc;
 
     assign busy = stage_busy_q;
     assign done = stage_done_q;
+    assign p_stream_valid = ssm_p_valid;
+    assign p_stream_data = ssm_p_data;
+    assign ssm_p_ready = p_stream_ready;
+    assign p_stream_done = stage_busy_q && ssm_p_valid && p_stream_ready && (p_stream_count == SSM_TILE_COUNT-1);
     assign s_axis_TVALID_int = dt_run_active && (dt_issue_count < SSM_TILE_COUNT);
     assign dt_linear_busy = dt_run_active || dt_busy;
     assign dt_linear_done = dt_run_active && (dt_issue_count == SSM_TILE_COUNT) && !dt_busy;
@@ -150,33 +152,34 @@ module slm_ssm_stage #(
             dt_issue_count <= '0;
             dt_run_active <= 1'b0;
             z_stream_start_int <= 1'b0;
-            pcap_start_int <= 1'b0;
             stage_busy_q <= 1'b0;
             stage_done_q <= 1'b0;
-            pcap_done_d <= 1'b0;
+            p_stream_count <= '0;
         end else begin
             z_stream_start_int <= 1'b0;
-            pcap_start_int <= 1'b0;
             stage_done_q <= 1'b0;
-            pcap_done_d <= pcap_done;
 
             if (dt_linear_launch_pulse && !stage_busy_q) begin
                 dt_issue_count <= '0;
                 dt_run_active <= 1'b1;
                 z_stream_start_int <= 1'b1;
-                pcap_start_int <= 1'b1;
                 stage_busy_q <= 1'b1;
+                p_stream_count <= '0;
             end
 
             if (s_axis_TVALID_int && s_axis_TREADY_int) begin
                 dt_issue_count <= dt_issue_count + 1'b1;
             end
 
+            if (stage_busy_q && ssm_p_valid && p_stream_ready && (p_stream_count < SSM_TILE_COUNT)) begin
+                p_stream_count <= p_stream_count + 1'b1;
+            end
+
             if (dt_linear_done) begin
                 dt_run_active <= 1'b0;
             end
 
-            if (stage_busy_q && pcap_done && !pcap_done_d) begin
+            if (p_stream_done) begin
                 stage_busy_q <= 1'b0;
                 stage_done_q <= 1'b1;
             end
@@ -224,6 +227,11 @@ module slm_ssm_stage #(
         .dt_u_rd_en(u_rd_en),
         .dt_u_rd_addr(u_rd_addr),
         .dt_u_rd_data(u_rd_data),
+        .p_rd_en(),
+        .p_rd_addr(),
+        .p_rd_data('{default:'0}),
+        .out_compute_enable(1'b1),
+        .out_preload_tiles_available('0),
         .s_axis_TVALID(s_axis_TVALID_int),
         .s_axis_TREADY(s_axis_TREADY_int),
         .m_axis_TVALID(dt_mac_valid),
@@ -232,15 +240,9 @@ module slm_ssm_stage #(
         .xt_axis_TVALID(xt_v),
         .xt_axis_TREADY(xt_r_int),
         .xt_axis_TDATA(xt_d),
-        .p_rd_en(),
-        .p_rd_addr0(),
-        .p_rd_addr1(),
-        .p_rd_addr2(),
-        .p_rd_addr3(),
-        .p_rd_data0('{default:'0}),
-        .p_rd_data1('{default:'0}),
-        .p_rd_data2('{default:'0}),
-        .p_rd_data3('{default:'0}),
+        .src_stream_valid(1'b0),
+        .src_stream_ready(),
+        .src_stream_data('{default:'0}),
         .y_axis_TVALID(),
         .y_axis_TREADY(1'b0),
         .y_axis_TDATA(),
@@ -343,24 +345,5 @@ module slm_ssm_stage #(
         .y_axis_TDATA(ssm_p_data)
     );
 
-    reuse_pt_capture #(
-        .TILE_SIZE(TILE_SIZE),
-        .DATA_WIDTH(DATA_WIDTH),
-        .DEPTH(64),
-        .ADDR_W(S_ADDR_W)
-    ) u_pcap (
-        .clk(clk),
-        .rst_n(rst_n),
-        .enable(1'b1),
-        .start(pcap_start_int),
-        .busy(),
-        .done(pcap_done),
-        .s_axis_TVALID(ssm_p_valid),
-        .s_axis_TREADY(ssm_p_ready),
-        .s_axis_TDATA(ssm_p_data),
-        .p_wr_en(p_wr_en),
-        .p_wr_addr(p_wr_addr),
-        .p_wr_data(p_wr_data)
-    );
 endmodule
 

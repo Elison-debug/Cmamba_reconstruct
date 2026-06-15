@@ -1,3 +1,10 @@
+//---------------------------------------------------------------
+// Module: reuse_outproj_weight_sram
+// Function:
+//   out_proj binding layer for the shared banked weight store.
+//   The module fixes the out_proj initialization files and preserves the
+//   existing port contract used by the out_proj scheduler.
+//---------------------------------------------------------------
 module reuse_outproj_weight_sram #(
     parameter int N_BANK  = 6,
     parameter int DEPTH   = 342,
@@ -18,7 +25,7 @@ module reuse_outproj_weight_sram #(
     input  logic [3:0]                     port_sel,
     output logic [3:0][DATA_W-1:0]         dout_sel
 );
-    slim_multi_bank_wbuf_dp #(
+    slm_weight_bank_store #(
         .N_BANK          (N_BANK),
         .DEPTH           (DEPTH),
         .ADDR_W          (ADDR_W),

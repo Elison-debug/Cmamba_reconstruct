@@ -1,11 +1,14 @@
-﻿`timescale 1ns/1ps
+`timescale 1ns/1ps
 //---------------------------------------------------------------
 // Module: slm_block_controller
 // Function:
-//   Clean block-level orchestration for the exact datapath.
-//   This module replaces the ad-hoc flag coupling in the legacy block top
-//   with an explicit FSM, while preserving the original execution order:
-//     RMSNorm -> in_proj -> u activation fill -> SSM/p capture -> out_proj
+//   Clean block-level orchestration for the Slim-Mamba block datapath.
+//   This module drives the local stage FSM. The block keeps the mandatory
+//   front-half ordering:
+//     RMSNorm -> in_proj -> u activation fill -> SSM
+//   The out_proj stage is launched together with SSM so it can preload the
+//   generated p_t stream while the state stage is still running. Completion
+//   remains gated by the final out_proj done event.
 //---------------------------------------------------------------
 
 module slm_block_controller (
@@ -87,7 +90,7 @@ module slm_block_controller (
     assign norm_start = (state == ST_IDLE) && block_start;
     assign inproj_start = (state == ST_NORM) && norm_done;
     assign ssm_start = (state == ST_WAIT_UACT) && uact_fill_done;
-    assign outproj_start = (state == ST_SSM) && ssm_done;
+    assign outproj_start = (state == ST_WAIT_UACT) && uact_fill_done;
     assign uact_fill_active = (state == ST_WAIT_UACT);
     assign block_busy = (state != ST_IDLE) && (state != ST_DONE);
     assign block_done = (state == ST_DONE);

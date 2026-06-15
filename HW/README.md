@@ -1,91 +1,93 @@
-﻿# HW Refactor
+# Slim-Mamba Hardware
 
-This directory hosts the clean-slate hardware refactor for the Slim-Mamba
-accelerator. The legacy implementation in `final_hw/` remains the functional
-reference and the source of proven golden vectors, but the new RTL in `HW/`
-is intentionally reorganized around a publication-oriented architecture:
+This directory contains the standalone Slim-Mamba hardware implementation.
+The board shell and PS-side loading contract are preserved, while the RTL
+inside this tree is organized as a block-oriented compute pipeline:
 
-- modular block-level orchestration
-- a reusable tiled GEMV engine
-- a descriptor-driven dispatch layer
-- an explicitly staged recurrent datapath
-- quantization-sensitive state scaling isolated as its own stage
+- a block controller that sequences the local stages
+- a shared linear stage abstraction for in-projection, dt projection, and
+  out-projection
+- a block configuration descriptor that collects per-stage settings in one
+  place
+- a chain wrapper that instantiates four independently configured blocks
+- an explicit recurrent stage for state update, gating, and p capture
 
-The external assumptions remain unchanged:
+The code in this tree is intended to be read as the implementation itself.
+Golden vectors and stage artifacts under `final_hw/` are used only as
+reference data for verification.
 
-- the board shell architecture is preserved
-- PS-side data loading remains unchanged
-- the 4-block chain remains the system-level integration target
-
-What changes here is the internal block architecture and naming. The goal is
-to make the implementation align with a journal paper narrative rather than
-with compatibility to the earlier incremental RTL.
-
-## Directory layout
+## Directory Layout
 
 - `rtl/common`
-  Low-level compute primitives and small reusable buffers.
+  Small reusable datapath primitives.
 - `rtl/linear`
-  Shared GEMV engine, scheduler, and dispatcher.
+  Generic GEMV job, dispatcher, scheduler, and shared engine prototypes.
 - `rtl/state`
-  Slim-Mamba-specific recurrent stages.
+  State update, gating, and runtime scaling prototypes.
 - `rtl/block`
-  Block controller and block top.
-- `docs`
-  Architecture notes, design decisions, and refactor plan.
+  Prototype block controller and block top used for synthesis experiments.
+- `rtl/shell`
+  The current Slim-Mamba implementation and its block/chain descriptors.
 - `tb`
-  New smoke TB plus migrated legacy TBs for regression.
+  Smoke and debug testbenches for the current implementation and regression
+  collateral.
 - `vivado`
-  New project/open scripts and simulation/synthesis entry points.
-- `cases/04`
-  Migrated golden vectors and stage artifacts from `final_hw`.
+  Simulation, regression, synthesis, and project-entry scripts.
+- `docs`
+  Architecture notes and integration inventory.
+- `cases`
+  Golden inputs and stage outputs used by the testbenches.
 - `ip`, `constraints`
-  Migrated local IP xci files and board-shell constraints.
+  Local IP collateral and shell constraints.
 
-## Naming
+## Core Entry Points
 
-New modules use the `slm_` prefix (`modular mamba`) instead of `reuse_`.
-This avoids carrying over legacy naming assumptions into the new design.
+- `rtl/shell/slim_mamba_block.sv`
+  Single block implementation.
+- `rtl/shell/slim_mamba_chain4.sv`
+  Four-block chain using per-block configuration descriptors.
+- `rtl/shell/slim_mamba_chain4_top.sv`
+  Project-facing top that exposes the chain through the board-shell contract.
+- `vivado/run_xsim_hw.py`
+  Batch and GUI simulation entry point.
+- `vivado/run_xsim_hw_gui.py`
+  One-command GUI launcher for the main block debug stage.
 
-## Current status
+## Quick Commands
 
-This refactor starts from an architecture skeleton and selectively ports only
-those low-level primitives that are still suitable in the new hierarchy.
-The legacy code should be used as:
-
-- arithmetic/functionality reference
-- golden-vector source
-- timing/area comparison baseline
-
-## Quick commands
-
-Run new block smoke test:
+Run the block smoke test:
 
 ```powershell
-python HW\vivado\run_xsim_hw.py --stage slm_block_smoke --run_name slm_block_smoke_run2
+python HW\vivado\run_xsim_hw.py --stage slim_block_smoke --run_name slim_block_smoke_run1
 ```
 
-Run new 4-block chain control smoke test:
+Run the 4-block chain comparison:
 
 ```powershell
-python HW\vivado\run_xsim_hw.py --stage slm_chain4_smoke --run_name slm_chain4_smoke_run1
+python HW\vivado\run_xsim_hw.py --stage slim_chain4_debug --run_name slim_chain4_debug_run1
 ```
 
-Run focused regression (gating on `slm_smoke` + `legacy_chain4_debug`):
+Start the GUI on the block debug stage:
+
+```powershell
+python HW\vivado\run_xsim_hw_gui.py
+```
+
+Run the focused regression gate:
 
 ```powershell
 python HW\vivado\run_regression_hw.py --case_dir final_hw\cases\c01 --run_tag nightly
 ```
 
-Run synthesis sweep for Slim-Mamba modules:
+Run a synthesis sweep on the prototype RTL set:
 
 ```powershell
 python HW\vivado\run_synth_sweep.py --source_set mm --periods 10 8 6
 ```
 
-Optional: include non-gating legacy block debug path in regression output:
+## Notes
 
-```powershell
-python HW\vivado\run_regression_hw.py --case_dir final_hw\cases\c01 --run_tag debug --include_legacy_block_debug
-```
-
+- The current implementation keeps per-block behavior in a single descriptor
+  so a chain can mix settings without changing the top-level port contract.
+- Regression still uses `final_hw` as the golden source.
+- The design goal is reproducibility first, then resource and timing tuning.

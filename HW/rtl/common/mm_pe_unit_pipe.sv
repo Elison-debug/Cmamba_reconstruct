@@ -1,4 +1,4 @@
-﻿`timescale 1ns/1ps
+`timescale 1ns/1ps
 
 module mm_pe_unit_pipe #(
     parameter int DATA_WIDTH = 16,

@@ -1,4 +1,4 @@
-﻿`timescale 1ns/1ps
+`timescale 1ns/1ps
 
 module mm_runtime_state_scale_stage #(
     parameter int TILE_SIZE = 4,
@@ -21,8 +21,8 @@ module mm_runtime_state_scale_stage #(
     output logic [SCALE_W-1:0] out_u_to_state_scale_vec [TILE_SIZE-1:0],
     output logic [SCALE_W-1:0] out_state_to_q88_scale_vec [TILE_SIZE-1:0]
 );
-    // Reuse the proven structure as an isolated stage. The interface is now
-    // explicit and can be bypassed or replaced at the block level later.
+    // Isolated runtime scaling stage for state and lambda vectors.
+    // The interface is explicit so the block can route it independently.
     logic wr_ptr, rd_ptr;
     logic [1:0] used_cnt;
     logic [5:0] buf_addr [1:0];

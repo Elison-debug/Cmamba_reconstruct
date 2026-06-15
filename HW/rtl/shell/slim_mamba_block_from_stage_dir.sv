@@ -1,9 +1,10 @@
-﻿`timescale 1ns/1ps
+`timescale 1ns/1ps
 //---------------------------------------------------------------
 // Module: slim_mamba_block_from_stage_dir
 // Function:
-//   Parameter-grouping wrapper around slim_mamba_block. A single
-//   STAGE_DIR defines all operator memory images for one block instance.
+//   Parameter-grouping wrapper around slim_mamba_block.
+//   A single STAGE_DIR selects the operator memory images for one block
+//   instance.
 //---------------------------------------------------------------
 import slm_block_cfg_pkg::*;
 

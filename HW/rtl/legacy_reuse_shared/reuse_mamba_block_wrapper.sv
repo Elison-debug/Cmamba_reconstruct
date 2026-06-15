@@ -5,7 +5,7 @@
 //   Thin integration wrapper for reuse_mamba_block_top.
 //   - Synchronizes the external active-low reset into sys_clk
 //   - Flattens 4-lane vector ports into packed buses
-//   - Keeps the compute core interface intact for bring-up/debug
+//   - Keeps the compute core interface explicit for board integration
 //---------------------------------------------------------------
 module reuse_mamba_block_wrapper #(
     parameter int TILE_SIZE  = 4,
@@ -80,7 +80,7 @@ module reuse_mamba_block_wrapper #(
     input  logic                         outproj_enable,
     output logic                         outproj_busy
 );
-    // Backward-compatible alias to the new adapter.
+    // Wrapper entry to the board-side adapter.
     reuse_mamba_core_adapter #(
         .TILE_SIZE   (TILE_SIZE),
         .DATA_WIDTH  (DATA_WIDTH),

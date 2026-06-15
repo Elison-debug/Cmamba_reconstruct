@@ -4,7 +4,7 @@
 //      6-bank TRUE Dual-Port WBUF subsystem for FULL 256?256 matrix
 //      - Stores all 4096 (64?64) tiles of W
 //      - Uses same bank mapping formula as old design
-//      - Fully compatible with existing controller (no modification)
+//      - Directly matched to the legacy controller addressing scheme
 //
 //  NOTE:
 //      One address = one 4x4 block (256-bit) = 16 elements

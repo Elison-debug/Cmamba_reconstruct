@@ -1,4 +1,4 @@
-﻿`timescale 1ns/1ps
+`timescale 1ns/1ps
 
 module slm_block_launch_ctrl (
     input  logic clk,

@@ -1,4 +1,4 @@
-﻿package slm_chain_cfg_pkg;
+package slm_chain_cfg_pkg;
     localparam int MM_EXACT_DEFAULT_N_BLOCKS = 4;
     localparam int MM_EXACT_DEFAULT_H_ROWS   = 32;
 

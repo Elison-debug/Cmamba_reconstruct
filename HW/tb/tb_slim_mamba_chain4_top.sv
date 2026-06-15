@@ -1,4 +1,4 @@
-﻿`timescale 1ns/1ps
+`timescale 1ns/1ps
 `include "tb_hw_debug_case_path.svh"
 
 `ifndef HW_DEBUG_CASE_DIR
@@ -10,6 +10,7 @@ module tb_slim_mamba_chain4_top;
   localparam int DATA_WIDTH = 16;
   localparam int H_DEPTH = 32;
   localparam int Y_DEPTH = 32;
+  localparam int TIMEOUT_CYCLES = 40000;
   localparam bit ALLOW_LSB1_FOR_Y = 1;
   localparam string CASE_DIR = `HW_DEBUG_CASE_DIR;
   localparam string STAGE_B0_CONST = {CASE_DIR, "/stages/reuse_mamba_block_top_block0"};
@@ -35,6 +36,7 @@ module tb_slim_mamba_chain4_top;
 
   int y_idx;
   int y_err;
+  int cyc;
 
   function automatic logic signed [DATA_WIDTH-1:0] unpack_lane64(input logic [63:0] packed_word, input int lane);
     unpack_lane64 = $signed(packed_word[lane*DATA_WIDTH +: DATA_WIDTH]);
@@ -95,7 +97,7 @@ module tb_slim_mamba_chain4_top;
             if (ALLOW_LSB1_FOR_Y ? (abs_i(d) > 1) : (d != 0)) begin
               y_err++;
               if (y_err == 1) begin
-                $error("[%0t] FIRST slim-top final-y mismatch row=%0d lane=%0d got=%0d exp=%0d",
+                $error("[%0t] FIRST slim chain top final-y mismatch row=%0d lane=%0d got=%0d exp=%0d",
                        $time, y_idx, lane, got_v, exp_v);
               end
             end
@@ -111,6 +113,12 @@ module tb_slim_mamba_chain4_top;
     forever #5 clk = ~clk;
   end
 
+  always @(posedge clk) begin
+    if (rst_n) begin
+      cyc <= cyc + 1;
+    end
+  end
+
   initial begin
     rst_n = 1'b0;
     start = 1'b0;
@@ -119,6 +127,7 @@ module tb_slim_mamba_chain4_top;
     y_ready = 1'b1;
     y_idx = 0;
     y_err = 0;
+    cyc = 0;
     for (int lane = 0; lane < TILE_SIZE; lane++) begin
       h_wr_data[lane] = '0;
     end
@@ -140,6 +149,15 @@ module tb_slim_mamba_chain4_top;
       check_y();
       begin
         wait(done);
+      end
+      begin
+        while (!done && (y_idx < Y_DEPTH) && (cyc < TIMEOUT_CYCLES)) begin
+          @(posedge clk);
+        end
+        if (!done && (y_idx < Y_DEPTH)) begin
+          $fatal(1, "[%0t] timeout waiting slim chain top completion y_idx=%0d cyc=%0d",
+                 $time, y_idx, cyc);
+        end
       end
     join
 

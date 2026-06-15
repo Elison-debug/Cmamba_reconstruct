@@ -1,4 +1,4 @@
-﻿`timescale 1ns/1ps
+`timescale 1ns/1ps
 
 module tb_mm_state_policy_smoke;
   localparam int TILE_SIZE = 4;

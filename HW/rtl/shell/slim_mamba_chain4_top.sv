@@ -1,11 +1,10 @@
-﻿`timescale 1ns/1ps
+`timescale 1ns/1ps
 //---------------------------------------------------------------
 // Module: slim_mamba_chain4_top
 // Function:
-//   Stable namespace-preserving top for the refactored HW tree.
-//   The external contract remains unchanged, while the internal chain now
-//   uses the exact refactored block implementation instead of the legacy
-//   monolithic block core.
+//   Project-facing top for the Slim-Mamba chain.
+//   The module binds the board-shell contract to the four-block core and
+//   forwards one block descriptor plus one stage directory per block.
 //---------------------------------------------------------------
 
 import slm_block_cfg_pkg::*;
@@ -75,7 +74,7 @@ module slim_mamba_chain4_top #(
         .STAGE_DIR_B1(STAGE_DIR_B1),
         .STAGE_DIR_B2(STAGE_DIR_B2),
         .STAGE_DIR_B3(STAGE_DIR_B3)
-    ) u_exact_chain_core (
+    ) u_chain_core (
         .clk(clk),
         .rst_n(rst_n),
         .start(start),

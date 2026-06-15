@@ -1,9 +1,9 @@
 //---------------------------------------------------------------
 // Module: reuse_inproj_weight_sram
 // Function:
-//   Dedicated read-only weight SRAM wrapper for in_proj.
-//   Stores 4x4 tiles of W_in (512x128 => 4096 tiles), with the same
-//   6-bank dual-port organization style used by the SSM dt path.
+//   in_proj binding layer for the shared banked weight store.
+//   The module fixes the in_proj initialization files and preserves the
+//   existing port contract used by the in_proj scheduler.
 //---------------------------------------------------------------
 module reuse_inproj_weight_sram #(
     parameter int N_BANK  = 6,
@@ -25,7 +25,7 @@ module reuse_inproj_weight_sram #(
     input  logic [3:0]                     port_sel,
     output logic [3:0][DATA_W-1:0]         dout_sel
 );
-    slim_multi_bank_wbuf_dp #(
+    slm_weight_bank_store #(
         .N_BANK          (N_BANK),
         .DEPTH           (DEPTH),
         .ADDR_W          (ADDR_W),

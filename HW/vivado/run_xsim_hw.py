@@ -47,7 +47,7 @@ def _collect_slm_sources() -> list[str]:
                 if p.suffix in {".sv", ".v"}:
                     out.append(str(p))
     # Ensure package declarations are compiled before dependent modules.
-    pkg = str(HW_DIR / "rtl" / "linear" / "slm_gemv_job_pkg.sv")
+    pkg = str(HW_DIR / "rtl" / "linear" / "mm_gemv_job_pkg.sv")
     if pkg in out:
         out = [pkg] + [p for p in out if p != pkg]
     return out
@@ -91,14 +91,6 @@ def _stage_cfg(stage: str) -> dict:
     legacy_sources = _collect_legacy_sources()
     ip_sources = _collect_ip_wrappers()
 
-    if stage == "slm_block_smoke":
-        return {
-            "tb_top": "tb_slm_mamba_block_top_smoke",
-            "tb_file": str(TB_DIR / "tb_slm_mamba_block_top_smoke.sv"),
-            "sources": [*slm_sources],
-            "copy_case_mem": False,
-        }
-
     if stage == "slim_block_smoke":
         return {
             "tb_top": "tb_slim_mamba_block_smoke",
@@ -139,6 +131,26 @@ def _stage_cfg(stage: str) -> dict:
             "copy_case_mem": True,
         }
 
+    if stage == "slim_stage_cycle_probe":
+        return {
+            "tb_top": "tb_slim_stage_cycle_probe",
+            "tb_file": str(TB_DIR / "tb_slim_stage_cycle_probe.sv"),
+            "sources": [
+                *legacy_sources,
+                str(RTL_SHELL_DIR / "slm_block_controller.sv"),
+                str(RTL_SHELL_DIR / "slm_linear_cfg_pkg.sv"),
+                str(RTL_SHELL_DIR / "slm_block_cfg_pkg.sv"),
+                str(RTL_SHELL_DIR / "slm_linear_controller.sv"),
+                str(RTL_SHELL_DIR / "slm_linear_stage.sv"),
+                str(RTL_SHELL_DIR / "slm_fabric_scheduler.sv"),
+                str(RTL_SHELL_DIR / "slm_ssm_stage.sv"),
+                str(RTL_SHELL_DIR / "slim_mamba_block.sv"),
+                *slm_sources,
+                *ip_sources,
+            ],
+            "copy_case_mem": False,
+        }
+
     if stage == "slim_chain4_debug":
         return {
             "tb_top": "tb_slim_mamba_chain4",
@@ -164,12 +176,31 @@ def _stage_cfg(stage: str) -> dict:
             "copy_case_mem": True,
         }
 
-    if stage == "slm_chain4_smoke":
+    if stage == "slim_chain4_smoke":
         return {
-            "tb_top": "tb_slm_chain4_top_smoke",
-            "tb_file": str(TB_DIR / "tb_slm_chain4_top_smoke.sv"),
-            "sources": [*slm_sources],
-            "copy_case_mem": False,
+            "tb_top": "tb_slim_mamba_chain4",
+            "tb_file": str(TB_DIR / "tb_slim_mamba_chain4.sv"),
+            "sources": [
+                *legacy_sources,
+                str(RTL_SHELL_DIR / "slm_chain_cfg_pkg.sv"),
+                str(RTL_SHELL_DIR / "slm_block_launch_ctrl.sv"),
+                str(RTL_SHELL_DIR / "slm_chain_controller.sv"),
+                str(RTL_SHELL_DIR / "slm_linear_cfg_pkg.sv"),
+                str(RTL_SHELL_DIR / "slm_block_cfg_pkg.sv"),
+                str(RTL_SHELL_DIR / "slim_mamba_chain4_top.sv"),
+                str(RTL_SHELL_DIR / "slim_mamba_chain4_core_adapter.sv"),
+                str(RTL_SHELL_DIR / "slm_block_controller.sv"),
+                str(RTL_SHELL_DIR / "slm_linear_controller.sv"),
+                str(RTL_SHELL_DIR / "slm_linear_stage.sv"),
+                str(RTL_SHELL_DIR / "slm_fabric_scheduler.sv"),
+                str(RTL_SHELL_DIR / "slm_ssm_stage.sv"),
+                str(RTL_SHELL_DIR / "slim_mamba_block.sv"),
+                str(RTL_SHELL_DIR / "slim_mamba_block_from_stage_dir.sv"),
+                str(RTL_SHELL_DIR / "slim_mamba_chain4.sv"),
+                *slm_sources,
+                *ip_sources,
+            ],
+            "copy_case_mem": True,
         }
 
     if stage == "slim_chain4_top_debug":
@@ -197,14 +228,6 @@ def _stage_cfg(stage: str) -> dict:
                 *ip_sources,
             ],
             "copy_case_mem": True,
-        }
-
-    if stage == "slm_state_policy_smoke":
-        return {
-            "tb_top": "tb_slm_state_policy_smoke",
-            "tb_file": str(TB_DIR / "tb_slm_state_policy_smoke.sv"),
-            "sources": [*slm_sources],
-            "copy_case_mem": False,
         }
 
     if stage == "legacy_block_hw_debug":
@@ -286,13 +309,12 @@ def main() -> None:
         "--stage",
         required=True,
         choices=[
-            "slm_block_smoke",
             "slim_block_smoke",
             "slim_block_hw_debug",
+            "slim_stage_cycle_probe",
+            "slim_chain4_smoke",
             "slim_chain4_debug",
-            "slm_chain4_smoke",
             "slim_chain4_top_debug",
-            "slm_state_policy_smoke",
             "legacy_block_hw_debug",
             "legacy_board_shell_stream",
             "legacy_chain4_debug",

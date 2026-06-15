@@ -1,11 +1,11 @@
-﻿`timescale 1ns/1ps
+`timescale 1ns/1ps
 
 import slm_linear_cfg_pkg::*;
 
 //---------------------------------------------------------------
 // Module: slm_linear_controller
 // Function:
-//   Unified lifecycle controller for an exact linear operator stage.
+//   Unified lifecycle controller for a linear operator stage.
 //   This module standardizes launch / busy / done semantics and keeps the
 //   stage descriptor attached to the active transaction so block-level control
 //   and future scheduling policies can reason about linear operators through
@@ -52,7 +52,7 @@ module slm_linear_controller #(
                 done_seen_q <= 1'b1;
             end else if (active_q && !op_busy_i && !launch_req) begin
                 // Defensive fallback: an operator should normally assert done,
-                // but the exact controller releases ownership if the stage goes
+                // but the controller releases ownership if the stage goes
                 // idle without an explicit done pulse.
                 active_q <= 1'b0;
                 done_seen_q <= 1'b1;

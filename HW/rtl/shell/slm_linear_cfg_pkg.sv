@@ -1,4 +1,4 @@
-﻿package slm_linear_cfg_pkg;
+package slm_linear_cfg_pkg;
     typedef enum logic [1:0] {
         SLM_LINEAR_INPROJ  = 2'd0,
         SLM_LINEAR_DTPROJ  = 2'd1,

@@ -1,16 +1,19 @@
-﻿`timescale 1ns/1ps
+`timescale 1ns/1ps
 //---------------------------------------------------------------
 // Module: slim_mamba_block
 // Function:
-//   Refactored exact block top that keeps the proven numeric operators but
-//   replaces the legacy monolithic orchestration with explicit stage control.
+//   Single Slim-Mamba block implementation.
+//   The block owns the local execution order, the local descriptors for the
+//   linear stages, and the state-stage control boundary.
 //
 // Stage order:
 //   1) RMSNorm on h_t
-//   2) in_proj on shared MAC fabric
-//   3) SiLU activation fill of u-branch SRAM
-//   4) exact SSM stage (dt + gate + state update + p capture)
-//   5) out_proj on shared MAC fabric
+//   2) in_proj on the shared linear fabric
+//   3) SiLU activation fill of the u-branch SRAM
+//   4) SSM stage (dt projection, gate preparation, state update, p emission)
+//   5) out_proj preloads the p-stage SRAM during SSM and computes only after
+//      the state stage has finished, using the p buffer as an explicit
+//      inter-stage decoupling store
 //---------------------------------------------------------------
 
 import slm_linear_cfg_pkg::*;
@@ -71,7 +74,7 @@ module slim_mamba_block #(
     input  logic                         y_axis_TREADY,
     output logic signed [DATA_WIDTH-1:0] y_axis_TDATA [TILE_SIZE-1:0]
 );
-    logic norm_start, inproj_start, ssm_start, outproj_start;
+    logic norm_start, inproj_start, ssm_start, outproj_start_unused;
     logic uact_fill_active;
 
     logic norm_busy, norm_done;
@@ -84,6 +87,7 @@ module slim_mamba_block #(
     logic inproj_desc_active, outproj_desc_active;
     slm_linear_desc_t inproj_desc_active_q;
     slm_linear_desc_t outproj_desc_active_q;
+    logic outproj_done_seen;
 
     logic norm_wr_en;
     logic [4:0] norm_wr_addr;
@@ -121,15 +125,20 @@ module slim_mamba_block #(
     logic [6:0]                   uact_wr_count;
     logic                         uact_fill_done;
 
+    logic                         p_stream_valid;
+    logic                         p_stream_ready;
+    logic signed [DATA_WIDTH-1:0] p_stream_data [TILE_SIZE-1:0];
+    logic                         pcap_busy, pcap_done;
     logic                         p_wr_en;
-    logic [S_ADDR_W-1:0]          p_wr_addr;
+    logic [5:0]                   p_wr_addr;
     logic signed [DATA_WIDTH-1:0] p_wr_data [TILE_SIZE-1:0];
-    logic                         p_rd_en_out;
-    logic [5:0]                   p_rd_addr0_out, p_rd_addr1_out, p_rd_addr2_out, p_rd_addr3_out;
-    logic signed [DATA_WIDTH-1:0] p_rd_data0_out [TILE_SIZE-1:0];
-    logic signed [DATA_WIDTH-1:0] p_rd_data1_out [TILE_SIZE-1:0];
-    logic signed [DATA_WIDTH-1:0] p_rd_data2_out [TILE_SIZE-1:0];
-    logic signed [DATA_WIDTH-1:0] p_rd_data3_out [TILE_SIZE-1:0];
+    logic                         p_rd_en;
+    logic [5:0]                   p_rd_addr;
+    logic signed [DATA_WIDTH-1:0] p_rd_data [TILE_SIZE-1:0];
+    logic [6:0]                   p_fill_count;
+    logic                         outproj_launch_req;
+    logic                         outproj_issued;
+    logic                         outproj_compute_enable;
 
     logic [1:0]                    dt_mode, in_mode, out_mode;
     logic [6:0]                    dt_col_blocks, in_col_blocks, out_col_blocks;
@@ -180,7 +189,6 @@ module slim_mamba_block #(
 
     localparam slm_linear_desc_t INPROJ_DESC = BLOCK_CFG.inproj_desc;
     localparam slm_linear_desc_t OUTPROJ_DESC = BLOCK_CFG.outproj_desc;
-
     assign dt_reduce_rows = 1'b1;
     assign in_reduce_rows = 1'b1;
     assign out_reduce_rows = 1'b1;
@@ -207,12 +215,42 @@ module slim_mamba_block #(
         end
     end
 
+    always_ff @(posedge clk) begin
+        if (!rst_n) begin
+            p_fill_count <= '0;
+            outproj_issued <= 1'b0;
+            outproj_done_seen <= 1'b0;
+            outproj_compute_enable <= 1'b0;
+        end else begin
+            if (block_start) begin
+                p_fill_count <= '0;
+                outproj_issued <= 1'b0;
+                outproj_done_seen <= 1'b0;
+                outproj_compute_enable <= 1'b0;
+            end else begin
+                if (p_wr_en && (p_fill_count < 7'd64)) begin
+                    p_fill_count <= p_fill_count + 1'b1;
+                end
+                if (ssm_done) begin
+                    outproj_compute_enable <= 1'b1;
+                end
+                if (outproj_launch_pulse) begin
+                    outproj_issued <= 1'b1;
+                end
+                if (outproj_done) begin
+                    outproj_done_seen <= 1'b1;
+                end
+            end
+        end
+    end
+
     assign uact_fill_done = (uact_wr_count == 7'd64);
     assign uact_ready = 1'b1;
     assign uact_wr_en = uact_valid && uact_ready;
     assign uact_wr_addr = uact_wr_count[5:0];
     assign uact_rd_en = u_ssm_rd_en;
     assign uact_rd_addr = u_ssm_rd_addr;
+    assign outproj_launch_req = ssm_start && !outproj_issued;
 
     slm_block_controller u_ctrl (
         .clk(clk),
@@ -222,11 +260,11 @@ module slim_mamba_block #(
         .inproj_done(inproj_done),
         .uact_fill_done(uact_fill_done),
         .ssm_done(ssm_done),
-        .outproj_done(outproj_done),
+        .outproj_done(outproj_done_seen),
         .norm_start(norm_start),
         .inproj_start(inproj_start),
         .ssm_start(ssm_start),
-        .outproj_start(outproj_start),
+        .outproj_start(outproj_start_unused),
         .uact_fill_active(uact_fill_active),
         .block_busy(block_busy),
         .block_done(block_done)
@@ -252,7 +290,7 @@ module slim_mamba_block #(
     ) u_outproj_ctrl (
         .clk(clk),
         .rst_n(rst_n),
-        .launch_req(outproj_start),
+        .launch_req(outproj_launch_req),
         .op_busy_i(outproj_op_busy),
         .op_done_i(outproj_op_done),
         .op_start_pulse(outproj_launch_pulse),
@@ -330,6 +368,11 @@ module slim_mamba_block #(
         .dt_u_rd_en(),
         .dt_u_rd_addr(),
         .dt_u_rd_data('{default:'0}),
+        .p_rd_en(),
+        .p_rd_addr(),
+        .p_rd_data('{default:'0}),
+        .out_compute_enable(1'b1),
+        .out_preload_tiles_available('0),
         .s_axis_TVALID(1'b0),
         .s_axis_TREADY(),
         .m_axis_TVALID(),
@@ -338,15 +381,9 @@ module slim_mamba_block #(
         .xt_axis_TVALID(),
         .xt_axis_TREADY(1'b0),
         .xt_axis_TDATA(),
-        .p_rd_en(),
-        .p_rd_addr0(),
-        .p_rd_addr1(),
-        .p_rd_addr2(),
-        .p_rd_addr3(),
-        .p_rd_data0('{default:'0}),
-        .p_rd_data1('{default:'0}),
-        .p_rd_data2('{default:'0}),
-        .p_rd_data3('{default:'0}),
+        .src_stream_valid(1'b0),
+        .src_stream_ready(),
+        .src_stream_data('{default:'0}),
         .y_axis_TVALID(),
         .y_axis_TREADY(1'b0),
         .y_axis_TDATA(),
@@ -464,9 +501,9 @@ module slim_mamba_block #(
         .z_rd_en(z_rd_en),
         .z_rd_addr(z_rd_addr),
         .z_rd_data(z_rd_data),
-        .p_wr_en(p_wr_en),
-        .p_wr_addr(p_wr_addr),
-        .p_wr_data(p_wr_data),
+        .p_stream_valid(p_stream_valid),
+        .p_stream_ready(p_stream_ready),
+        .p_stream_data(p_stream_data),
         .fabric_mode(dt_mode),
         .fabric_col_blocks(dt_col_blocks),
         .fabric_valid_in(dt_valid_in),
@@ -486,7 +523,27 @@ module slim_mamba_block #(
         .fabric_valid_out(dt_valid_out)
     );
 
-    reuse_ht_sram #(
+    reuse_pt_capture #(
+        .TILE_SIZE(TILE_SIZE),
+        .DATA_WIDTH(DATA_WIDTH),
+        .DEPTH(64),
+        .ADDR_W(6)
+    ) u_pt_capture (
+        .clk(clk),
+        .rst_n(rst_n),
+        .enable(1'b1),
+        .start(ssm_start),
+        .busy(pcap_busy),
+        .done(pcap_done),
+        .s_axis_TVALID(p_stream_valid),
+        .s_axis_TREADY(p_stream_ready),
+        .s_axis_TDATA(p_stream_data),
+        .p_wr_en(p_wr_en),
+        .p_wr_addr(p_wr_addr),
+        .p_wr_data(p_wr_data)
+    );
+
+    reuse_ht_sram_sp #(
         .TILE_SIZE(TILE_SIZE),
         .DATA_WIDTH(DATA_WIDTH),
         .DEPTH(64),
@@ -497,15 +554,9 @@ module slim_mamba_block #(
         .wr_en(p_wr_en),
         .wr_addr(p_wr_addr),
         .wr_data(p_wr_data),
-        .rd_en(p_rd_en_out),
-        .rd_addr0(p_rd_addr0_out),
-        .rd_addr1(p_rd_addr1_out),
-        .rd_addr2(p_rd_addr2_out),
-        .rd_addr3(p_rd_addr3_out),
-        .rd_data0(p_rd_data0_out),
-        .rd_data1(p_rd_data1_out),
-        .rd_data2(p_rd_data2_out),
-        .rd_data3(p_rd_data3_out)
+        .rd_en(p_rd_en),
+        .rd_addr(p_rd_addr),
+        .rd_data(p_rd_data)
     );
 
     slm_linear_stage #(
@@ -552,6 +603,11 @@ module slim_mamba_block #(
         .dt_u_rd_en(),
         .dt_u_rd_addr(),
         .dt_u_rd_data('{default:'0}),
+        .p_rd_en(p_rd_en),
+        .p_rd_addr(p_rd_addr),
+        .p_rd_data(p_rd_data),
+        .out_compute_enable(outproj_compute_enable),
+        .out_preload_tiles_available(p_fill_count),
         .s_axis_TVALID(1'b0),
         .s_axis_TREADY(),
         .m_axis_TVALID(),
@@ -560,15 +616,9 @@ module slim_mamba_block #(
         .xt_axis_TVALID(),
         .xt_axis_TREADY(1'b0),
         .xt_axis_TDATA(),
-        .p_rd_en(p_rd_en_out),
-        .p_rd_addr0(p_rd_addr0_out),
-        .p_rd_addr1(p_rd_addr1_out),
-        .p_rd_addr2(p_rd_addr2_out),
-        .p_rd_addr3(p_rd_addr3_out),
-        .p_rd_data0(p_rd_data0_out),
-        .p_rd_data1(p_rd_data1_out),
-        .p_rd_data2(p_rd_data2_out),
-        .p_rd_data3(p_rd_data3_out),
+        .src_stream_valid(1'b0),
+        .src_stream_ready(),
+        .src_stream_data('{default:'0}),
         .y_axis_TVALID(y_axis_TVALID),
         .y_axis_TREADY(y_axis_TREADY),
         .y_axis_TDATA(y_axis_TDATA),

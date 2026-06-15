@@ -1,12 +1,10 @@
-﻿`timescale 1ns/1ps
+`timescale 1ns/1ps
 //---------------------------------------------------------------
 // Module: slm_fabric_scheduler
 // Function:
-//   Exact-side owner arbitration for the shared 4x4x4 MAC fabric.
-//   The current block schedule activates only one linear operator at a time,
-//   so numeric behavior matches the proven legacy manager. The interface is
-//   kept explicit so future descriptor-driven scheduling can change the
-//   arbitration policy without touching block internals.
+//   Owner arbitration for the shared 4x4x4 MAC fabric.
+//   The interface stays explicit so the arbitration policy can evolve without
+//   changing the block internals.
 //---------------------------------------------------------------
 module slm_fabric_scheduler #(
     parameter int TILE_SIZE  = 4,

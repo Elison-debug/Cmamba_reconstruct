@@ -1,56 +1,46 @@
-﻿# Migration Map (`final_hw` -> `HW`)
+# Integration Inventory
 
-This document records what was migrated and why, so refactor work can move
-forward without repeatedly depending on `final_hw` paths.
+This document records the reference assets that the current Slim-Mamba
+implementation consumes during simulation and comparison.
 
-## 1) Verification collateral
+## Golden Data
 
-- Migrated TBs:
-  - `tb_reuse_mamba_block_top_hw_debug.sv`
-  - `tb_reuse_mamba_4block_chain_top.sv`
-  - `tb_reuse_mamba_board_shell_stream.sv`
-  - `tb_reuse_mamba_board_shell_stream_ps.sv`
-  - `tb_reuse_mamba_board_shell_ps.sv`
-- Added new smoke TB:
-  - `tb_slm_mamba_block_top_smoke.sv`
+The golden vectors live under `final_hw/cases/c01` and remain the source of
+truth for regression comparison.
 
-## 2) Golden data and reference artifacts
+The current testbenches read:
 
-- Migrated `cases/04` subtrees:
-  - `stages/reuse_mamba_block_top_block0`
-  - `stages/reuse_mamba_block_top_chain4`
-  - `export_ir`, `float`, `logs`, `meta`
+- block-level input/output vectors for the single-block smoke tests
+- four-block chain outputs for the chain comparison tests
 
-This keeps the proven block-level and chain-level golden I/O available for
-the new architecture.
+## Board Shell Assets
 
-## 3) Board-shell and integration boundary
+The board-facing assets remain under the same shell contract:
 
-- Migrated shell-related RTL (kept as compatibility boundary):
-  - `rtl/shell/reuse_mamba_board_shell_stream.v`
-  - `rtl/shell/reuse_mamba_h_stream_loader.v`
-  - `rtl/shell/reuse_mamba_4block_chain_top.sv`
-  - `rtl/shell/reuse_mamba_chain4_core_adapter.sv`
-  - `rtl/shell/reuse_mamba_core_adapter.sv`
-  - `rtl/shell/reuse_mamba_axi_lite_regs.sv`
-- Migrated full legacy RTL bundle:
-  - `rtl/legacy_reuse_shared/*`
+- `constraints/reuse_mamba_board_shell_stream.xdc`
+- local IP under `HW/ip`
+- Vivado project scripts under `HW/vivado`
 
-## 4) Vivado project assets
+The shell is treated as fixed integration infrastructure. The compute core
+changes underneath it.
 
-- Migrated:
-  - `constraints/reuse_mamba_board_shell_stream.xdc`
-  - `ip/*` (`*.xci` + LUT/data collateral)
-  - utility scripts from `final_hw/vivado`
-- Added new entry points:
-  - `vivado/open_hw_project.tcl`
-  - `vivado/run_xsim_hw.py`
+## Regression Collateral
 
-## 5) Refactor policy
+The following testbenches are used by the current run scripts:
 
-- `final_hw` is kept read-only as reference baseline.
-- New development happens only under `HW/rtl/*` with `slm_` modules.
-- Legacy TBs remain available for regression while `slm_` block internals
-  are being rebuilt.
+- `tb_slim_mamba_block_smoke.sv`
+- `tb_slim_mamba_block_hw_debug.sv`
+- `tb_slim_mamba_chain4.sv`
+- `tb_slim_mamba_chain4_top.sv`
+- `tb_reuse_mamba_4block_chain_top.sv`
 
+The legacy testbenches remain available for baseline comparison and do not
+participate in the new shell naming.
 
+## Implementation Notes
+
+- The chain top accepts one block descriptor per block.
+- Stage directories keep the per-block weight images grouped with the golden
+  artifacts that generated them.
+- The shell scripts are written so the new implementation can be run both in
+  batch mode and in GUI mode without changing the core RTL.

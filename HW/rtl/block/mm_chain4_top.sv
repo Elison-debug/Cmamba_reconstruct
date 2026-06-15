@@ -1,4 +1,4 @@
-﻿`timescale 1ns/1ps
+`timescale 1ns/1ps
 
 module mm_chain4_top #(
     parameter int N_BLOCKS = 4,

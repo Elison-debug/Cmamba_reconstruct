@@ -1,4 +1,4 @@
-﻿`timescale 1ns/1ps
+`timescale 1ns/1ps
 
 import mm_gemv_job_pkg::*;
 
@@ -77,7 +77,7 @@ module mm_mamba_block_top #(
         end
     end
 
-    // Minimal dataflow for refactor bring-up:
+    // Minimal dataflow used by the prototype block top:
     // - capture INPROJ vector as state input and gate input
     // - capture DTPROJ vector as lambda
     // - pulse dt_valid when dt result arrives

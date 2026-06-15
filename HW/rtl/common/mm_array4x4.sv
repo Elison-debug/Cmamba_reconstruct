@@ -1,4 +1,4 @@
-﻿`timescale 1ns/1ps
+`timescale 1ns/1ps
 
 module mm_array4x4 #(
     parameter int TILE_SIZE = 4,

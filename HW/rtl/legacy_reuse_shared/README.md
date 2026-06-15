@@ -1,46 +1,43 @@
-# Reuse-Oriented SSM RTL
+# Legacy Shared RTL
 
-This directory contains a behavior-preserving copy of the current Slim-Mamba SSM RTL, reorganized so the 4x4x4 MAC pipeline is exposed as a standalone shared fabric.
+This directory contains the legacy shared RTL bundle that remains available
+for regression and comparison. The modules here keep the original shell-facing
+interfaces used by the older regression flow.
 
 Current structure:
 
 - `reuse_mamba_block_top.sv`
-  - New block-level top.
-  - Explicitly organizes `in_proj -> ssm -> out_proj` around one shared MAC fabric.
+  - Block-level top for the legacy shell flow.
+  - Organizes `in_proj -> ssm -> out_proj` around one shared MAC fabric.
 - `reuse_ssm_core.sv`
-  - The SSM-internal post-processing path after dt-projection GEMV.
-  - Keeps the original `bias -> sigmoid -> join -> EW update -> gate` logic intact.
+  - SSM-internal post-processing path after dt-projection GEMV.
 - `reuse_top_mac_plus_bias_fifo_sigmoid_ew_gate.sv`
-  - Legacy compatibility top from the earlier refactor stage.
-  - Kept to avoid breaking existing checks, but no longer the recommended block-level top.
+  - Shell-facing top used by the legacy board integration flow.
 - `reuse_slim_mac_mem_controller_combined_dp.sv`
-  - Compatibility wrapper that preserves the old SSM-facing controller ports.
-  - Internally instantiates the new reusable hierarchy.
+  - Shared controller wrapper for the legacy SSM-facing interface.
 - `reuse_ssm_dt_scheduler.sv`
-  - Current implemented scheduler for the SSM `dt_proj` path.
-  - Owns the original SSM visit pattern to WBUF/XT and emits tile streams into the shared fabric.
+  - Scheduler for the SSM `dt_proj` path.
 - `reuse_mac_fabric_manager.sv`
-  - Central place for future arbitration across `dt_proj`, `in_proj`, and `out_proj`.
-  - Now routes the active scheduler into the shared fabric using `busy`-based ownership.
+  - Arbitration point for `dt_proj`, `in_proj`, and `out_proj`.
 - `reuse_in_proj_scheduler.sv`
-  - First concrete in-proj scheduler using the shared 4x4x4 MAC fabric.
-  - Reads `W_in` from a dedicated weight SRAM, reads `h_t` from a dedicated activation SRAM, and writes results into `u_t` / `z_t` SRAMs.
+  - In-projection scheduler that reads `W_in` and `h_t` and writes `u_t`
+    / `z_t` tiles.
 - `reuse_out_proj_scheduler.sv`
-  - Empty placeholder for the future out-proj scheduler.
+  - Out-projection scheduler hook.
 - `reuse_inproj_weight_sram.sv`
-  - Dedicated read-only SRAM wrapper for `W_in`.
+  - Read-only SRAM wrapper for `W_in`.
 - `reuse_ht_sram.sv`
   - 4-read-port SRAM for `h_t` storage.
 - `reuse_vec_out_sram.sv`
-  - Output SRAM used for `u_t` / `z_t` tile storage.
+  - Output SRAM for `u_t` / `z_t` tile storage.
 - `reuse_shared_mac_fabric.sv`
-  - Thin wrapper that marks the 4-array MAC datapath as a reusable compute fabric.
+  - Wrapper for the 4-array MAC datapath.
 - `reuse_pipeline_4array_with_reduction.sv`
 - `reuse_pipeline_4array_top.sv`
 - `reuse_array4x4.sv`
 - `reuse_reduction_accumulator.sv`
-  - Copied compute-path modules renamed with a `reuse_` prefix to avoid collisions with the original RTL.
-- Supporting RTL copied into this folder:
+  - Compute-path modules used by the legacy flow.
+- Supporting RTL in this folder:
   - `pulse_to_stream_adapter.sv`
   - `bias_add_regslice_ip.sv`
   - `vec_fifo_axis_ip.sv`
@@ -54,7 +51,8 @@ Current structure:
   - `slim_multi_bank_wbuf_dp.sv`
   - `xt_input_buf.sv`
 - `reuse_ip_blackboxes.sv`
-  - Placeholder declarations for generated/vendor IPs whose RTL sources are not present in this repository.
+  - Placeholder declarations for generated/vendor IPs whose RTL sources are
+    not present in this repository.
 
 Recommended hierarchy:
 
@@ -66,18 +64,13 @@ Recommended hierarchy:
     - `reuse_shared_mac_fabric`
   - `reuse_ssm_core`
 
-What changed:
+What the bundle provides:
 
-- No arithmetic or memory-access behavior was intentionally changed for the currently active SSM `dt_proj` path.
-- No AXI/FIFO protocol behavior was intentionally changed at the SSM top wrapper.
-- The original controller has been split conceptually into:
-  - `reuse_ssm_dt_scheduler`: SSM-specific tile generation
-  - `reuse_mac_fabric_manager`: shared fabric arbitration point
-  - `reuse_shared_mac_fabric`: unique 4x4x4 MAC fabric
-- This is now the reusable hierarchy that both the current SSM `dt_proj` path and the new `in_proj` path plug into.
-- A new explicit block-level top (`reuse_mamba_block_top`) has been added so the architectural order is visible as `in_proj -> ssm -> out_proj`.
+- a complete legacy baseline for regression
+- the original shell-facing interfaces used by the previous project flow
+- the same 4x4x4 MAC datapath building blocks used by the older runtime
 
-What has not been done yet:
+What remains out of scope:
 
 - The in-proj scheduler is implemented in a first functional form, but it has not been validated against a dedicated projection-only TB yet.
 - The out-proj scheduler is still a stub.

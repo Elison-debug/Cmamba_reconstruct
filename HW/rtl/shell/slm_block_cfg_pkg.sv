@@ -1,4 +1,4 @@
-﻿package slm_block_cfg_pkg;
+package slm_block_cfg_pkg;
     import slm_linear_cfg_pkg::*;
 
     typedef struct packed {

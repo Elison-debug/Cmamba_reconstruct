@@ -1,4 +1,4 @@
-﻿`timescale 1ns/1ps
+`timescale 1ns/1ps
 
 import slm_chain_cfg_pkg::*;
 import slm_block_cfg_pkg::*;

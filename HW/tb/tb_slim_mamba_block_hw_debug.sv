@@ -1,4 +1,4 @@
-﻿`timescale 1ns/1ps
+`timescale 1ns/1ps
 `include "tb_hw_debug_case_path.svh"
 
 `ifndef HW_DEBUG_CASE_DIR
@@ -111,7 +111,7 @@ module tb_slim_mamba_block_hw_debug;
             if (ALLOW_LSB1_FOR_Y ? (abs_i(d) > 1) : (d != 0)) begin
               y_err++;
               if (y_err == 1) begin
-                $error("[%0t] FIRST exact-block y mismatch row=%0d lane=%0d got=%0d exp=%0d",
+                $error("[%0t] FIRST slim-block y mismatch row=%0d lane=%0d got=%0d exp=%0d",
                        $time, y_idx, lane, got_v, exp_v);
               end
             end
@@ -159,16 +159,16 @@ module tb_slim_mamba_block_hw_debug;
     join
 
     if (y_err != 0) begin
-      $fatal(1, "[%0t] found %0d exact-block y mismatches", $time, y_err);
+      $fatal(1, "[%0t] found %0d slim-block y mismatches", $time, y_err);
     end
-    $display("[%0t] PASS exact block final y compare", $time);
+    $display("[%0t] PASS slim block final y compare", $time);
     #100;
     $finish;
   end
 
   initial begin : timeout_guard
     #3000000;
-    $fatal(1, "[%0t] timeout waiting exact block completion y_idx=%0d busy=%0b", $time, y_idx, block_busy);
+    $fatal(1, "[%0t] timeout waiting slim block completion y_idx=%0d busy=%0b", $time, y_idx, block_busy);
   end
 
   slim_mamba_block #(

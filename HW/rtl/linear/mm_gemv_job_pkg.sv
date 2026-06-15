@@ -1,4 +1,4 @@
-﻿package mm_gemv_job_pkg;
+package mm_gemv_job_pkg;
     typedef enum logic [1:0] {
         MM_OP_INPROJ  = 2'd0,
         MM_OP_DTPROJ  = 2'd1,

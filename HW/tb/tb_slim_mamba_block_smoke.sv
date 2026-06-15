@@ -1,4 +1,4 @@
-﻿`timescale 1ns/1ps
+`timescale 1ns/1ps
 
 module tb_slim_mamba_block_smoke;
   localparam int TILE_SIZE  = 4;

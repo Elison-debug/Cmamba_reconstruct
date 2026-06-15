@@ -30,10 +30,9 @@ def main() -> None:
     args = p.parse_args()
 
     tests: list[tuple[str, bool]] = [
-        ("slm_block_smoke", True),
         ("slim_block_smoke", True),
         ("slim_block_hw_debug", True),
-        ("slm_chain4_smoke", True),
+        ("slim_chain4_smoke", True),
         ("slim_chain4_debug", True),
         ("slim_chain4_top_debug", True),
         ("legacy_chain4_debug", True),
@@ -51,7 +50,7 @@ def main() -> None:
             "--run_name",
             f"{args.run_tag}_{stage}",
         ]
-        if stage.startswith("legacy_") or stage.endswith("_hw_debug") or stage.endswith("_chain4_debug") or stage == "slim_chain4_top_debug":
+        if stage.startswith("legacy_") or stage.endswith("_hw_debug") or stage.endswith("_chain4_debug") or stage in {"slim_chain4_top_debug", "slim_chain4_smoke"}:
             cmd.extend(["--case_dir", args.case_dir])
         rc = _run(cmd)
         results.append((stage, rc, gating))
