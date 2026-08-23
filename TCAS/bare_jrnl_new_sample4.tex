@@ -158,6 +158,20 @@ the model receives
 this task, the useful temporal information is concentrated in short-range
 channel variation rather than in long-range sequence dependency.
 
+Figure~\ref{fig:luvira_grid_scenario} summarizes the measurement geometry of
+the radio grid trajectories evaluated in this work. The robot-mounted UE moves
+along a dense raster of approximately parallel straight paths within the
+measurement area, with alternating traversal directions and about 0.05\,m
+spacing between adjacent paths. This geometry provides smooth local motion and
+dense spatial coverage, both of which can favor short-window sequence models.
+
+\begin{figure}[!t]
+  \centering
+  \includesvg[width=0.98\linewidth]{TCASfig/luvira_grid_scenario}
+  \caption{Schematic of the LuViRA radio grid trajectories evaluated in this work, redrawn from the measurement description in~\cite{Tian2024,LuViRA2024}.}
+  \label{fig:luvira_grid_scenario}
+\end{figure}
+
 This property guides the model exploration. The original Mamba block is
 attractive because it combines recurrent state propagation with input-dependent modulation, but its full selective state-space parameterization was introduced for more general sequence modeling problems. For the present localization setting, the main requirement is to retain short-window temporal tracking while keeping the operator set regular for fixed-point FPGA mapping. Accordingly, the model exploration in this work seeks the smallest Mamba-like recurrent structure that preserves the localization accuracy required for deployment.
 
@@ -174,9 +188,10 @@ it also introduces a more complex operator set for fixed-point FPGA mapping.
 
 The exploration considered two reference directions. The first was a Vanilla
 Mamba v1 implementation following the original selective state-space formulation
-in~\cite{Mamba2023}. The second was CMamba~\cite{zeng2024cmamba}, which adds
-feature-fusion branches for stronger cross-channel interaction modeling. CMamba
-achieved
+in~\cite{Mamba2023}. The second directly adopted the original CMamba
+architecture in~\cite{zeng2024cmamba}, including its feature-fusion branches
+for cross-channel interaction modeling, and retrained it for LuViRA
+localization with task-specific input and output dimensions. CMamba achieved
 the best software-only accuracy when augmented input features were available,
 but at the cost of substantially larger model size, longer training time, and a
 more complex hardware mapping. In contrast, the Vanilla Mamba baseline showed
@@ -982,7 +997,8 @@ reconfigurable accelerator. Table~\ref{tab:model_variants_tcas} summarizes the
 main model variants considered in this study. The FCNN baseline provides a strong
 accuracy reference, but at a very large model size. Vanilla Mamba v1 is
 smaller, yet its localization error is substantially worse on this task. The
-CMamba~\cite{zeng2024cmamba} reaches the best software-only accuracy when
+original CMamba~\cite{zeng2024cmamba}, retrained for LuViRA
+localization, reaches the best software-only accuracy when
 additional amplitude features are used, but this comes with a larger model,
 longer training time, and a more complex multi-branch hardware mapping.
 
@@ -1009,10 +1025,13 @@ Slim-Mamba & CIR + Power & 3.40 & 13 & 75.30 & 13.5 & Low \\
 \end{center}
 \end{table*}
 
-All software-side results in Table~\ref{tab:model_variants_tcas} were produced
-with the LuViRA radio split used in this work: even-indexed trajectories form the held-out test partition, odd-indexed
-trajectories form the training pool, and two trajectories are randomly selected
-from that odd-indexed pool for validation. The models were trained in PyTorch
+The Mamba-family results in Table~\ref{tab:model_variants_tcas} were produced
+with the LuViRA radio split used in this work: even-indexed trajectories form
+the held-out test partition, odd-indexed trajectories form the training pool,
+and two trajectories are randomly selected from that odd-indexed pool for
+validation. The FCNN entry is the published reference result from~\cite{Tian2024}
+and is included only as an accuracy and model-size reference. The Mamba-family
+models were trained in PyTorch
 on an Intel Core i5-13600KF host with an NVIDIA RTX~3080 GPU using AdamW, a
 batch size of 32, an initial learning rate of \(3\times10^{-4}\), cosine
 learning-rate decay, and seed 42. In Table~\ref{tab:model_variants_tcas},
@@ -1024,6 +1043,11 @@ predicted and ground-truth 2-D positions over the test set,
 and ``Deployment complexity'' is a qualitative summary of the expected
 hardware-mapping difficulty based on operator diversity, branching structure,
 and recurrent-state handling.
+
+Because the odd/even split interleaves nearby parallel trajectories, these
+results primarily measure interpolation within the densely sampled raster-scan
+scenario. They should not be interpreted as evidence of generalization to
+arbitrary curved trajectories or substantially different motion patterns.
 
 Figure~\ref{fig:model_tradeoff_tcas} isolates the effect of the input
 representation. Here, ``matched inputs'' means that Slim-Mamba and CMamba both
@@ -1272,4 +1296,3 @@ received a double bachelor's degree from Beijing Jiaotong University and KU Leuv
 
 
 \end{document}
-

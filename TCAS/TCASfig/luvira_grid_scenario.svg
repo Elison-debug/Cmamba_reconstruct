@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520">
+  <defs>
+    <marker id="arrow-red" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <path d="M0,0 L10,4 L0,8 Z" fill="#c9433f"/>
+    </marker>
+    <marker id="arrow-blue" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <path d="M0,0 L9,3.5 L0,7 Z" fill="#2f5f8f"/>
+    </marker>
+    <marker id="arrow-gray" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <path d="M0,0 L9,3.5 L0,7 Z" fill="#333333"/>
+    </marker>
+    <style>
+      .label { font-family: "Times New Roman", serif; font-size: 24px; fill: #202020; }
+      .small { font-family: "Times New Roman", serif; font-size: 20px; fill: #333333; }
+      .dim { stroke: #333333; stroke-width: 2; fill: none; marker-start: url(#arrow-gray); marker-end: url(#arrow-gray); }
+      .guide { stroke: #777777; stroke-width: 1.5; stroke-dasharray: 6 5; }
+      .track { stroke: #c9433f; stroke-width: 5; stroke-dasharray: 9 7; fill: none; }
+    </style>
+  </defs>
+
+  <rect x="220" y="70" width="570" height="340" fill="#f7f8fa" stroke="#222222" stroke-width="3"/>
+
+  <g aria-label="LuMaMi base station">
+    <rect x="38" y="145" width="120" height="120" rx="5" fill="#e7eef6" stroke="#2f5f8f" stroke-width="3"/>
+    <g fill="#2f5f8f">
+      <circle cx="61" cy="170" r="4"/><circle cx="78" cy="170" r="4"/><circle cx="95" cy="170" r="4"/><circle cx="112" cy="170" r="4"/><circle cx="129" cy="170" r="4"/>
+      <circle cx="61" cy="187" r="4"/><circle cx="78" cy="187" r="4"/><circle cx="95" cy="187" r="4"/><circle cx="112" cy="187" r="4"/><circle cx="129" cy="187" r="4"/>
+      <circle cx="61" cy="204" r="4"/><circle cx="78" cy="204" r="4"/><circle cx="95" cy="204" r="4"/><circle cx="112" cy="204" r="4"/><circle cx="129" cy="204" r="4"/>
+      <circle cx="61" cy="221" r="4"/><circle cx="78" cy="221" r="4"/><circle cx="95" cy="221" r="4"/><circle cx="112" cy="221" r="4"/><circle cx="129" cy="221" r="4"/>
+      <circle cx="61" cy="238" r="4"/><circle cx="78" cy="238" r="4"/><circle cx="95" cy="238" r="4"/><circle cx="112" cy="238" r="4"/><circle cx="129" cy="238" r="4"/>
+    </g>
+    <text x="98" y="296" text-anchor="middle" class="small">LuMaMi BS</text>
+  </g>
+
+  <line x1="158" y1="205" x2="220" y2="205" class="guide"/>
+  <line x1="220" y1="105" x2="790" y2="105" class="track" marker-end="url(#arrow-red)"/>
+  <line x1="790" y1="150" x2="220" y2="150" class="track" marker-end="url(#arrow-red)"/>
+  <line x1="220" y1="195" x2="790" y2="195" class="track" marker-end="url(#arrow-red)"/>
+  <line x1="790" y1="240" x2="220" y2="240" class="track" marker-end="url(#arrow-red)"/>
+  <line x1="220" y1="285" x2="790" y2="285" class="track" marker-end="url(#arrow-red)"/>
+  <line x1="790" y1="330" x2="220" y2="330" class="track" marker-end="url(#arrow-red)"/>
+  <line x1="220" y1="375" x2="790" y2="375" class="track" marker-end="url(#arrow-red)"/>
+
+  <circle cx="505" cy="240" r="9" fill="#2f74b5" stroke="#ffffff" stroke-width="2"/>
+  <text x="520" y="230" class="small">robot-mounted UE</text>
+
+  <line x1="220" y1="445" x2="790" y2="445" class="dim"/>
+  <line x1="220" y1="410" x2="220" y2="458" class="guide"/>
+  <line x1="790" y1="410" x2="790" y2="458" class="guide"/>
+  <text x="505" y="480" text-anchor="middle" class="label">approximately 4.2 m</text>
+
+  <line x1="835" y1="70" x2="835" y2="410" class="dim"/>
+  <line x1="790" y1="70" x2="847" y2="70" class="guide"/>
+  <line x1="790" y1="410" x2="847" y2="410" class="guide"/>
+  <text x="868" y="240" transform="rotate(-90 868 240)" text-anchor="middle" class="label">approximately 2.5 m</text>
+
+</svg>
