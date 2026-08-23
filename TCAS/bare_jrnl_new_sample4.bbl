@@ -21,12 +21,28 @@
 \providecommand{\BIBdecl}{\relax}
 \BIBdecl
 
+\bibitem{slim_mamba}
+Elison-debug, ``Slim mamba accelerator fpga implementation,''
+  \url{https://github.com/Elison-debug/slim_mamba}, 2025.
+
 \bibitem{Trevlakis2023}
 S.~E. Trevlakis, A.-A.~A. Boulogeorgos, D.~Pliatsios, J.~Querol, K.~Ntontin,
   P.~Sarigiannidis, S.~Chatzinotas, and M.~Di~Renzo, ``Localization as a key
   enabler of 6g wireless systems: A comprehensive survey and an outlook,''
   \emph{IEEE Open Journal of the Communications Society}, vol.~4, pp.
   2733--2801, 2023.
+
+\bibitem{Xiang2019Submeter}
+C.~Xiang, Z.~Zhang, S.~Zhang, S.~Xu, S.~Cao, and V.~Lau, ``Robust sub-meter
+  level indoor localization - a logistic regression approach,'' in \emph{ICC
+  2019 - 2019 IEEE International Conference on Communications (ICC)}, 2019, pp.
+  1--6.
+
+\bibitem{Shi2023RTPhase}
+F.~Shi, W.~Li, C.~Tang, Y.~Fang, P.~V. Brennan, and K.~Chetty,
+  ``Decimeter-level indoor localization using wifi round-trip phase and factor
+  graph optimization,'' \emph{IEEE Journal on Selected Areas in
+  Communications}, vol.~42, no.~1, pp. 177--191, 2024.
 
 \bibitem{Zafari2019Indoor}
 F.~Zafari, A.~Gkelias, and K.~K. Leung, ``A survey of indoor localization
@@ -64,6 +80,21 @@ G.~Tian, I.~Yaman, M.~Sandra, X.~Cai, L.~Liu, and F.~Tufvesson,
   {MIMO},'' \emph{IEEE Transactions on Machine Learning in Communications and
   Networking}, vol.~2, pp. 19--33, 2024.
 
+\bibitem{AttariISCAS2021}
+M.~Attari, J.~R. Sánchez, L.~Liu, and S.~Malkowsky, ``An application specific
+  vector processor for cnn-based massive mimo positioning,'' in \emph{2021 IEEE
+  International Symposium on Circuits and Systems (ISCAS)}, 2021, pp. 1--5.
+
+\bibitem{AttariASIP2025}
+M.~Attari, O.~Edfors, and L.~Liu, ``Accelerator-assisted floating-point asip
+  for communication and positioning in massive mimo systems,'' \emph{arXiv
+  preprint arXiv:2502.09785}, 2025.
+
+\bibitem{YamanTransformer2026}
+I.~Yaman, S.~Cheng, O.~Edfors, and L.~Liu, ``Efficient implementation of an
+  adaptive transformer accelerator for massive mimo outdoor localization,''
+  \emph{arXiv preprint arXiv:2605.13507}, 2026.
+
 \bibitem{Mamba2023}
 A.~Gu and T.~Dao, ``Mamba: Linear-time sequence modeling with selective state
   spaces,'' \emph{arXiv preprint arXiv:2312.00752}, 2023.
@@ -85,5 +116,66 @@ X.~Jin, H.~Zheng, M.~Nie, J.~Wang, and C.~R. Shi, ``{HCSAs}: Hybrid computing
   buffers and energy-efficient dataflow,'' in \emph{Proceedings of the Great
   Lakes Symposium on VLSI 2025}.\hskip 1em plus 0.5em minus 0.4em\relax New
   York, NY, USA: ACM, 2025, pp. 457--462.
+
+\bibitem{MARCA2024}
+J.~Li, S.~Huang, J.~Xu, J.~Liu, L.~Ding, N.~Xu, and G.~Dai, ``Marca: Mamba
+  accelerator with reconfigurable architecture,'' in \emph{2024 ACM/IEEE
+  International Conference On Computer Aided Design (ICCAD)}, 2024, pp. 1--9.
+
+\bibitem{zeng2024cmamba}
+C.~Zeng, Z.~Liu, G.~Zheng, and L.~Kong, ``Cmamba: channel correlation enhanced
+  state space models for multivariate time series forecasting,'' \emph{arXiv
+  preprint arXiv:2406.05316}, 2024.
+
+\bibitem{Kung1982Systolic}
+Kung, ``Why systolic architectures?'' \emph{Computer}, vol.~15, no.~1, pp.
+  37--46, 1982.
+
+\bibitem{Liu2020STA}
+Z.-G. Liu, P.~N. Whatmough, and M.~Mattina, ``Systolic tensor array: An
+  efficient structured-sparse gemm accelerator for mobile cnn inference,''
+  \emph{IEEE Computer Architecture Letters}, vol.~19, no.~1, pp. 34--37, 2020.
+
+\bibitem{Sze2017EfficientDNN}
+Y.-H. Chen, T.~Krishna, J.~S. Emer, and V.~Sze, ``Eyeriss: An energy-efficient
+  reconfigurable accelerator for deep convolutional neural networks,''
+  \emph{IEEE Journal of Solid-State Circuits}, vol.~52, no.~1, pp. 127--138,
+  2017.
+
+\bibitem{Chen2017Eyeriss}
+V.~Sze, Y.-H. Chen, T.-J. Yang, and J.~S. Emer, ``Efficient processing of deep
+  neural networks: A tutorial and survey,'' \emph{Proceedings of the IEEE},
+  vol. 105, no.~12, pp. 2295--2329, 2017.
+
+\bibitem{Jacob2018IntegerOnly}
+B.~Jacob, S.~Kligys, B.~Chen, M.~Zhu, M.~Tang, A.~Howard, H.~Adam, and
+  D.~Kalenichenko, ``Quantization and training of neural networks for efficient
+  integer-arithmetic-only inference,'' in \emph{2018 IEEE/CVF Conference on
+  Computer Vision and Pattern Recognition}, 2018, pp. 2704--2713.
+
+\bibitem{Krishnamoorthi2018Quantization}
+R.~Krishnamoorthi, ``Quantizing deep convolutional networks for efficient
+  inference: A whitepaper,'' \emph{arXiv preprint arXiv:1806.08342}, 2018.
+
+\bibitem{Harris2024Radix4Sqrt}
+D.~Harris, J.~Stine, M.~Ercegovac, A.~Nannarelli, K.~Parry, and C.~Turek,
+  ``Unified digit selection for radix-4 recurrence division and square root,''
+  \emph{IEEE Transactions on Computers}, vol.~73, no.~1, pp. 292--300, 2024.
+
+\bibitem{Bruguera2023Radix64Sqrt}
+J.~D. Bruguera, ``Radix-64 floating-point division and square root: Iterative
+  and pipelined units,'' \emph{IEEE Transactions on Computers}, vol.~72,
+  no.~10, pp. 2990--3001, 2023.
+
+\bibitem{Meher2010SigmoidLUT}
+P.~Kumar~Meher, ``An optimized lookup-table for the evaluation of sigmoid
+  function for artificial neural networks,'' in \emph{2010 18th IEEE/IFIP
+  International Conference on VLSI and System-on-Chip}, 2010, pp. 91--95.
+
+\bibitem{Piazza1993DigitalLUT}
+F.~Piazza, A.~Uncini, and M.~Zenobi, ``Neural networks with digital lut
+  activation functions,'' in \emph{Proceedings of 1993 International Conference
+  on Neural Networks (IJCNN-93-Nagoya, Japan)}, vol.~2, 1993, pp. 1401--1404
+  vol.2.
 
 \end{thebibliography}

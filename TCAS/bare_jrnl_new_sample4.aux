@@ -1,106 +1,136 @@
 \relax 
 \providecommand{\transparent@use}[1]{}
+\citation{slim_mamba}
 \citation{Trevlakis2023}
+\citation{Xiang2019Submeter}
+\citation{Shi2023RTPhase}
 \citation{Zafari2019Indoor}
 \citation{LuViRA2024,LuViRAValidation2024}
 \citation{LuMaMi2017}
 \citation{TianICC2023}
 \citation{Tian2024}
+\citation{AttariISCAS2021}
+\citation{AttariASIP2025}
+\citation{YamanTransformer2026}
 \citation{Mamba2023}
-\citation{LightMamba2025,FastMamba2025,HCSA2025}
 \@writefile{toc}{\contentsline {section}{\numberline {I}Introduction}{1}{}\protected@file@percent }
+\citation{LightMamba2025,FastMamba2025,HCSA2025,MARCA2024}
+\citation{Mamba2023}
+\citation{Mamba2023}
+\citation{zeng2024cmamba}
 \@writefile{toc}{\contentsline {section}{\numberline {II}Mamba-Based Model Exploration for Localization}{2}{}\protected@file@percent }
 \newlabel{sec:algorithm}{{II}{2}{}{section.2}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-A}}Localization Task and Sequence Input}{2}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-B}}From Original Mamba to Slim-Mamba}{2}{}\protected@file@percent }
-\newlabel{eq:slim_mamba_lambda}{{1}{2}{}{equation.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Block-level replacement from the original Mamba state path to the Slim-Mamba state path.}}{2}{}\protected@file@percent }
-\newlabel{fig:mamba_v1_slim_replacement_tcas}{{1}{2}{}{figure.1}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {I}{\ignorespaces Main operator substitutions from original Mamba to Slim-Mamba.}}{2}{}\protected@file@percent }
-\newlabel{tab:mamba_operator_compare_tcas}{{I}{2}{}{table.1}{}}
-\newlabel{eq:slim_mamba_state_update_alg}{{2}{2}{}{equation.2}{}}
-\newlabel{eq:slim_mamba_gate}{{3}{2}{}{equation.3}{}}
-\newlabel{eq:slim_mamba_output}{{4}{2}{}{equation.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-C}}Deployed Configuration}{2}{}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {II}{\ignorespaces Trainable parameter breakdown of the deployed Slim-Mamba configuration.}}{3}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Structural comparison between the original Mamba block and the proposed Slim-Mamba block.}}{3}{}\protected@file@percent }
+\newlabel{fig:slim_mamba_replacement}{{1}{3}{}{figure.1}{}}
+\newlabel{eq:slim_mamba_lambda}{{1}{3}{}{equation.1}{}}
+\newlabel{eq:slim_mamba_state_update_alg}{{2}{3}{}{equation.2}{}}
+\newlabel{eq:slim_mamba_gate}{{3}{3}{}{equation.3}{}}
+\newlabel{eq:slim_mamba_output}{{4}{3}{}{equation.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-C}}Deployed Configuration}{3}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {I}{\ignorespaces Deployed Slim-Mamba configuration and parameter roles.}}{3}{}\protected@file@percent }
+\newlabel{tab:slim_config_tcas}{{I}{3}{}{table.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {II}{\ignorespaces Trainable parameter breakdown of the Slim-Mamba configuration.}}{3}{}\protected@file@percent }
 \newlabel{tab:slim_param_breakdown_tcas}{{II}{3}{}{table.2}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {III}Quantization Workflow and Hardware Implementation}{3}{}\protected@file@percent }
-\newlabel{sec:quant_hw}{{III}{3}{}{section.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-A}}Quantization Workflow}{3}{}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces The quantization tools: from floating-point evaluation to bit-true fixed-point modelling and RTL mapping.}}{3}{}\protected@file@percent }
-\newlabel{fig:quant_tool}{{2}{3}{}{figure.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-B}}Layer-Wise Quantization Strategy}{3}{}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {III}{\ignorespaces Fake-Quantization Precision Sweep.}}{4}{}\protected@file@percent }
-\newlabel{tab:precision_sweep}{{III}{4}{}{table.3}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Quantization workflow.}}{4}{}\protected@file@percent }
-\newlabel{fig:quantization_workflow}{{3}{4}{}{figure.3}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {IV}{\ignorespaces Stage-Level Quantization Error With Dynamic Scaling Applied to the State Path.}}{4}{}\protected@file@percent }
-\newlabel{tab:stage_quant_error}{{IV}{4}{}{table.4}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {V}{\ignorespaces Final Fixed-Point Strategy for the Slim-Mamba Accelerator.}}{4}{}\protected@file@percent }
-\newlabel{tab:quant_strategy_tcas}{{V}{4}{}{table.5}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {VI}{\ignorespaces End-to-End Quantization Evaluation.}}{4}{}\protected@file@percent }
-\newlabel{tab:quant_final_eval}{{VI}{4}{}{table.6}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Configurable fixed-point requantization engine reused across projection, state-update, and residual paths.}}{5}{}\protected@file@percent }
-\newlabel{fig:requant_engine}{{4}{5}{}{figure.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-C}}Configurable Requantization Engine}{5}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {IV}Reconfigurable Slim-Mamba Hardware Design and Pipelining}{5}{}\protected@file@percent }
-\newlabel{sec:reconfigurable_hw}{{IV}{5}{}{section.4}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Ping-pong scale-buffer organization for aligning token, state address, update coefficient, and runtime scale streams.}}{5}{}\protected@file@percent }
-\newlabel{fig:ping_pong}{{5}{5}{}{figure.5}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-A}}Board-Level Dataflow and Four-Block Execution}{5}{}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Reconfigurable Slim-Mamba accelerator architecture: (a) board-level PS-side memory and AXI interfaces, (b) PL shell and four-block Slim-Mamba chain, (c) time-multiplexed Mamba block with shared projection fabric, and (d) SSM block datapath.}}{6}{}\protected@file@percent }
-\newlabel{fig:hardware_architecture}{{6}{6}{}{figure.6}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-B}}Reconfigurable Projection Fabric}{6}{}\protected@file@percent }
-\newlabel{eq:projection_mvm}{{5}{6}{}{equation.5}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-C}}Fine-Grained FIFO-Based Pipeline}{7}{}\protected@file@percent }
-\newlabel{eq:slim_mamba_state_update}{{6}{7}{}{equation.6}{}}
-\newlabel{eq:coarse_latency}{{7}{7}{}{equation.7}{}}
-\newlabel{eq:fine_latency}{{8}{7}{}{equation.8}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces $4\times 4\times 4$ arrays organization.}}{8}{}\protected@file@percent }
-\newlabel{fig:array_organization}{{7}{8}{}{figure.7}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Comparison between coarse-grained and fine-grained scheduling.}}{8}{}\protected@file@percent }
-\newlabel{fig:fine_grained_pipeline}{{8}{8}{}{figure.8}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-D}}Nonlinear Layer Implementation}{8}{}\protected@file@percent }
-\newlabel{eq:rms_value}{{9}{8}{}{equation.9}{}}
-\newlabel{eq:rmsnorm_output}{{10}{8}{}{equation.10}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces RMSNorm approximation flow: a trial-quotient digit-recurrence procedure.}}{8}{}\protected@file@percent }
-\newlabel{fig:sqrt}{{9}{8}{}{figure.9}{}}
-\newlabel{eq:sigmoid}{{11}{8}{}{equation.11}{}}
-\citation{TianICC2023}
-\@writefile{lot}{\contentsline {table}{\numberline {VII}{\ignorespaces Software-side model comparison.}}{9}{}\protected@file@percent }
-\newlabel{tab:model_variants_tcas}{{VII}{9}{}{table.7}{}}
-\newlabel{eq:silu}{{12}{9}{}{equation.12}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {V}Results}{9}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-A}}Software-Side Model Selection}{9}{}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Localization-error CDF for Slim-Mamba and two channel mamba reference runs under matched and augmented input settings.}}{9}{}\protected@file@percent }
-\newlabel{fig:model_comparison_cdf_tcas}{{10}{9}{}{figure.10}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {VIII}{\ignorespaces Ablation on temporal window length \(K\) with patch length and stride variants.}}{9}{}\protected@file@percent }
-\newlabel{tab:k_ablation_tcas}{{VIII}{9}{}{table.8}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-B}}Quantization Accuracy}{9}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {III}Reconfigurable Slim-Mamba Hardware Design and Pipelining}{3}{}\protected@file@percent }
+\newlabel{sec:reconfigurable_hw}{{III}{3}{}{section.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Reconfigurable Slim-Mamba accelerator architecture: (a) board-level PS-side memory and AXI interfaces, (b) PL shell and four-block Slim-Mamba chain, and (c) time-multiplexed Mamba block with shared projection fabric}}{4}{}\protected@file@percent }
+\newlabel{fig:hardware_architecture}{{2}{4}{}{figure.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-A}}Board-Level Dataflow and Four-Block Execution}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-B}}Reconfigurable MAC Array}{4}{}\protected@file@percent }
+\citation{Kung1982Systolic,Liu2020STA}
+\citation{Sze2017EfficientDNN,Chen2017Eyeriss}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-C}}Fine-Grained FIFO-Based Pipeline}{5}{}\protected@file@percent }
+\newlabel{eq:coarse_latency}{{5}{5}{}{equation.5}{}}
+\newlabel{eq:fine_latency}{{6}{5}{}{equation.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-D}}Quantization Strategy}{5}{}\protected@file@percent }
+\citation{Jacob2018IntegerOnly,Krishnamoorthi2018Quantization}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Comparison between coarse-grained and fine-grained scheduling.}}{6}{}\protected@file@percent }
+\newlabel{fig:fine_grained_pipeline}{{3}{6}{}{figure.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Slim-Mamba state-update datapath.}}{6}{}\protected@file@percent }
+\newlabel{fig:ssm_path}{{4}{6}{}{figure.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {III}{\ignorespaces Stage-Level Quantization Error With Dynamic Scaling Applied to the State Path.}}{6}{}\protected@file@percent }
+\newlabel{tab:stage_quant_error}{{III}{6}{}{table.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Data range statistics}}{6}{}\protected@file@percent }
+\newlabel{fig:datarange}{{5}{6}{}{figure.5}{}}
+\citation{Harris2024Radix4Sqrt,Bruguera2023Radix64Sqrt}
+\citation{Meher2010SigmoidLUT,Piazza1993DigitalLUT}
+\citation{zeng2024cmamba}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Configurable fixed-point requantization engine reused across projection, state-update, and residual paths.}}{7}{}\protected@file@percent }
+\newlabel{fig:requant_engine}{{6}{7}{}{figure.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Ping-pong scale-buffer organization for aligning token, state address, update coefficient, and runtime scale streams.}}{7}{}\protected@file@percent }
+\newlabel{fig:ping_pong}{{7}{7}{}{figure.7}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {IV}{\ignorespaces End-to-End Quantization Evaluation.}}{7}{}\protected@file@percent }
+\newlabel{tab:quant_final_eval}{{IV}{7}{}{table.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-E}}Nonlinear Layer Implementation}{7}{}\protected@file@percent }
+\newlabel{eq:rms_value}{{7}{7}{}{equation.7}{}}
+\newlabel{eq:rmsnorm_output}{{8}{7}{}{equation.8}{}}
+\newlabel{eq:sigmoid}{{9}{7}{}{equation.9}{}}
+\newlabel{eq:silu}{{10}{7}{}{equation.10}{}}
+\citation{Tian2024}
+\citation{zeng2024cmamba}
+\@writefile{lot}{\contentsline {table}{\numberline {V}{\ignorespaces Software-side model comparison.}}{8}{}\protected@file@percent }
+\newlabel{tab:model_variants_tcas}{{V}{8}{}{table.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {IV}Results}{8}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-A}}Model Selection}{8}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Cumulative distribution of localization error for Slim-Mamba and two CMamba reference runs under matched-input and augmented-input settings.}}{8}{}\protected@file@percent }
+\newlabel{fig:model_tradeoff_tcas}{{8}{8}{}{figure.8}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {VI}{\ignorespaces Representative temporal-window ablation for Slim-Mamba.}}{8}{}\protected@file@percent }
+\newlabel{tab:k_ablation_tcas}{{VI}{8}{}{table.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-B}}Throughput, Resource Utilization, and Power}{8}{}\protected@file@percent }
+\citation{Tian2024}
+\citation{AttariISCAS2021}
+\citation{AttariASIP2025}
+\citation{YamanTransformer2026}
 \bibstyle{IEEEtran}
 \bibdata{thesisbib}
-\bibcite{Trevlakis2023}{1}
-\bibcite{Zafari2019Indoor}{2}
-\bibcite{LuViRA2024}{3}
-\bibcite{LuViRAValidation2024}{4}
-\@writefile{lot}{\contentsline {table}{\numberline {IX}{\ignorespaces Throughput summary at 100\,MHz.}}{10}{}\protected@file@percent }
-\newlabel{tab:throughput_summary_tcas}{{IX}{10}{}{table.9}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {X}{\ignorespaces Post-synthesis resource utilization at 100\,MHz.}}{10}{}\protected@file@percent }
-\newlabel{tab:resource_utilization_tcas}{{X}{10}{}{table.10}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {XI}{\ignorespaces On-chip power estimate.}}{10}{}\protected@file@percent }
-\newlabel{tab:power_summary_tcas}{{XI}{10}{}{table.11}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-C}}Throughput, Resource Utilization, and Power}{10}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-D}}Latency Reduction from Fine-Grained Pipelining}{10}{}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {XII}{\ignorespaces Latency breakdown per Slim-Mamba block.}}{10}{}\protected@file@percent }
-\newlabel{tab:block_latency_tcas}{{XII}{10}{}{table.12}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {VI}Conclusions}{10}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{References}{10}{}\protected@file@percent }
-\bibcite{LuMaMi2017}{5}
-\bibcite{TianICC2023}{6}
-\bibcite{Tian2024}{7}
-\bibcite{Mamba2023}{8}
-\bibcite{LightMamba2025}{9}
-\bibcite{FastMamba2025}{10}
-\bibcite{HCSA2025}{11}
+\bibcite{slim_mamba}{1}
+\bibcite{Trevlakis2023}{2}
+\bibcite{Xiang2019Submeter}{3}
+\bibcite{Shi2023RTPhase}{4}
+\bibcite{Zafari2019Indoor}{5}
+\bibcite{LuViRA2024}{6}
+\bibcite{LuViRAValidation2024}{7}
+\bibcite{LuMaMi2017}{8}
+\bibcite{TianICC2023}{9}
+\bibcite{Tian2024}{10}
+\bibcite{AttariISCAS2021}{11}
+\bibcite{AttariASIP2025}{12}
+\bibcite{YamanTransformer2026}{13}
+\bibcite{Mamba2023}{14}
+\bibcite{LightMamba2025}{15}
+\bibcite{FastMamba2025}{16}
+\bibcite{HCSA2025}{17}
+\@writefile{lot}{\contentsline {table}{\numberline {VII}{\ignorespaces Post-synthesis resource utilization at 100\,MHz.}}{9}{}\protected@file@percent }
+\newlabel{tab:resource_utilization_tcas}{{VII}{9}{}{table.7}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {VIII}{\ignorespaces On-chip power estimate.}}{9}{}\protected@file@percent }
+\newlabel{tab:power_summary_tcas}{{VIII}{9}{}{table.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-C}}Latency Reduction from Fine-Grained Pipelining}{9}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {V}Conclusions}{9}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{References}{9}{}\protected@file@percent }
+\bibcite{MARCA2024}{18}
+\bibcite{zeng2024cmamba}{19}
+\bibcite{Kung1982Systolic}{20}
+\bibcite{Liu2020STA}{21}
+\bibcite{Sze2017EfficientDNN}{22}
+\bibcite{Chen2017Eyeriss}{23}
+\bibcite{Jacob2018IntegerOnly}{24}
+\bibcite{Krishnamoorthi2018Quantization}{25}
+\bibcite{Harris2024Radix4Sqrt}{26}
+\bibcite{Bruguera2023Radix64Sqrt}{27}
+\bibcite{Meher2010SigmoidLUT}{28}
+\bibcite{Piazza1993DigitalLUT}{29}
+\@writefile{lot}{\contentsline {table}{\numberline {IX}{\ignorespaces Contextual comparison with representative localization models and accelerators.}}{10}{}\protected@file@percent }
+\newlabel{tab:accelerator_compare_tcas}{{IX}{10}{}{table.9}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {X}{\ignorespaces Latency breakdown per Slim-Mamba block.}}{10}{}\protected@file@percent }
+\newlabel{tab:block_latency_tcas}{{X}{10}{}{table.10}{}}
+\@writefile{toc}{\contentsline {section}{Biographies}{10}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{Shengjie Chen}{10}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{Chenxi Zhang}{10}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{Ilayda Yaman}{10}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{Sijia Cheng}{10}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{Ove Edfors}{11}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{Liang Liu}{11}{}\protected@file@percent }
 \gdef\svg@ink@ver@settings{{\m@ne }{inkscape}{1}}
 \gdef \@abspage@last{11}
