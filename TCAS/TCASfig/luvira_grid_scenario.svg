@@ -41,8 +41,11 @@
   <line x1="790" y1="330" x2="220" y2="330" class="track" marker-end="url(#arrow-red)"/>
   <line x1="220" y1="375" x2="790" y2="375" class="track" marker-end="url(#arrow-red)"/>
 
+  <rect x="415" y="202" width="180" height="28" rx="4"
+        fill="#f7f8fa" fill-opacity="0.96"/>
+  <text x="505" y="221" text-anchor="middle" class="small">robot-mounted UE</text>
+  <line x1="505" y1="230" x2="505" y2="238" stroke="#2f74b5" stroke-width="2"/>
   <circle cx="505" cy="240" r="9" fill="#2f74b5" stroke="#ffffff" stroke-width="2"/>
-  <text x="520" y="230" class="small">robot-mounted UE</text>
 
   <line x1="220" y1="445" x2="790" y2="445" class="dim"/>
   <line x1="220" y1="410" x2="220" y2="458" class="guide"/>

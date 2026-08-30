@@ -34,7 +34,7 @@
 The authors are with Department of Electrical and Information Technology, Lund University, Sweden (email:{\tt\small name.surname@eit.lth.se}).}
  \thanks{$^{\dagger}$Shengjie Chen and $^{\dagger}$Chenxi Zhang contributed equally to this work.}
  
- \thanks{The complete implementation open source, including the algorithm, fixed-point software reference, and FPGA accelerator code at GitHub\cite{slim_mamba}}
+ \thanks{The complete implementation open source, including the algorithm, fixed-point software reference, and FPGA accelerator code at GitHub\cite{slim_mamba}.}
 }% <-this % stops a space
 
 % The paper headers
@@ -49,12 +49,12 @@ The authors are with Department of Electrical and Information Technology, Lund U
 
 \begin{abstract}
 Massive MIMO radio measurements provide rich spatial information and delay-domain information obtained through channel impulse response extraction, but their high-dimensional channel features  lead to considerable computational and memory requirements, making
-real-time neural inference challenging on edge devices with limited resources.
+real-time neural network inference challenging on edge devices with limited resources.
 This paper presents Slim-Mamba, an efficient and reconfigurable Mamba-style
 accelerator for Massive MIMO indoor localization. Mamba is a recent state-space sequence 
 model, making it a promising fit for radio localization because its recurrent state updates 
 can exploit previous measurements when estimating the current position in continuous indoor
-movement. This paper presents a system-level solution using real-world Massive MIMO measurements, algorithm optimization, and hardware acceleration for indoor localization. At the algorithm level, Slim-Mamba simplifies the original
+movement. We further propose a system-level solution using real-world Massive MIMO measurements from LuViRA dataset~\cite{LuViRA2024}, algorithm optimization, and hardware acceleration for indoor localization. At the algorithm level, Slim-Mamba simplifies the original
 Mamba-style selective state-space block into a lightweight gated recurrent
 update, preserving temporal state modelling and output gating while reducing the
 complexity of the selective-scan computation.
@@ -73,10 +73,9 @@ Massive MIMO, Indoor localization, Mamba, FPGA accelerator, quantization, reconf
 \IEEEPARstart{I}{ndoor} localization is becoming an important function in future wireless systems,
 where communication, sensing, and positioning are expected to be more tightly
 integrated. In the context of 6G, localization has been identified as both a key
-service and an enabling technology~\cite{Trevlakis2023} for location-aware applications such as robotic
+service and an enabling technology for location-aware applications such as robotic
 navigation, emergency healthcare, smart environments, and intelligent
-transportation. These applications impose diverse accuracy requirements, ranging from
-meter-level positioning for general indoor tracking to sub-meter~\cite{Xiang2019Submeter} and
+transportation~\cite{Trevlakis2023}. These applications impose diverse accuracy requirements, ranging from meter-level positioning for general indoor tracking to sub-meter~\cite{Xiang2019Submeter} and
 decimeter-level~\cite{Shi2023RTPhase} accuracy for emerging applications requiring more precise
 spatial awareness. However, accurate indoor positioning
 remains challenging because indoor radio propagation is affected by multipath
@@ -84,30 +83,28 @@ effects, noise, and the surrounding radio environment
 ~\cite{Zafari2019Indoor}.
 
 Massive multiple-input multiple-output (MIMO) systems provide a promising
-measurement platform for radio-based indoor localization. The LuViRA dataset~\cite{LuViRA2024,LuViRAValidation2024} used in this paper 
-provides synchronized vision, radio, audio, and motion-capture measurements for indoor 
-localization research. In its radio modality, the
-channel response is measured using the LuMaMi Massive MIMO testbed
-~\cite{LuMaMi2017}. Radio-based localization can be viewed as a regression from channel fingerprints to physical coordinates, which makes it well-suited for learning-based methods.
+measurement platform for radio-based indoor localization. The LuViRA dataset used in this paper provides synchronized vision, radio, audio, and motion-capture measurements for indoor localization research~\cite{LuViRA2024,LuViRAValidation2024}. In its radio modality, the channel response is measured using the Lund University Massive MIMO (LuMaMi) testbed
+~\cite{LuMaMi2017}. Since radio-based localization itself is a regression task (from channel state information to user equipment positions), data-driven algorithms such as machine learning(ML) can also be utilized~\cite{TianICC2023}.
 
 Previous works have explored ML-based methods for Massive MIMO indoor localization. 
-Early studies adopted fully connected neural network (FCNN)-based approaches using spatial covariance matrices and truncated channel impulse responses (CIRs) as fingerprints, achieving centimetre-level positioning accuracy~\cite{TianICC2023}. However, these methods rely on large fully connected layers, resulting in model sizes ranging from hundreds of megabytes to more than 1~GB. The extension in~\cite{Tian2024} further confirms that network size and computational cost remain major challenges when applying ML-based localization to Massive MIMO systems, potentially hindering training, fine-tuning, and hardware deployment. To reduce this burden, CNN-based methods exploit the structured nature of channel state information (CSI) fingerprints and use convolutional layers to extract local spatial features for position estimation~\cite{AttariISCAS2021}. The corresponding CNN accelerator was later incorporated into a broader ASIP platform~\cite{AttariASIP2025}. Nevertheless, CNNs still introduce considerable computational cost and are mainly limited to extracting local features. More recently, transformer-based localization 
-accelerators have shown that self-attention can capture correlations between beam-domain 
+Early studies adopted fully connected neural network (FCNN)-based approaches using spatial covariance matrices and truncated channel impulse responses (CIRs) as fingerprints, achieving centimetre-level positioning accuracy~\cite{TianICC2023}. However, these methods rely on large fully connected layers, resulting in model sizes ranging from hundreds of megabytes to more than 1~GB. The extension in~\cite{Tian2024} further confirms that network size and computational cost remain major challenges when applying ML-based localization to Massive MIMO systems, potentially hindering training, fine-tuning, and hardware deployment. To reduce this burden, CNN-based methods exploit the structured nature of channel state information (CSI) fingerprints and use convolutional layers to extract local spatial features for position estimation~\cite{AttariISCAS2021}. The corresponding CNN accelerator was later incorporated into a broader ASIP platform~\cite{AttariASIP2025}. Nevertheless, CNNs still introduce considerable computational cost and are mainly limited to extracting local features. More recently, attention-based methods are used in the field of localization. Self-attention can capture correlations between beam-domain 
 channel responses, where pairwise similarity patterns provide valuable spatial information for 
-user localization, but the quadratic complexity of self-attention, together with its associated memory traffic remains a challenge for efficient hardware implementation~\cite{YamanTransformer2026}.
+user localization~\cite{Tian2024Attention}. However, the quadratic complexity of self-attention, together with its associated memory traffic remains a challenge for efficient hardware implementation~\cite{YamanTransformer2026}.
 
 From the examples above, efficient deployment which reduces model complexity, computation, and 
 memory movement while preserving accuracy still remains a critical challenge for
 learning-based Massive MIMO localization. Mamba~\cite{Mamba2023}, 
-a SSM (state-space-model)-based model without attention or MLP blocks, provides a
-promising direction for this purpose. It performs recurrent state updates with
+based on a state-space model(SSM) that  replaces self-attention and conventional MLP blocks with selective state-space processing and gating, provides a
+promising direction for this purpose. Mamba performs recurrent state updates with
 input-dependent parameters while maintaining linear complexity with respect to
-sequence length. This recurrent architecture enables Mamba to explicitly explore the temporal information, which is attractive for indoor
-localization where current position can be predicted using previous positions. However, to make Mamba architecture better suited for Massive MIMO localization task and efficiently implement on hardware, we explored different 
-Mamba-style architectures and simplified the original Mamba architecture, which we named Slim-Mamba. FPGA acceleration is chosen for its reconfigurability, allowing rapid algorithm refinement and hardware prototyping.
+sequence length. This recurrent architecture enables it to explicitly explore the temporal information, which is attractive for indoor
+localization where current position can be predicted using previous positions. Recent studies in other learning-based applications, such as anomaly detection, have also started to explore Mamba-based architectures alongside established CNN- and Transformer-based approaches~\cite{MambaAD2024}. However, the use of Mamba for radio-based localization remains relatively unexplored and systematic comparisons of CNN-, Transformer-, and Mamba-based architectures for localization are still lacking. 
 
-Recent studies have further shown that Mamba-style models require dedicated
-hardware-aware optimization when deployed on FPGA. Existing Mamba accelerators
+To make Mamba architecture better suited for our radio-based indoor localization task and efficiently implement on hardware, we simplified and optimized the original mamba algorithm. We also compared the proposed model with existing FCNN-, CNN-, and attention-based localization methods to evaluate its performance against different learning-based architectures. The final accelerator architecture is named as Slim-Mamba. FPGA acceleration is chosen for its reconfigurability, allowing rapid algorithm refinement and hardware prototyping.
+
+% Recent studies have further shown that Mamba-style models require dedicated
+% hardware-aware optimization when deployed on FPGA. 
+For hardware optimization, existing Mamba accelerators
 have explored computation reordering, accurate quantization and pipelined execution dataflow, 
 and hybrid dataflows~\cite{LightMamba2025,FastMamba2025,HCSA2025,MARCA2024}. These works 
 suggest that the efficiency of Mamba acceleration depends on reusable hardware structures that 
@@ -134,10 +131,7 @@ The main contributions of this paper are summarized as follows:
     accelerator achieves both efficient resource utilization and low inference delay.
 
     \item Real-world
-    indoor Massive MIMO measurements are used. Instead of relying only on simulated inputs or isolated 
-    hardware kernels, this work validates both the algorithm and the accelerator against a 
-    known software reference, connecting real-data localization performance with fixed-point 
-    hardware execution. 
+    indoor Massive MIMO measurements are used  instead of relying only on simulated inputs and the performance of Slim-Mamba is compared with FCNNs, CNNs and Attention based localization methods. 
     
 \end{itemize}
 
@@ -149,7 +143,7 @@ The main contributions of this paper are summarized as follows:
 The target task is radio-based indoor localization on the LuViRA dataset, where
 each sample is represented by a short sequence of Massive MIMO channel
 observations. In the deployed setting, each observation contains 2100 input
-features (\(D_{\mathrm{in}}=2100\)) derived from the CIR and power representation used consistently in
+features derived from the CIR and power representation used consistently in
 training, software evaluation, and hardware inference. For one inference window,
 the model receives
 \(\mathbf{X}=[\mathbf{x}_{t-K+1},\ldots,\mathbf{x}_t]\), where
@@ -168,7 +162,7 @@ dense spatial coverage, both of which can favor short-window sequence models.
 \begin{figure}[!t]
   \centering
   \includesvg[width=0.98\linewidth]{TCASfig/luvira_grid_scenario}
-  \caption{Schematic of the LuViRA radio grid trajectories evaluated in this work, redrawn from the measurement description in~\cite{Tian2024,LuViRA2024}.}
+  \caption{Schematic of the grid trajectories in the LuViRA dataset evaluated in this work, redrawn from the measurement description in~\cite{LuViRA2024, Tian2024}.}
   \label{fig:luvira_grid_scenario}
 \end{figure}
 
@@ -191,12 +185,12 @@ Mamba v1 implementation following the original selective state-space formulation
 in~\cite{Mamba2023}. The second directly adopted the original CMamba
 architecture in~\cite{zeng2024cmamba}, including its feature-fusion branches
 for cross-channel interaction modeling, and retrained it for LuViRA
-localization with task-specific input and output dimensions. CMamba achieved
+dataset with task-specific input and output dimensions. CMamba achieved
 the best software-only accuracy when augmented input features were available,
 but at the cost of substantially larger model size, longer training time, and a
 more complex hardware mapping. In contrast, the Vanilla Mamba baseline showed
 that the full selective-scan path was not necessary to capture the short-window
-localization dynamics in LuViRA. These observations motivated the final
+localization dynamics in the LuViRA dataset. These observations motivated the final
 Slim-Mamba design.
 
 \begin{figure}[!t]
@@ -621,15 +615,14 @@ Slim-Mamba accelerator. The proposed architecture supports multi-level reconfigu
 \begin{figure*}[!t]
 \centering
 \includesvg[width=0.95\textwidth]{TCASfig/architecture}
-\caption{Reconfigurable Slim-Mamba accelerator architecture: (a) board-level
-PS-side memory and AXI interfaces, (b) PL shell and four-block Slim-Mamba
-chain, and (c) time-multiplexed Mamba block with shared projection fabric}
+\caption{Reconfigurable Slim-Mamba accelerator architecture: (a) PL shell and four-block Slim-Mamba
+chain, (b) time-multiplexed Mamba block with shared projection fabric, and (c) $4\times4\times4$ MAC Array Organization.}
 \label{fig:hardware_architecture}
 \end{figure*}
 
 \subsection{Board-Level Dataflow and Four-Block Execution}
 
-Fig.~\ref{fig:hardware_architecture} shows the overall. The PL-side shell connects the AXI interfaces to the four-block Slim-Mamba
+Fig.~\ref{fig:hardware_architecture} shows the overall architecture. The PL-side shell connects the AXI interfaces to the four-block Slim-Mamba
 compute chain, as shown in Fig.~\ref{fig:hardware_architecture}(a). The processor-side control logic initializes the accelerator and loads the AXI-Stream
 data into the buffer of Block~0. After the preload stage is complete, the four-block
 controller starts the block computation sequence. Each block implements one full
@@ -680,28 +673,26 @@ different destinations, they expose the same fabric interface. A MAC array
 manager arbitrates among the schedulers and configures the shared fabric to
 serve one projection role at a time.
 
-The shared scheduling mechanism described above implements \textbf{R2}, allowing the same MAC array to be reused across the projection operators of a Slim-Mamba block. This reduces DSP duplication and avoiding the placement overhead of separate arrays..
+The shared scheduling mechanism described above implements \textbf{R2}, allowing the same MAC array to be reused across the projection operators of a Slim-Mamba block. This reduces DSP duplication and avoiding the placement overhead of separate arrays.  The fabric interface includes control parameters that determine the computation dimensions, allowing the $4\times4\times4$ array to support
+different logical matrix shapes, reduction lengths, and output forms. 
+%In the current
+% accelerator, the shared fabric is mainly used in MAC mode for projection
+% operators, while lightweight vector modules handle the fine-grained
+% element-wise operations in the state-update path. However, these interfaces keep the PE structure
+% configurable and allows the same fabric abstraction to support different operator
+% types.
 
-\textbf{R3} is the configurable tile-shape and reduction-length behavior of the
-same fabric. The fabric interface includes control parameters that determine
-the active row and column dimensions.
-The \texttt{mode} signal selects the current PE operation, such as MAC,
-element-wise multiplication (EWM), or element-wise addition (EWA). In the current
-accelerator, the shared fabric is mainly used in MAC mode for projection
-operators, while lightweight vector modules handle the fine-grained
-element-wise operations in the state-update path. However, the mode interface keeps the PE structure
-configurable and allows the same fabric abstraction to support different operator
-types.
-
-The \texttt{col\_blocks\_cfg} parameter controls how many column blocks must be
-accumulated for one output tile. This is necessary because different projection
-layers have different input dimensions and therefore different reduction lengths
-along the $K$ dimension. Rather than fixing the reduction length inside the PE
-array, each scheduler provides the required column-block count for its own
-projection workload. The \texttt{reduce\_rows} signal controls whether the array
-outputs are reduced across rows to generate the final vector output. Together,
-these parameters allow the fixed $4\times4\times4$ physical array to support
-different logical matrix shapes, reduction lengths, and output forms.
+%The parameters control how many column blocks must be
+% accumulated for one output tile and whether the array 
+% outputs are reduced across rows to generate the final vector output. 
+%This is necessary because different projection
+% layers have different input dimensions and therefore different reduction lengths
+% along the $K$ dimension. Rather than fixing the reduction length inside the PE
+% array, each scheduler provides the required column-block count for its own
+% projection workload. The \texttt{reduce\_rows} signal controls whether the array
+% outputs are reduced across rows to generate the final vector output. 
+% Together, these parameters allow the fixed $4\times4\times4$ physical array to support
+% different logical matrix shapes, reduction lengths, and output forms.
 
 The $4\times4\times4$ fabric contains four $4\times4$ sub-arrays. Each
 sub-array receives a four-element activation slice and a $4\times4$ weight
@@ -787,7 +778,7 @@ shows the final fine-grained Slim-Mamba state-update datapath, where the hardwar
 \label{fig:ssm_path}
 \end{figure}
 
-\subsection{Quantization Strategy}
+\subsection{Quantization Strategy and Hardware implementation}
 
 %\textbf{Data range profiling.}
 As the quantization strategy depends on the data distribution, we first profile the floating-point
@@ -800,18 +791,19 @@ granularity.
 The profiling result in Fig.\ref{fig:datarange} shows that the required numerical range is strongly
 layer-dependent. The update coefficient and sigmoid layers have a compact range,
 while the recurrent state and element-wise gating layers show a much larger gap
-between the median and tail values. In particular, the state-update path has a
+between the median and tail values. In particular, the state-update path and corresponding gating path has a
 small median range but significantly larger P99 and maximum values, indicating a
 long-tailed distribution across channel groups and input samples. Therefore, when determining the scaling strategy, the state-update layer requires
-a dedicated quantization configuration to accommodate its dynamic data range. 
+a dedicated quantization configuration to accommodate its dynamic data range. The strategy is called dynamic scaling, which means the scale factor is computed from the current recurrent-state range and used when storing and restoring the state. This allows the state representation to adapt to data ranges that vary over
+time.
 
 Table~\ref{tab:stage_quant_error} shows the experimental results for scaling strategy. We first evaluate a fixed-scale baseline because it avoids runtime dynamic scale
 generation, per-layer scale storage, and scale-alignment control. In this baseline, fixed-point data are represented in Q8.8,
 where the fixed scale is \(s=2^{-8}=1/256\) and
 \(x_{\mathrm{real}}=s\cdot x_{\mathrm{int}}\). Q8.8 is used as the fixed-scale baseline because it 
 offers a balanced integer/fractional split.
-The fixed-scale baseline produces small errors for all layers except the
-state-update path, which remain at 0.00--0.01 MAE. In contrast, the state-update MAE reaches
+The fixed-scale baseline produces small errors remain at 0.00--0.01 MAE for all layers except the
+state-update path. In contrast, the state-update MAE reaches
 0.13, which validates the profiling result in Fig.~\ref{fig:datarange}. After dynamic scaling is applied to the state update path, the
 MAE is reduce to 0.09. 
 
@@ -872,11 +864,8 @@ The quantization strategy is implemented by a shared reconfigurable requantizati
 engine rather than by instantiating a separate quantization unit for every
 layer. This module is used
 after MAC accumulation, Q-format conversion, state update, scale multiplication,
-and residual addition. As shown in Fig.~\ref{fig:requant_engine}, this shared structure reduces duplicated RTL and
-keeps the rounding behavior consistent while allowing the layer-wise quantization policy obtained from software
-analysis to be adjusted easily to hardware control parameters. Different
-projection stages can therefore reuse the same datapath while selecting different
-scale memories, sign modes, and output formats.
+and residual addition. As shown in Fig.~\ref{fig:requant_engine}, this shared structure reduces duplicated hardware and allows the layer-wise quantization policy obtained from software
+analysis to be adjusted easily to hardware control parameters.
 
 \begin{figure*}[!t]
 \centering
@@ -908,34 +897,34 @@ update coefficient, and runtime scale streams.}
 \label{fig:ping_pong}
 \end{figure}
 
-Table~\ref{tab:quant_final_eval}shows that final fixed-point model achieves an
+The final fixed-point model achieves an
 output MAE of 0.02 with respect to the floating-point output and a mean
 localization error of 0.14~m, which is close to the
 float-point reference,
 showing that the selected layer-wise fixed-point strategy preserves the
 localization accuracy while remaining compatible with the hardware datapath.
 
-\begin{table}[!t]
-\begin{center}
-\caption{End-to-End Quantization Evaluation.}
-\label{tab:quant_final_eval}
-\scriptsize
-\setlength{\tabcolsep}{2pt}
-\renewcommand{\arraystretch}{1.08}
-\begin{tabular}{|p{0.18\linewidth}|>{\centering\arraybackslash}p{0.13\linewidth}|>{\centering\arraybackslash}p{0.25\linewidth}|>{\centering\arraybackslash}p{0.30\linewidth}|}
-\hline
-\textbf{Evaluation} & \textbf{Samples} & \textbf{HW vs. Float MAE} &
-\textbf{Mean Localization Error (m)} \\
+% \begin{table}[!t]
+% \begin{center}
+% \caption{End-to-End Quantization Evaluation.}
+% \label{tab:quant_final_eval}
+% \scriptsize
+% \setlength{\tabcolsep}{2pt}
+% \renewcommand{\arraystretch}{1.08}
+% \begin{tabular}{|p{0.18\linewidth}|>{\centering\arraybackslash}p{0.13\linewidth}|>{\centering\arraybackslash}p{0.25\linewidth}|>{\centering\arraybackslash}p{0.30\linewidth}|}
 % \hline
-% fixed scale & 34,505 & 0.18 & 0.36 \\
-\hline
-Fixed-point & 34,505 & 0.02 & 0.14 \\
-\hline
-float-point ref. & 34,505 & -- & 0.14 \\
-\hline
-\end{tabular}
-\end{center}
-\end{table}
+% \textbf{Evaluation} & \textbf{Samples} & \textbf{HW vs. Float MAE} &
+% \textbf{Mean Localization Error (m)} \\
+% % \hline
+% % fixed scale & 34,505 & 0.18 & 0.36 \\
+% \hline
+% Fixed-point & 34,505 & 0.02 & 0.14 \\
+% \hline
+% float-point ref. & 34,505 & -- & 0.14 \\
+% \hline
+% \end{tabular}
+% \end{center}
+% \end{table}
 
 
 \subsection{Nonlinear Layer Implementation}
@@ -1192,9 +1181,9 @@ Attari \emph{et al.}~\cite{AttariISCAS2021} & CNN & Massive-MIMO positioning & G
 \hline
 Attari \emph{et al.}~\cite{AttariASIP2025} & CNN + ASIP & Massive-MIMO comm. + positioning & 22 nm FD-SOI ASIP + accelerators & 800\,MHz & Float & Yes & \(\sim 390\)\,positions/s & N/A \\
 \hline
-Yaman \emph{et al.}~\cite{YamanTransformer2026} & Adaptive Transf. & Outdoor massive MIMO & Xilinx Zynq UltraScale+ FPGA & N/A & N/A & Yes & up to 1961\,positions/s & \(< 1.15\)\,m \\
+Yaman \emph{et al.}~\cite{YamanTransformer2026} & Adaptive Transf. & Outdoor massive MIMO & Xilinx Zynq UltraScale+ FPGA & 100\,MHz & 16B & Yes & up to 1961\,positions/s & \(< 1.15\)\,m \\
 \hline
-This work & Slim-Mamba & Indoor LuViRA & Xilinx Zynq Ultra-Scale+ FPGA & 100\,MHz & FXP16 & Yes & 471\,positions/s & 0.14\,m mean error \\
+This work & Slim-Mamba & Indoor LuViRA & Xilinx Zynq Ultra-Scale+ FPGA & 100\,MHz & FP16 & Yes & 471\,positions/s & 0.14\,m mean error \\
 \hline
 \end{tabular}
 \end{center}
