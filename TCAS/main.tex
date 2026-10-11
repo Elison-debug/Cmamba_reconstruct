@@ -71,7 +71,7 @@ remains challenging because indoor radio propagation is affected by multipath
 effects, noise, and the surrounding radio environment
 ~\cite{Zafari2019Indoor}.
 
-Massive multiple-input multiple-output (MIMO) systems provide a promising measurement platform for radio-based indoor localization, offering rich spatial information together with delay-domain information obtained from channel impulse response. However, the high dimensionality of massive MIMO channel features lead to substantial computational and memory requirements, making real-time neural network inference challenging on resource-constrained edge devices.
+Massive multiple-input multiple-output (MIMO) systems provide a promising measurement platform for radio-based indoor localization, offering rich spatial information together with delay-domain information obtained from channel impulse responses. However, the high dimensionality of massive MIMO channel features leads to substantial computational and memory requirements, making real-time neural network inference challenging on resource-constrained edge devices.
 
 Previous works have explored several machine learning (ML) methods for massive MIMO localization. 
 Early studies employed fully connected neural networks (FCNNs) using spatial covariance matrices and truncated channel impulse responses (CIRs) as fingerprints, achieving centimetre-level positioning accuracy~\cite{TianICC2023}. However, the large fully connected layers result in model sizes ranging from hundreds of megabytes to more than 1~GB, and computational complexity remains a major challenge for training and hardware deployment~\cite{Tian2024}.
@@ -86,7 +86,7 @@ learning-based Massive MIMO localization. Mamba~\cite{Mamba2023}, based on a sta
 promising direction for this purpose. Mamba performs recurrent state updates with
 input-dependent parameters while maintaining linear complexity with respect to
 sequence length. This recurrent architecture enables it to explicitly explore the temporal information, which is attractive for indoor
-localization where current position can be predicted using previous positions. Recent studies in other learning-based applications, such as anomaly detection, have also started to explore Mamba-based architectures alongside established CNN- and Transformer-based approaches~\cite{MambaAD2024}. However, the use of Mamba for radio-based localization remains relatively unexplored and comparisons of CNN-, Transformer-, and Mamba-based architectures for localization are still lacking. 
+localization where consecutive channel observations may provide useful temporal context for estimating the current position. Recent studies in other learning-based applications, such as anomaly detection, have also started to explore Mamba-based architectures alongside established CNN- and Transformer-based approaches~\cite{MambaAD2024}. However, the use of Mamba for radio-based localization remains relatively unexplored and comparisons of CNN-, Transformer-, and Mamba-based architectures for localization are still lacking.
 
 For hardware optimization, existing Mamba accelerators have explored computation reordering, quantization, pipelined execution dataflow, and hybrid dataflows~\cite{LightMamba2025,FastMamba2025,HCSA2025,MARCA2024}. These works suggest that the efficiency of Mamba acceleration depends on reusable hardware structures that maximize resource sharing, efficient pipelined dataflows that improve processing throughput and reduce inter-stage stalls, and quantization strategies that balance computational efficiency with inference accuracy. 
 
@@ -104,50 +104,114 @@ The main contributions of this paper are summarized as follows:
     \item Slim-Mamba, a lightweight Mamba-based model for massive MIMO indoor localization, is proposed. The model simplifies the selective state-space structure of the original Mamba formulation into a hardware-friendly gated recurrent update, reducing model complexity while achieving a mean localization error of 14\,cm.
 
     \item A reconfigurable FPGA accelerator is developed for Slim-Mamba. The architecture reuses shared MAC Array across global
-    projection layers, supports configurable execution across Slim-Mamba blocks, employs a unified quantization module, and introduces fine-grained FIFO-based pipelining between local operationsto reduce pipeline stalls and improve hardware utilization and low inference latency.
+    projection layers, supports configurable execution across Slim-Mamba blocks, employs a unified quantization module, and introduces fine-grained FIFO-based pipelining between local operations to reduce pipeline stalls and inference latency while improving hardware utilization.
 
     \item The complete Slim-Mamba system is evaluated using real-world indoor massive MIMO measurements from the LuViRA dataset. Its performance is compared with existing FCNN-, CNN-, and Transformer-based localization methods, while the FPGA implementation achieves 471 positions/s at 100\,MHz.
     
 \end{itemize}
 
-\section{Mamba-Based Model Exploration for Localization}
-\label{sec:algorithm}
+\section{System Model and Measurement Campaign}
+\label{sec:system_model}
 
-\subsection{Localization Task and Sequence Input}
+\subsection{Measurement Scenario}
 
-The target task is radio-based indoor localization on the LuViRA dataset.
-For each position estimate, the model processes a temporal window of $K$
-consecutive massive MIMO channel observations. The deployed configuration uses
-\(K=2\). Each observation \(\mathbf{x}_i \in
-\mathbb{R}^{D_{\mathrm{in}}}\) contains \(D_{\mathrm{in}}=2100\) input
-features derived from the CIR and power representation used consistently in
-training, software evaluation, and hardware inference. The corresponding input
-window is
-\(\mathbf{X}=[\mathbf{x}_{t-K+1},\ldots,\mathbf{x}_t]\), from which the
-model estimates the two-dimensional user position at time \(t\). In this task,
-the useful temporal information is concentrated in short-range channel
-variation rather than in long-range sequence dependence.
+We consider a single-input multiple-output (SIMO) uplink using orthogonal
+frequency-division multiplexing (OFDM), from a single-antenna user equipment
+(UE) mounted on a mobile robot to the 100-antenna LuMaMi receiver, as shown in
+Fig.~\ref{fig:luvira_measurement_setup}. The LuViRA measurements were
+collected at 3.7\,GHz over a 20\,MHz bandwidth, with 100 channel snapshots
+per second. In the grid campaign, the robot traversed approximately straight
+paths at 0.1\,m/s, while a motion-capture system recorded the ground-truth
+position~\cite{LuViRA2024,LuMaMi2017}.
 
 \begin{figure}[!t]
   \centering
   \includegraphics[width=0.98\linewidth]{TCASfig/luvira.jpg}
-  \caption{An overview of the measurement setup during the measurement campaign of the LuViRA dataset.}
-  \label{fig:luvira_grid_scenario}
+  \caption{LuViRA measurement setup.}
+  \label{fig:luvira_measurement_setup}
 \end{figure}
 
 Figure~\ref{fig:luvira_grid_scenario} illustrates the measurement geometry of the grid trajectories evaluated in this work. The robot-mounted UE moves along a dense raster of approximately parallel straight paths within the measurement area, with alternating traversal directions and about 0.05\,m spacing between adjacent paths. This geometry provides smooth local motion and dense spatial coverage, both of which can favor short-window sequence models.
-The 74 grid trajectories are divided into training, validation, and test sets as follows. Even-indexed trajectories form the held-out test set, while odd-indexed trajectories form the training pool, from which two trajectories are randomly selected for validation.
+Even-indexed grid trajectories form the held-out test set, while odd-indexed trajectories form the training pool. For Slim-Mamba, two odd-indexed trajectories are randomly selected from this pool for validation.
 
 \begin{figure}[!t]
   \centering
   \includesvg[width=0.98\linewidth]{TCASfig/luvira_grid_scenario}
-  \caption{Schematic of the grid trajectories in the LuViRA dataset evaluated in this work, redrawn from the measurement description in~\cite{LuViRA2024, Tian2024}.}
+  \caption{Grid-trajectory schematic, redrawn from~\cite{LuViRA2024,Tian2024}.}
   \label{fig:luvira_grid_scenario}
 \end{figure}
 
-The locally smooth measurement trajectories motivate the evaluation of short observation windows for localization. Meanwhile, the selected model must permit for efficient implementation of fixed-point FPGA. These considerations motivate the comparison of the Mamba variants presented in the following subsection.
+\subsection{Channel Features and Localization Metric}
 
-\subsection{From Original Mamba to Slim-Mamba}
+We follow the truncated-CIR fingerprint construction in~\cite{Tian2024},
+also used by the radio-localization baseline in~\cite{LuViRAValidation2024}.
+Let $H_i[f,a]$ denote the measured frequency-domain channel at snapshot
+$i$, frequency bin $f$, and receive antenna $a$. An inverse discrete
+Fourier transform along the frequency axis produces the CIR; its first
+$L=10$ delay taps are retained, as in~\cite{Tian2024}:
+\begin{equation}
+c_i[\ell,a]=\frac{1}{F}\sum_{f=0}^{F-1}H_i[f,a]
+e^{j2\pi f\ell/F},\quad 0\leq\ell<L,
+\label{eq:cir_features}
+\end{equation}
+where $F$ is the number of recorded frequency bins. Denote the per-antenna
+normalized CIR by $\tilde c_i[\ell,a]$. Its real and imaginary components
+provide $2LM=2000$ features for $M=100$ antennas. The additional power
+feature for each antenna is
+\begin{equation}
+q_i[a]=\log\!\left(1+\frac{1}{L}\sum_{\ell=0}^{L-1}
+|c_i[\ell,a]|^2\right).
+\label{eq:log_power_features}
+\end{equation}
+The concatenated CIR and log-power features are standardized using
+training-set statistics to form $\mathbf{x}_i\in\mathbb{R}^{2100}$.
+The log-power features supplement the normalized CIR with received-power
+information and are used in both CMamba and Slim-Mamba.
+
+For each position estimate, the model processes a temporal window of $K$
+consecutive massive MIMO channel observations. The deployed configuration uses
+\(K=2\). The input window
+\(\mathbf{X}_t=[\mathbf{x}_{t-K},\ldots,\mathbf{x}_{t-1}]\)
+is used to estimate the two-dimensional position $\mathbf{p}_t$ at the
+following snapshot.
+
+For an estimated position $\hat{\mathbf{p}}_i=(\hat p_{x,i},\hat p_{y,i})$
+and its ground truth $\mathbf{p}_i=(p_{x,i},p_{y,i})$, the localization error is
+\begin{equation}
+e_i=\|\hat{\mathbf{p}}_i-\mathbf{p}_i\|_2
+=\sqrt{(\hat p_{x,i}-p_{x,i})^2+(\hat p_{y,i}-p_{y,i})^2}.
+\label{eq:localization_error}
+\end{equation}
+The mean localization error (ME) over $N$ evaluated positions is
+\begin{equation}
+\mathrm{ME}=\frac{1}{N}\sum_{i=1}^{N}e_i.
+\label{eq:localization_me}
+\end{equation}
+
+\section{Mamba-Based Model Exploration for Localization}
+\label{sec:algorithm}
+
+\subsection{State-Space Models and Original Mamba}
+
+For one input channel $u$, a continuous-time SSM maintains a latent state
+$\mathbf{h}\in\mathbb{R}^{n_s}$:
+\begin{equation}
+\frac{d\mathbf{h}(\tau)}{d\tau}=A\mathbf{h}(\tau)+Bu(\tau),
+\qquad r(\tau)=C\mathbf{h}(\tau)+Du(\tau).
+\label{eq:continuous_ssm}
+\end{equation}
+Here $A$, $B$, $C$, and $D$ specify state evolution, input injection,
+state readout, and the direct input path, respectively. Discretization with
+step size $\Delta$ gives
+\begin{equation}
+\mathbf{h}_t=\bar A\mathbf{h}_{t-1}+\bar B u_t,
+\qquad r_t=C\mathbf{h}_t+Du_t.
+\label{eq:discrete_ssm}
+\end{equation}
+Mamba makes $B_t$, $C_t$, and $\Delta_t$ input-dependent while retaining
+learned, input-independent $A$ and $D$~\cite{Mamba2023}. Its selective scan
+evaluates the resulting time-varying recurrence and readout. Each feature
+channel carries an $n_s$-dimensional state.
 
 The original Mamba block in~\cite{Mamba2023} combines a local convolutional
 front end with a selective state-space recurrence. After RMSNorm and input
@@ -158,18 +222,18 @@ gate path modulates the state output before the final output projection and
 residual addition. This design is effective for general sequence modeling, but
 it also introduces a more complex operator set for fixed-point FPGA mapping.
 
-The exploration considered two reference directions. The first was a Vanilla
-Mamba v1 implementation following the original selective state-space formulation
-in~\cite{Mamba2023}. The second directly adopted the original CMamba
+Alongside the original Mamba reference described above, we directly adopted the CMamba
 architecture in~\cite{zeng2024cmamba}, including its feature-fusion branches
-for cross-channel interaction modeling, and retrained it for LuViRA
-dataset with task-specific input and output dimensions. CMamba achieved
-the lowest mean localization error (ME) in floating-point software evaluation when augmented input features were available,
-but at the cost of substantially larger model size, longer training time, and
-more complex hardware mapping. In contrast, the Vanilla Mamba baseline showed
-that the full selective-scan path was not necessary to capture the short-window
-localization dynamics in the LuViRA dataset. These observations motivated the final
-Slim-Mamba design.
+for cross-channel interaction modeling, and retrained it for the LuViRA
+dataset with task-specific input and output dimensions. CMamba provides a
+channel-interaction reference with a substantially larger model and a more
+complex hardware mapping.
+
+\subsection{Slim-Mamba for Localization}
+
+The Slim-Mamba design
+examines whether a simpler recurrent update can provide a suitable
+accuracy--complexity tradeoff for this localization task.
 
 \begin{figure}[!t]
   \centering
@@ -208,6 +272,27 @@ directly as
  + (1-\lambda_t)\odot \tilde{\mathbf{x}}^{(s)}_t.
 \label{eq:slim_mamba_state_update_alg}
 \end{equation}
+This update is related to the scalar-state special case of the selective
+SSM derived in~\cite[Theorem~1]{Mamba2023}. For a state dimension of one,
+$A=-1$, $B=1$, and an input-dependent softplus step size, zero-order-hold
+discretization yields complementary sigmoid coefficients for the previous
+state and current input. In particular, if $a_t$ is the affine
+gate preactivation and $\Delta_t=\mathrm{softplus}(-a_t)$, then
+\begin{equation}
+\bar A_t=e^{-\Delta_t}=\sigma(a_t),\qquad
+\bar B_t=1-e^{-\Delta_t}.
+\label{eq:scalar_ssm_gate_relation}
+\end{equation}
+Equation~\eqref{eq:slim_mamba_state_update_alg} uses this complementary
+weighting form channel-wise, with $\lambda_t$ denoting state retention
+rather than input admission. The coefficient is computed directly in
+discrete time; no softplus or exponential discretization operators are
+executed in Slim-Mamba. The design also omits the expanded state and
+separate input-dependent readout of the general selective SSM. Thus, the
+Slim-Mamba state update retains the gating interpretation of this special
+case without reproducing the full selective SSM. Its task-specific operator
+selection enables the hardware mapping described in the following sections.
+
 The updated state is then modulated by the gate path
 \begin{equation}
 \mathbf{g}_t = \mathrm{SiLU}(\mathbf{x}^{(g)}_t),
@@ -241,7 +326,7 @@ The temporal window length $K$ was evaluated to characterize its impact on local
 \begin{tabular}{|c|c|c|}
 \hline
 \textbf{\(K\) (\(P\), \(S\))}
-& \textbf{Evaluation ME (cm)}
+& \textbf{Validation ME (cm)}
 & \textbf{Test ME (cm)} \\
 \hline
 1 (1,1) & 10.07 & \textbf{13.50} \\
@@ -261,6 +346,69 @@ The temporal window length $K$ was evaluated to characterize its impact on local
 \end{tabular}
 \end{center}
 \end{table}
+
+Table~\ref{tab:model_variants_tcas} compares the localization accuracy, model
+size, and training cost of the evaluated models. The FCNN provides a published
+accuracy reference, whereas the Mamba-family models are evaluated on LuViRA
+to select a compact deployment target. Unreported values are marked as N/A.
+
+\begin{table*}[!t]
+\begin{center}
+\caption{Comparison of different DL models.}
+\label{tab:model_variants_tcas}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabular}{|p{0.17\textwidth}|p{0.22\textwidth}|>{\centering\arraybackslash}p{0.09\textwidth}|>{\centering\arraybackslash}p{0.11\textwidth}|>{\centering\arraybackslash}p{0.07\textwidth}|>{\centering\arraybackslash}p{0.09\textwidth}|>{\centering\arraybackslash}p{0.10\textwidth}|}
+\hline
+\textbf{Model} & \textbf{Input features} & \textbf{Model file size (MB)} & \textbf{Avg. training time / epoch (s)} & \textbf{Train rate (batch/s)} & \textbf{Mean localization error (cm)} & \textbf{Deployment complexity} \\
+\hline
+FCNN~\cite{LuViRAValidation2024} & CIR & 789 & N/A & N/A & \(\sim 13\) & High \\
+\hline
+CMamba~\cite{zeng2024cmamba} & CIR + Power & 40.4 & 361 & 10.31 & 17.4 & High \\
+\hline
+Original Mamba & CIR + Power & 3.38 & 33 & 32.62 & 24.74 & Medium \\
+\hline
+Slim-Mamba & CIR + Power & 3.40 & 13 & 75.30 & 13.5 & Low \\
+\hline
+\end{tabular}
+\end{center}
+\end{table*}
+
+The FCNN entry is the published reference result from~\cite{LuViRAValidation2024}
+and is included only as an accuracy and model-size reference. The Mamba-family
+models were trained in PyTorch on an Intel Core i5-13600KF host with an
+NVIDIA RTX~3080 GPU. The comparison uses the best evaluated configuration of
+each model, with model-specific training--validation splits, temporal windows,
+and sampling settings.
+In Table~\ref{tab:model_variants_tcas},
+``Avg. training time / epoch'' denotes the measured elapsed time required to
+complete one training epoch on the same hardware platform, excluding validation
+and checkpoint saving,
+``Train rate'' denotes the corresponding mini-batch processing rate,
+``Mean localization error'' denotes the average Euclidean distance between the
+predicted and ground-truth 2-D positions over the test set,
+and ``Deployment complexity'' is a qualitative summary of the expected
+hardware-mapping difficulty based on operator diversity, branching structure,
+and recurrent-state handling.
+
+Because the odd/even split interleaves nearby parallel trajectories, these
+results primarily measure interpolation within the densely sampled raster-scan
+scenario. They should not be interpreted as evidence of generalization to
+arbitrary curved trajectories or substantially different motion patterns.
+
+Figure~\ref{fig:model_tradeoff_tcas} shows the saved error distributions of
+Slim-Mamba and CMamba on the same 33 held-out even-indexed grid trajectories,
+both using CIR and power features. Slim-Mamba achieves a lower ME and uses a
+smaller model than CMamba in this comparison. Its localization accuracy and
+compact operator set motivate its selection for hardware implementation.
+
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=0.96\linewidth]{TCASfig/software_eval_model_comparison_cdf.png}
+  \caption{Localization-error CDFs on held-out grid trajectories.}
+  \label{fig:model_tradeoff_tcas}
+\end{figure}
 
 \subsection{Deployed Configuration}
 
@@ -534,7 +682,7 @@ For $N=64$, this reduces the state-update-path latency from 1856 cycles to 1415 
 corresponding to a 23.8\% reduction. The additional cost is about 12 DSPs per
 state-update path, which is acceptable compared with the latency reduction.
 Figure~\ref{fig:fine_grained_pipeline} shows the comparison. Fig.~\ref{fig:ssm_path}
-shows the final fine-grained Slim-Mamba state-update datapath, where the hardware modules implementing the operations in Eqs.~(1)--(4), including recurrent state update, bias addition, sigmoid, SiLU gating, and output generation, are connected through FIFO-based interfaces.
+shows the final fine-grained Slim-Mamba state-update datapath, where the hardware modules implementing the operations in Eqs.~\eqref{eq:slim_mamba_lambda}, \eqref{eq:slim_mamba_state_update_alg}, \eqref{eq:slim_mamba_gate}, and~\eqref{eq:slim_mamba_output}, including recurrent state update, bias addition, sigmoid, SiLU gating, and output generation, are connected through FIFO-based interfaces.
 
 \begin{figure}[!t]
 \centering
@@ -740,78 +888,13 @@ sigmoid and SiLU share the clamp and LUT logic, while SiLU only adds FIFO
 alignment and vector multiplication.
 
 \section{Results}
-The software exploration was used to identify a localization model that is
-not only accurate on LuViRA but also practical to quantize and map to a
-reconfigurable accelerator. Table~\ref{tab:model_variants_tcas} summarizes the
-main model variants considered in this study. Unreported values are marked as N/A. The FCNN baseline provides a strong
-accuracy reference, but at a very large model size. Vanilla Mamba v1 is
-smaller, yet its localization error is substantially worse on this task. The
-original CMamba~\cite{zeng2024cmamba}, retrained for LuViRA
-localization, reaches the best localization accuracy when
-additional amplitude features are used, but this comes with a larger model,
-longer training time, and a more complex multi-branch hardware mapping.
-
-\begin{table*}[!t]
-\begin{center}
-\caption{Comparison of different DL models.}
-\label{tab:model_variants_tcas}
-\footnotesize
-\setlength{\tabcolsep}{3pt}
-\renewcommand{\arraystretch}{1.08}
-\begin{tabular}{|p{0.17\textwidth}|p{0.22\textwidth}|>{\centering\arraybackslash}p{0.09\textwidth}|>{\centering\arraybackslash}p{0.11\textwidth}|>{\centering\arraybackslash}p{0.07\textwidth}|>{\centering\arraybackslash}p{0.09\textwidth}|>{\centering\arraybackslash}p{0.10\textwidth}|}
-\hline
-\textbf{Model} & \textbf{Input features} & \textbf{Model size (MB)} & \textbf{Avg. training time / epoch (s)} & \textbf{Train rate (batch/s)} & \textbf{Mean localization error (cm)} & \textbf{Deployment complexity} \\
-\hline
-FCNN~\cite{Tian2024} & CIR & 789 & N/A & N/A & \(\sim 13\) & High \\
-\hline
-CMamba~\cite{zeng2024cmamba} & CIR + Power + amplitude & 40.4 & 73 & 13.18 & 12.9 & High \\
-\hline
-Vanilla Mamba v1 & CIR + Power & 3.38 & 33 & 32.62 & 24.74 & Medium \\
-\hline
-Slim-Mamba & CIR + Power & 3.40 & 13 & 75.30 & 13.5 & Low \\
-\hline
-\end{tabular}
-\end{center}
-\end{table*}
-
-The Mamba-family results in Table~\ref{tab:model_variants_tcas} were produced
-with the LuViRA training-testing split described in section~\ref{sec:algorithm}. The FCNN entry is the published reference result from~\cite{LuViRAValidation2024}
-and is included only as an accuracy and model-size reference. The Mamba-family
-models were trained in PyTorch
-on an Intel Core i5-13600KF host with an NVIDIA RTX~3080 GPU using AdamW, a
-batch size of 32, an initial learning rate of \(3\times10^{-4}\), cosine
-learning-rate decay, and seed 42. In Table~\ref{tab:model_variants_tcas},
-``Avg. training time / epoch'' denotes the measured elapsed time required to
-complete one training epoch on the same hardware platform,
-``Train rate'' denotes the corresponding mini-batch processing rate,
-``Mean localization error'' denotes the average Euclidean distance between the
-predicted and ground-truth 2-D positions over the test set,
-and ``Deployment complexity'' is a qualitative summary of the expected
-hardware-mapping difficulty based on operator diversity, branching structure,
-and recurrent-state handling.
-
-Because the odd/even split interleaves nearby parallel trajectories, these
-results primarily measure interpolation within the densely sampled raster-scan
-scenario. They should not be interpreted as evidence of generalization to
-arbitrary curved trajectories or substantially different motion patterns.
-
-Figure~\ref{fig:model_tradeoff_tcas} isolates the effect of the input
-representation. Here, ``matched inputs'' means that Slim-Mamba and CMamba both
-use the same CIR+Power input representation, whereas ``augmented inputs'' refers
-to the additional amplitude channels used by the strongest CMamba configuration.
-Under matched inputs, Slim-Mamba delivers the better error distribution over
-most of the operating range. The augmented-input CMamba remains the strongest accuracy reference, but this comes at the cost of a much larger
-model and a more complex multi-branch mapping. The Slim-Mamba algorithm was
-therefore selected for the subsequent hardware implementation study.
-
-\begin{figure}[!t]
-  \centering
-  \includegraphics[width=0.96\linewidth]{TCASfig/software_eval_model_comparison_cdf.png}
-  \caption{Cumulative distribution of localization error for Slim-Mamba and two CMamba reference runs under matched-input and augmented-input settings.}
-  \label{fig:model_tradeoff_tcas}
-\end{figure}
-
-Different massive MIMO-based localization implementations, including an FCNN evaluated on a CPU, a CNN accelerator connected to an ASIP, and a Transformer-based hardware design are compared in  Table~\ref{tab:accelerator_compare_tcas}. The comparison includes the dataset/scenario used, implementation platform, clock frequency, arithmetic format, positioning rate as positions per second, and localization accuracy as mean error, reported in the cited works. 
+Building on the software model exploration, this section evaluates the
+fixed-point accuracy, throughput, resource utilization, and power of the
+Slim-Mamba implementation, followed by the latency reduction achieved through
+fine-grained pipelining. Table~\ref{tab:accelerator_compare_tcas} first places
+the implementation alongside representative FCNN-, CNN-, and Transformer-based
+localization systems, listing their measurement scenarios, platforms, arithmetic
+formats, and reported performance.
 
 \begin{table*}[!t]
 \caption{Contextual comparison of massive MIMO-based localization models and corresponding accelerators.}
@@ -822,7 +905,7 @@ Different massive MIMO-based localization implementations, including an FCNN eva
 \hline
 \textbf{Work} & \textbf{Model} & \textbf{Dataset / scenario} & \textbf{Platform} & \textbf{Clock} & \textbf{Arith.} & \textbf{Position/s} & \textbf{ME (m)} \\
 \hline
-\cite{LuViRAValidation2024} & FCNN & LuViRA, Indoor & CPU & N/A & Float & N/A & 0.14 \\ \hline
+\cite{LuViRAValidation2024} & FCNN & LuViRA, Indoor & CPU & N/A & Float & N/A & \(\sim 0.13\) \\ \hline
 \cite{AttariISCAS2021} & CNN & COST 2100, & 22 nm ASIP + & 555\,MHz & N/A & 271 & 0.4$^{\mathrm{a}}$ \\  
 &&simulated& CNN accelerator &&&&\\ \hline 
 %\cite{AttariASIP2025} & CNN & Simulated, & 22 nm, ASIP and & 800\,MHz & Float & 390 & N/A \\ 
@@ -836,10 +919,13 @@ This work & Slim-Mamba & LuViRA, Indoor & FPGA & 100\,MHz & INT16 & 471 & 0.14 \
 
 \subsection{Throughput, Resource Utilization, and Power}
 
-The final fixed-point design preserves the floating-point localization accuracy:
-the hardware fixed-point model reaches an output MAE of 0.02 with respect to the
-floating-point reference and a mean localization error of 0.14\,m, which matches
-the software fake-quantization reference. At 100\,MHz, the accelerator reaches
+Fake quantization applies quantization and dequantization to emulate
+low-precision rounding and clipping while retaining floating-point tensors
+for software evaluation. The software fake-quantization evaluation shows negligible localization
+accuracy degradation relative to the floating-point model. The hardware
+fixed-point model reaches an output-coordinate MAE of 0.02\,m with respect to
+the floating-point reference and a mean localization error of 0.14\,m,
+consistent with the software fake-quantization reference. At 100\,MHz, the accelerator reaches
 471\,positions/s, or about \(4.7\times\) the 100\,positions/s real-time target. This
 corresponds to an average processing time of 2.12\,ms per position estimate.
 
@@ -869,10 +955,11 @@ DSP & 496 & 2,520 & 19.68\% \\
 \end{center}
 \end{table}
 
-Table~\ref{tab:power_summary_tcas} indicates that platform-side data movement
-and processing-system activity remain the dominant contributors to on-chip
-power. This suggests that further system-level optimization should focus on
-memory traffic and host-platform overhead in addition to arithmetic efficiency.
+Table~\ref{tab:power_summary_tcas} shows that the processing system (PS)
+accounts for 2.62\,W, or 74\% of the estimated dynamic power, compared with
+0.94\,W for the programmable logic (PL). This motivates system-level power
+optimization beyond the accelerator datapath. The aggregate estimate does
+not separate the power costs of data movement and PS computation.
 
 \begin{table}[!t]
 \caption{On-chip power estimate.}
