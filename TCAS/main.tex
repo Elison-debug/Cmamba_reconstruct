@@ -51,7 +51,7 @@ The authors are with Department of Electrical and Information Technology, Lund U
 Using real-world massive MIMO measurements from the LuViRA dataset~\cite{LuViRA2024}, we present a system-level solution combining Mamba-based model development and hardware acceleration for indoor localization. 
 Three Mamba-based models are explored: the original Mamba architecture, CMamba, a channel-correlation-enhanced state-space model designed to exploit correlations across input channels, and our proposed Slim-Mamba. Hardware implementation and bottleneck analysis are then used to guide further model simplification and optimization. The resulting Slim-Mamba  simplifies the original Mamba selective state-space block into a lightweight gated recurrent update, preserving temporal state modelling and output gating while reducing the complexity of the selective-scan computation.
 The deployed model contains 816k trainable parameters and has a model size
-of 3.40\,MB under FP32 precision while maintaining high localization accuracy. The corresponding accelerator provides a reconfigurable architecture with a highly parallel MAC array optimized for matrix-vector operations and fine-grained pipelining, improving resource utilization and reducing inference latency. Implemented on a Zynq UltraScale+ ZCU102 FPGA, the accelerator achieves a mean localization error of 0.14\,m, closely matching the floating-point baseline, and reaches 471\,positions/s at 100\,MHz.
+of 3.40\,MB under FP32 precision while maintaining high localization accuracy. The corresponding accelerator provides a reconfigurable architecture with a highly parallel MAC array optimized for matrix-vector operations and fine-grained pipelining, improving resource utilization and reducing inference latency. The hardware-aware fixed-point model achieves a mean localization error of 0.14\,m, closely matching the floating-point baseline. Implemented on a Zynq UltraScale+ ZCU102 FPGA, the four-block backbone has an estimated serial latency of 212.04\,\(\mu\)s per token at 100\,MHz.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -106,7 +106,7 @@ The main contributions of this paper are summarized as follows:
     \item A reconfigurable FPGA accelerator is developed for Slim-Mamba. The architecture reuses shared MAC Array across global
     projection layers, supports configurable execution across Slim-Mamba blocks, employs a unified quantization module, and introduces fine-grained FIFO-based pipelining between local operations to reduce pipeline stalls and inference latency while improving hardware utilization.
 
-    \item The complete Slim-Mamba system is evaluated using real-world indoor massive MIMO measurements from the LuViRA dataset. Its performance is compared with existing FCNN-, CNN-, and Transformer-based localization methods, while the FPGA implementation achieves 471 positions/s at 100\,MHz.
+    \item Slim-Mamba is evaluated using real-world indoor massive MIMO measurements from the LuViRA dataset and compared with existing FCNN-, CNN-, and Transformer-based localization methods. At 100\,MHz, the FPGA backbone requires an estimated 21,204 cycles per token across four blocks under serial execution.
     
 \end{itemize}
 
@@ -154,8 +154,15 @@ c_i[\ell,a]=\frac{1}{F}\sum_{f=0}^{F-1}H_i[f,a]
 e^{j2\pi f\ell/F},\quad 0\leq\ell<L,
 \label{eq:cir_features}
 \end{equation}
-where $F$ is the number of recorded frequency bins. Denote the per-antenna
-normalized CIR by $\tilde c_i[\ell,a]$. Its real and imaginary components
+where $F$ is the number of recorded frequency bins. For each trajectory
+containing $T$ snapshots, the CIR is normalized separately for each antenna:
+\begin{equation}
+\tilde c_i[\ell,a]=\frac{c_i[\ell,a]}{\sqrt{\frac{1}{TL}
+\sum_{j=1}^{T}\sum_{k=0}^{L-1}|c_j[k,a]|^2}+\epsilon},
+\quad \epsilon=10^{-8}.
+\label{eq:cir_normalization}
+\end{equation}
+The real and imaginary components of the normalized CIR
 provide $2LM=2000$ features for $M=100$ antennas. The additional power
 feature for each antenna is
 \begin{equation}
@@ -163,10 +170,18 @@ q_i[a]=\log\!\left(1+\frac{1}{L}\sum_{\ell=0}^{L-1}
 |c_i[\ell,a]|^2\right).
 \label{eq:log_power_features}
 \end{equation}
-The concatenated CIR and log-power features are standardized using
-training-set statistics to form $\mathbf{x}_i\in\mathbb{R}^{2100}$.
-The log-power features supplement the normalized CIR with received-power
-information and are used in both CMamba and Slim-Mamba.
+The log-power features retain the per-antenna power level removed by CIR
+normalization, while the logarithm compresses its dynamic range. Concatenating
+the CIR and log-power features gives $\mathbf{z}_i\in\mathbb{R}^{2100}$.
+Each feature is standardized as
+\begin{equation}
+x_{i,d}=\frac{z_{i,d}-\mu_d}{\max(\sigma_d,\sigma_{\min})},
+\quad d=1,\ldots,2100,
+\label{eq:feature_standardization}
+\end{equation}
+where $\mu_d$ and $\sigma_d$ are training-set statistics and $\sigma_{\min}$
+is the standard-deviation floor. These statistics are fixed during evaluation.
+Both CMamba and Slim-Mamba use the resulting features.
 
 For each position estimate, the model processes a temporal window of $K$
 consecutive massive MIMO channel observations. The deployed configuration uses
@@ -193,14 +208,18 @@ The mean localization error (ME) over $N$ evaluated positions is
 
 \subsection{State-Space Models and Original Mamba}
 
-For one input channel $u$, a continuous-time SSM maintains a latent state
+For one scalar component $u(\tau)$ of the learned feature representation,
+a continuous-time SSM maintains a latent state
 $\mathbf{h}\in\mathbb{R}^{n_s}$:
 \begin{equation}
 \frac{d\mathbf{h}(\tau)}{d\tau}=A\mathbf{h}(\tau)+Bu(\tau),
 \qquad r(\tau)=C\mathbf{h}(\tau)+Du(\tau).
 \label{eq:continuous_ssm}
 \end{equation}
-Here $A$, $B$, $C$, and $D$ specify state evolution, input injection,
+Here $\tau$ denotes continuous time and $r(\tau)$ is the scalar state readout.
+The input $u$ is a projected model feature derived from $\mathbf{x}_i$, whereas
+$c_i[\ell,a]$ denotes a measured delay-domain channel coefficient.
+The parameters $A$, $B$, $C$, and $D$ specify state evolution, input injection,
 state readout, and the direct input path, respectively. Discretization with
 step size $\Delta$ gives
 \begin{equation}
@@ -219,21 +238,22 @@ projection, the input is split into a state-update path and a gate path. The
 state-update path generates input-dependent parameters, performs
 continuous-to-discrete conversion, and applies the selective scan, while the
 gate path modulates the state output before the final output projection and
-residual addition. This design is effective for general sequence modeling, but
-it also introduces a more complex operator set for fixed-point FPGA mapping.
+residual addition. This design supports general sequence modeling, but its
+expanded recurrent state, input-dependent parameter generation, and
+discretization increase state storage and operator diversity in a fixed-point
+FPGA implementation.
 
-Alongside the original Mamba reference described above, we directly adopted the CMamba
-architecture in~\cite{zeng2024cmamba}, including its feature-fusion branches
-for cross-channel interaction modeling, and retrained it for the LuViRA
-dataset with task-specific input and output dimensions. CMamba provides a
-channel-interaction reference with a substantially larger model and a more
-complex hardware mapping.
+We also adopted the CMamba architecture in~\cite{zeng2024cmamba} and retrained it for LuViRA with
+task-specific input and output dimensions. Unlike the original Mamba block,
+CMamba adds channel attention and training-time channel mixup to patch-based
+Mamba processing, modeling interactions among projected feature channels.
 
 \subsection{Slim-Mamba for Localization}
 
-The Slim-Mamba design
-examines whether a simpler recurrent update can provide a suitable
-accuracy--complexity tradeoff for this localization task.
+Slim-Mamba is designed to retain localization accuracy while simplifying
+the recurrent datapath for FPGA deployment. It replaces the expanded
+selective SSM with a channel-wise gated recurrence, reducing state storage
+and the operators required for parameter generation and state readout.
 
 \begin{figure}[!t]
   \centering
@@ -243,28 +263,26 @@ accuracy--complexity tradeoff for this localization task.
     \label{fig:slim_mamba_replacement}
 \end{figure}
 
-Slim-Mamba follows a localization-driven and deployment-oriented simplification
-principle. It retains the overall block structure of the original Mamba block,
+As shown in Fig.~\ref{fig:slim_mamba_replacement}, Slim-Mamba retains the
+overall block structure of original Mamba,
 including RMSNorm, input projection and split, element-wise output gating,
-output projection, and residual addition. As summarized in
-Fig.~\ref{fig:slim_mamba_replacement}, the main modification is confined to the
-state-update path. In the original Mamba block, that path generates
-input-dependent \(\Delta_t\), \(B_t\), and \(C_t\), performs
-continuous-to-discrete conversion, and then applies the selective scan
-recurrence. Slim-Mamba removes these selective SSM operators and replaces them
-with a direct discrete-time gated update. More specifically, after
-\(\mathbf{x}_t\) passes through RMSNorm and the input projection-and-split
-stage, the state-update path applies depthwise convolution and SiLU to produce
-the state-update-path feature \(\tilde{\mathbf{x}}^{(s)}_t\). Unlike the gate
-path, this branch does not generate an output gating signal. Instead, it
-produces the recurrent update coefficient \(\lambda_t\). For clarity, this
-branch is referred to as the update-coefficient projection throughout this
-paper. The single input-dependent update coefficient is then generated as
+output projection, and residual addition. The state-update path replaces
+SSM parameter generation, discretization, and readout with a direct
+discrete-time gated update. Let $\mathbf{b}_t$ denote an embedded block-input
+token, with $t$ indexing tokens. After
+\(\mathbf{b}_t\) passes through RMSNorm and the input projection-and-split
+stage, the state-update path applies SiLU to produce
+the feature \(\tilde{\mathbf{x}}^{(s)}_t\). The software model supports an
+optional depthwise convolution before SiLU; it is disabled in the exported
+deployment configuration. The update-coefficient projection applies weights
+$W_{\lambda}$ and bias $b_{\lambda}$ to $\tilde{\mathbf{x}}^{(s)}_t$,
+followed by a sigmoid to obtain the state-retention coefficient $\lambda_t$:
 \begin{equation}
 \lambda_t = \sigma \!\left(W_{\lambda} * \tilde{\mathbf{x}}^{(s)}_t + b_{\lambda}\right),
 \label{eq:slim_mamba_lambda}
 \end{equation}
-where \(\sigma(\cdot)\) denotes the sigmoid function. Instead of discretizing a
+where \(\sigma(\cdot)\) denotes the sigmoid function and $*$ denotes a
+pointwise ($1\times1$) convolution. Instead of discretizing a
 continuous-time state-space model, Slim-Mamba updates the recurrent state
 directly as
 \begin{equation}
@@ -272,26 +290,26 @@ directly as
  + (1-\lambda_t)\odot \tilde{\mathbf{x}}^{(s)}_t.
 \label{eq:slim_mamba_state_update_alg}
 \end{equation}
-This update is related to the scalar-state special case of the selective
-SSM derived in~\cite[Theorem~1]{Mamba2023}. For a state dimension of one,
+This update has the complementary gating form derived for the scalar-state
+selective SSM in~\cite[Theorem~1]{Mamba2023}. For a state dimension of one,
 $A=-1$, $B=1$, and an input-dependent softplus step size, zero-order-hold
 discretization yields complementary sigmoid coefficients for the previous
-state and current input. In particular, if $a_t$ is the affine
-gate preactivation and $\Delta_t=\mathrm{softplus}(-a_t)$, then
+state and current input. In particular, let $a_t$ denote one component of
+the update-coefficient projection output and set
+$\Delta_t=\mathrm{softplus}(-a_t)$. Then
 \begin{equation}
 \bar A_t=e^{-\Delta_t}=\sigma(a_t),\qquad
 \bar B_t=1-e^{-\Delta_t}.
 \label{eq:scalar_ssm_gate_relation}
 \end{equation}
-Equation~\eqref{eq:slim_mamba_state_update_alg} uses this complementary
-weighting form channel-wise, with $\lambda_t$ denoting state retention
-rather than input admission. The coefficient is computed directly in
-discrete time; no softplus or exponential discretization operators are
-executed in Slim-Mamba. The design also omits the expanded state and
-separate input-dependent readout of the general selective SSM. Thus, the
-Slim-Mamba state update retains the gating interpretation of this special
-case without reproducing the full selective SSM. Its task-specific operator
-selection enables the hardware mapping described in the following sections.
+Applying this scalar recurrence channel-wise with $\lambda_t=\sigma(a_t)$
+yields Eq.~\eqref{eq:slim_mamba_state_update_alg}, with $\lambda_t$ controlling
+state retention. Thus, the Slim-Mamba state update retains the gating
+interpretation of this selective-SSM special case, using one state per
+feature channel and direct state readout instead of the expanded state and
+input-dependent readout of the general selective SSM. Computing $\lambda_t$
+directly with sigmoid preserves this recurrence while avoiding explicit
+softplus and exponential discretization operators.
 
 The updated state is then modulated by the gate path
 \begin{equation}
@@ -309,11 +327,13 @@ Fig.~\ref{fig:slim_mamba_replacement} removes three major sources of hardware
 complexity: time-varying generation of multiple SSM
 parameters, the discretization step from \(\Delta_t\) to
 \((\bar{A}_t,\bar{B}_t)\), and the explicit \((C_t,D)\)-based readout. The
-resulting model remains recurrent and input-dependent, but its operator set is
-reduced to projection, element-wise nonlinearities, gated state update, and
-output modulation. This reduced operator set is the main reason why Slim-Mamba
-is better suited to shared MAC reuse, fixed-point quantization, and fine-grained
-pipelining.
+resulting block remains recurrent and input-dependent, with computation
+organized around projections and element-wise operations. This reduced
+operator set is better suited to shared MAC reuse, fixed-point quantization,
+and fine-grained pipelining: the projection layers share a matrix-vector
+datapath, while state update and output gating stream through regular
+arithmetic and activation stages, as described in
+Section~\ref{sec:reconfigurable_hw}.
 
 The temporal window length $K$ was evaluated to characterize its impact on localization accuracy and hardware buffering requirements. As shown in Table~\ref{tab:k_ablation_tcas}, increasing the temporal context does not improve the test accuracy, with the lowest test errors obtained for $K=1$ and $K=2$. These results indicate that short temporal windows are sufficient for the considered localization task, while also reducing the buffering requirements of the hardware implementation.
 \begin{table}[!t]
@@ -354,22 +374,22 @@ to select a compact deployment target. Unreported values are marked as N/A.
 
 \begin{table*}[!t]
 \begin{center}
-\caption{Comparison of different DL models.}
+\caption{Software model comparison.}
 \label{tab:model_variants_tcas}
 \footnotesize
 \setlength{\tabcolsep}{3pt}
 \renewcommand{\arraystretch}{1.08}
-\begin{tabular}{|p{0.17\textwidth}|p{0.22\textwidth}|>{\centering\arraybackslash}p{0.09\textwidth}|>{\centering\arraybackslash}p{0.11\textwidth}|>{\centering\arraybackslash}p{0.07\textwidth}|>{\centering\arraybackslash}p{0.09\textwidth}|>{\centering\arraybackslash}p{0.10\textwidth}|}
+\begin{tabular}{|p{0.18\textwidth}|p{0.18\textwidth}|>{\centering\arraybackslash}p{0.12\textwidth}|>{\centering\arraybackslash}p{0.15\textwidth}|>{\centering\arraybackslash}p{0.12\textwidth}|>{\centering\arraybackslash}p{0.12\textwidth}|}
 \hline
-\textbf{Model} & \textbf{Input features} & \textbf{Model file size (MB)} & \textbf{Avg. training time / epoch (s)} & \textbf{Train rate (batch/s)} & \textbf{Mean localization error (cm)} & \textbf{Deployment complexity} \\
+\textbf{Model} & \textbf{Input features} & \textbf{Model file size (MB)} & \textbf{Avg. training time / epoch (s)} & \textbf{Train rate (batch/s)} & \textbf{Mean localization error (cm)} \\
 \hline
-FCNN~\cite{LuViRAValidation2024} & CIR & 789 & N/A & N/A & \(\sim 13\) & High \\
+FCNN~\cite{LuViRAValidation2024} & CIR & 789 & N/A & N/A & \(\sim 13\) \\
 \hline
-CMamba~\cite{zeng2024cmamba} & CIR + Power & 40.4 & 361 & 10.31 & 17.4 & High \\
+CMamba~\cite{zeng2024cmamba} & CIR + Power & 40.4 & 361 & 10.31 & 17.4 \\
 \hline
-Original Mamba & CIR + Power & 3.38 & 33 & 32.62 & 24.74 & Medium \\
+Original Mamba & CIR + Power & 3.38 & 33 & 32.62 & 24.74 \\
 \hline
-Slim-Mamba & CIR + Power & 3.40 & 13 & 75.30 & 13.5 & Low \\
+Slim-Mamba & CIR + Power & 3.40 & 13 & 75.30 & 13.5 \\
 \hline
 \end{tabular}
 \end{center}
@@ -386,22 +406,25 @@ In Table~\ref{tab:model_variants_tcas},
 complete one training epoch on the same hardware platform, excluding validation
 and checkpoint saving,
 ``Train rate'' denotes the corresponding mini-batch processing rate,
-``Mean localization error'' denotes the average Euclidean distance between the
-predicted and ground-truth 2-D positions over the test set,
-and ``Deployment complexity'' is a qualitative summary of the expected
-hardware-mapping difficulty based on operator diversity, branching structure,
-and recurrent-state handling.
+and ME is defined in Section~\ref{sec:system_model}. Model file sizes include
+serialization metadata and FP32 parameters for the Mamba-family models.
+Table~\ref{tab:slim_param_breakdown_tcas} reports the deployed parameter count.
 
-Because the odd/even split interleaves nearby parallel trajectories, these
-results primarily measure interpolation within the densely sampled raster-scan
-scenario. They should not be interpreted as evidence of generalization to
-arbitrary curved trajectories or substantially different motion patterns.
+Slim-Mamba achieves the lowest ME among the evaluated Mamba-family models
+and the shortest measured training time per epoch, with a file size comparable
+to original Mamba (3.40 versus 3.38\,MB). Its hardware advantage lies in
+the smaller recurrent state and simpler operator set, which reduce state
+storage and simplify the fixed-point datapath.
+Relative to CMamba, it reduces
+the model file size from 40.4 to 3.40\,MB and ME from 17.4 to 13.5\,cm.
+
+The odd/even split places test trajectories between nearby training
+trajectories. The reported errors therefore characterize spatial
+interpolation within the measured grid scenario.
 
 Figure~\ref{fig:model_tradeoff_tcas} shows the saved error distributions of
 Slim-Mamba and CMamba on the same 33 held-out even-indexed grid trajectories,
-both using CIR and power features. Slim-Mamba achieves a lower ME and uses a
-smaller model than CMamba in this comparison. Its localization accuracy and
-compact operator set motivate its selection for hardware implementation.
+both using CIR and power features.
 
 \begin{figure}[!t]
   \centering
@@ -447,15 +470,10 @@ buffering structure of the target FPGA accelerator.
 \end{center}
 \end{table}
 
-The trainable parameter breakdown is summarized in
-Table~\ref{tab:slim_param_breakdown_tcas}. This parameter distribution is also
-relevant from the hardware perspective. Most
-trainable weights are concentrated in the repeated input projection, update-coefficient
-projection, and output projection paths. These are exactly the stages later
-mapped to the shared reconfigurable MAC array. Therefore, the algorithmic
-simplification and the hardware architecture are aligned not only at the level
-of recurrence definition, but also at the level of parameter concentration and
-dataflow structure.
+Table~\ref{tab:slim_param_breakdown_tcas} summarizes the trainable parameters.
+Most belong to the input, update-coefficient, and output projections within
+the four Slim-Mamba blocks. These projections map to the shared MAC array;
+the remaining recurrent update uses element-wise operations.
 
 \begin{table}[!t]
 \caption{Trainable parameter breakdown of the Slim-Mamba configuration.}
@@ -495,10 +513,10 @@ Regression head \(\text{proj\_dim}\rightarrow 2\) & 130 \\
 \section{Reconfigurable Slim-Mamba Hardware Design and Pipelining}
 \label{sec:reconfigurable_hw}
 
-This section presents the reconfigurable hardware architecture of the proposed Slim-Mamba accelerator. The proposed architecture supports multi-level reconfigurability from the top-level execution mode to the low-level datapath configuration, improving hardware utilization and enabling flexible adaptation to different computational and numerical requirements. Such multi-level control improves hardware utilization and resource efficiency. 
+This section presents the reconfigurable hardware architecture of the proposed Slim-Mamba accelerator. The architecture supports multi-level reconfigurability from the top-level execution mode to the low-level datapath configuration, improving hardware utilization and allowing adaptation to different computational and numerical requirements.
 
 Fig.~\ref{fig:hardware_architecture} shows the overall architecture. The PL-side shell connects the AXI interfaces to the four-block Slim-Mamba
-compute chain, as shown in Fig.~\ref{fig:hardware_architecture}(a). The processor-side control logic initializes the accelerator and loads the AXI-Stream data into the buffer of Block~0. Each block implements one full Slim-Mamba block. The four-block chain supports two inter-block transfer modes: a streaming mode that forwards block outputs for inter-block pipelining, and a preload mode allowing each block execute sequentially, so intermediate results can be inspected and compared before the next block starts.
+compute chain, as shown in Fig.~\ref{fig:hardware_architecture}(a). The processor-side control logic initializes the accelerator and loads the AXI-Stream data into the buffer of Block~0. Each block implements one full Slim-Mamba block. The four-block chain supports two inter-block transfer modes: a streaming mode that forwards block outputs for inter-block pipelining, and a preload mode allowing each block to execute sequentially, so intermediate results can be inspected and compared before the next block starts.
 % After the preload stage is complete, the four-block
 % controller starts the block computation sequence. Each block implements one full
 % Slim-Mamba block.  Between adjacent blocks, the current block output is
@@ -593,7 +611,7 @@ different destinations, they expose the same fabric interface. A MAC array
 manager arbitrates among the schedulers and configures the shared fabric to
 serve one projection role at a time.
 
-The shared scheduling mechanism allows the same MAC array to be reused across the projection operators of a Slim-Mamba block. This reduces DSP duplication and avoids the placement overhead of separate arrays.  The fabric interface includes control parameters that determine the computation dimensions, allowing the $4\times4\times4$ array to support
+The projection stages within each Slim-Mamba block share a single MAC array, reducing DSP duplication and placement overhead at the cost of limited projection-level concurrency. The fabric interface includes control parameters that determine the computation dimensions, allowing the $4\times4\times4$ array to support
 different logical matrix shapes, reduction lengths, and output forms. 
 %In the current
 % accelerator, the shared fabric is mainly used in MAC mode for projection
@@ -628,7 +646,7 @@ cycle 22 the first output tile is produced after the reduction tree.
  
 The PE-array organization should be matched to the data-supply and reduction pattern of the 
 Slim-Mamba workload. Systolic arrays are a classical and widely used organization for regular 
-matrix computations ~\cite{Kung1982Systolic,Liu2020STA}, while previous researches 
+matrix computations ~\cite{Kung1982Systolic,Liu2020STA}, while previous studies
 have shown that data movement, local reuse, and dataflow mapping are critical to energy efficiency 
 and throughput~\cite{Sze2017EfficientDNN,Chen2017Eyeriss}. Because the main computation in Slim-Mamba projection 
 operators is matrix-vector multiplication, compared with systolic 
@@ -717,10 +735,10 @@ generation, per-layer scale storage, and scale-alignment control. In this baseli
 where the fixed scale is \(s=2^{-8}=1/256\) and
 \(x_{\mathrm{real}}=s\cdot x_{\mathrm{int}}\). Q8.8 is used as the fixed-scale baseline because it 
 offers a balanced integer/fractional split.
-The fixed-scale baseline produces small errors remain at 0.00--0.01 MAE for all layers except the
-state-update path. In contrast, the state-update MAE reaches
+The fixed-scale baseline gives MAEs of 0.00--0.01 before the recurrent
+state update. In contrast, the state-update MAE reaches
 0.13, which validates the profiling result in Fig.~\ref{fig:datarange}. After dynamic scaling is applied to the state update path, the
-MAE is reduce to 0.09. 
+MAE is reduced to 0.09.
 
 \begin{table}[!t]
 \begin{center}
@@ -738,13 +756,13 @@ Input proj. (state path) & 0.01 & 0.01 \\
 \hline
 Input proj. (gate path) & 0.01 & 0.01 \\
 \hline
-Update coefficient $\lambda_t$ & 0.01 & 0.01 \\
+State-path SiLU & 0.01 & 0.01 \\
  \hline
- SiLU gate & 0.01 & 0.01 \\
+ Output-gate SiLU & 0.01 & 0.01 \\
  \hline
- coefficient projection & 0.01 & 0.01 \\
+ Update-coefficient proj. & 0.01 & 0.01 \\
  \hline
- Gate-path sigmoid & 0.00 & 0.00 \\
+ Update sigmoid ($\lambda_t$) & 0.00 & 0.00 \\
  \hline
  \textbf{State update} & \textbf{0.13} & \textbf{0.09} \\
  \hline
@@ -788,7 +806,7 @@ projection, state-update, and residual paths.}
 \label{fig:requant_engine}
 \end{figure*}
 
-For the dynamic-scale state-update path, it requires additional alignment logic. Since the
+The dynamic-scale state-update path requires additional alignment logic. Since the
 state-update datapath is stream based, each token, state address, update
 coefficient, and runtime scale must arrive at the state-update unit in the same
 order. A ping-pong scale buffer is used for this purpose, as seen in
@@ -813,7 +831,7 @@ update coefficient, and runtime scale streams.}
 The final fixed-point model achieves an
 output MAE of 0.02 with respect to the floating-point output and a mean
 localization error of 0.14~m, which is close to the
-float-point reference,
+floating-point reference,
 showing that the selected layer-wise fixed-point strategy preserves the
 localization accuracy while remaining compatible with the hardware datapath.
 
@@ -856,10 +874,12 @@ $\mathbf{x}=[x_0,x_1,\ldots,x_{D-1}]$, the RMS value is
 and the normalized output is computed as
 \begin{equation}
 \hat{x}_i =
-x_i \cdot
+\gamma_i x_i \cdot
 \widehat{\frac{1}{\mathrm{RMS}(\mathbf{x})}} .
 \label{eq:rmsnorm_output}
 \end{equation}
+where $\gamma_i$ is the learned channel-wise gain and the reciprocal is
+approximated in fixed point.
 The square-root operation is implemented with a trial-quotient digit-recurrence
 procedure, which uses shift, comparison, and subtraction operations instead of a
 general floating-point square-root unit. This design follows 
@@ -888,13 +908,10 @@ sigmoid and SiLU share the clamp and LUT logic, while SiLU only adds FIFO
 alignment and vector multiplication.
 
 \section{Results}
-Building on the software model exploration, this section evaluates the
-fixed-point accuracy, throughput, resource utilization, and power of the
-Slim-Mamba implementation, followed by the latency reduction achieved through
-fine-grained pipelining. Table~\ref{tab:accelerator_compare_tcas} first places
-the implementation alongside representative FCNN-, CNN-, and Transformer-based
-localization systems, listing their measurement scenarios, platforms, arithmetic
-formats, and reported performance.
+This section reports fixed-point accuracy, core throughput, FPGA resource
+utilization, and power, followed by the effect of fine-grained pipelining.
+Table~\ref{tab:accelerator_compare_tcas} compares representative localization
+implementations and their measurement scenarios.
 
 \begin{table*}[!t]
 \caption{Contextual comparison of massive MIMO-based localization models and corresponding accelerators.}
@@ -911,8 +928,10 @@ formats, and reported performance.
 %\cite{AttariASIP2025} & CNN & Simulated, & 22 nm, ASIP and & 800\,MHz & Float & 390 & N/A \\ 
 %&& positioning and comm. & CNN accelerator &&&&\\ \hline 
 \cite{YamanTransformer2026} & Transformer & Commercial, Outdoor & FPGA & 100\,MHz & INT16 & up to 1961 & $<1$ \\ \hline
-This work & Slim-Mamba & LuViRA, Indoor & FPGA & 100\,MHz & INT16 & 471 & 0.14 \\ \hline
+This work & Slim-Mamba & LuViRA, Indoor & FPGA & 100\,MHz & INT16 & 4,716$^{\mathrm{b}}$ & 0.14 \\ \hline
 \multicolumn{8}{l}{$^{\mathrm{a}}$Reported as an average positioning error of $3.5\lambda$ (40 cm).}
+\\
+\multicolumn{8}{l}{$^{\mathrm{b}}$Estimated four-block core throughput for offline-preprocessed inputs.}
 \end{tabular}
 \end{center}
 \end{table*}
@@ -925,12 +944,15 @@ for software evaluation. The software fake-quantization evaluation shows negligi
 accuracy degradation relative to the floating-point model. The hardware
 fixed-point model reaches an output-coordinate MAE of 0.02\,m with respect to
 the floating-point reference and a mean localization error of 0.14\,m,
-consistent with the software fake-quantization reference. At 100\,MHz, the accelerator reaches
-471\,positions/s, or about \(4.7\times\) the 100\,positions/s real-time target. This
-corresponds to an average processing time of 2.12\,ms per position estimate.
+consistent with the software fake-quantization reference. Using the per-block
+cycle count in Table~\ref{tab:block_latency_tcas}, serial execution of four
+blocks requires $4\times5301=21{,}204$ cycles per token, or
+212.04\,\(\mu\)s at 100\,MHz. With $K=P=S=2$, each position window produces
+one token, giving an estimated four-block core throughput of
+4716\,positions/s for offline-preprocessed inputs.
 
-Table~\ref{tab:resource_utilization_tcas} shows that the proposed architecture using a shared MAC array and time-multiplexed block structure keep the implementation within the device
-budget while preserving the full end-to-end deployment flow on the target FPGA.
+Table~\ref{tab:resource_utilization_tcas} reports the resource usage of the
+shared-MAC implementation within the target FPGA budget.
 
 \begin{table}[!t]
 \caption{Post-synthesis resource utilization at 100\,MHz.}
@@ -957,9 +979,7 @@ DSP & 496 & 2,520 & 19.68\% \\
 
 Table~\ref{tab:power_summary_tcas} shows that the processing system (PS)
 accounts for 2.62\,W, or 74\% of the estimated dynamic power, compared with
-0.94\,W for the programmable logic (PL). This motivates system-level power
-optimization beyond the accelerator datapath. The aggregate estimate does
-not separate the power costs of data movement and PS computation.
+0.94\,W for the programmable logic (PL).
 
 \begin{table}[!t]
 \caption{On-chip power estimate.}
@@ -988,22 +1008,21 @@ PL dynamic power & 0.94\,W & 26\% of dynamic power \\
 
 \subsection{Latency Reduction from Fine-Grained Pipelining}
 
-The final set of results concerns the FIFO-based fine-grained pipeline
-introduced in the state-update path. As analyzed in
-Section~\ref{sec:reconfigurable_hw}, the coarse schedule can be approximated by
+For the state-update pipeline in Section~\ref{sec:reconfigurable_hw}, the
+coarse schedule can be approximated by
 \(T_{\mathrm{coarse}}=29N\), whereas the fine-grained schedule becomes
 \(T_{\mathrm{fine}}=22N+7\). For \(N=64\) tiles, this reduces the Slim-Mamba state-update path
 latency from 1856 cycles to 1415 cycles, corresponding to a 23.8\% reduction.
 
 The per-block latency breakdown is reported in
-Table~\ref{tab:block_latency_tcas}. One Slim-Mamba block requires 5301 cycles,
-or 53.01\(\,\mu\)s at 100\,MHz. Input projection remains the dominant stage,
-but the latency-sensitive state-update path is no longer the main bottleneck. This is
-the intended effect of the fine-grained pipeline: the recurrence and nonlinear
-stages start on partial tiles instead of waiting for a full projection vector.
+Table~\ref{tab:block_latency_tcas}. Processing one 128-dimensional token
+through one Slim-Mamba block requires 5301 cycles,
+or 53.01\(\,\mu\)s at 100\,MHz. Input projection is the dominant stage.
+Fine-grained pipelining starts recurrence and nonlinear operations on partial
+tiles before the full projection vector is available.
 
 \begin{table}[!t]
-\caption{Latency breakdown per Slim-Mamba block.}
+\caption{Latency breakdown per token in one Slim-Mamba block.}
 \label{tab:block_latency_tcas}
 \begin{center}
 \footnotesize
@@ -1030,20 +1049,26 @@ Control / alignment overhead & 501 & 5.01\,\(\mu\mathrm{s}\) \\
 \section{Conclusions}
 
 
-This paper presented Slim-Mamba, a deployment-oriented Mamba-based localization
-model and its reconfigurable FPGA accelerator for massive MIMO indoor
-localization. The main contribution is the combination of three elements: a
-task-driven simplification of the original Mamba state-update path, a layer-wise
-fixed-point strategy with dynamic scaling for the recurrent state update, and a
-hardware architecture that maps the resulting operator set onto a shared
-reconfigurable datapath. Relative to the original Mamba formulation,
-Slim-Mamba retains recurrent temporal modeling and input-dependent gating while
-removing operators that are less suitable for efficient FPGA deployment. Using
-real indoor localization measurements from LuViRA, the final hardware-aware
-model achieves a mean localization error of 0.14\,m, and the accelerator
-reaches 471\,positions/s at 100\,MHz with moderate FPGA resource usage. These
-results show that Slim-Mamba provides an effective bridge between sequential
-localization models and practical low-latency hardware deployment.
+This paper presented Slim-Mamba, a hardware-oriented localization model and
+reconfigurable FPGA accelerator for massive MIMO indoor localization.
+Task-specific model exploration led to a channel-wise gated recurrence
+that retains input-dependent state updates and output gating while removing
+state expansion, explicit discretization, and input-dependent state readout.
+Its recurrence follows the scalar-state special case of the selective SSM,
+providing a basis for simplifying the recurrent datapath.
+
+The accelerator maps the resulting projection and element-wise operators
+onto a shared MAC datapath and a fine-grained FIFO-based pipeline, with
+dynamic scaling for fixed-point recurrent-state storage. On LuViRA, the
+hardware-aware fixed-point model achieves a mean localization error of
+0.14\,m. Fine-grained pipelining reduces the state-update-path latency by
+23.8\%. At 100\,MHz, the four-block core has an estimated serial latency of
+212.04\,\(\mu\)s per position window, corresponding to a core throughput of
+approximately 4716\,positions/s for offline-preprocessed inputs.
+
+These results demonstrate that task-specific SSM simplification, coupled
+with a matched fixed-point architecture, enables low-latency FPGA processing
+while preserving decimeter-level localization accuracy.
 
 \bibliographystyle{IEEEtran}
 \bibliography{main}
